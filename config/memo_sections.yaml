@@ -1,0 +1,13 @@
+memo_sections:
+  - { id: investment_snapshot, display_label: Investment Snapshot, order: 1, enabled: true }
+  - { id: what_changed_since_last_run, display_label: What Changed Since Last Run, order: 2, enabled: true }
+  - { id: risk, display_label: Risk, order: 3, enabled: true }
+  - { id: durability_resilience, display_label: Durability And Resilience, order: 4, enabled: true, alternate_display_label: Sustainability }
+  - { id: growth, display_label: Growth, order: 5, enabled: true }
+  - { id: economic_spread, display_label: Economic Spread, order: 6, enabled: true }
+  - { id: valuation_terms, display_label: Valuation Terms, order: 7, enabled: true }
+  - { id: expectations_variant_view, display_label: Expectations And Variant View, order: 8, enabled: true }
+  - { id: realization_path_catalysts, display_label: Realization Path And Catalysts, order: 9, enabled: true }
+  - { id: portfolio_fit_positioning, display_label: Portfolio Fit And Positioning, order: 10, enabled: true }
+  - { id: overall_recommendation, display_label: Overall Recommendation, order: 11, enabled: true }
+

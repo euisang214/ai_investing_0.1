@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ai_investing
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_investing"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    env_file:
+      - .env.example
+    environment:
+      AI_INVESTING_DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/ai_investing
+      AI_INVESTING_CONFIG_DIR: /app/config
+      AI_INVESTING_PROMPTS_DIR: /app/prompts
+      AI_INVESTING_PROVIDER: fake
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config
+      - ./prompts:/app/prompts
+      - ./examples:/app/examples
+      - ./src:/app/src
+      - ./tests:/app/tests
+
+volumes:
+  postgres_data:

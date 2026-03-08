@@ -1,0 +1,40 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "saas", "rerun"],
+  "documents": [
+    {
+      "path": "acme_q1_update.md",
+      "source_type": "earnings_call",
+      "title": "Q1 2026 Update",
+      "as_of_date": "2026-03-01T00:00:00Z",
+      "period": "Q1 2026",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": [
+        "balance_sheet_survivability",
+        "revenue_recurrence_contract_strength",
+        "customer_concentration",
+        "pricing_power",
+        "demand_cyclicality_purchase_deferrability"
+      ],
+      "factor_signals": {
+        "balance_sheet_survivability": { "stance": "positive", "summary": "The company remains cash generative with no near-term debt pressure.", "metrics": { "net_cash_millions": 205 } },
+        "revenue_recurrence_contract_strength": { "stance": "mixed", "summary": "Net revenue retention eased to 113% as seat expansion slowed.", "metrics": { "nrr": "113%" } },
+        "customer_concentration": { "stance": "negative", "summary": "A newly expanded strategic customer now represents 12% of revenue.", "metrics": { "largest_customer": "12%" } },
+        "pricing_power": { "stance": "positive", "summary": "Renewal pricing still held despite slower seat growth.", "metrics": { "renewal_price_capture": "90%" } },
+        "demand_cyclicality_purchase_deferrability": { "stance": "negative", "summary": "SMB customers delayed new seat purchases for budget reasons.", "metrics": { "smb_pipeline_pushouts": "high" } }
+      },
+      "source_refs": [
+        { "label": "Q1 2026 Update", "url": "https://example.com/acme-q1" }
+      ],
+      "metadata": {
+        "connector": "public_file_connector"
+      }
+    }
+  ]
+}
+

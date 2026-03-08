@@ -1,0 +1,3288 @@
+{
+  "run": {
+    "run_id": "run_ba703903e9b7",
+    "company_id": "BETA",
+    "run_kind": "analyze",
+    "status": "complete",
+    "triggered_by": "system",
+    "panel_id": null,
+    "started_at": "2026-03-08T20:43:45.836513Z",
+    "completed_at": "2026-03-08T20:43:46.019203Z",
+    "metadata": {}
+  },
+  "panels": {
+    "gatekeepers": {
+      "claims": [
+        {
+          "claim_id": "clm_2ccac89f31d6",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "need_to_exist",
+          "agent_id": "gatekeeper_advocate",
+          "claim": "Beta Logistics Software appears durable on need to exist.",
+          "bull_case": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "bear_case": "few direct negatives surfaced for need to exist",
+          "evidence_for": [
+            {
+              "summary": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Need To Exist weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current need to exist signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on need to exist during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Need To Exist affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Need To Exist affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Need To Exist affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/need_to_exist",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.845301Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_0c313e986d43",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "need_to_exist",
+          "agent_id": "gatekeeper_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on need to exist.",
+          "bull_case": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "bear_case": "few direct negatives surfaced for need to exist",
+          "evidence_for": [
+            {
+              "summary": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Need To Exist weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current need to exist signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on need to exist during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Need To Exist affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Need To Exist affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Need To Exist affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/need_to_exist",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.847311Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_16ba982cfebe",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "need_to_exist",
+          "agent_id": "gatekeeper_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on need to exist.",
+          "bull_case": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "bear_case": "few direct negatives surfaced for need to exist",
+          "evidence_for": [
+            {
+              "summary": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Need To Exist weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current need to exist signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on need to exist during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Need To Exist affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Need To Exist affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Need To Exist affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/need_to_exist",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.848990Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_56003409c127",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "non_fad_durability",
+          "agent_id": "gatekeeper_advocate",
+          "claim": "Beta Logistics Software appears durable on non fad durability.",
+          "bull_case": "evidence is mixed for non fad durability",
+          "bear_case": "few direct negatives surfaced for non fad durability",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Non Fad Durability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current non fad durability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on non fad durability during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Non Fad Durability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Non Fad Durability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Non Fad Durability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/non_fad_durability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.850762Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_40e4ed2e549d",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "non_fad_durability",
+          "agent_id": "gatekeeper_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on non fad durability.",
+          "bull_case": "evidence is mixed for non fad durability",
+          "bear_case": "few direct negatives surfaced for non fad durability",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Non Fad Durability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current non fad durability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on non fad durability during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Non Fad Durability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Non Fad Durability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Non Fad Durability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/non_fad_durability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.852113Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_b597cd87b1ca",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "non_fad_durability",
+          "agent_id": "gatekeeper_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on non fad durability.",
+          "bull_case": "evidence is mixed for non fad durability",
+          "bear_case": "few direct negatives surfaced for non fad durability",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Non Fad Durability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current non fad durability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on non fad durability during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Non Fad Durability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Non Fad Durability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Non Fad Durability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/non_fad_durability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.854300Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_0e185733d471",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "accounting_trustworthiness",
+          "agent_id": "gatekeeper_advocate",
+          "claim": "Beta Logistics Software appears durable on accounting trustworthiness.",
+          "bull_case": "evidence is mixed for accounting trustworthiness",
+          "bear_case": "few direct negatives surfaced for accounting trustworthiness",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Accounting Trustworthiness weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current accounting trustworthiness signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on accounting trustworthiness during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Accounting Trustworthiness affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Accounting Trustworthiness affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Accounting Trustworthiness affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/accounting_trustworthiness",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.855786Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_dfc038fe5ac7",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "accounting_trustworthiness",
+          "agent_id": "gatekeeper_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on accounting trustworthiness.",
+          "bull_case": "evidence is mixed for accounting trustworthiness",
+          "bear_case": "few direct negatives surfaced for accounting trustworthiness",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Accounting Trustworthiness weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current accounting trustworthiness signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on accounting trustworthiness during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Accounting Trustworthiness affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Accounting Trustworthiness affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Accounting Trustworthiness affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/accounting_trustworthiness",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.857412Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_da3118275f86",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "accounting_trustworthiness",
+          "agent_id": "gatekeeper_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on accounting trustworthiness.",
+          "bull_case": "evidence is mixed for accounting trustworthiness",
+          "bear_case": "few direct negatives surfaced for accounting trustworthiness",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Accounting Trustworthiness weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current accounting trustworthiness signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on accounting trustworthiness during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Accounting Trustworthiness affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Accounting Trustworthiness affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Accounting Trustworthiness affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/accounting_trustworthiness",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.858743Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_6840817645d8",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "balance_sheet_survivability",
+          "agent_id": "gatekeeper_advocate",
+          "claim": "Beta Logistics Software appears durable on balance sheet survivability.",
+          "bull_case": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+          "bear_case": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+          "evidence_for": [
+            {
+              "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [
+            {
+              "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.45,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Balance Sheet Survivability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current balance sheet survivability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on balance sheet survivability during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Balance Sheet Survivability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Balance Sheet Survivability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Balance Sheet Survivability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/balance_sheet_survivability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.860048Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_ba29a44625b2",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "balance_sheet_survivability",
+          "agent_id": "gatekeeper_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on balance sheet survivability.",
+          "bull_case": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+          "bear_case": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+          "evidence_for": [
+            {
+              "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [
+            {
+              "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.45,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Balance Sheet Survivability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current balance sheet survivability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on balance sheet survivability during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Balance Sheet Survivability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Balance Sheet Survivability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Balance Sheet Survivability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/balance_sheet_survivability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.861529Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_f4473449c4e1",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "balance_sheet_survivability",
+          "agent_id": "gatekeeper_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on balance sheet survivability.",
+          "bull_case": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+          "bear_case": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+          "evidence_for": [
+            {
+              "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [
+            {
+              "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.45,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Balance Sheet Survivability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current balance sheet survivability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on balance sheet survivability during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Balance Sheet Survivability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Balance Sheet Survivability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Balance Sheet Survivability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/balance_sheet_survivability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.862822Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_3851203cb5fa",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "governance_investability",
+          "agent_id": "gatekeeper_advocate",
+          "claim": "Beta Logistics Software appears durable on governance investability.",
+          "bull_case": "Founders retain strong control but board materials have become more transparent in the last year.",
+          "bear_case": "Founders retain strong control but board materials have become more transparent in the last year.",
+          "evidence_for": [
+            {
+              "summary": "Founders retain strong control but board materials have become more transparent in the last year.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [
+            {
+              "summary": "Founders retain strong control but board materials have become more transparent in the last year.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.45,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Governance Investability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current governance investability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on governance investability during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Governance Investability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Governance Investability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Governance Investability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/governance_investability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.864379Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_33cc104c14bb",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "governance_investability",
+          "agent_id": "gatekeeper_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on governance investability.",
+          "bull_case": "Founders retain strong control but board materials have become more transparent in the last year.",
+          "bear_case": "Founders retain strong control but board materials have become more transparent in the last year.",
+          "evidence_for": [
+            {
+              "summary": "Founders retain strong control but board materials have become more transparent in the last year.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [
+            {
+              "summary": "Founders retain strong control but board materials have become more transparent in the last year.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.45,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Governance Investability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current governance investability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on governance investability during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Governance Investability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Governance Investability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Governance Investability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/governance_investability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.865491Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_a142622494d6",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "governance_investability",
+          "agent_id": "gatekeeper_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on governance investability.",
+          "bull_case": "Founders retain strong control but board materials have become more transparent in the last year.",
+          "bear_case": "Founders retain strong control but board materials have become more transparent in the last year.",
+          "evidence_for": [
+            {
+              "summary": "Founders retain strong control but board materials have become more transparent in the last year.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [
+            {
+              "summary": "Founders retain strong control but board materials have become more transparent in the last year.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.45,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Governance Investability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current governance investability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on governance investability during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Governance Investability affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Governance Investability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Governance Investability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/governance_investability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.867315Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_044605186842",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "legal_regulatory_existential_risk",
+          "agent_id": "gatekeeper_advocate",
+          "claim": "Beta Logistics Software appears durable on legal regulatory existential risk.",
+          "bull_case": "evidence is mixed for legal regulatory existential risk",
+          "bear_case": "few direct negatives surfaced for legal regulatory existential risk",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Legal Regulatory Existential Risk weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current legal regulatory existential risk signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on legal regulatory existential risk during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Legal Regulatory Existential Risk affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Legal Regulatory Existential Risk affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Legal Regulatory Existential Risk affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/legal_regulatory_existential_risk",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.868897Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_119cc4070344",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "legal_regulatory_existential_risk",
+          "agent_id": "gatekeeper_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on legal regulatory existential risk.",
+          "bull_case": "evidence is mixed for legal regulatory existential risk",
+          "bear_case": "few direct negatives surfaced for legal regulatory existential risk",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Legal Regulatory Existential Risk weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current legal regulatory existential risk signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on legal regulatory existential risk during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Legal Regulatory Existential Risk affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Legal Regulatory Existential Risk affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Legal Regulatory Existential Risk affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/legal_regulatory_existential_risk",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.870907Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_68f9dc829d98",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "gatekeepers",
+          "factor_id": "legal_regulatory_existential_risk",
+          "agent_id": "gatekeeper_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on legal regulatory existential risk.",
+          "bull_case": "evidence is mixed for legal regulatory existential risk",
+          "bear_case": "few direct negatives surfaced for legal regulatory existential risk",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Legal Regulatory Existential Risk weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current legal regulatory existential risk signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on legal regulatory existential risk during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Legal Regulatory Existential Risk affects investment snapshot."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Legal Regulatory Existential Risk affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Legal Regulatory Existential Risk affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/legal_regulatory_existential_risk",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.872654Z",
+          "supersedes_claim_id": null
+        }
+      ],
+      "verdict": {
+        "verdict_id": "vrd_82f3696ff2af",
+        "company_id": "BETA",
+        "company_type": "private",
+        "run_id": "run_ba703903e9b7",
+        "panel_id": "gatekeepers",
+        "panel_name": "Gatekeepers",
+        "summary": "Gatekeeper lead: Beta Logistics Software shows a mixed read on gatekeepers.",
+        "recommendation": "mixed",
+        "score": 0.67,
+        "confidence": 0.47,
+        "strengths": [
+          "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out."
+        ],
+        "concerns": [
+          "few direct negatives surfaced for need to exist",
+          "few direct negatives surfaced for need to exist",
+          "few direct negatives surfaced for need to exist"
+        ],
+        "affected_section_ids": [
+          "investment_snapshot",
+          "risk",
+          "overall_recommendation"
+        ],
+        "claim_ids": [
+          "clm_2ccac89f31d6",
+          "clm_0c313e986d43",
+          "clm_16ba982cfebe",
+          "clm_56003409c127",
+          "clm_40e4ed2e549d",
+          "clm_b597cd87b1ca",
+          "clm_0e185733d471",
+          "clm_dfc038fe5ac7",
+          "clm_da3118275f86",
+          "clm_6840817645d8",
+          "clm_ba29a44625b2",
+          "clm_f4473449c4e1",
+          "clm_3851203cb5fa",
+          "clm_33cc104c14bb",
+          "clm_a142622494d6",
+          "clm_044605186842",
+          "clm_119cc4070344",
+          "clm_68f9dc829d98"
+        ],
+        "unresolved_questions": [
+          "What could invert the current need to exist signal?",
+          "What could invert the current need to exist signal?",
+          "What could invert the current need to exist signal?",
+          "What could invert the current non fad durability signal?",
+          "What could invert the current non fad durability signal?"
+        ],
+        "namespace": "company/BETA/verdicts/gatekeepers",
+        "status": "active",
+        "created_at": "2026-03-08T20:43:45.883540Z",
+        "supersedes_verdict_id": "vrd_0439700dad1b",
+        "gate_decision": "review",
+        "gate_reasons": [
+          "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.",
+          "few direct negatives surfaced for need to exist",
+          "few direct negatives surfaced for need to exist"
+        ]
+      }
+    },
+    "demand_revenue_quality": {
+      "claims": [
+        {
+          "claim_id": "clm_554e12dc0840",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "revenue_recurrence_contract_strength",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on revenue recurrence contract strength.",
+          "bull_case": "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+          "bear_case": "few direct negatives surfaced for revenue recurrence contract strength",
+          "evidence_for": [
+            {
+              "summary": "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Revenue Recurrence Contract Strength weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current revenue recurrence contract strength signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on revenue recurrence contract strength during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Revenue Recurrence Contract Strength affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Revenue Recurrence Contract Strength affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Revenue Recurrence Contract Strength affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Revenue Recurrence Contract Strength affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Revenue Recurrence Contract Strength affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/revenue_recurrence_contract_strength",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.903552Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_fecf58a2a312",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "revenue_recurrence_contract_strength",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+          "bull_case": "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+          "bear_case": "few direct negatives surfaced for revenue recurrence contract strength",
+          "evidence_for": [
+            {
+              "summary": "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Revenue Recurrence Contract Strength weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current revenue recurrence contract strength signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on revenue recurrence contract strength during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Revenue Recurrence Contract Strength affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Revenue Recurrence Contract Strength affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Revenue Recurrence Contract Strength affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Revenue Recurrence Contract Strength affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Revenue Recurrence Contract Strength affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/revenue_recurrence_contract_strength",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.905500Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_b03e4f22e6f7",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "revenue_recurrence_contract_strength",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on revenue recurrence contract strength.",
+          "bull_case": "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+          "bear_case": "few direct negatives surfaced for revenue recurrence contract strength",
+          "evidence_for": [
+            {
+              "summary": "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Revenue Recurrence Contract Strength weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current revenue recurrence contract strength signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on revenue recurrence contract strength during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Revenue Recurrence Contract Strength affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Revenue Recurrence Contract Strength affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Revenue Recurrence Contract Strength affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Revenue Recurrence Contract Strength affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Revenue Recurrence Contract Strength affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/revenue_recurrence_contract_strength",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.907591Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_c23ff9517df6",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "switching_costs",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on switching costs.",
+          "bull_case": "Integrations into carrier workflows and training costs create meaningful switching friction.",
+          "bear_case": "few direct negatives surfaced for switching costs",
+          "evidence_for": [
+            {
+              "summary": "Integrations into carrier workflows and training costs create meaningful switching friction.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Switching Costs weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current switching costs signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on switching costs during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Switching Costs affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Switching Costs affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Switching Costs affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Switching Costs affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Switching Costs affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/switching_costs",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.909725Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_5440bb5134bc",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "switching_costs",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on switching costs.",
+          "bull_case": "Integrations into carrier workflows and training costs create meaningful switching friction.",
+          "bear_case": "few direct negatives surfaced for switching costs",
+          "evidence_for": [
+            {
+              "summary": "Integrations into carrier workflows and training costs create meaningful switching friction.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Switching Costs weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current switching costs signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on switching costs during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Switching Costs affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Switching Costs affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Switching Costs affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Switching Costs affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Switching Costs affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/switching_costs",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.911629Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_b6c29c8ed721",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "switching_costs",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on switching costs.",
+          "bull_case": "Integrations into carrier workflows and training costs create meaningful switching friction.",
+          "bear_case": "few direct negatives surfaced for switching costs",
+          "evidence_for": [
+            {
+              "summary": "Integrations into carrier workflows and training costs create meaningful switching friction.",
+              "source_ref": {
+                "label": "Board Deck",
+                "url": "https://example.com/beta-board",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.78,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Switching Costs weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current switching costs signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on switching costs during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Board Deck",
+              "url": "https://example.com/beta-board",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Switching Costs affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Switching Costs affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Switching Costs affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Switching Costs affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Switching Costs affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/switching_costs",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.913744Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_994856917830",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "search_costs",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on search costs.",
+          "bull_case": "evidence is mixed for search costs",
+          "bear_case": "few direct negatives surfaced for search costs",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Search Costs weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current search costs signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on search costs during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Search Costs affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Search Costs affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Search Costs affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Search Costs affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Search Costs affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/search_costs",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.915812Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_ba9ad180d8aa",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "search_costs",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on search costs.",
+          "bull_case": "evidence is mixed for search costs",
+          "bear_case": "few direct negatives surfaced for search costs",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Search Costs weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current search costs signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on search costs during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Search Costs affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Search Costs affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Search Costs affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Search Costs affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Search Costs affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/search_costs",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.917882Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_263d2a70d7a8",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "search_costs",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on search costs.",
+          "bull_case": "evidence is mixed for search costs",
+          "bear_case": "few direct negatives surfaced for search costs",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Search Costs weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current search costs signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on search costs during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Search Costs affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Search Costs affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Search Costs affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Search Costs affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Search Costs affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/search_costs",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.920013Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_70834f5d5242",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "customer_habit",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on customer habit.",
+          "bull_case": "Operations managers use Beta throughout the day to monitor loads and exceptions.",
+          "bear_case": "few direct negatives surfaced for customer habit",
+          "evidence_for": [
+            {
+              "summary": "Operations managers use Beta throughout the day to monitor loads and exceptions.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Customer Habit weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current customer habit signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on customer habit during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Customer Habit affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Customer Habit affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Customer Habit affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Customer Habit affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Customer Habit affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/customer_habit",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.921892Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_52ad748f40ff",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "customer_habit",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on customer habit.",
+          "bull_case": "Operations managers use Beta throughout the day to monitor loads and exceptions.",
+          "bear_case": "few direct negatives surfaced for customer habit",
+          "evidence_for": [
+            {
+              "summary": "Operations managers use Beta throughout the day to monitor loads and exceptions.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Customer Habit weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current customer habit signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on customer habit during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Customer Habit affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Customer Habit affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Customer Habit affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Customer Habit affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Customer Habit affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/customer_habit",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.923581Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_d7e5b9a7f196",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "customer_habit",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on customer habit.",
+          "bull_case": "Operations managers use Beta throughout the day to monitor loads and exceptions.",
+          "bear_case": "few direct negatives surfaced for customer habit",
+          "evidence_for": [
+            {
+              "summary": "Operations managers use Beta throughout the day to monitor loads and exceptions.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "evidence_against": [],
+          "confidence": 0.57,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Customer Habit weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current customer habit signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on customer habit during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Customer Habit affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Customer Habit affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Customer Habit affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Customer Habit affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Customer Habit affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/customer_habit",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.925429Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_5b19829ae39a",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "fad_fashion_risk",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on fad fashion risk.",
+          "bull_case": "evidence is mixed for fad fashion risk",
+          "bear_case": "few direct negatives surfaced for fad fashion risk",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Fad Fashion Risk weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current fad fashion risk signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on fad fashion risk during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Fad Fashion Risk affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Fad Fashion Risk affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Fad Fashion Risk affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Fad Fashion Risk affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Fad Fashion Risk affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/fad_fashion_risk",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.927015Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_677373261e70",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "fad_fashion_risk",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on fad fashion risk.",
+          "bull_case": "evidence is mixed for fad fashion risk",
+          "bear_case": "few direct negatives surfaced for fad fashion risk",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Fad Fashion Risk weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current fad fashion risk signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on fad fashion risk during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Fad Fashion Risk affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Fad Fashion Risk affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Fad Fashion Risk affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Fad Fashion Risk affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Fad Fashion Risk affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/fad_fashion_risk",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.928684Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_ca82c79f18e0",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "fad_fashion_risk",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on fad fashion risk.",
+          "bull_case": "evidence is mixed for fad fashion risk",
+          "bear_case": "few direct negatives surfaced for fad fashion risk",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Fad Fashion Risk weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current fad fashion risk signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on fad fashion risk during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Fad Fashion Risk affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Fad Fashion Risk affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Fad Fashion Risk affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Fad Fashion Risk affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Fad Fashion Risk affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/fad_fashion_risk",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.930071Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_5384865e683b",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "customer_concentration",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears under pressure on customer concentration.",
+          "bull_case": "evidence is mixed for customer concentration",
+          "bear_case": "The top five customers represent 46% of ARR.",
+          "evidence_for": [],
+          "evidence_against": [
+            {
+              "summary": "The top five customers represent 46% of ARR.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.57,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Customer Concentration weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current customer concentration signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on customer concentration during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Customer Concentration affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Customer Concentration affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Customer Concentration affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Customer Concentration affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Customer Concentration affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/customer_concentration",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.931795Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_8ec8e98c8e31",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "customer_concentration",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears under pressure on customer concentration.",
+          "bull_case": "evidence is mixed for customer concentration",
+          "bear_case": "The top five customers represent 46% of ARR.",
+          "evidence_for": [],
+          "evidence_against": [
+            {
+              "summary": "The top five customers represent 46% of ARR.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.57,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Customer Concentration weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current customer concentration signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on customer concentration during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Customer Concentration affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Customer Concentration affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Customer Concentration affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Customer Concentration affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Customer Concentration affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/customer_concentration",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.933086Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_872a17336398",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "customer_concentration",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears fragile under stress on customer concentration.",
+          "bull_case": "evidence is mixed for customer concentration",
+          "bear_case": "The top five customers represent 46% of ARR.",
+          "evidence_for": [],
+          "evidence_against": [
+            {
+              "summary": "The top five customers represent 46% of ARR.",
+              "source_ref": {
+                "label": "Diligence Notes",
+                "url": "https://example.com/beta-diligence",
+                "page": null,
+                "excerpt": null
+              }
+            }
+          ],
+          "confidence": 0.57,
+          "evidence_quality": 0.68,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Customer Concentration weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current customer concentration signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on customer concentration during the next weekly rerun."
+          ],
+          "source_refs": [
+            {
+              "label": "Diligence Notes",
+              "url": "https://example.com/beta-diligence",
+              "page": null,
+              "excerpt": null
+            }
+          ],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Customer Concentration affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Customer Concentration affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Customer Concentration affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Customer Concentration affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Customer Concentration affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/customer_concentration",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.934198Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_63e15dd6580b",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "pricing_power",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on pricing power.",
+          "bull_case": "evidence is mixed for pricing power",
+          "bear_case": "few direct negatives surfaced for pricing power",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Pricing Power weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current pricing power signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on pricing power during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Pricing Power affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Pricing Power affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Pricing Power affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Pricing Power affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Pricing Power affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/pricing_power",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.935320Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_c670d801236b",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "pricing_power",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on pricing power.",
+          "bull_case": "evidence is mixed for pricing power",
+          "bear_case": "few direct negatives surfaced for pricing power",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Pricing Power weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current pricing power signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on pricing power during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Pricing Power affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Pricing Power affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Pricing Power affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Pricing Power affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Pricing Power affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/pricing_power",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.936423Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_b72baa02b72a",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "pricing_power",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on pricing power.",
+          "bull_case": "evidence is mixed for pricing power",
+          "bear_case": "few direct negatives surfaced for pricing power",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Pricing Power weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current pricing power signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on pricing power during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Pricing Power affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Pricing Power affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Pricing Power affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Pricing Power affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Pricing Power affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/pricing_power",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.938061Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_93793bc16355",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "demand_cyclicality_purchase_deferrability",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on demand cyclicality purchase deferrability.",
+          "bull_case": "evidence is mixed for demand cyclicality purchase deferrability",
+          "bear_case": "few direct negatives surfaced for demand cyclicality purchase deferrability",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Demand Cyclicality Purchase Deferrability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current demand cyclicality purchase deferrability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on demand cyclicality purchase deferrability during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/demand_cyclicality_purchase_deferrability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.939604Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_df95b5691f64",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "demand_cyclicality_purchase_deferrability",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on demand cyclicality purchase deferrability.",
+          "bull_case": "evidence is mixed for demand cyclicality purchase deferrability",
+          "bear_case": "few direct negatives surfaced for demand cyclicality purchase deferrability",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Demand Cyclicality Purchase Deferrability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current demand cyclicality purchase deferrability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on demand cyclicality purchase deferrability during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/demand_cyclicality_purchase_deferrability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.942008Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_8a79db814b2b",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "demand_cyclicality_purchase_deferrability",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on demand cyclicality purchase deferrability.",
+          "bull_case": "evidence is mixed for demand cyclicality purchase deferrability",
+          "bear_case": "few direct negatives surfaced for demand cyclicality purchase deferrability",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Demand Cyclicality Purchase Deferrability weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current demand cyclicality purchase deferrability signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on demand cyclicality purchase deferrability during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Demand Cyclicality Purchase Deferrability affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/demand_cyclicality_purchase_deferrability",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.943372Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_000cad965ab1",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "brand_reputation_consideration_set",
+          "agent_id": "demand_advocate",
+          "claim": "Beta Logistics Software appears durable on brand reputation consideration set.",
+          "bull_case": "evidence is mixed for brand reputation consideration set",
+          "bear_case": "few direct negatives surfaced for brand reputation consideration set",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Brand Reputation Consideration Set weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current brand reputation consideration set signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on brand reputation consideration set during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Brand Reputation Consideration Set affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Brand Reputation Consideration Set affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Brand Reputation Consideration Set affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Brand Reputation Consideration Set affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Brand Reputation Consideration Set affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/brand_reputation_consideration_set",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.944616Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_e147fe38dc3f",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "brand_reputation_consideration_set",
+          "agent_id": "demand_skeptic",
+          "claim": "Beta Logistics Software appears more fragile than the base case implies on brand reputation consideration set.",
+          "bull_case": "evidence is mixed for brand reputation consideration set",
+          "bear_case": "few direct negatives surfaced for brand reputation consideration set",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Brand Reputation Consideration Set weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current brand reputation consideration set signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on brand reputation consideration set during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Brand Reputation Consideration Set affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Brand Reputation Consideration Set affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Brand Reputation Consideration Set affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Brand Reputation Consideration Set affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Brand Reputation Consideration Set affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/brand_reputation_consideration_set",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.946683Z",
+          "supersedes_claim_id": null
+        },
+        {
+          "claim_id": "clm_162f536a53eb",
+          "company_id": "BETA",
+          "company_type": "private",
+          "run_id": "run_ba703903e9b7",
+          "panel_id": "demand_revenue_quality",
+          "factor_id": "brand_reputation_consideration_set",
+          "agent_id": "demand_durability",
+          "claim": "Beta Logistics Software appears durable through a medium-term stress case on brand reputation consideration set.",
+          "bull_case": "evidence is mixed for brand reputation consideration set",
+          "bear_case": "few direct negatives surfaced for brand reputation consideration set",
+          "evidence_for": [],
+          "evidence_against": [],
+          "confidence": 0.45,
+          "evidence_quality": 0.6,
+          "staleness_assessment": "Fresh enough for current memo update.",
+          "time_horizon": "12-24 months",
+          "durability_horizon": "multi-year",
+          "falsifiers": [
+            "Brand Reputation Consideration Set weakens materially in the next refresh."
+          ],
+          "what_changed": "Initial coverage run.",
+          "unresolved_questions": [
+            "What could invert the current brand reputation consideration set signal?"
+          ],
+          "recommended_followups": [
+            "Refresh evidence on brand reputation consideration set during the next weekly rerun."
+          ],
+          "source_refs": [],
+          "section_impacts": [
+            {
+              "section_id": "investment_snapshot",
+              "rationale": "Brand Reputation Consideration Set affects investment snapshot."
+            },
+            {
+              "section_id": "growth",
+              "rationale": "Brand Reputation Consideration Set affects growth."
+            },
+            {
+              "section_id": "durability_resilience",
+              "rationale": "Brand Reputation Consideration Set affects durability resilience."
+            },
+            {
+              "section_id": "risk",
+              "rationale": "Brand Reputation Consideration Set affects risk."
+            },
+            {
+              "section_id": "overall_recommendation",
+              "rationale": "Brand Reputation Consideration Set affects overall recommendation."
+            }
+          ],
+          "namespace": "company/BETA/claims/brand_reputation_consideration_set",
+          "status": "active",
+          "created_at": "2026-03-08T20:43:45.948178Z",
+          "supersedes_claim_id": null
+        }
+      ],
+      "verdict": {
+        "verdict_id": "vrd_9b2e0cbd7a26",
+        "company_id": "BETA",
+        "company_type": "private",
+        "run_id": "run_ba703903e9b7",
+        "panel_id": "demand_revenue_quality",
+        "panel_name": "Demand And Revenue Quality",
+        "summary": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality.",
+        "recommendation": "mixed",
+        "score": 0.59,
+        "confidence": 0.5,
+        "strengths": [
+          "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+          "Recurring software revenue is 84% of total with annual auto-renew contracts.",
+          "Recurring software revenue is 84% of total with annual auto-renew contracts."
+        ],
+        "concerns": [
+          "few direct negatives surfaced for revenue recurrence contract strength",
+          "few direct negatives surfaced for revenue recurrence contract strength",
+          "few direct negatives surfaced for revenue recurrence contract strength"
+        ],
+        "affected_section_ids": [
+          "investment_snapshot",
+          "growth",
+          "durability_resilience",
+          "risk",
+          "overall_recommendation"
+        ],
+        "claim_ids": [
+          "clm_554e12dc0840",
+          "clm_fecf58a2a312",
+          "clm_b03e4f22e6f7",
+          "clm_c23ff9517df6",
+          "clm_5440bb5134bc",
+          "clm_b6c29c8ed721",
+          "clm_994856917830",
+          "clm_ba9ad180d8aa",
+          "clm_263d2a70d7a8",
+          "clm_70834f5d5242",
+          "clm_52ad748f40ff",
+          "clm_d7e5b9a7f196",
+          "clm_5b19829ae39a",
+          "clm_677373261e70",
+          "clm_ca82c79f18e0",
+          "clm_5384865e683b",
+          "clm_8ec8e98c8e31",
+          "clm_872a17336398",
+          "clm_63e15dd6580b",
+          "clm_c670d801236b",
+          "clm_b72baa02b72a",
+          "clm_93793bc16355",
+          "clm_df95b5691f64",
+          "clm_8a79db814b2b",
+          "clm_000cad965ab1",
+          "clm_e147fe38dc3f",
+          "clm_162f536a53eb"
+        ],
+        "unresolved_questions": [
+          "What could invert the current revenue recurrence contract strength signal?",
+          "What could invert the current revenue recurrence contract strength signal?",
+          "What could invert the current revenue recurrence contract strength signal?",
+          "What could invert the current switching costs signal?",
+          "What could invert the current switching costs signal?"
+        ],
+        "namespace": "company/BETA/verdicts/demand_revenue_quality",
+        "status": "active",
+        "created_at": "2026-03-08T20:43:45.960289Z",
+        "supersedes_verdict_id": "vrd_d105e2f327b6"
+      }
+    }
+  },
+  "memo": {
+    "memo_id": "memo_2274f0928c8e",
+    "company_id": "BETA",
+    "run_id": "run_ba703903e9b7",
+    "is_active": true,
+    "is_initial_coverage": true,
+    "sections": [
+      {
+        "section_id": "investment_snapshot",
+        "label": "Investment Snapshot",
+        "content": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality. Key claims: Beta Logistics Software appears durable on revenue recurrence contract strength.; Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "status": "refreshed",
+        "supporting_claim_ids": [
+          "clm_554e12dc0840",
+          "clm_fecf58a2a312",
+          "clm_b03e4f22e6f7",
+          "clm_c23ff9517df6",
+          "clm_5440bb5134bc",
+          "clm_b6c29c8ed721",
+          "clm_994856917830",
+          "clm_ba9ad180d8aa",
+          "clm_263d2a70d7a8",
+          "clm_70834f5d5242",
+          "clm_52ad748f40ff",
+          "clm_d7e5b9a7f196",
+          "clm_5b19829ae39a",
+          "clm_677373261e70",
+          "clm_ca82c79f18e0",
+          "clm_5384865e683b",
+          "clm_8ec8e98c8e31",
+          "clm_872a17336398",
+          "clm_63e15dd6580b",
+          "clm_c670d801236b",
+          "clm_b72baa02b72a",
+          "clm_93793bc16355",
+          "clm_df95b5691f64",
+          "clm_8a79db814b2b",
+          "clm_000cad965ab1",
+          "clm_e147fe38dc3f",
+          "clm_162f536a53eb"
+        ],
+        "supporting_verdict_ids": [
+          "vrd_9b2e0cbd7a26"
+        ],
+        "updated_by_run_id": "run_ba703903e9b7",
+        "updated_at": "2026-03-08T20:43:45.964960Z"
+      },
+      {
+        "section_id": "what_changed_since_last_run",
+        "label": "What Changed Since Last Run",
+        "content": "Initial coverage run. No prior memo exists.",
+        "status": "refreshed",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": "run_ba703903e9b7",
+        "updated_at": "2026-03-08T20:43:46.015121Z"
+      },
+      {
+        "section_id": "risk",
+        "label": "Risk",
+        "content": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality. Key claims: Beta Logistics Software appears durable on revenue recurrence contract strength.; Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "status": "refreshed",
+        "supporting_claim_ids": [
+          "clm_554e12dc0840",
+          "clm_fecf58a2a312",
+          "clm_b03e4f22e6f7",
+          "clm_c23ff9517df6",
+          "clm_5440bb5134bc",
+          "clm_b6c29c8ed721",
+          "clm_994856917830",
+          "clm_ba9ad180d8aa",
+          "clm_263d2a70d7a8",
+          "clm_70834f5d5242",
+          "clm_52ad748f40ff",
+          "clm_d7e5b9a7f196",
+          "clm_5b19829ae39a",
+          "clm_677373261e70",
+          "clm_ca82c79f18e0",
+          "clm_5384865e683b",
+          "clm_8ec8e98c8e31",
+          "clm_872a17336398",
+          "clm_63e15dd6580b",
+          "clm_c670d801236b",
+          "clm_b72baa02b72a",
+          "clm_93793bc16355",
+          "clm_df95b5691f64",
+          "clm_8a79db814b2b",
+          "clm_000cad965ab1",
+          "clm_e147fe38dc3f",
+          "clm_162f536a53eb"
+        ],
+        "supporting_verdict_ids": [
+          "vrd_9b2e0cbd7a26"
+        ],
+        "updated_by_run_id": "run_ba703903e9b7",
+        "updated_at": "2026-03-08T20:43:45.968061Z"
+      },
+      {
+        "section_id": "durability_resilience",
+        "label": "Durability And Resilience",
+        "content": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality. Key claims: Beta Logistics Software appears durable on revenue recurrence contract strength.; Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "status": "refreshed",
+        "supporting_claim_ids": [
+          "clm_554e12dc0840",
+          "clm_fecf58a2a312",
+          "clm_b03e4f22e6f7",
+          "clm_c23ff9517df6",
+          "clm_5440bb5134bc",
+          "clm_b6c29c8ed721",
+          "clm_994856917830",
+          "clm_ba9ad180d8aa",
+          "clm_263d2a70d7a8",
+          "clm_70834f5d5242",
+          "clm_52ad748f40ff",
+          "clm_d7e5b9a7f196",
+          "clm_5b19829ae39a",
+          "clm_677373261e70",
+          "clm_ca82c79f18e0",
+          "clm_5384865e683b",
+          "clm_8ec8e98c8e31",
+          "clm_872a17336398",
+          "clm_63e15dd6580b",
+          "clm_c670d801236b",
+          "clm_b72baa02b72a",
+          "clm_93793bc16355",
+          "clm_df95b5691f64",
+          "clm_8a79db814b2b",
+          "clm_000cad965ab1",
+          "clm_e147fe38dc3f",
+          "clm_162f536a53eb"
+        ],
+        "supporting_verdict_ids": [
+          "vrd_9b2e0cbd7a26"
+        ],
+        "updated_by_run_id": "run_ba703903e9b7",
+        "updated_at": "2026-03-08T20:43:45.966533Z"
+      },
+      {
+        "section_id": "growth",
+        "label": "Growth",
+        "content": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality. Key claims: Beta Logistics Software appears durable on revenue recurrence contract strength.; Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "status": "refreshed",
+        "supporting_claim_ids": [
+          "clm_554e12dc0840",
+          "clm_fecf58a2a312",
+          "clm_b03e4f22e6f7",
+          "clm_c23ff9517df6",
+          "clm_5440bb5134bc",
+          "clm_b6c29c8ed721",
+          "clm_994856917830",
+          "clm_ba9ad180d8aa",
+          "clm_263d2a70d7a8",
+          "clm_70834f5d5242",
+          "clm_52ad748f40ff",
+          "clm_d7e5b9a7f196",
+          "clm_5b19829ae39a",
+          "clm_677373261e70",
+          "clm_ca82c79f18e0",
+          "clm_5384865e683b",
+          "clm_8ec8e98c8e31",
+          "clm_872a17336398",
+          "clm_63e15dd6580b",
+          "clm_c670d801236b",
+          "clm_b72baa02b72a",
+          "clm_93793bc16355",
+          "clm_df95b5691f64",
+          "clm_8a79db814b2b",
+          "clm_000cad965ab1",
+          "clm_e147fe38dc3f",
+          "clm_162f536a53eb"
+        ],
+        "supporting_verdict_ids": [
+          "vrd_9b2e0cbd7a26"
+        ],
+        "updated_by_run_id": "run_ba703903e9b7",
+        "updated_at": "2026-03-08T20:43:45.965747Z"
+      },
+      {
+        "section_id": "economic_spread",
+        "label": "Economic Spread",
+        "content": "Pending update.",
+        "status": "pending",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-08T20:43:46.015856Z"
+      },
+      {
+        "section_id": "valuation_terms",
+        "label": "Valuation Terms",
+        "content": "Pending update.",
+        "status": "pending",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-08T20:43:46.015859Z"
+      },
+      {
+        "section_id": "expectations_variant_view",
+        "label": "Expectations And Variant View",
+        "content": "Pending update.",
+        "status": "pending",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-08T20:43:46.015860Z"
+      },
+      {
+        "section_id": "realization_path_catalysts",
+        "label": "Realization Path And Catalysts",
+        "content": "Pending update.",
+        "status": "pending",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-08T20:43:46.015862Z"
+      },
+      {
+        "section_id": "portfolio_fit_positioning",
+        "label": "Portfolio Fit And Positioning",
+        "content": "Pending update.",
+        "status": "pending",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-08T20:43:46.015864Z"
+      },
+      {
+        "section_id": "overall_recommendation",
+        "label": "Overall Recommendation",
+        "content": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality. Key claims: Beta Logistics Software appears durable on revenue recurrence contract strength.; Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "status": "refreshed",
+        "supporting_claim_ids": [
+          "clm_554e12dc0840",
+          "clm_fecf58a2a312",
+          "clm_b03e4f22e6f7",
+          "clm_c23ff9517df6",
+          "clm_5440bb5134bc",
+          "clm_b6c29c8ed721",
+          "clm_994856917830",
+          "clm_ba9ad180d8aa",
+          "clm_263d2a70d7a8",
+          "clm_70834f5d5242",
+          "clm_52ad748f40ff",
+          "clm_d7e5b9a7f196",
+          "clm_5b19829ae39a",
+          "clm_677373261e70",
+          "clm_ca82c79f18e0",
+          "clm_5384865e683b",
+          "clm_8ec8e98c8e31",
+          "clm_872a17336398",
+          "clm_63e15dd6580b",
+          "clm_c670d801236b",
+          "clm_b72baa02b72a",
+          "clm_93793bc16355",
+          "clm_df95b5691f64",
+          "clm_8a79db814b2b",
+          "clm_000cad965ab1",
+          "clm_e147fe38dc3f",
+          "clm_162f536a53eb"
+        ],
+        "supporting_verdict_ids": [
+          "vrd_9b2e0cbd7a26"
+        ],
+        "updated_by_run_id": "run_ba703903e9b7",
+        "updated_at": "2026-03-08T20:43:46.011608Z"
+      }
+    ],
+    "recommendation_summary": "Panel lead: Beta Logistics Software shows a mixed read on demand and revenue quality. Key claims: Beta Logistics Software appears durable on revenue recurrence contract strength.; Beta Logistics Software appears more fragile than the base case implies on revenue recurrence contract strength.",
+    "namespace": "company/BETA/memos/current",
+    "created_at": "2026-03-08T20:43:46.016360Z",
+    "updated_at": "2026-03-08T20:43:46.016361Z"
+  },
+  "delta": {
+    "delta_id": "dlt_654b269f39a1",
+    "company_id": "BETA",
+    "prior_run_id": null,
+    "current_run_id": "run_ba703903e9b7",
+    "changed_claim_ids": [
+      "clm_2ccac89f31d6",
+      "clm_0c313e986d43",
+      "clm_16ba982cfebe",
+      "clm_56003409c127",
+      "clm_40e4ed2e549d",
+      "clm_b597cd87b1ca",
+      "clm_0e185733d471",
+      "clm_dfc038fe5ac7",
+      "clm_da3118275f86",
+      "clm_6840817645d8",
+      "clm_ba29a44625b2",
+      "clm_f4473449c4e1",
+      "clm_3851203cb5fa",
+      "clm_33cc104c14bb",
+      "clm_a142622494d6",
+      "clm_044605186842",
+      "clm_119cc4070344",
+      "clm_68f9dc829d98",
+      "clm_554e12dc0840",
+      "clm_fecf58a2a312",
+      "clm_b03e4f22e6f7",
+      "clm_c23ff9517df6",
+      "clm_5440bb5134bc",
+      "clm_b6c29c8ed721",
+      "clm_994856917830",
+      "clm_ba9ad180d8aa",
+      "clm_263d2a70d7a8",
+      "clm_70834f5d5242",
+      "clm_52ad748f40ff",
+      "clm_d7e5b9a7f196",
+      "clm_5b19829ae39a",
+      "clm_677373261e70",
+      "clm_ca82c79f18e0",
+      "clm_5384865e683b",
+      "clm_8ec8e98c8e31",
+      "clm_872a17336398",
+      "clm_63e15dd6580b",
+      "clm_c670d801236b",
+      "clm_b72baa02b72a",
+      "clm_93793bc16355",
+      "clm_df95b5691f64",
+      "clm_8a79db814b2b",
+      "clm_000cad965ab1",
+      "clm_e147fe38dc3f",
+      "clm_162f536a53eb"
+    ],
+    "changed_sections": [
+      "investment_snapshot",
+      "risk",
+      "overall_recommendation",
+      "growth",
+      "durability_resilience",
+      "what_changed_since_last_run"
+    ],
+    "change_summary": "Initial coverage run. No prior memo exists.",
+    "thesis_drift_flags": [],
+    "alert_level": "low",
+    "created_at": "2026-03-08T20:43:46.015103Z"
+  }
+}

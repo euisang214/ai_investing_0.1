@@ -1,0 +1,91 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "saas"],
+  "documents": [
+    {
+      "path": "acme_10k_summary.md",
+      "source_type": "regulatory_filing",
+      "title": "FY2025 10-K Summary",
+      "as_of_date": "2026-02-15T00:00:00Z",
+      "period": "FY2025",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": [
+        "need_to_exist",
+        "non_fad_durability",
+        "accounting_trustworthiness",
+        "balance_sheet_survivability",
+        "revenue_recurrence_contract_strength",
+        "switching_costs",
+        "pricing_power"
+      ],
+      "factor_signals": {
+        "need_to_exist": { "stance": "positive", "summary": "The platform sits in billing and procurement workflows and customers describe it as operationally mandatory.", "metrics": { "gross_retention": "95%" } },
+        "non_fad_durability": { "stance": "positive", "summary": "Management reports steady usage across multiple verticals with low seasonality.", "metrics": { "active_modules": 4 } },
+        "accounting_trustworthiness": { "stance": "positive", "summary": "The company retained a clean audit opinion and disclosed revenue recognition clearly.", "metrics": { "audit": "clean" } },
+        "balance_sheet_survivability": { "stance": "positive", "summary": "Net cash remains positive and the company is free cash flow positive.", "metrics": { "net_cash_millions": 220 } },
+        "revenue_recurrence_contract_strength": { "stance": "positive", "summary": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.", "metrics": { "subscription_mix": "92%", "contract_term": "2-3 years" } },
+        "switching_costs": { "stance": "positive", "summary": "The product integrates into ERP and procurement workflows, making replacement costly.", "metrics": { "integrations": 28 } },
+        "pricing_power": { "stance": "positive", "summary": "The company raised prices 6% with limited churn impact.", "metrics": { "price_increase": "6%" } }
+      },
+      "source_refs": [
+        { "label": "FY2025 10-K", "url": "https://example.com/acme-10k" }
+      ],
+      "metadata": {
+        "connector": "public_file_connector"
+      }
+    },
+    {
+      "path": "acme_earnings_call.md",
+      "source_type": "earnings_call",
+      "title": "Q4 2025 Earnings Call Excerpt",
+      "as_of_date": "2026-02-20T00:00:00Z",
+      "period": "Q4 2025",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": [
+        "customer_habit",
+        "customer_concentration",
+        "demand_cyclicality_purchase_deferrability",
+        "brand_reputation_consideration_set",
+        "governance_investability"
+      ],
+      "factor_signals": {
+        "customer_habit": { "stance": "positive", "summary": "Customers log in daily and rely on approvals running through Acme's workflow engine.", "metrics": { "daily_active_admins": 0.82 } },
+        "customer_concentration": { "stance": "positive", "summary": "No customer accounts for more than 4% of revenue.", "metrics": { "largest_customer": "4%" } },
+        "demand_cyclicality_purchase_deferrability": { "stance": "mixed", "summary": "SMB seat growth slowed, but enterprise expansions remained stable.", "metrics": { "smb_growth": "8%", "enterprise_growth": "19%" } },
+        "brand_reputation_consideration_set": { "stance": "positive", "summary": "Acme remains a top-three vendor in competitive evaluations.", "metrics": { "win_rate": "61%" } },
+        "governance_investability": { "stance": "positive", "summary": "The board added an independent audit chair and refreshed compensation disclosures.", "metrics": { "independent_directors": 5 } }
+      },
+      "source_refs": [
+        { "label": "Q4 2025 Call", "url": "https://example.com/acme-call" }
+      ],
+      "metadata": {
+        "connector": "public_file_connector"
+      }
+    },
+    {
+      "path": "acme_regulatory_note.md",
+      "source_type": "public_news",
+      "title": "Regulatory Note",
+      "as_of_date": "2026-02-25T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["legal_regulatory_existential_risk", "fad_fashion_risk"],
+      "factor_signals": {
+        "legal_regulatory_existential_risk": { "stance": "positive", "summary": "No material regulatory enforcement actions were disclosed; privacy updates appear manageable.", "metrics": { "open_actions": 0 } },
+        "fad_fashion_risk": { "stance": "negative", "summary": "AI workflow positioning is trendy, so messaging discipline still matters.", "metrics": { "new_ai_modules": 2 } }
+      },
+      "source_refs": [
+        { "label": "Regulatory Note", "url": "https://example.com/acme-regulatory" }
+      ],
+      "metadata": {
+        "connector": "public_file_connector"
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,20 @@
+tools:
+  - { id: filing_fetch, category: evidence_retrieval, kind: stub, description: "Fetch filing-oriented evidence for public companies", handler: public_doc_fetch }
+  - { id: transcript_fetch, category: evidence_retrieval, kind: stub, description: "Fetch earnings call and transcript evidence", handler: public_doc_fetch }
+  - { id: public_news_fetch, category: evidence_retrieval, kind: stub, description: "Fetch public news evidence", handler: public_doc_fetch }
+  - { id: private_doc_fetch, category: evidence_retrieval, kind: builtin, description: "Fetch private dataroom evidence", handler: private_doc_fetch }
+  - { id: financial_query, category: financial_market_query, kind: stub, description: "Query financial metrics and statements", handler: passthrough_stub }
+  - { id: price_volume_query, category: financial_market_query, kind: stub, description: "Query price and volume data", handler: passthrough_stub }
+  - { id: estimate_revision_query, category: financial_market_query, kind: stub, description: "Query estimate revisions", handler: passthrough_stub }
+  - { id: ownership_flow_query, category: financial_market_query, kind: stub, description: "Query ownership and flow data", handler: passthrough_stub }
+  - { id: event_calendar_query, category: financial_market_query, kind: stub, description: "Query company event calendars", handler: passthrough_stub }
+  - { id: spreadsheet_runner, category: research_workbench, kind: stub, description: "Run spreadsheet-style transformations", handler: passthrough_stub }
+  - { id: scenario_runner, category: research_workbench, kind: stub, description: "Run simple scenario models", handler: passthrough_stub }
+  - { id: contradiction_finder, category: memory_knowledge, kind: builtin, description: "Find contradictions across claims and verdicts", handler: contradiction_finder }
+  - { id: claim_search, category: memory_knowledge, kind: builtin, description: "Search prior claim cards", handler: claim_search }
+  - { id: evidence_search, category: memory_knowledge, kind: builtin, description: "Search evidence by panel and factor", handler: evidence_search }
+  - { id: memo_section_writer, category: workflow_side_effect, kind: builtin, description: "Write memo section content", handler: memo_section_writer }
+  - { id: analog_lookup, category: memory_knowledge, kind: builtin, description: "Retrieve analog and base-rate notes", handler: analog_lookup }
+  - { id: create_task, category: workflow_side_effect, kind: stub, description: "Create a follow-up task", handler: passthrough_stub }
+  - { id: send_notification, category: workflow_side_effect, kind: stub, description: "Send a refresh notification", handler: passthrough_stub }
+

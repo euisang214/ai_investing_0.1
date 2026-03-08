@@ -1,0 +1,44 @@
+{
+  "name": "new_evidence_webhook",
+  "nodes": [
+    {
+      "name": "Evidence Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-evidence"
+      }
+    },
+    {
+      "name": "Call Ingest Endpoint",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:8000/companies/{{ $json.company_id }}/ingest-public",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "input_dir",
+              "value": "{{$json.input_dir}}"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Evidence Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call Ingest Endpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
+

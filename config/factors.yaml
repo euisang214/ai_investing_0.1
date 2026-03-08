@@ -1,0 +1,100 @@
+factors:
+  - { id: need_to_exist, panel_id: gatekeepers, name: Need To Exist, description: "Is the product or service mission critical enough to matter through cycles?", implemented: true }
+  - { id: non_fad_durability, panel_id: gatekeepers, name: Non Fad Durability, description: "Is current demand structural rather than a temporary fad?", implemented: true }
+  - { id: accounting_trustworthiness, panel_id: gatekeepers, name: Accounting Trustworthiness, description: "Can the reporting base be trusted enough for downstream analysis?", implemented: true }
+  - { id: balance_sheet_survivability, panel_id: gatekeepers, name: Balance Sheet Survivability, description: "Can the company survive stress without needing value-destructive financing?", implemented: true }
+  - { id: governance_investability, panel_id: gatekeepers, name: Governance Investability, description: "Is governance investable enough for outside capital?", implemented: true }
+  - { id: legal_regulatory_existential_risk, panel_id: gatekeepers, name: Legal Regulatory Existential Risk, description: "Is there a credible existential legal or regulatory blocker?", implemented: true }
+  - { id: revenue_recurrence_contract_strength, panel_id: demand_revenue_quality, name: Revenue Recurrence Contract Strength, description: "How durable and contract-backed is recurring revenue?", implemented: true }
+  - { id: switching_costs, panel_id: demand_revenue_quality, name: Switching Costs, description: "How hard is it for customers to switch away?", implemented: true }
+  - { id: search_costs, panel_id: demand_revenue_quality, name: Search Costs, description: "How much discovery friction protects the incumbent?", implemented: true }
+  - { id: customer_habit, panel_id: demand_revenue_quality, name: Customer Habit, description: "How embedded is the product in customer routine?", implemented: true }
+  - { id: fad_fashion_risk, panel_id: demand_revenue_quality, name: Fad Fashion Risk, description: "How much current demand risks reversing as taste shifts?", implemented: true }
+  - { id: customer_concentration, panel_id: demand_revenue_quality, name: Customer Concentration, description: "How exposed is the company to a small set of customers?", implemented: true }
+  - { id: pricing_power, panel_id: demand_revenue_quality, name: Pricing Power, description: "Can the company raise price without material churn?", implemented: true }
+  - { id: demand_cyclicality_purchase_deferrability, panel_id: demand_revenue_quality, name: Demand Cyclicality Purchase Deferrability, description: "How cyclical or deferrable is spend?", implemented: true }
+  - { id: brand_reputation_consideration_set, panel_id: demand_revenue_quality, name: Brand Reputation Consideration Set, description: "Does brand meaningfully affect demand?", implemented: true }
+  - { id: supply_side_advantage, panel_id: supply_product_operations, name: Supply Side Advantage, description: "Placeholder factor", implemented: false }
+  - { id: barriers_to_entry, panel_id: supply_product_operations, name: Barriers To Entry, description: "Placeholder factor", implemented: false }
+  - { id: procurement_supplier_concentration, panel_id: supply_product_operations, name: Procurement Supplier Concentration, description: "Placeholder factor", implemented: false }
+  - { id: supplier_fiscal_health, panel_id: supply_product_operations, name: Supplier Fiscal Health, description: "Placeholder factor", implemented: false }
+  - { id: production_distribution_channels, panel_id: supply_product_operations, name: Production Distribution Channels, description: "Placeholder factor", implemented: false }
+  - { id: reliability, panel_id: supply_product_operations, name: Reliability, description: "Placeholder factor", implemented: false }
+  - { id: negotiating_power, panel_id: supply_product_operations, name: Negotiating Power, description: "Placeholder factor", implemented: false }
+  - { id: input_pricing_availability, panel_id: supply_product_operations, name: Input Pricing Availability, description: "Placeholder factor", implemented: false }
+  - { id: product_concentration, panel_id: supply_product_operations, name: Product Concentration, description: "Placeholder factor", implemented: false }
+  - { id: innovation, panel_id: supply_product_operations, name: Innovation, description: "Placeholder factor", implemented: false }
+  - { id: industry_market_share_trends, panel_id: market_structure_growth, name: Industry Market Share Trends, description: "Placeholder factor", implemented: false }
+  - { id: tam, panel_id: market_structure_growth, name: Total Addressable Market, description: "Placeholder factor", implemented: false }
+  - { id: per_product_market_share_history, panel_id: market_structure_growth, name: Per Product Market Share History, description: "Placeholder factor", implemented: false }
+  - { id: industry_cagr_vs_revenue_cagr, panel_id: market_structure_growth, name: Industry CAGR Vs Revenue CAGR, description: "Placeholder factor", implemented: false }
+  - { id: organic_vs_inorganic_growth, panel_id: market_structure_growth, name: Organic Vs Inorganic Growth, description: "Placeholder factor", implemented: false }
+  - { id: growth_levers, panel_id: market_structure_growth, name: Growth Levers, description: "Placeholder factor", implemented: false }
+  - { id: secular_vs_cyclical_growth, panel_id: market_structure_growth, name: Secular Vs Cyclical Growth, description: "Placeholder factor", implemented: false }
+  - { id: adjacency_expansion_runway, panel_id: market_structure_growth, name: Adjacency Expansion Runway, description: "Placeholder factor", implemented: false }
+  - { id: macro_variable_exposure, panel_id: macro_industry_transmission, name: Macro Variable Exposure, description: "Placeholder factor", implemented: false }
+  - { id: transmission_mechanisms, panel_id: macro_industry_transmission, name: Transmission Mechanisms, description: "Placeholder factor", implemented: false }
+  - { id: cycle_sensitivity, panel_id: macro_industry_transmission, name: Cycle Sensitivity, description: "Placeholder factor", implemented: false }
+  - { id: value_chain_relationships, panel_id: macro_industry_transmission, name: Value Chain Relationships, description: "Placeholder factor", implemented: false }
+  - { id: commodity_input_sensitivity, panel_id: macro_industry_transmission, name: Commodity Input Sensitivity, description: "Placeholder factor", implemented: false }
+  - { id: fx_rates_credit_exposure, panel_id: macro_industry_transmission, name: FX Rates Credit Exposure, description: "Placeholder factor", implemented: false }
+  - { id: budget_cycle_exposure, panel_id: macro_industry_transmission, name: Budget Cycle Exposure, description: "Placeholder factor", implemented: false }
+  - { id: regulation_subsidy_tax_transmission, panel_id: macro_industry_transmission, name: Regulation Subsidy Tax Transmission, description: "Placeholder factor", implemented: false }
+  - { id: management_team_per_member, panel_id: management_governance_capital_allocation, name: Management Team Per Member, description: "Placeholder factor", implemented: false }
+  - { id: tenure, panel_id: management_governance_capital_allocation, name: Tenure, description: "Placeholder factor", implemented: false }
+  - { id: prior_experience, panel_id: management_governance_capital_allocation, name: Prior Experience, description: "Placeholder factor", implemented: false }
+  - { id: priorities, panel_id: management_governance_capital_allocation, name: Priorities, description: "Placeholder factor", implemented: false }
+  - { id: ego_self_orientation, panel_id: management_governance_capital_allocation, name: Ego Self Orientation, description: "Placeholder factor", implemented: false }
+  - { id: planning_execution, panel_id: management_governance_capital_allocation, name: Planning Execution, description: "Placeholder factor", implemented: false }
+  - { id: criminal_record_reputation, panel_id: management_governance_capital_allocation, name: Criminal Record Reputation, description: "Placeholder factor", implemented: false }
+  - { id: ability_to_hit_projections, panel_id: management_governance_capital_allocation, name: Ability To Hit Projections, description: "Placeholder factor", implemented: false }
+  - { id: employees_unionization_work_culture, panel_id: management_governance_capital_allocation, name: Employees Unionization Work Culture, description: "Placeholder factor", implemented: false }
+  - { id: org_legal_structure, panel_id: management_governance_capital_allocation, name: Org Legal Structure, description: "Placeholder factor", implemented: false }
+  - { id: capital_allocation, panel_id: management_governance_capital_allocation, name: Capital Allocation, description: "Placeholder factor", implemented: false }
+  - { id: incentive_alignment, panel_id: management_governance_capital_allocation, name: Incentive Alignment, description: "Placeholder factor", implemented: false }
+  - { id: related_party_red_flags, panel_id: management_governance_capital_allocation, name: Related Party Red Flags, description: "Placeholder factor", implemented: false }
+  - { id: financial_audit, panel_id: financial_quality_liquidity_economic_model, name: Financial Audit, description: "Placeholder factor", implemented: false }
+  - { id: earnings_quality, panel_id: financial_quality_liquidity_economic_model, name: Earnings Quality, description: "Placeholder factor", implemented: false }
+  - { id: business_model_cash_timing, panel_id: financial_quality_liquidity_economic_model, name: Business Model Cash Timing, description: "Placeholder factor", implemented: false }
+  - { id: unit_economics, panel_id: financial_quality_liquidity_economic_model, name: Unit Economics, description: "Placeholder factor", implemented: false }
+  - { id: margin_profile_operating_leverage, panel_id: financial_quality_liquidity_economic_model, name: Margin Profile Operating Leverage, description: "Placeholder factor", implemented: false }
+  - { id: seasonality, panel_id: financial_quality_liquidity_economic_model, name: Seasonality, description: "Placeholder factor", implemented: false }
+  - { id: variable_vs_fixed_costs, panel_id: financial_quality_liquidity_economic_model, name: Variable Vs Fixed Costs, description: "Placeholder factor", implemented: false }
+  - { id: capital_efficiency, panel_id: financial_quality_liquidity_economic_model, name: Capital Efficiency, description: "Placeholder factor", implemented: false }
+  - { id: ltv_cac, panel_id: financial_quality_liquidity_economic_model, name: LTV CAC, description: "Placeholder factor", implemented: false }
+  - { id: off_balance_sheet_liabilities_equity, panel_id: financial_quality_liquidity_economic_model, name: Off Balance Sheet Liabilities Equity, description: "Placeholder factor", implemented: false }
+  - { id: capitalization, panel_id: financial_quality_liquidity_economic_model, name: Capitalization, description: "Placeholder factor", implemented: false }
+  - { id: fiscal_health, panel_id: financial_quality_liquidity_economic_model, name: Fiscal Health, description: "Placeholder factor", implemented: false }
+  - { id: roic_decomposition, panel_id: financial_quality_liquidity_economic_model, name: ROIC Decomposition, description: "Placeholder factor", implemented: false }
+  - { id: incremental_roic_reinvestment_runway, panel_id: financial_quality_liquidity_economic_model, name: Incremental ROIC Reinvestment Runway, description: "Placeholder factor", implemented: false }
+  - { id: government_exposure, panel_id: external_regulatory_geopolitical, name: Government Exposure, description: "Placeholder factor", implemented: false }
+  - { id: geopolitical_exposure, panel_id: external_regulatory_geopolitical, name: Geopolitical Exposure, description: "Placeholder factor", implemented: false }
+  - { id: subsidies_taxes, panel_id: external_regulatory_geopolitical, name: Subsidies Taxes, description: "Placeholder factor", implemented: false }
+  - { id: litigation_contingent_liabilities, panel_id: external_regulatory_geopolitical, name: Litigation Contingent Liabilities, description: "Placeholder factor", implemented: false }
+  - { id: regulatory_dependency, panel_id: external_regulatory_geopolitical, name: Regulatory Dependency, description: "Placeholder factor", implemented: false }
+  - { id: implied_expectations, panel_id: expectations_catalyst_realization, name: Implied Expectations, description: "Placeholder factor", implemented: false }
+  - { id: consensus_narrative_map, panel_id: expectations_catalyst_realization, name: Consensus Narrative Map, description: "Placeholder factor", implemented: false }
+  - { id: variant_view, panel_id: expectations_catalyst_realization, name: Variant View, description: "Placeholder factor", implemented: false }
+  - { id: falsification_kill_criteria, panel_id: expectations_catalyst_realization, name: Falsification Kill Criteria, description: "Placeholder factor", implemented: false }
+  - { id: catalyst_path, panel_id: expectations_catalyst_realization, name: Catalyst Path, description: "Placeholder factor", implemented: false }
+  - { id: timing_path_dependency, panel_id: expectations_catalyst_realization, name: Timing Path Dependency, description: "Placeholder factor", implemented: false }
+  - { id: milestone_checklist, panel_id: expectations_catalyst_realization, name: Milestone Checklist, description: "Placeholder factor", implemented: false }
+  - { id: valuation_multiples_vs_peers, panel_id: security_or_deal_overlay, name: Valuation Multiples Vs Peers, description: "Placeholder factor", implemented: false }
+  - { id: insider_institutional_flow, panel_id: security_or_deal_overlay, name: Insider Institutional Flow, description: "Placeholder factor", implemented: false }
+  - { id: technical_stock_movement, panel_id: security_or_deal_overlay, name: Technical Stock Movement, description: "Placeholder factor", implemented: false }
+  - { id: positioning_liquidity, panel_id: security_or_deal_overlay, name: Positioning Liquidity, description: "Placeholder factor", implemented: false }
+  - { id: borrow_short_interest_if_relevant, panel_id: security_or_deal_overlay, name: Borrow Short Interest If Relevant, description: "Placeholder factor", implemented: false }
+  - { id: cap_table, panel_id: security_or_deal_overlay, name: Cap Table, description: "Placeholder factor", implemented: false }
+  - { id: financing_dependency, panel_id: security_or_deal_overlay, name: Financing Dependency, description: "Placeholder factor", implemented: false }
+  - { id: round_terms_preferences, panel_id: security_or_deal_overlay, name: Round Terms Preferences, description: "Placeholder factor", implemented: false }
+  - { id: control_rights, panel_id: security_or_deal_overlay, name: Control Rights, description: "Placeholder factor", implemented: false }
+  - { id: exit_path, panel_id: security_or_deal_overlay, name: Exit Path, description: "Placeholder factor", implemented: false }
+  - { id: liquidity_exitability, panel_id: portfolio_fit_positioning, name: Liquidity Exitability, description: "Placeholder factor", implemented: false }
+  - { id: factor_exposures, panel_id: portfolio_fit_positioning, name: Factor Exposures, description: "Placeholder factor", implemented: false }
+  - { id: correlation_to_existing_book, panel_id: portfolio_fit_positioning, name: Correlation To Existing Book, description: "Placeholder factor", implemented: false }
+  - { id: crowding, panel_id: portfolio_fit_positioning, name: Crowding, description: "Placeholder factor", implemented: false }
+  - { id: downside_gap_risk, panel_id: portfolio_fit_positioning, name: Downside Gap Risk, description: "Placeholder factor", implemented: false }
+  - { id: event_risk_overlap, panel_id: portfolio_fit_positioning, name: Event Risk Overlap, description: "Placeholder factor", implemented: false }
+  - { id: sizing_considerations, panel_id: portfolio_fit_positioning, name: Sizing Considerations, description: "Placeholder factor", implemented: false }
+  - { id: expected_value_vs_capital_at_risk, panel_id: portfolio_fit_positioning, name: Expected Value Vs Capital At Risk, description: "Placeholder factor", implemented: false }
+

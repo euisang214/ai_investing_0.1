@@ -1,0 +1,17 @@
+connectors:
+  - id: public_file_connector
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/public
+  - id: private_file_connector
+    company_type: private
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/private
+  - id: mcp_stub
+    company_type: both
+    kind: mcp_stub
+    manifest_file: ""
+    raw_landing_zone: data/raw/mcp
+

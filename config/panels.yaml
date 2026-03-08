@@ -1,0 +1,143 @@
+panels:
+  - id: gatekeepers
+    name: Gatekeepers
+    enabled: true
+    scope: both
+    implemented: true
+    subgraph: gatekeeper
+    output_schema: GatekeeperVerdict
+    prompt_path: prompts/gatekeepers/panel_lead.md
+    memo_section_ids:
+      - investment_snapshot
+      - risk
+      - overall_recommendation
+    factor_ids:
+      - need_to_exist
+      - non_fad_durability
+      - accounting_trustworthiness
+      - balance_sheet_survivability
+      - governance_investability
+      - legal_regulatory_existential_risk
+  - id: demand_revenue_quality
+    name: Demand And Revenue Quality
+    enabled: true
+    scope: both
+    implemented: true
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/demand_revenue_quality/panel_lead.md
+    memo_section_ids:
+      - investment_snapshot
+      - growth
+      - durability_resilience
+      - risk
+      - overall_recommendation
+    factor_ids:
+      - revenue_recurrence_contract_strength
+      - switching_costs
+      - search_costs
+      - customer_habit
+      - fad_fashion_risk
+      - customer_concentration
+      - pricing_power
+      - demand_cyclicality_purchase_deferrability
+      - brand_reputation_consideration_set
+  - id: supply_product_operations
+    name: Supply Product Operations
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/supply_product_operations/placeholder.md
+    memo_section_ids:
+      - durability_resilience
+      - risk
+  - id: market_structure_growth
+    name: Market Structure Growth
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/market_structure_growth/placeholder.md
+    memo_section_ids:
+      - growth
+      - expectations_variant_view
+  - id: macro_industry_transmission
+    name: Macro Industry Transmission
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/macro_industry_transmission/placeholder.md
+    memo_section_ids:
+      - risk
+  - id: management_governance_capital_allocation
+    name: Management Governance Capital Allocation
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/management_governance/placeholder.md
+    memo_section_ids:
+      - durability_resilience
+      - risk
+  - id: financial_quality_liquidity_economic_model
+    name: Financial Quality Liquidity Economic Model
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/financial_quality/placeholder.md
+    memo_section_ids:
+      - economic_spread
+      - valuation_terms
+      - risk
+  - id: external_regulatory_geopolitical
+    name: External Regulatory Geopolitical
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/external_regulatory/placeholder.md
+    memo_section_ids:
+      - risk
+  - id: expectations_catalyst_realization
+    name: Expectations Catalyst Realization
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/expectations_catalyst_realization/placeholder.md
+    memo_section_ids:
+      - expectations_variant_view
+      - realization_path_catalysts
+  - id: security_or_deal_overlay
+    name: Security Or Deal Overlay
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/security_overlay/placeholder.md
+    memo_section_ids:
+      - valuation_terms
+      - overall_recommendation
+  - id: portfolio_fit_positioning
+    name: Portfolio Fit Positioning
+    enabled: true
+    scope: both
+    implemented: false
+    subgraph: debate
+    output_schema: PanelVerdict
+    prompt_path: prompts/panels/portfolio_fit/placeholder.md
+    memo_section_ids:
+      - portfolio_fit_positioning
+      - overall_recommendation
+

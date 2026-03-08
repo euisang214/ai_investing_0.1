@@ -1,0 +1,25 @@
+run_policies:
+  weekly_default:
+    cadence: weekly
+    default_panel_ids:
+      - gatekeepers
+      - demand_revenue_quality
+    memo_reconciliation: true
+    monitoring_enabled: true
+  full_surface:
+    cadence: weekly
+    default_panel_ids:
+      - gatekeepers
+      - demand_revenue_quality
+      - supply_product_operations
+      - market_structure_growth
+      - macro_industry_transmission
+      - management_governance_capital_allocation
+      - financial_quality_liquidity_economic_model
+      - external_regulatory_geopolitical
+      - expectations_catalyst_realization
+      - security_or_deal_overlay
+      - portfolio_fit_positioning
+    memo_reconciliation: true
+    monitoring_enabled: true
+

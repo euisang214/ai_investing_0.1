@@ -1,0 +1,62 @@
+{
+  "company_id": "BETA",
+  "company_name": "Beta Logistics Software",
+  "company_type": "private",
+  "description": "Beta provides transportation management software and embedded logistics workflows to mid-sized distributors.",
+  "sector": "Vertical Software",
+  "headquarters": "Chicago, IL",
+  "tags": ["sample", "private"],
+  "documents": [
+    {
+      "path": "beta_board_deck.md",
+      "source_type": "board_deck",
+      "title": "December 2025 Board Deck Summary",
+      "as_of_date": "2025-12-31T00:00:00Z",
+      "period": "December 2025",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": [
+        "need_to_exist",
+        "balance_sheet_survivability",
+        "revenue_recurrence_contract_strength",
+        "switching_costs"
+      ],
+      "factor_signals": {
+        "need_to_exist": { "stance": "positive", "summary": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.", "metrics": { "core_workflow": true } },
+        "balance_sheet_survivability": { "stance": "mixed", "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.", "metrics": { "runway_months": 18 } },
+        "revenue_recurrence_contract_strength": { "stance": "positive", "summary": "Recurring software revenue is 84% of total with annual auto-renew contracts.", "metrics": { "recurring_mix": "84%" } },
+        "switching_costs": { "stance": "positive", "summary": "Integrations into carrier workflows and training costs create meaningful switching friction.", "metrics": { "integrations": 14 } }
+      },
+      "source_refs": [
+        { "label": "Board Deck", "url": "https://example.com/beta-board" }
+      ],
+      "metadata": {
+        "connector": "private_file_connector"
+      }
+    },
+    {
+      "path": "beta_diligence_notes.md",
+      "source_type": "diligence_note",
+      "title": "Customer Diligence Notes",
+      "as_of_date": "2026-01-15T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["demand_revenue_quality", "gatekeepers"],
+      "factor_ids": [
+        "customer_habit",
+        "customer_concentration",
+        "governance_investability"
+      ],
+      "factor_signals": {
+        "customer_habit": { "stance": "positive", "summary": "Operations managers use Beta throughout the day to monitor loads and exceptions.", "metrics": { "daily_usage": "high" } },
+        "customer_concentration": { "stance": "negative", "summary": "The top five customers represent 46% of ARR.", "metrics": { "top_five_arr_share": "46%" } },
+        "governance_investability": { "stance": "mixed", "summary": "Founders retain strong control but board materials have become more transparent in the last year.", "metrics": { "independent_directors": 1 } }
+      },
+      "source_refs": [
+        { "label": "Diligence Notes", "url": "https://example.com/beta-diligence" }
+      ],
+      "metadata": {
+        "connector": "private_file_connector"
+      }
+    }
+  ]
+}
+

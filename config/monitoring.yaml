@@ -1,0 +1,14 @@
+monitoring:
+  delta_thresholds:
+    claim_change_count_for_alert: 3
+    high_alert_changed_sections: [overall_recommendation, risk]
+  drift_flags:
+    - weakening_recurrence
+    - governance_risk_increase
+    - concentration_increase
+    - survivability_deterioration
+  alert_levels:
+    low: "Minor wording or confidence changes"
+    medium: "Meaningful factor or memo section change"
+    high: "Recommendation, survivability, or core thesis changed"
+

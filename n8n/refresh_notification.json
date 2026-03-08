@@ -1,0 +1,35 @@
+{
+  "name": "refresh_notification",
+  "nodes": [
+    {
+      "name": "Run Due Coverage",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:8000/coverage/run-due"
+      }
+    },
+    {
+      "name": "Notify",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://example.com/notify"
+      }
+    }
+  ],
+  "connections": {
+    "Run Due Coverage": {
+      "main": [
+        [
+          {
+            "node": "Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
+
