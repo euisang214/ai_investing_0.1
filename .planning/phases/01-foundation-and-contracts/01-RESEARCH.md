@@ -2,296 +2,258 @@
 
 ## Repo-Specific Assessment
 
-This repository is already well into Phase 1. The core registry surface exists in `config/*.yaml`, typed config models exist in `src/ai_investing/config/models.py`, typed domain contracts exist in `src/ai_investing/domain/models.py`, repositories and tables exist in `src/ai_investing/persistence/`, provider wrappers exist in `src/ai_investing/providers/`, and the CLI/API/operator surface already exists in `src/ai_investing/cli.py` and `src/ai_investing/api/main.py`.
+Phase 1 is no longer a greenfield design exercise. The repo already contains most of the foundational surface the roadmap calls for:
 
-The implementation question is not "what stack should we start with?" It is "how do we harden the existing stack so future panels, memo updates, and weekly reruns do not force core runtime rewrites?"
+- YAML registries for panels, agents, factors, memo sections, model profiles, tools, tool bundles, connectors, monitoring, and run policies
+- strict Pydantic contracts for coverage, evidence, claims, verdicts, memo sections and updates, memo snapshots, monitoring deltas, tool logs, and run records
+- SQLAlchemy tables plus repositories with active-versus-superseded semantics for claims, verdicts, and memos
+- LangGraph composition for company refresh, panel debate or gatekeeper flow, memo updates, monitoring diffs, and IC synthesis
+- file-bundle ingestion for both public and private example companies
+- prompt markdown files for the current vertical slice and placeholder prompts for future panels
+- a Typer CLI, a FastAPI service, Docker assets, and a passing fake-provider pytest suite
 
-The biggest Phase 1 theme is to move implicit runtime choices into registries and narrow adapters:
+The Phase 1 question is therefore not "what stack should we use?" The real work is to harden the current implementation so future panel expansion stays config-driven, safe, and maintainable.
 
-- keep YAML as the source of truth for topology
-- keep Pydantic models as the contract boundary
-- keep SQLAlchemy repositories as the persistence boundary
-- keep provider wrappers thin and structured
-- keep LangGraph composition declarative and reusable
-- keep FastAPI and Typer as thin interface layers over shared services
+The main structural risk is config-runtime drift. Several fields are declared in config or settings but are still decorative rather than executable, which means extension work would still force changes in orchestration or service code unless that drift is closed now.
 
-## Standard Stack
+## Current Repo Shape
 
-| Layer | Use | Why |
-| --- | --- | --- |
-| Runtime | Python 3.11 | Matches the repo contract in `pyproject.toml`, keeps typing and library support straightforward, and avoids splitting the supported host story |
-| Environment | Docker Compose as primary, `uv` as supported host workflow | Docker should stay the quick start; `uv` is a good host workflow once Python 3.11 is present |
-| Config and settings | YAML registries + Pydantic v2 + `pydantic-settings` | Explicit files remain reviewable while validation stays strict and fail-fast |
-| API | FastAPI with an app factory and `lifespan` | Keeps startup/shutdown scoped, testable, and aligned with current FastAPI guidance |
-| CLI | Typer | Good fit for operator commands and shares the same typed domain/service layer as FastAPI |
-| Orchestration | LangGraph compiled graphs and compiled subgraphs | Matches the requirement for reusable subgraphs and incremental memo updates |
-| Persistence | SQLAlchemy 2 ORM + Postgres + Alembic | SQLAlchemy is already in place; Alembic should be added before more table churn lands |
-| DB driver | `psycopg` 3 for Postgres | Already in the repo and the correct pairing with SQLAlchemy 2 |
-| Structured outputs | LangChain only at the provider boundary via `with_structured_output(...)` | Keeps vendor SDK friction low without coupling domain logic to LangChain internals |
-| Tests | `pytest` + fake provider + SQLite in-memory for fast tests, Postgres path for integration tests | Preserves the fake-provider requirement while keeping local feedback fast |
-| Quality gates | `ruff` + `mypy --strict` | Already configured and appropriate for a contract-heavy backend |
+### Config and prompts
 
-Confidence:
+- `RegistryLoader` loads all registries through strict Pydantic models.
+- Prompt content stays in markdown under `prompts/`, which matches the repo rule to keep prompts out of source code.
+- The only fully active panel trees today are `gatekeepers` and `demand_revenue_quality`.
+- `panels.yaml` scaffolds a broader future surface, but only two placeholder agents exist in `agents.yaml`, so the broader panel surface is not yet safely runnable.
 
-- Stack fit for this repo: High
-- Need for Alembic now, not later: High
-- Need to shift FastAPI to app-factory/lifespan: High
-- Need to make graph topology more registry-driven: High
-- `uv` as the supported host workflow: Medium
+### Schemas and persistence
 
-## Architecture Patterns
+- Domain models already cover the structured memory contracts Phase 1 expects.
+- Repository writes supersede prior active claims and verdicts rather than overwriting them.
+- Memos are stored as structured `ICMemo` snapshots with `MemoSectionUpdate` history and separate `MonitoringDelta` records.
 
-1. Make panel orchestration config-driven all the way down.
+### Orchestration and runtime
 
-The current repo already stores panel metadata in YAML, but `src/ai_investing/graphs/company_refresh.py` still hardcodes subgraph selection with:
+- `build_company_refresh_graph()` composes reusable LangGraph subgraphs and the fake-provider end-to-end path works.
+- Memo updates already happen panel by panel before final IC synthesis.
+- Reruns already write `what_changed_since_last_run` and a monitoring delta.
+- The remaining issue is not absence of orchestration. It is that parts of orchestration are still hardcoded instead of being fully resolved from config.
 
-- `gatekeeper` -> `build_gatekeeper_subgraph(...)`
-- everything else -> `build_debate_subgraph(...)`
+### Interfaces and ops
 
-That is acceptable for the first slice but it will become a maintenance trap as more panel types arrive. Replace that conditional with a subgraph-builder registry keyed by `panel.subgraph`. The graph runtime should consume a declared subgraph type, not encode topology decisions inline.
+- The CLI and API cover the main happy path for boot, ingest, analyze, refresh, memo, delta, and agent toggles.
+- Docker Compose is the only verified local validation path in this environment because the host interpreter is Python `3.9.12` while the repo targets Python `3.11+`.
 
-2. Register compiled subgraphs as subgraphs instead of calling `subgraph.invoke({})` inside node wrappers.
+## Phase 1 Requirement Reconciliation
 
-LangGraph supports compiled subgraphs as first-class nodes. That is the better fit here because the system requirement is reusable subgraphs, not opaque helper calls. Calling `.invoke()` inside a node function hides internal graph structure, makes checkpointing less useful, and weakens future observability.
+| Requirement | Status | What exists now | Remaining Phase 1 gap |
+| --- | --- | --- | --- |
+| `CONF-01` | Mostly met | YAML registries exist for panels, agents, factors, memo sections, model profiles, tools, bundles, connectors, monitoring, and run policies. | There is no cross-registry integrity pass for broken references, missing prompt files, or invalid schema names. |
+| `CONF-02` | Partial | Agents can be enabled, disabled, and reparented by rewriting `config/agents.yaml` and reloading registries. | `parent_id` is not used by runtime orchestration, so reparenting changes config state but not execution behavior. |
+| `CONF-03` | Partial | Agent config declares prompt path, schema, tool bundle, memory namespaces, model profile, and scope. | `agent.output_schema`, `input_channels`, `memory_*_namespaces`, and `scope` are not runtime-enforced or consumed. |
+| `COV-01` | Partial | `CoverageEntry` stores company type, coverage status, cadence, next run, last run, and panel policy. | CLI and API coverage creation do not let operators set `next_run_at` directly. |
+| `COV-02` | Partial | Service methods exist to disable or remove coverage while leaving the rest of historical memory intact. | Disable and remove are not exposed through the CLI or FastAPI. |
+| `ING-01` | Met | Public file-bundle ingestion copies raw artifacts into a landing zone and persists normalized evidence. | `manifest_file` is configured but not actually consumed by the connector runtime. |
+| `ING-02` | Met | Private file-bundle ingestion uses the same path with provenance, quality, and staleness metadata. | No additional Phase 1 blocker beyond connector-config parity. |
+| `MEM-01` | Met | Structured models and tables exist for evidence, claims, verdicts, memos, memo section updates, deltas, tool logs, profiles, and runs. | None required before Phase 2 starts. |
+| `MEM-02` | Met | Claim and verdict writes supersede prior active rows; status enums include `active`, `superseded`, and `rejected`. | None. |
+| `MEMO-02` | Met | Memo section IDs are stable and config-driven, including the `sustainability` alternate label for `durability_resilience`. | None. |
+| `ORCH-01` | Partial | Reusable subgraphs exist for panel debate, gatekeeper flow, panel lead, memo updates, monitoring diffs, and IC synthesis. | `company_refresh.py` still hardcodes subgraph selection, invokes compiled subgraphs through wrapper nodes, and ignores `panel.enabled`, `panel.implemented`, `run_policy.memo_reconciliation`, and `run_policy.monitoring_enabled`. |
+| `TOOLS-01` | Met | Tool registry plus least-privilege bundles are loaded from config and enforced at execution time. | Bundle and handler integrity are not validated up front. |
+| `PROV-01` | Mostly met | Fake, OpenAI, and Anthropic providers all implement the shared model interface and are selectable through model profiles. | `primary_provider` is unused and real-provider misconfiguration silently falls back to fake. |
+| `API-01` | Partial | CLI supports DB init, ingestion, add coverage, analyze, run panel, refresh, run due, memo, delta, and agent toggles or reparent. | Coverage list, disable, and remove are missing; there is no explicit config-validation command. |
+| `API-02` | Partial | FastAPI exposes coverage, ingest, run, memo, delta, and basic agent-management endpoints. | Coverage disable or remove and agent reparent are missing; ingest routes ignore the URL `company_id`; response and error envelopes are inconsistent. |
+| `OPS-01` | Mostly met | Dockerfile, Compose, and runbook provide a working local boot path. | The supported host `uv` / Python `3.11+` path described in phase context is not yet documented or verified. |
 
-3. Keep the current "typed domain model -> repository row payload -> typed domain model" pattern.
+## Highest-Value Hardening Work
 
-The repo is already doing the right thing by keeping typed Pydantic contracts canonical and persisting JSON payloads plus query-critical columns. Continue this pattern. Add relational columns only for fields used for filtering, history selection, scheduling, and indexes. Do not move to prose-first storage.
+1. Add a startup-time registry integrity audit.
+   - Validate cross-file references for panel IDs, factor IDs, memo section IDs, tool bundles, tool IDs, model profiles, schema names, and prompt paths.
+   - Reject active run policies that reference disabled or unimplemented panels.
 
-4. Add Alembic before any more schema drift.
+2. Make config fields executable instead of decorative.
+   - Either consume or remove fields that are currently ignored: `panel.prompt_path`, `panel.output_schema`, `panel.enabled`, `panel.implemented`, `agent.output_schema`, `parent_id`, `input_channels`, `memory_read_namespaces`, `memory_write_namespaces`, `scope`, `primary_provider`, `manifest_file`, `memo_reconciliation`, and `monitoring_enabled`.
 
-`Base.metadata.create_all(...)` is fine for early bootstrapping but not for a schema that is about to grow across claims, verdicts, memos, deltas, coverage, tool logs, and likely execution metadata. Phase 1 should end with a real migration path so future phases can evolve safely.
+3. Harden orchestration selection and panel safety.
+   - Resolve subgraph builders from a registry keyed by `panel.subgraph`.
+   - Block `run_panel`, `refresh_company`, and `full_surface` execution for panels that are disabled, unimplemented, or missing required agents.
 
-5. Convert FastAPI initialization to an app factory plus lifespan-managed context.
+4. Close the operator-surface gaps.
+   - Expose coverage list, disable, and remove in the CLI.
+   - Expose coverage disable or remove and agent reparent in the API.
+   - Allow operator-controlled `next_run_at` on create or update.
 
-The current global `context = AppContext.load()` plus `@app.on_event("startup")` is simple, but it makes lifecycle control, test overrides, and future dependency injection harder. Move to:
+5. Make run lifecycle failure-safe.
+   - When graph execution fails, persist `RunStatus.FAILED` with failure metadata instead of leaving runs stranded in `running`.
 
-- `create_app(settings: Settings | None = None) -> FastAPI`
-- a `lifespan` function that loads context and initializes database resources
-- request handlers that access `request.app.state.context`
+6. Tighten provider behavior for non-test runs.
+   - Keep fake as the explicit test and local-default mode, but fail clearly when a requested real provider is not installed or not configured.
 
-6. Keep provider wrappers thin and deterministic.
+7. Keep the Docker-first path, but document the host path honestly.
+   - This repo is currently validated in Docker.
+   - If a host workflow remains supported, document it only for Python `3.11+` and include exact install and test commands.
 
-The current provider adapters are directionally correct:
+## Architecture Patterns To Keep
 
-- shared `ModelProvider`
-- optional provider extras
-- structured output at the boundary
-- fake provider for tests
-
-Keep it that way. Do not let prompt assembly, retries, logging, or post-processing drift into the provider classes. Put those concerns in service or runtime helpers.
-
-7. Keep memo storage structured and render views derived.
-
-The repo already has `MemoSection`, `MemoSectionUpdate`, and `ICMemo`. Continue treating those as the source of truth. Markdown and JSON renderers should remain read models. This is critical for delta generation and weekly reruns.
-
-8. Narrow registry mutation surface intentionally.
-
-The phase context is correct: only `enable-agent`, `disable-agent`, and `reparent-agent` should be mutable through CLI/API right now. Everything else should remain file-driven YAML so diffs stay reviewable and topology changes stay deliberate.
-
-9. Add a small runtime registry layer for "builder lookup" concerns.
-
-Use registries for:
-
-- subgraph builders by `panel.subgraph`
-- output schema lookup by declared schema name
-- tool handler lookup by tool definition
-- provider selection by model profile
-
-This keeps extension work inside config and lookup tables, not scattered conditionals.
-
-10. Preserve two-tier local development support.
-
-The repo and context both point to the correct posture:
-
-- Docker-first quick start
-- supported host workflow only when Python 3.11+ is present
-
-Keep both paths documented, but keep Docker as the primary path to reduce environment drift.
+- Keep YAML as the canonical topology surface, but pair it with a second-stage integrity validator.
+- Keep Pydantic domain models as the contract boundary and SQLAlchemy rows as query projections plus canonical JSON payloads.
+- Keep prompts in markdown files and block placeholder panels from active run policies until their agent trees exist.
+- Keep reusable LangGraph subgraphs, but move panel and subgraph selection out of inline conditionals and into a small builder registry.
+- Keep provider wrappers thin and structured. Orchestration, retries, memo semantics, and run lifecycle belong in services, not provider classes.
+- Keep memo history structured. Rendered markdown and delta prose should remain derived read models, not the source of truth.
 
 ## Don't Hand-Roll
 
-- Database migrations. Use Alembic. Do not build an ad hoc migration runner around `create_all`.
-- API lifecycle management. Use FastAPI lifespan and app factories. Do not build your own startup/shutdown convention.
-- Environment/config loading. Use `pydantic-settings` plus validated YAML. Do not spread `os.getenv()` lookups across services.
-- Graph persistence and resumability primitives. Use LangGraph's persistence/checkpoint model. Do not invent a parallel checkpoint format.
-- Structured LLM output parsing. Use provider-level structured output into Pydantic models. Do not regex prose back into typed objects.
-- CLI parsing and help generation. Use Typer. Do not build a custom command dispatcher.
-- OpenAPI/request validation. Use FastAPI + Pydantic. Do not add hand-written request validation for normal endpoints.
-- Registry inheritance systems. Keep registries explicit YAML with a few safe defaults. Do not introduce a custom templating DSL.
-- Tool permission enforcement. Keep central bundle enforcement in the tool registry service. Do not let individual agents decide their own effective tool set.
-- Memo and delta diffing semantics. Keep them in typed services and repositories. Do not move them into prompt-only behavior.
+- Registry inheritance or templating DSLs. The current YAML files are explicit and reviewable; keep them that way.
+- Prompt validation scattered across runtime code. Use one central registry audit for prompt and schema references.
+- Tool permission checks inside agents. Keep enforcement in `ToolRegistryService`.
+- Prose-only memo persistence. The existing memo, update, and delta contracts are the right base.
+- Shadow provider-selection logic in services. Keep selection centralized in `AppContext`, then make it strict enough for non-test runs.
 
-## Common Pitfalls
+## Common Pitfalls In The Current Repo
 
-- Hidden topology in orchestration code. `company_refresh.py` still decides subgraph shape with inline Python conditionals; that will violate the config-driven rule as soon as another subgraph family appears.
-- Opaque subgraph execution. Calling `.invoke()` inside nodes will make later checkpointing, tracing, and composition harder than necessary.
-- Schema drift without migrations. The current database layer initializes tables but has no evolution path.
-- Import-time app state. Global FastAPI context loading will make test isolation and runtime reload behavior brittle.
-- Over-indexing JSON payloads. JSON payloads are fine for canonical storage, but every field that drives scheduling, history lookup, or filtering should have a projected relational column and index.
-- Expanding CLI/API mutation power too early. Once APIs can edit broad registry state, config reviewability and runtime predictability degrade quickly.
-- Placeholder expansion beyond panel metadata. Keep placeholders at the config/prompt level only; do not start emitting fake verdicts for not-yet-implemented panels.
-- Blurring memo storage and memo rendering. The structured memo records must stay canonical or rerun deltas will become fragile.
-- Letting provider adapters become orchestration layers. Providers should generate typed outputs, not decide business flow.
-- Skipping Postgres-backed integration tests. SQLite is fine for speed, but at least one integration path should exercise the real Postgres runtime because the system is history- and JSON-heavy.
+- Treating config as authoritative when runtime still ignores several config fields.
+- Assuming `full_surface` is safe because it exists in `run_policies.yaml`; it is not safe today.
+- Treating reparent as a topology control when `parent_id` is not read during execution.
+- Assuming panel `enabled` or `implemented` flags prevent execution; they do not today.
+- Assuming a real-provider request will fail loudly; it may silently downgrade to fake.
+- Assuming passing pytest means the whole validation story is green; the automated suite passes, but static gates fail and the automated tests run on SQLite rather than Postgres.
 
-## Code Examples
+## Validation Architecture
 
-### 1. Subgraph builder registry instead of inline conditionals
+### Current framework and test configuration
 
-```python
-from collections.abc import Callable
+- Test framework: `pytest`
+- Pytest config: `testpaths = ["tests"]`, `pythonpath = ["src"]`
+- Test harness behavior:
+  - copies `config/` into a temp directory
+  - rewrites connector landing zones into temp paths
+  - uses in-memory SQLite with `StaticPool`
+  - forces the fake provider
+  - seeds example companies through the real ingestion and service layers
+- Verified runtime path: Docker and Docker Compose
+- Host status in this environment: Python `3.9.12`, `uv` not installed, so host-native validation is not a supported path here
+- Container runtime target: Python `3.11`
 
-from langgraph.graph import END, StateGraph
+### Verified automated commands
 
-SubgraphBuilder = Callable[[RefreshRuntime, str], object]
+Quick structural smoke:
 
-
-SUBGRAPH_BUILDERS: dict[str, SubgraphBuilder] = {
-    "gatekeeper": build_gatekeeper_subgraph,
-    "debate": build_debate_subgraph,
-}
-
-
-def build_company_refresh_graph(runtime: RefreshRuntime, panel_ids: list[str]):
-    graph = StateGraph(RefreshState)
-    previous_node: str | None = None
-
-    for panel_id in panel_ids:
-        panel = runtime.context.get_panel(panel_id)
-        builder = SUBGRAPH_BUILDERS[panel.subgraph]
-        panel_graph = builder(runtime, panel_id)
-        panel_node = f"panel__{panel_id}"
-        memo_node = f"memo__{panel_id}"
-
-        graph.add_node(panel_node, panel_graph)
-        graph.add_node(memo_node, partial(_memo_runner, runtime, panel_id))
-
-        if previous_node is None:
-            graph.set_entry_point(panel_node)
-        else:
-            graph.add_edge(previous_node, panel_node)
-
-        graph.add_edge(panel_node, memo_node)
-        previous_node = memo_node
-
-    graph.add_node("monitoring", partial(_monitoring_runner, runtime))
-    graph.add_node("ic_synthesis", partial(_ic_runner, runtime))
-    graph.add_edge(previous_node or "monitoring", "monitoring")
-    graph.add_edge("monitoring", "ic_synthesis")
-    graph.add_edge("ic_synthesis", END)
-    return graph.compile()
+```bash
+docker compose run --rm api pytest -q tests/test_config_and_registry.py tests/test_repository_semantics.py tests/test_ingestion.py
 ```
 
-Why:
+- Verified result: `6 passed`
+- Likely runtime: about `0.7s` pytest time plus a few seconds of container startup overhead
+- Coverage:
+  - registry loading
+  - agent config mutation and reload
+  - claim schema validation
+  - supersede and history semantics
+  - public and private ingestion parsing and persistence
 
-- keeps topology extensible
-- lets LangGraph see actual subgraphs
-- preserves the extension rule when new panel types arrive
+Full automated suite:
 
-### 2. FastAPI app factory with lifespan-managed context
-
-```python
-from contextlib import asynccontextmanager
-
-from fastapi import FastAPI, Request
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    context = AppContext.load()
-    context.database.initialize()
-    app.state.context = context
-    yield
-
-
-def create_app() -> FastAPI:
-    app = FastAPI(title="AI Investing", lifespan=lifespan)
-
-    @app.get("/agents")
-    def list_agents(request: Request) -> list[dict]:
-        context = request.app.state.context
-        return [
-            agent.model_dump(mode="json")
-            for agent in AgentConfigService(context).list_agents()
-        ]
-
-    return app
+```bash
+docker compose run --rm api pytest -q
 ```
 
-Why:
+- Verified result: `14 passed`
+- Likely runtime: about `3.7s` pytest time plus a few seconds of container startup overhead
+- Coverage:
+  - tool bundle enforcement
+  - graph composition
+  - fake-provider end-to-end analysis
+  - memo section update semantics
+  - IC memo synthesis
+  - rerun delta generation
+  - thesis drift flags
+  - due-coverage execution
 
-- matches current FastAPI guidance
-- improves testability
-- keeps initialization scoped and explicit
+Configured static gates:
 
-### 3. Repository pattern with projected columns plus canonical payload
-
-```python
-class ClaimCardRow(Base):
-    __tablename__ = "claim_cards"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    claim_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
-    company_id: Mapped[str] = mapped_column(String(64), index=True)
-    run_id: Mapped[str] = mapped_column(String(64), index=True)
-    panel_id: Mapped[str] = mapped_column(String(64), index=True)
-    factor_id: Mapped[str] = mapped_column(String(64), index=True)
-    agent_id: Mapped[str] = mapped_column(String(64), index=True)
-    status: Mapped[str] = mapped_column(String(32), index=True)
-    namespace: Mapped[str] = mapped_column(String(255), index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
-    payload: Mapped[dict[str, Any]] = mapped_column(JSON)
+```bash
+docker compose run --rm api ruff check .
+docker compose run --rm api mypy src tests
 ```
 
-Keep this pattern and extend it consistently:
+- Current status: both fail in Docker
+- Current wave-0 findings:
+  - `ruff` reports `57` issues, including import ordering, long lines, unused imports or locals, and at least one noisy security false positive on enum value names
+  - `mypy` reports `55` errors across `14` files, including missing stubs or optional dependencies, missing annotations, possible `None` access, and test typing issues
+- Typical runtime:
+  - `ruff check .`: about `7s`
+  - `mypy src tests`: about `14s`
+- Phase implication: static validation exists on paper but is not yet part of the green Phase 1 baseline
 
-- projected columns for query paths
-- full payload for canonical typed reconstruction
-- status transitions instead of destructive overwrite
+### Manual-only checks
 
-### 4. Settings and registry loading kept centralized
+These checks still need human or shell-level confirmation because they are not covered by the current pytest suite:
 
-```python
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="AI_INVESTING_", extra="ignore")
+1. Docker boot path
 
-    database_url: str = "sqlite+pysqlite:///:memory:"
-    config_dir: Path = Path("config")
-    prompts_dir: Path = Path("prompts")
-    provider: str = Field(default="fake")
-
-
-class AppContext:
-    @classmethod
-    def load(cls, settings: Settings | None = None) -> "AppContext":
-        resolved_settings = settings or Settings()
-        registries = RegistryLoader(resolved_settings.config_dir).load_all()
-        database = Database(resolved_settings.database_url)
-        prompt_loader = PromptLoader(resolved_settings.prompts_dir)
-        tool_registry = ToolRegistryService(registries)
-        return cls(
-            settings=resolved_settings,
-            registries=registries,
-            database=database,
-            prompt_loader=prompt_loader,
-            tool_registry=tool_registry,
-        )
+```bash
+docker compose up --build -d
+docker compose exec api ai-investing init-db
 ```
 
-Why:
+2. Public and private ingestion happy path
 
-- one place to validate environment inputs
-- one place to load YAML registries
-- one place to rebuild runtime context after safe config edits
+```bash
+docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
+docker compose exec api ai-investing ingest-private-data /app/examples/beta_private
+```
 
-## Sources
+3. Coverage plus analysis workflow
 
-- LangGraph overview: [https://docs.langchain.com/oss/python/langgraph/overview](https://docs.langchain.com/oss/python/langgraph/overview)
-- LangGraph subgraphs: [https://docs.langchain.com/oss/python/langgraph/use-subgraphs](https://docs.langchain.com/oss/python/langgraph/use-subgraphs)
-- LangGraph persistence: [https://docs.langchain.com/oss/python/langgraph/persistence](https://docs.langchain.com/oss/python/langgraph/persistence)
-- FastAPI lifespan events: [https://fastapi.tiangolo.com/advanced/events/](https://fastapi.tiangolo.com/advanced/events/)
-- SQLAlchemy 2 declarative tables: [https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html](https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html)
-- Alembic tutorial: [https://alembic.sqlalchemy.org/en/latest/tutorial.html](https://alembic.sqlalchemy.org/en/latest/tutorial.html)
-- Pydantic settings usage: [https://docs.pydantic.dev/latest/concepts/pydantic_settings/](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
-- Typer docs: [https://typer.tiangolo.com/](https://typer.tiangolo.com/)
+```bash
+docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
+docker compose exec api ai-investing analyze-company ACME
+docker compose exec api ai-investing refresh-company ACME
+docker compose exec api ai-investing run-due-coverage
+docker compose exec api ai-investing generate-memo ACME
+docker compose exec api ai-investing show-delta ACME
+```
+
+4. API smoke
+
+```bash
+curl http://localhost:8000/coverage
+curl http://localhost:8000/companies/ACME/memo
+curl http://localhost:8000/companies/ACME/delta
+```
+
+### Wave-0 validation gaps
+
+- No automated API endpoint tests
+- No automated CLI command tests
+- No automated cross-registry integrity tests
+- No automated prompt-existence or schema-mapping tests
+- No automated Postgres-backed integration suite; automated tests currently run on SQLite
+- No automated Docker or runbook smoke
+- No automated guardrail proving `full_surface` is rejected or safely skipped while non-implemented panels remain scaffold-only
+- Static quality gates are not green
+
+### Recommended sampling cadence
+
+- Per config, schema, prompt, tool-registry, or persistence change:
+  - run the quick pytest slice
+  - run `ruff check` on touched files or the whole repo if the change is broad
+
+- Per orchestration, provider, CLI, or API change:
+  - run the full pytest suite
+  - rerun `ruff check .` and `mypy src tests`
+
+- Before Phase 1 sign-off or any phase-handoff commit:
+  - run the full Docker pytest suite
+  - execute the Docker manual happy path once end to end
+  - confirm the API smoke endpoints return current data
+
+- Weekly while Phase 1 remains open:
+  - run one Docker refresh against sample rerun data
+  - confirm memo continuity, `what_changed_since_last_run`, and delta output remain stable
+
+## Bottom Line
+
+Phase 1 already has a strong foundation: structured contracts, history-preserving memory, reusable subgraphs, provider adapters, prompt files, operator interfaces, Docker assets, and a passing fake-provider test suite are in place.
+
+The remaining work is mostly hardening, not invention. The highest-leverage Phase 1 tasks are to eliminate config-runtime drift, close the missing coverage-management and API surfaces, enforce safe panel selection, make failure states explicit, and turn the existing validation setup into a truly green baseline instead of a partial one.
