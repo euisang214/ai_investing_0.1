@@ -2,7 +2,20 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+SUPPORTED_OUTPUT_SCHEMAS = frozenset(
+    {
+        "ClaimCard",
+        "PanelVerdict",
+        "GatekeeperVerdict",
+        "MemoSectionUpdate",
+        "ICMemo",
+        "MonitoringDelta",
+    }
+)
+SUPPORTED_PANEL_SUBGRAPHS = frozenset({"gatekeeper", "debate"})
+INTERNAL_AGENT_PANEL_IDS = frozenset({"memo_updates", "ic", "monitoring"})
 
 
 class ConfigModel(BaseModel):
@@ -80,6 +93,16 @@ class ModelProfileConfig(ConfigModel):
     temperature: float
     max_tokens: int
 
+    @model_validator(mode="after")
+    def validate_provider_order(self) -> ModelProfileConfig:
+        if self.primary_provider not in self.provider_order:
+            raise ValueError("primary_provider must be included in provider_order")
+        unknown_env_keys = set(self.env_model_keys) - set(self.provider_order)
+        if unknown_env_keys:
+            joined = ", ".join(sorted(unknown_env_keys))
+            raise ValueError(f"env_model_keys reference providers outside provider_order: {joined}")
+        return self
+
 
 class ModelProfilesRegistry(ConfigModel):
     model_profiles: dict[str, ModelProfileConfig]
@@ -133,6 +156,7 @@ class RunPolicyConfig(ConfigModel):
     default_panel_ids: list[str]
     memo_reconciliation: bool
     monitoring_enabled: bool
+    allow_unimplemented_panels: bool = False
 
 
 class RunPoliciesRegistry(ConfigModel):
@@ -150,4 +174,3 @@ class RegistryBundle(ConfigModel):
     source_connectors: SourceConnectorsRegistry
     monitoring: MonitoringRegistry
     run_policies: RunPoliciesRegistry
-

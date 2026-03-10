@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -22,7 +22,7 @@ from ai_investing.domain.enums import (
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def new_id(prefix: str) -> str:
@@ -134,7 +134,7 @@ class ClaimCard(DomainModel):
     supersedes_claim_id: str | None = None
 
     @model_validator(mode="after")
-    def validate_confidence(self) -> "ClaimCard":
+    def validate_confidence(self) -> ClaimCard:
         if not 0 <= self.confidence <= 1:
             raise ValueError("confidence must be between 0 and 1")
         if not 0 <= self.evidence_quality <= 1:
@@ -258,4 +258,3 @@ class WriteMemoSectionInput(DomainModel):
     run_id: str
     supporting_claim_ids: list[str] = Field(default_factory=list)
     supporting_verdict_ids: list[str] = Field(default_factory=list)
-

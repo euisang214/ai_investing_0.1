@@ -15,4 +15,3 @@ class MCPAdapter:
             "tool_id": tool_id,
             "payload": payload,
         }
-

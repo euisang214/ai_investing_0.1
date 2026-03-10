@@ -5,14 +5,10 @@ from typing import TYPE_CHECKING, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from ai_investing.domain.models import GatekeeperVerdict, PanelVerdict
+from ai_investing.graphs.state import RefreshState
 
 if TYPE_CHECKING:
     from ai_investing.application.services import RefreshRuntime
-
-
-class PanelState(TypedDict, total=False):
-    claims: list[dict[str, Any]]
-    verdict: dict[str, Any]
 
 
 class MemoState(TypedDict, total=False):
@@ -23,8 +19,19 @@ class DeltaState(TypedDict, total=False):
     delta: dict[str, Any]
 
 
+def get_panel_subgraph_builder(subgraph_id: str):
+    builders = {
+        "debate": build_debate_subgraph,
+        "gatekeeper": build_gatekeeper_subgraph,
+    }
+    try:
+        return builders[subgraph_id]
+    except KeyError as exc:
+        raise ValueError(f"Unsupported panel subgraph: {subgraph_id}") from exc
+
+
 def build_panel_lead_subgraph(runtime: RefreshRuntime, panel_id: str):
-    def finalize(state: PanelState) -> PanelState:
+    def finalize(state: RefreshState) -> RefreshState:
         verdict_payload = state["verdict"]
         verdict = (
             GatekeeperVerdict.model_validate(verdict_payload)
@@ -32,9 +39,17 @@ def build_panel_lead_subgraph(runtime: RefreshRuntime, panel_id: str):
             else PanelVerdict.model_validate(verdict_payload)
         )
         final_verdict = runtime.finalize_panel_verdict(panel_id=panel_id, verdict=verdict)
-        return {"verdict": final_verdict.model_dump(mode="json")}
+        panel_results = dict(state.get("panel_results", {}))
+        panel_results[panel_id] = {
+            "claims": state.get("claims", []),
+            "verdict": final_verdict.model_dump(mode="json"),
+        }
+        return {
+            "panel_results": panel_results,
+            "verdict": final_verdict.model_dump(mode="json"),
+        }
 
-    graph = StateGraph(PanelState)
+    graph = StateGraph(RefreshState)
     graph.add_node("finalize", finalize)
     graph.set_entry_point("finalize")
     graph.add_edge("finalize", END)
@@ -45,16 +60,13 @@ def build_debate_subgraph(runtime: RefreshRuntime, panel_id: str):
     panel = runtime.context.get_panel(panel_id)
     lead_graph = build_panel_lead_subgraph(runtime, panel_id)
 
-    def specialist_node(_state: PanelState) -> PanelState:
+    def specialist_node(_state: RefreshState) -> RefreshState:
         result = runtime.execute_panel(panel.id)
         return {"claims": result["claims"], "verdict": result["verdict"]}
 
-    def lead_node(state: PanelState) -> PanelState:
-        return lead_graph.invoke(state)
-
-    graph = StateGraph(PanelState)
+    graph = StateGraph(RefreshState)
     graph.add_node("specialists_and_judge", specialist_node)
-    graph.add_node("lead", lead_node)
+    graph.add_node("lead", lead_graph)
     graph.set_entry_point("specialists_and_judge")
     graph.add_edge("specialists_and_judge", "lead")
     graph.add_edge("lead", END)
@@ -86,6 +98,18 @@ def build_monitoring_diff_subgraph(runtime: RefreshRuntime):
     graph.add_node("compute", compute)
     graph.set_entry_point("compute")
     graph.add_edge("compute", END)
+    return graph.compile()
+
+
+def build_monitoring_skip_subgraph(runtime: RefreshRuntime):
+    def skip(_state: DeltaState) -> DeltaState:
+        delta = runtime.skip_monitoring_delta()
+        return {"delta": delta.model_dump(mode="json")}
+
+    graph = StateGraph(DeltaState)
+    graph.add_node("skip", skip)
+    graph.set_entry_point("skip")
+    graph.add_edge("skip", END)
     return graph.compile()
 
 

@@ -11,6 +11,8 @@ RUN apt-get update \
     && pip install --no-cache-dir uv
 
 COPY pyproject.toml README.md /app/
+COPY alembic.ini /app/
+COPY alembic /app/alembic
 COPY src /app/src
 COPY config /app/config
 COPY prompts /app/prompts

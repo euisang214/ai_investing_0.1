@@ -23,6 +23,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 1: Foundation And Contracts
 
 **Goal:** Make the project structurally sound before model logic scales.
+**Status:** Completed on 2026-03-10.
 
 **Requirements:** `CONF-01`, `CONF-02`, `CONF-03`, `COV-01`, `COV-02`, `ING-01`, `ING-02`, `MEM-01`, `MEM-02`, `MEMO-02`, `ORCH-01`, `TOOLS-01`, `PROV-01`, `API-01`, `API-02`, `OPS-01`
 
@@ -36,6 +37,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 2: Vertical Slice And Delta Flow
 
 **Goal:** Prove the architecture by analyzing one company end-to-end and producing memo history plus rerun deltas.
+**Status:** Next active phase.
 
 **Requirements:** `COV-03`, `ING-03`, `MEM-03`, `ORCH-02`, `ORCH-03`, `MEMO-01`, `MEMO-03`, `TOOLS-02`, `TEST-01`, `TEST-02`
 
@@ -80,4 +82,4 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 3. Background execution and notification boundaries are documented cleanly.
 
 ---
-*Last updated: 2026-03-08 after initialization*
+*Last updated: 2026-03-10 after Phase 01 completion*

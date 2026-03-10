@@ -10,4 +10,3 @@ class SourceConnector(ABC):
     @abstractmethod
     def ingest(self, input_dir: Path) -> tuple[CompanyProfile, list[EvidenceRecord]]:
         raise NotImplementedError
-

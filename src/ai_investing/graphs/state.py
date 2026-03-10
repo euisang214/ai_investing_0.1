@@ -8,6 +8,7 @@ class RefreshState(TypedDict, total=False):
     run_id: str
     panel_ids: list[str]
     panel_results: dict[str, dict[str, Any]]
+    claims: list[dict[str, Any]]
+    verdict: dict[str, Any]
     memo: dict[str, Any]
     delta: dict[str, Any]
-

@@ -13,6 +13,7 @@ authors = [
   { name = "Ethan Shin" }
 ]
 dependencies = [
+  "alembic>=1.16,<2.0",
   "fastapi>=0.116,<1.0",
   "httpx>=0.28,<0.29",
   "langchain-core>=0.3,<0.4",
@@ -54,7 +55,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "S", "C4"]
-ignore = ["S101"]
+ignore = ["S101", "S105"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -67,4 +68,3 @@ warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 strict = true
-

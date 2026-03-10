@@ -54,4 +54,3 @@ def test_memory_write_read_semantics(context) -> None:
         assert active[0].claim_id == second.claim_id
         assert len(all_claims) == 2
         assert any(claim.status.value == "superseded" for claim in all_claims)
-

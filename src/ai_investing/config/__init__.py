@@ -1,2 +1,1 @@
 """Config loading package."""
-

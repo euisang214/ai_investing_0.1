@@ -25,9 +25,12 @@ class ToolRegistryService:
             "private_doc_fetch": builtins.private_doc_fetch,
             "passthrough_stub": builtins.passthrough_stub,
         }
+        self._validate_registry()
 
     def allowed_tools_for_agent(self, agent: AgentConfig) -> set[str]:
-        return set(self._bundles.get(agent.allowed_tool_bundle, []))
+        if agent.allowed_tool_bundle not in self._bundles:
+            raise KeyError(f"Unknown tool bundle: {agent.allowed_tool_bundle}")
+        return set(self._bundles[agent.allowed_tool_bundle])
 
     def execute(
         self,
@@ -41,7 +44,11 @@ class ToolRegistryService:
     ) -> dict[str, Any]:
         allowed = self.allowed_tools_for_agent(agent)
         if tool_id not in allowed:
-            raise PermissionError(f"{tool_id} is not allowed for bundle {agent.allowed_tool_bundle}")
+            raise PermissionError(
+                f"{tool_id} is not allowed for bundle {agent.allowed_tool_bundle}"
+            )
+        if tool_id not in self._tool_definitions:
+            raise KeyError(f"Unknown tool definition: {tool_id}")
 
         definition = self._tool_definitions[tool_id]
         result = self._execute_tool(
@@ -71,5 +78,21 @@ class ToolRegistryService:
         handler = self._builtin_handlers.get(definition.handler)
         if handler is not None:
             return handler(context, payload)
+        if definition.kind == "builtin":
+            raise KeyError(f"No builtin handler registered for {definition.handler}")
         return self._mcp.execute(definition.id, payload)
 
+    def _validate_registry(self) -> None:
+        for bundle_id, tool_ids in self._bundles.items():
+            missing_tools = [
+                tool_id for tool_id in tool_ids if tool_id not in self._tool_definitions
+            ]
+            if missing_tools:
+                joined = ", ".join(sorted(missing_tools))
+                raise ValueError(f"Tool bundle {bundle_id} references unknown tools: {joined}")
+
+        for tool in self._tool_definitions.values():
+            if tool.kind == "builtin" and tool.handler not in self._builtin_handlers:
+                raise ValueError(
+                    f"Builtin tool {tool.id} references unknown handler {tool.handler}"
+                )

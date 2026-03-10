@@ -2,15 +2,20 @@ from __future__ import annotations
 
 import json
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from ai_investing.domain.enums import CompanyType
-from ai_investing.domain.models import CompanyProfile, EvidenceRecord, FactorSignal, SourceRef
-from ai_investing.domain.models import utc_now
+from ai_investing.domain.models import (
+    CompanyProfile,
+    EvidenceRecord,
+    FactorSignal,
+    SourceRef,
+    utc_now,
+)
 from ai_investing.ingestion.base import SourceConnector
 
 
@@ -26,7 +31,7 @@ class ManifestDocument(BaseModel):
     factor_ids: list[str]
     factor_signals: dict[str, FactorSignal]
     source_refs: list[SourceRef]
-    metadata: dict[str, Any] = {}
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class BundleManifest(BaseModel):
@@ -38,16 +43,17 @@ class BundleManifest(BaseModel):
     description: str
     sector: str | None = None
     headquarters: str | None = None
-    tags: list[str] = []
+    tags: list[str] = Field(default_factory=list)
     documents: list[ManifestDocument]
 
 
 class FileBundleConnector(SourceConnector):
-    def __init__(self, raw_landing_zone: Path):
+    def __init__(self, *, manifest_file: str, raw_landing_zone: Path):
+        self._manifest_file = manifest_file
         self._raw_landing_zone = raw_landing_zone
 
     def ingest(self, input_dir: Path) -> tuple[CompanyProfile, list[EvidenceRecord]]:
-        manifest = self._load_manifest(input_dir / "manifest.json")
+        manifest = self._load_manifest(input_dir / self._manifest_file)
         landing_dir = self._landing_dir(manifest.company_id)
         landing_dir.mkdir(parents=True, exist_ok=True)
 
@@ -113,6 +119,5 @@ class FileBundleConnector(SourceConnector):
         }.get(source_type, 0.6)
 
     def _staleness_days(self, as_of_date: datetime) -> int:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return max(0, int((now - as_of_date).days))
-

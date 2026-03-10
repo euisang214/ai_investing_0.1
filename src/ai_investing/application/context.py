@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,9 +26,12 @@ class AppContext:
     tool_registry: ToolRegistryService
 
     @classmethod
-    def load(cls, settings: Settings | None = None) -> "AppContext":
+    def load(cls, settings: Settings | None = None) -> AppContext:
         resolved_settings = settings or Settings()
-        registries = RegistryLoader(resolved_settings.config_dir).load_all()
+        registries = RegistryLoader(
+            resolved_settings.config_dir,
+            prompts_dir=resolved_settings.prompts_dir,
+        ).load_all()
         database = Database(resolved_settings.database_url)
         prompt_loader = PromptLoader(resolved_settings.prompts_dir)
         tool_registry = ToolRegistryService(registries)
@@ -40,7 +44,10 @@ class AppContext:
         )
 
     def reload_registries(self) -> None:
-        self.registries = RegistryLoader(self.settings.config_dir).load_all()
+        self.registries = RegistryLoader(
+            self.settings.config_dir,
+            prompts_dir=self.settings.prompts_dir,
+        ).load_all()
         self.tool_registry = ToolRegistryService(self.registries)
 
     def get_panel(self, panel_id: str) -> PanelConfig:
@@ -77,23 +84,60 @@ class AppContext:
 
     def get_provider(self, profile_name: str) -> ModelProvider:
         profile = self.registries.model_profiles.model_profiles[profile_name]
-        provider_order = [self.settings.provider] if self.settings.provider != "auto" else profile.provider_order
+        provider_order = self._provider_order(profile_name)
+        explicit_selection = self.settings.provider != "auto"
         for provider_name in provider_order:
             if provider_name == "fake":
                 return FakeModelProvider()
             env_key = profile.env_model_keys.get(provider_name)
             if env_key is None:
+                if explicit_selection:
+                    raise RuntimeError(
+                        f"Provider {provider_name} is not configured for profile {profile_name}."
+                    )
                 continue
             model_name = os.getenv(env_key)
             if not model_name:
+                if explicit_selection:
+                    raise RuntimeError(
+                        f"Provider {provider_name} requires env var {env_key} "
+                        f"for profile {profile_name}."
+                    )
                 continue
             if provider_name == "openai":
+                self._require_dependency(
+                    module_name="langchain_openai",
+                    install_hint="Install ai-investing[openai] to use the OpenAI provider.",
+                )
                 return OpenAIModelProvider(model_name, profile.temperature, profile.max_tokens)
             if provider_name == "anthropic":
+                self._require_dependency(
+                    module_name="langchain_anthropic",
+                    install_hint="Install ai-investing[anthropic] to use the Anthropic provider.",
+                )
                 return AnthropicModelProvider(model_name, profile.temperature, profile.max_tokens)
+            if explicit_selection:
+                raise RuntimeError(f"Unsupported provider requested: {provider_name}")
         return FakeModelProvider()
 
     @property
     def agents_config_path(self) -> Path:
         return self.settings.config_dir / "agents.yaml"
 
+    def _provider_order(self, profile_name: str) -> list[str]:
+        profile = self.registries.model_profiles.model_profiles[profile_name]
+        if self.settings.provider == "auto":
+            primary = profile.primary_provider
+            return [
+                primary,
+                *[provider for provider in profile.provider_order if provider != primary],
+            ]
+        if self.settings.provider not in {"fake", "openai", "anthropic"}:
+            raise RuntimeError(f"Unsupported provider requested: {self.settings.provider}")
+        return [self.settings.provider]
+
+    def _require_dependency(self, *, module_name: str, install_hint: str) -> None:
+        try:
+            importlib.import_module(module_name)
+        except ImportError as exc:
+            raise RuntimeError(install_hint) from exc

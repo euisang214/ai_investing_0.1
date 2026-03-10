@@ -95,7 +95,9 @@ class Repository:
         return CoverageEntry.model_validate(row.payload)
 
     def remove_coverage(self, company_id: str) -> None:
-        self.session.execute(delete(CoverageEntryRow).where(CoverageEntryRow.company_id == company_id))
+        self.session.execute(
+            delete(CoverageEntryRow).where(CoverageEntryRow.company_id == company_id)
+        )
 
     def save_company_profile(self, profile: CompanyProfile) -> CompanyProfile:
         row = self.session.scalar(
@@ -276,7 +278,9 @@ class Repository:
 
     def save_memo(self, memo: ICMemo) -> ICMemo:
         prior_rows = self.session.scalars(
-            select(MemoRow).where(MemoRow.company_id == memo.company_id, MemoRow.is_active.is_(True))
+            select(MemoRow).where(
+                MemoRow.company_id == memo.company_id, MemoRow.is_active.is_(True)
+            )
         ).all()
         for prior_row in prior_rows:
             prior_row.is_active = False
@@ -308,7 +312,9 @@ class Repository:
 
     def list_memos(self, company_id: str) -> list[ICMemo]:
         rows = self.session.scalars(
-            select(MemoRow).where(MemoRow.company_id == company_id).order_by(MemoRow.created_at.desc())
+            select(MemoRow)
+            .where(MemoRow.company_id == company_id)
+            .order_by(MemoRow.created_at.desc())
         ).all()
         return [ICMemo.model_validate(row.payload) for row in rows]
 

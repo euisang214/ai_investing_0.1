@@ -36,8 +36,12 @@ def contradiction_finder(context: ToolContext, payload: dict[str, Any]) -> dict[
     for claim in claims:
         grouped.setdefault(claim.factor_id, []).append(claim.claim.lower())
     for factor_id, statements in grouped.items():
-        has_positive = any("durable" in statement or "positive" in statement for statement in statements)
-        has_negative = any("fragile" in statement or "under pressure" in statement for statement in statements)
+        has_positive = any(
+            "durable" in statement or "positive" in statement for statement in statements
+        )
+        has_negative = any(
+            "fragile" in statement or "under pressure" in statement for statement in statements
+        )
         if has_positive and has_negative:
             contradictions.append(f"Conflicting stance detected for {factor_id}.")
     return {"contradictions": contradictions}
@@ -50,7 +54,10 @@ def analog_lookup(context: ToolContext, payload: dict[str, Any]) -> dict[str, An
         "Concentration risk is often the first place thesis drift appears on reruns.",
     ]
     if company_type == "private":
-        notes.append("Financing dependency can dominate an otherwise solid operating thesis in private deals.")
+        notes.append(
+            "Financing dependency can dominate an otherwise solid "
+            "operating thesis in private deals."
+        )
     return {"notes": notes}
 
 
@@ -69,4 +76,3 @@ def private_doc_fetch(context: ToolContext, payload: dict[str, Any]) -> dict[str
 
 def passthrough_stub(_context: ToolContext, payload: dict[str, Any]) -> dict[str, Any]:
     return {"status": "stub", "payload": payload}
-

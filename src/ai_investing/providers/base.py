@@ -16,4 +16,3 @@ class ModelProvider(ABC):
         self, request: StructuredGenerationRequest, response_model: type[ModelT]
     ) -> ModelT:
         raise NotImplementedError
-

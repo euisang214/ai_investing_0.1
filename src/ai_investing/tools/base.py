@@ -16,4 +16,3 @@ class ToolContext:
 
 
 ToolHandler = Callable[[ToolContext, dict[str, Any]], dict[str, Any]]
-

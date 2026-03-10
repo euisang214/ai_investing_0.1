@@ -32,4 +32,3 @@ class OpenAIModelProvider(ModelProvider):
                 ("human", json.dumps(request.input_data, default=str, indent=2)),
             ]
         )
-

@@ -18,7 +18,9 @@ class AnthropicModelProvider(ModelProvider):
         try:
             from langchain_anthropic import ChatAnthropic
         except ImportError as exc:  # pragma: no cover - optional dependency path
-            raise RuntimeError("Install ai-investing[anthropic] to use the Anthropic provider.") from exc
+            raise RuntimeError(
+                "Install ai-investing[anthropic] to use the Anthropic provider."
+            ) from exc
 
         model = ChatAnthropic(
             model=self._model_name,
@@ -32,4 +34,3 @@ class AnthropicModelProvider(ModelProvider):
                 ("human", json.dumps(request.input_data, default=str, indent=2)),
             ]
         )
-

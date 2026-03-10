@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -13,14 +13,10 @@ from ai_investing.config.models import AgentConfig, PanelConfig
 from ai_investing.domain.enums import (
     AlertLevel,
     Cadence,
-    ChangeClassification,
     CompanyType,
-    GateDecision,
     MemoSectionStatus,
-    RecordStatus,
     RunKind,
     RunStatus,
-    VerdictRecommendation,
 )
 from ai_investing.domain.models import (
     ClaimCard,
@@ -91,6 +87,15 @@ class CoverageService:
             repository = Repository(session)
             return repository.list_coverage()
 
+    def set_next_run_at(self, company_id: str, next_run_at: datetime | None) -> CoverageEntry:
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            entry = repository.get_coverage(company_id)
+            if entry is None:
+                raise KeyError(company_id)
+            entry.next_run_at = next_run_at
+            return repository.upsert_coverage(entry)
+
     def disable_coverage(self, company_id: str) -> CoverageEntry:
         with self.context.database.session() as session:
             repository = Repository(session)
@@ -103,6 +108,8 @@ class CoverageService:
     def remove_coverage(self, company_id: str) -> None:
         with self.context.database.session() as session:
             repository = Repository(session)
+            if repository.get_coverage(company_id) is None:
+                raise KeyError(company_id)
             repository.remove_coverage(company_id)
 
 
@@ -116,15 +123,34 @@ class IngestionService:
     def ingest_private_data(self, input_dir: Path) -> tuple[CompanyProfile, list[str]]:
         return self._ingest(company_type=CompanyType.PRIVATE, input_dir=input_dir)
 
-    def _ingest(self, *, company_type: CompanyType, input_dir: Path) -> tuple[CompanyProfile, list[str]]:
-        connector_id = "public_file_connector" if company_type == CompanyType.PUBLIC else "private_file_connector"
+    def _ingest(
+        self, *, company_type: CompanyType, input_dir: Path
+    ) -> tuple[CompanyProfile, list[str]]:
+        connector_id = (
+            "public_file_connector"
+            if company_type == CompanyType.PUBLIC
+            else "private_file_connector"
+        )
         connector_config = next(
             connector
             for connector in self.context.registries.source_connectors.connectors
             if connector.id == connector_id
         )
-        connector = FileBundleConnector(raw_landing_zone=Path(connector_config.raw_landing_zone))
+        if connector_config.kind != "file_bundle":
+            raise ValueError(
+                f"Unsupported connector kind for {connector_id}: {connector_config.kind}"
+            )
+        connector = FileBundleConnector(
+            manifest_file=connector_config.manifest_file,
+            raw_landing_zone=Path(connector_config.raw_landing_zone),
+        )
         profile, records = connector.ingest(input_dir)
+        if profile.company_type != company_type:
+            raise ValueError(
+                f"Connector {connector_id} loaded "
+                f"{profile.company_type.value} data for a "
+                f"{company_type.value} workflow."
+            )
         with self.context.database.session() as session:
             repository = Repository(session)
             repository.save_company_profile(profile)
@@ -155,12 +181,12 @@ class RefreshRuntime:
         run: RunRecord,
         coverage: CoverageEntry,
         company_profile: CompanyProfile,
-    ) -> "RefreshRuntime":
+    ) -> RefreshRuntime:
         prior_memo = repository.get_current_memo(company_profile.company_id)
-        prior_active_claims = repository.list_claim_cards(company_profile.company_id, active_only=True)
-        current_sections = (
-            prior_memo.section_map() if prior_memo is not None else {}
+        prior_active_claims = repository.list_claim_cards(
+            company_profile.company_id, active_only=True
         )
+        current_sections = prior_memo.section_map() if prior_memo is not None else {}
         return cls(
             context=context,
             repository=repository,
@@ -191,7 +217,11 @@ class RefreshRuntime:
         updates: list[MemoSectionUpdate] = []
         for section_id in verdict.affected_section_ids:
             label = self.context.memo_section_labels(self.coverage.memo_label_profile)[section_id]
-            prior_text = self.current_sections.get(section_id).content if section_id in self.current_sections else ""
+            prior_text = (
+                self.current_sections.get(section_id).content
+                if section_id in self.current_sections
+                else ""
+            )
             provider = self.context.get_provider("balanced")
             prompt = self.context.prompt_loader.load("prompts/memo_updates/section_update.md")
             update = provider.generate_structured(
@@ -276,16 +306,19 @@ class RefreshRuntime:
             section_id
             for section_id, section in self.current_sections.items()
             if self.prior_memo is None
-            or self.prior_memo.section_map().get(
+            or self.prior_memo.section_map()
+            .get(
                 section_id,
                 MemoSection(section_id=section_id, label=section.label, content=""),
-            ).content
+            )
+            .content
             != section.content
         ]
         delta.changed_sections = changed_sections
         if self.prior_memo is not None:
             delta.change_summary = (
-                f"{self.company_profile.company_name} changed in {len(changed_sections)} memo sections "
+                f"{self.company_profile.company_name} changed in "
+                f"{len(changed_sections)} memo sections "
                 f"with {len(changed_claim_ids)} materially updated claim cards."
             )
             high_sections = set(
@@ -299,6 +332,20 @@ class RefreshRuntime:
                 delta.alert_level = AlertLevel.MEDIUM
             else:
                 delta.alert_level = AlertLevel.LOW
+        self.current_delta = delta
+        self.repository.save_monitoring_delta(delta)
+        return delta
+
+    def skip_monitoring_delta(self) -> MonitoringDelta:
+        delta = MonitoringDelta(
+            company_id=self.company_profile.company_id,
+            prior_run_id=self.prior_memo.run_id if self.prior_memo is not None else None,
+            current_run_id=self.run.run_id,
+            change_summary="Monitoring disabled by run policy.",
+            alert_level=AlertLevel.LOW,
+        )
+        self._update_delta_section(delta)
+        delta.changed_sections = ["what_changed_since_last_run"]
         self.current_delta = delta
         self.repository.save_monitoring_delta(delta)
         return delta
@@ -354,7 +401,10 @@ class RefreshRuntime:
                             "evidence": tool_evidence,
                             "prior_claim": prior_claim_text,
                             "section_ids": panel.memo_section_ids,
-                            "namespace": f"company/{self.company_profile.company_id}/claims/{factor_id}",
+                            "namespace": (
+                                f"company/{self.company_profile.company_id}/"
+                                f"claims/{factor_id}"
+                            ),
                         },
                     ),
                     ClaimCard,
@@ -403,7 +453,6 @@ class RefreshRuntime:
         if not lead_agents:
             self.current_verdicts[panel_id] = verdict
             return verdict
-        lead = lead_agents[0]
         summary_prefix = "Gatekeeper lead:" if panel.id == "gatekeepers" else "Panel lead:"
         updated = verdict.model_copy(
             update={
@@ -462,7 +511,9 @@ class RefreshRuntime:
         if self.prior_memo is None:
             content = "Initial coverage run. No prior memo exists."
         else:
-            changed = ", ".join(delta.changed_sections) if delta.changed_sections else "no memo sections"
+            changed = (
+                ", ".join(delta.changed_sections) if delta.changed_sections else "no memo sections"
+            )
             content = f"{delta.change_summary} Changed sections: {changed}."
         self.current_sections["what_changed_since_last_run"] = MemoSection(
             section_id="what_changed_since_last_run",
@@ -480,8 +531,12 @@ class AnalysisService:
     def initialize_database(self) -> None:
         self.context.database.initialize()
 
-    def analyze_company(self, company_id: str, panel_ids: list[str] | None = None) -> dict[str, Any]:
-        return self._run_company(company_id=company_id, panel_ids=panel_ids, run_kind=RunKind.ANALYZE)
+    def analyze_company(
+        self, company_id: str, panel_ids: list[str] | None = None
+    ) -> dict[str, Any]:
+        return self._run_company(
+            company_id=company_id, panel_ids=panel_ids, run_kind=RunKind.ANALYZE
+        )
 
     def refresh_company(self, company_id: str) -> dict[str, Any]:
         return self._run_company(company_id=company_id, panel_ids=None, run_kind=RunKind.REFRESH)
@@ -521,6 +576,8 @@ class AnalysisService:
     def _run_company(
         self, *, company_id: str, panel_ids: list[str] | None, run_kind: RunKind
     ) -> dict[str, Any]:
+        error: Exception | None = None
+        result: dict[str, Any] | None = None
         with self.context.database.session() as session:
             repository = Repository(session)
             coverage = repository.get_coverage(company_id)
@@ -538,34 +595,68 @@ class AnalysisService:
                 coverage=coverage,
                 company_profile=company_profile,
             )
-            selected_panels = panel_ids or self._panel_ids_for_coverage(coverage)
             from ai_investing.graphs.company_refresh import build_company_refresh_graph
 
-            graph = build_company_refresh_graph(runtime=runtime, panel_ids=selected_panels)
-            graph_result = graph.invoke(
-                {
-                    "company_id": company_id,
-                    "run_id": run.run_id,
-                    "panel_ids": selected_panels,
+            try:
+                policy = self.context.registries.run_policies.run_policies[coverage.panel_policy]
+                selected_panels = self._resolve_panel_ids(coverage=coverage, panel_ids=panel_ids)
+                graph = build_company_refresh_graph(
+                    runtime=runtime,
+                    panel_ids=selected_panels,
+                    memo_reconciliation=policy.memo_reconciliation,
+                    monitoring_enabled=policy.monitoring_enabled,
+                )
+                graph_result = graph.invoke(
+                    {
+                        "company_id": company_id,
+                        "run_id": run.run_id,
+                        "panel_ids": selected_panels,
+                    }
+                )
+            except Exception as exc:
+                run.status = RunStatus.FAILED
+                run.completed_at = utc_now()
+                run.metadata = {**run.metadata, "error": str(exc)}
+                repository.save_run(run)
+                error = exc
+            else:
+                run.status = RunStatus.COMPLETE
+                run.completed_at = utc_now()
+                repository.save_run(run)
+                coverage.last_run_at = run.completed_at
+                if coverage.cadence == Cadence.WEEKLY and run.completed_at is not None:
+                    coverage.next_run_at = run.completed_at + timedelta(days=7)
+                repository.upsert_coverage(coverage)
+                result = {
+                    "run": run.model_dump(mode="json"),
+                    "panels": graph_result.get("panel_results", {}),
+                    "memo": graph_result["memo"],
+                    "delta": graph_result["delta"],
                 }
-            )
-            run.status = RunStatus.COMPLETE
-            run.completed_at = utc_now()
-            repository.save_run(run)
-            coverage.last_run_at = run.completed_at
-            if coverage.cadence == Cadence.WEEKLY and run.completed_at is not None:
-                coverage.next_run_at = run.completed_at + timedelta(days=7)
-            repository.upsert_coverage(coverage)
-            return {
-                "run": run.model_dump(mode="json"),
-                "panels": graph_result.get("panel_results", {}),
-                "memo": graph_result["memo"],
-                "delta": graph_result["delta"],
-            }
 
-    def _panel_ids_for_coverage(self, coverage: CoverageEntry) -> list[str]:
+        if error is not None:
+            raise error
+        assert result is not None
+        return result
+
+    def _resolve_panel_ids(
+        self, *, coverage: CoverageEntry, panel_ids: list[str] | None
+    ) -> list[str]:
         policy = self.context.registries.run_policies.run_policies[coverage.panel_policy]
-        return list(policy.default_panel_ids)
+        requested_panel_ids = panel_ids or list(policy.default_panel_ids)
+        deduped_panel_ids = list(dict.fromkeys(requested_panel_ids))
+        validated_panel_ids: list[str] = []
+
+        for panel_id in deduped_panel_ids:
+            panel = self.context.get_panel(panel_id)
+            if not panel.enabled:
+                raise ValueError(f"Panel {panel_id} is disabled and cannot be executed.")
+            if not panel.implemented and not policy.allow_unimplemented_panels:
+                raise ValueError(
+                    f"Panel {panel_id} is not implemented for policy {coverage.panel_policy}."
+                )
+            validated_panel_ids.append(panel_id)
+        return validated_panel_ids
 
 
 def render_memo_markdown(memo: ICMemo) -> str:

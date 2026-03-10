@@ -13,4 +13,3 @@ class Settings(BaseSettings):
     config_dir: Path = Path("config")
     prompts_dir: Path = Path("prompts")
     provider: str = Field(default="fake")
-

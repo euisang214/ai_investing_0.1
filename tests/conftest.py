@@ -56,4 +56,3 @@ def seeded_acme(context: AppContext, repo_root: Path) -> AppContext:
         )
     )
     return context
-

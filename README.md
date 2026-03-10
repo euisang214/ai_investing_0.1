@@ -15,15 +15,27 @@ AI Investing is a config-driven multi-agent investment research platform for pub
 
 ## Quick Start
 
-The target runtime is Python 3.11+. If your host interpreter is older, use Docker.
+Docker is the primary local workflow. The host workflow is supported only when Python 3.11+ is available.
 
 ```bash
 docker compose up --build -d
 docker compose exec api ai-investing init-db
 docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
 docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
+docker compose exec api ai-investing set-next-run-at ACME 2026-03-10T09:30:00+00:00
 docker compose exec api ai-investing analyze-company ACME
 docker compose exec api ai-investing generate-memo ACME
+```
+
+## Host Workflow
+
+Only use this path when `python --version` reports Python 3.11 or newer.
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -e ".[dev]"
+ai-investing init-db
 ```
 
 ## Example CLI Commands
@@ -33,6 +45,10 @@ ai-investing init-db
 ai-investing ingest-public-data examples/acme_public
 ai-investing ingest-private-data examples/beta_private
 ai-investing add-coverage ACME "Acme Cloud" public watchlist
+ai-investing list-coverage
+ai-investing disable-coverage ACME
+ai-investing set-next-run-at ACME 2026-03-10T09:30:00+00:00
+ai-investing remove-coverage ACME
 ai-investing analyze-company ACME
 ai-investing run-panel ACME demand_revenue_quality
 ai-investing refresh-company ACME
@@ -55,4 +71,3 @@ See [docs/architecture.md](docs/architecture.md), [docs/memory_model.md](docs/me
 - deepen contradiction and analog services
 - add more realistic public/private connector adapters
 - add worker infrastructure for larger scheduled coverage sets
-

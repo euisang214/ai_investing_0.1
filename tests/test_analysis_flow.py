@@ -1,14 +1,19 @@
 from __future__ import annotations
 
+import pytest
+
 from ai_investing.application.services import AnalysisService, RefreshRuntime
 from ai_investing.domain.enums import RunKind, RunStatus
 from ai_investing.domain.models import RunRecord
 from ai_investing.graphs.company_refresh import build_company_refresh_graph
+from ai_investing.graphs.subgraphs import get_panel_subgraph_builder
 from ai_investing.persistence.repositories import Repository
 
 
 def test_tool_bundle_enforcement(seeded_acme) -> None:
-    agent = next(agent for agent in seeded_acme.registries.agents.agents if agent.id == "demand_advocate")
+    agent = next(
+        agent for agent in seeded_acme.registries.agents.agents if agent.id == "demand_advocate"
+    )
     with seeded_acme.database.session() as session:
         repository = Repository(session)
         result = seeded_acme.tool_registry.execute(
@@ -59,10 +64,17 @@ def test_graph_composition(seeded_acme) -> None:
         graph = build_company_refresh_graph(
             runtime=runtime,
             panel_ids=["gatekeepers", "demand_revenue_quality"],
+            memo_reconciliation=True,
+            monitoring_enabled=True,
         )
         result = graph.invoke({"company_id": "ACME", "run_id": run.run_id})
         assert "memo" in result
         assert "delta" in result
+
+
+def test_panel_subgraph_lookup_rejects_unknown_builder() -> None:
+    with pytest.raises(ValueError, match="Unsupported panel subgraph"):
+        get_panel_subgraph_builder("unknown")
 
 
 def test_end_to_end_fake_provider_run(seeded_acme) -> None:
@@ -116,3 +128,51 @@ def test_monitoring_thesis_drift_logic(seeded_acme, repo_root) -> None:
 def test_run_due_coverage(seeded_acme) -> None:
     results = AnalysisService(seeded_acme).run_due_coverage()
     assert len(results) == 1
+
+
+def test_unimplemented_policy_panels_fail_closed(seeded_acme) -> None:
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        assert coverage is not None
+        coverage.panel_policy = "full_surface"
+        repository.upsert_coverage(coverage)
+
+    with pytest.raises(ValueError, match="not implemented"):
+        AnalysisService(seeded_acme).analyze_company("ACME")
+
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        latest_run = repository.list_runs("ACME")[0]
+        assert latest_run.status == RunStatus.FAILED
+
+
+def test_monitoring_policy_flag_skips_monitoring_delta(seeded_acme) -> None:
+    policy = seeded_acme.registries.run_policies.run_policies["weekly_default"]
+    seeded_acme.registries.run_policies.run_policies["weekly_default"] = policy.model_copy(
+        update={"monitoring_enabled": False}
+    )
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+
+    assert result["delta"]["change_summary"] == "Monitoring disabled by run policy."
+
+
+def test_failed_run_persists_failed_status(seeded_acme, monkeypatch) -> None:
+    class BrokenGraph:
+        def invoke(self, _state):
+            raise RuntimeError("graph exploded")
+
+    monkeypatch.setattr(
+        "ai_investing.graphs.company_refresh.build_company_refresh_graph",
+        lambda **_kwargs: BrokenGraph(),
+    )
+
+    with pytest.raises(RuntimeError, match="graph exploded"):
+        AnalysisService(seeded_acme).analyze_company("ACME")
+
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        latest_run = repository.list_runs("ACME")[0]
+        assert latest_run.status == RunStatus.FAILED
+        assert latest_run.metadata["error"] == "graph exploded"

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 import typer
@@ -24,6 +25,16 @@ def _context() -> AppContext:
     return AppContext.load()
 
 
+def _parse_datetime(value: str) -> datetime:
+    normalized = value.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError as exc:
+        raise typer.BadParameter(
+            "Use an ISO-8601 timestamp, for example 2026-03-10T09:30:00+00:00."
+        ) from exc
+
+
 @app.command("init-db")
 def init_db() -> None:
     AnalysisService(_context()).initialize_database()
@@ -33,13 +44,21 @@ def init_db() -> None:
 @app.command("ingest-public-data")
 def ingest_public_data(input_dir: Path) -> None:
     profile, evidence_ids = IngestionService(_context()).ingest_public_data(input_dir)
-    typer.echo(json.dumps({"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}, indent=2))
+    typer.echo(
+        json.dumps(
+            {"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}, indent=2
+        )
+    )
 
 
 @app.command("ingest-private-data")
 def ingest_private_data(input_dir: Path) -> None:
     profile, evidence_ids = IngestionService(_context()).ingest_private_data(input_dir)
-    typer.echo(json.dumps({"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}, indent=2))
+    typer.echo(
+        json.dumps(
+            {"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}, indent=2
+        )
+    )
 
 
 @app.command("add-coverage")
@@ -65,6 +84,34 @@ def add_coverage(
             notes=notes,
         )
     )
+    typer.echo(json.dumps(entry.model_dump(mode="json"), indent=2))
+
+
+@app.command("list-coverage")
+def list_coverage() -> None:
+    entries = CoverageService(_context()).list_coverage()
+    typer.echo(json.dumps([entry.model_dump(mode="json") for entry in entries], indent=2))
+
+
+@app.command("disable-coverage")
+def disable_coverage(company_id: str) -> None:
+    entry = CoverageService(_context()).disable_coverage(company_id)
+    typer.echo(json.dumps(entry.model_dump(mode="json"), indent=2))
+
+
+@app.command("remove-coverage")
+def remove_coverage(company_id: str) -> None:
+    CoverageService(_context()).remove_coverage(company_id)
+    typer.echo(json.dumps({"company_id": company_id, "removed": True}, indent=2))
+
+
+@app.command("set-next-run-at")
+def set_next_run_at(
+    company_id: str,
+    next_run_at: str | None = typer.Argument(default=None),
+) -> None:
+    parsed_value = _parse_datetime(next_run_at) if next_run_at is not None else None
+    entry = CoverageService(_context()).set_next_run_at(company_id, parsed_value)
     typer.echo(json.dumps(entry.model_dump(mode="json"), indent=2))
 
 
@@ -123,11 +170,13 @@ def disable_agent(agent_id: str) -> None:
 
 
 @app.command("reparent-agent")
-def reparent_agent(agent_id: str, new_parent_id: str | None = None) -> None:
+def reparent_agent(
+    agent_id: str,
+    new_parent_id: str | None = typer.Argument(default=None),
+) -> None:
     agent = AgentConfigService(_context()).reparent_agent(agent_id, new_parent_id)
     typer.echo(json.dumps(agent.model_dump(mode="json"), indent=2))
 
 
 if __name__ == "__main__":
     app()
-

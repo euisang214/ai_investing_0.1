@@ -1,241 +1,357 @@
 agents:
-  - id: gatekeeper_advocate
-    name: Gatekeeper Advocate
-    panel_id: gatekeepers
-    parent_id: null
-    role_type: specialist
-    goal: Build the base-case gatekeeper claim set from evidence.
-    enabled: true
-    prompt_path: prompts/gatekeepers/advocate.md
-    input_channels: [evidence, prior_claims, prior_memo]
-    output_schema: ClaimCard
-    memory_read_namespaces: ["company/{company_id}/evidence", "company/{company_id}/claims/{factor_id}", "company/{company_id}/memos/current"]
-    memory_write_namespaces: ["company/{company_id}/claims/{factor_id}"]
-    allowed_tool_bundle: gatekeeper_research
-    model_profile: balanced
-    scope: both
-    tags: [vertical_slice, gatekeepers, advocate]
-  - id: gatekeeper_skeptic
-    name: Gatekeeper Skeptic
-    panel_id: gatekeepers
-    parent_id: gatekeeper_advocate
-    role_type: skeptic
-    goal: Pressure-test gatekeeper claims and surface disconfirming evidence.
-    enabled: true
-    prompt_path: prompts/gatekeepers/skeptic.md
-    input_channels: [evidence, prior_claims]
-    output_schema: ClaimCard
-    memory_read_namespaces: ["company/{company_id}/evidence", "company/{company_id}/claims/{factor_id}"]
-    memory_write_namespaces: ["company/{company_id}/claims/{factor_id}"]
-    allowed_tool_bundle: gatekeeper_research
-    model_profile: balanced
-    scope: both
-    tags: [vertical_slice, gatekeepers, skeptic]
-  - id: gatekeeper_durability
-    name: Gatekeeper Durability
-    panel_id: gatekeepers
-    parent_id: gatekeeper_advocate
-    role_type: durability
-    goal: Evaluate whether the gatekeeper thesis persists through stress and time.
-    enabled: true
-    prompt_path: prompts/gatekeepers/durability.md
-    input_channels: [evidence, prior_claims]
-    output_schema: ClaimCard
-    memory_read_namespaces: ["company/{company_id}/evidence", "company/{company_id}/claims/{factor_id}"]
-    memory_write_namespaces: ["company/{company_id}/claims/{factor_id}"]
-    allowed_tool_bundle: gatekeeper_research
-    model_profile: balanced
-    scope: both
-    tags: [vertical_slice, gatekeepers, durability]
-  - id: gatekeeper_judge
-    name: Gatekeeper Judge
-    panel_id: gatekeepers
-    parent_id: gatekeeper_advocate
-    role_type: judge
-    goal: Consolidate gatekeeper claims into a single panel verdict.
-    enabled: true
-    prompt_path: prompts/gatekeepers/judge.md
-    input_channels: [claims, evidence]
-    output_schema: GatekeeperVerdict
-    memory_read_namespaces: ["company/{company_id}/claims/{factor_id}", "company/{company_id}/evidence"]
-    memory_write_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    allowed_tool_bundle: gatekeeper_research
-    model_profile: quality
-    scope: both
-    tags: [vertical_slice, gatekeepers, judge]
-  - id: gatekeeper_panel_lead
-    name: Gatekeeper Panel Lead
-    panel_id: gatekeepers
-    parent_id: gatekeeper_judge
-    role_type: lead
-    goal: Decide whether the company clears gatekeeping for deeper memo work.
-    enabled: true
-    prompt_path: prompts/gatekeepers/panel_lead.md
-    input_channels: [panel_verdict]
-    output_schema: GatekeeperVerdict
-    memory_read_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    memory_write_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    allowed_tool_bundle: ic_judge
-    model_profile: quality
-    scope: both
-    tags: [vertical_slice, gatekeepers, lead]
-  - id: demand_advocate
-    name: Demand Advocate
-    panel_id: demand_revenue_quality
-    parent_id: null
-    role_type: specialist
-    goal: Build the base-case demand and revenue quality thesis.
-    enabled: true
-    prompt_path: prompts/panels/demand_revenue_quality/advocate.md
-    input_channels: [evidence, prior_claims, prior_memo]
-    output_schema: ClaimCard
-    memory_read_namespaces: ["company/{company_id}/evidence", "company/{company_id}/claims/{factor_id}", "company/{company_id}/memos/current"]
-    memory_write_namespaces: ["company/{company_id}/claims/{factor_id}"]
-    allowed_tool_bundle: demand_research
-    model_profile: balanced
-    scope: both
-    tags: [vertical_slice, demand, advocate]
-  - id: demand_skeptic
-    name: Demand Skeptic
-    panel_id: demand_revenue_quality
-    parent_id: demand_advocate
-    role_type: skeptic
-    goal: Stress-test demand quality claims and find disconfirming evidence.
-    enabled: true
-    prompt_path: prompts/panels/demand_revenue_quality/skeptic.md
-    input_channels: [evidence, prior_claims]
-    output_schema: ClaimCard
-    memory_read_namespaces: ["company/{company_id}/evidence", "company/{company_id}/claims/{factor_id}"]
-    memory_write_namespaces: ["company/{company_id}/claims/{factor_id}"]
-    allowed_tool_bundle: demand_research
-    model_profile: balanced
-    scope: both
-    tags: [vertical_slice, demand, skeptic]
-  - id: demand_durability
-    name: Demand Durability
-    panel_id: demand_revenue_quality
-    parent_id: demand_advocate
-    role_type: durability
-    goal: Evaluate the time durability of the demand thesis.
-    enabled: true
-    prompt_path: prompts/panels/demand_revenue_quality/durability.md
-    input_channels: [evidence, prior_claims]
-    output_schema: ClaimCard
-    memory_read_namespaces: ["company/{company_id}/evidence", "company/{company_id}/claims/{factor_id}"]
-    memory_write_namespaces: ["company/{company_id}/claims/{factor_id}"]
-    allowed_tool_bundle: demand_research
-    model_profile: balanced
-    scope: both
-    tags: [vertical_slice, demand, durability]
-  - id: demand_judge
-    name: Demand Judge
-    panel_id: demand_revenue_quality
-    parent_id: demand_advocate
-    role_type: judge
-    goal: Consolidate demand and revenue quality claims into a verdict.
-    enabled: true
-    prompt_path: prompts/panels/demand_revenue_quality/judge.md
-    input_channels: [claims, evidence]
-    output_schema: PanelVerdict
-    memory_read_namespaces: ["company/{company_id}/claims/{factor_id}", "company/{company_id}/evidence"]
-    memory_write_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    allowed_tool_bundle: demand_research
-    model_profile: quality
-    scope: both
-    tags: [vertical_slice, demand, judge]
-  - id: demand_panel_lead
-    name: Demand Panel Lead
-    panel_id: demand_revenue_quality
-    parent_id: demand_judge
-    role_type: lead
-    goal: Translate the demand verdict into memo-relevant judgment.
-    enabled: true
-    prompt_path: prompts/panels/demand_revenue_quality/panel_lead.md
-    input_channels: [panel_verdict]
-    output_schema: PanelVerdict
-    memory_read_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    memory_write_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    allowed_tool_bundle: ic_judge
-    model_profile: quality
-    scope: both
-    tags: [vertical_slice, demand, lead]
-  - id: memo_section_updater
-    name: Memo Section Updater
-    panel_id: memo_updates
-    parent_id: null
-    role_type: synthesizer
-    goal: Update only the memo sections affected by completed panel verdicts.
-    enabled: true
-    prompt_path: prompts/memo_updates/section_update.md
-    input_channels: [panel_verdicts, prior_memo]
-    output_schema: MemoSectionUpdate
-    memory_read_namespaces: ["company/{company_id}/memos/current", "company/{company_id}/verdicts/{panel_id}", "company/{company_id}/claims/{factor_id}"]
-    memory_write_namespaces: ["company/{company_id}/memos/current", "company/{company_id}/memos/history"]
-    allowed_tool_bundle: memo_updater
-    model_profile: balanced
-    scope: both
-    tags: [memo, vertical_slice]
-  - id: ic_synthesizer
-    name: IC Synthesizer
-    panel_id: ic
-    parent_id: null
-    role_type: synthesizer
-    goal: Reconcile the final memo snapshot and overall recommendation.
-    enabled: true
-    prompt_path: prompts/ic/synthesizer.md
-    input_channels: [panel_verdicts, memo_sections, monitoring_delta]
-    output_schema: ICMemo
-    memory_read_namespaces: ["company/{company_id}/verdicts/{panel_id}", "company/{company_id}/memos/current", "company/{company_id}/monitoring"]
-    memory_write_namespaces: ["company/{company_id}/memos/current", "company/{company_id}/memos/history"]
-    allowed_tool_bundle: ic_judge
-    model_profile: quality
-    scope: both
-    tags: [ic, vertical_slice]
-  - id: monitoring_diff_synthesizer
-    name: Monitoring Diff Synthesizer
-    panel_id: monitoring
-    parent_id: null
-    role_type: synthesizer
-    goal: Compare the current run with the prior active run and summarize thesis drift.
-    enabled: true
-    prompt_path: prompts/monitoring/delta.md
-    input_channels: [claims, memo_sections, prior_run]
-    output_schema: MonitoringDelta
-    memory_read_namespaces: ["company/{company_id}/claims/{factor_id}", "company/{company_id}/memos/history", "company/{company_id}/monitoring"]
-    memory_write_namespaces: ["company/{company_id}/monitoring"]
-    allowed_tool_bundle: ic_judge
-    model_profile: balanced
-    scope: both
-    tags: [monitoring, vertical_slice]
-  - id: supply_panel_placeholder
-    name: Supply Panel Placeholder
-    panel_id: supply_product_operations
-    parent_id: null
-    role_type: lead
-    goal: Placeholder agent until the panel is implemented.
-    enabled: false
-    prompt_path: prompts/panels/supply_product_operations/placeholder.md
-    input_channels: [evidence]
-    output_schema: PanelVerdict
-    memory_read_namespaces: ["company/{company_id}/evidence"]
-    memory_write_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    allowed_tool_bundle: demand_research
-    model_profile: budget
-    scope: both
-    tags: [placeholder]
-  - id: market_structure_placeholder
-    name: Market Structure Placeholder
-    panel_id: market_structure_growth
-    parent_id: null
-    role_type: lead
-    goal: Placeholder agent until the panel is implemented.
-    enabled: false
-    prompt_path: prompts/panels/market_structure_growth/placeholder.md
-    input_channels: [evidence]
-    output_schema: PanelVerdict
-    memory_read_namespaces: ["company/{company_id}/evidence"]
-    memory_write_namespaces: ["company/{company_id}/verdicts/{panel_id}"]
-    allowed_tool_bundle: demand_research
-    model_profile: budget
-    scope: both
-    tags: [placeholder]
+- id: gatekeeper_advocate
+  name: Gatekeeper Advocate
+  panel_id: gatekeepers
+  parent_id: null
+  role_type: specialist
+  goal: Build the base-case gatekeeper claim set from evidence.
+  enabled: true
+  prompt_path: prompts/gatekeepers/advocate.md
+  input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: gatekeeper_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - vertical_slice
+  - gatekeepers
+  - advocate
+- id: gatekeeper_skeptic
+  name: Gatekeeper Skeptic
+  panel_id: gatekeepers
+  parent_id: gatekeeper_advocate
+  role_type: skeptic
+  goal: Pressure-test gatekeeper claims and surface disconfirming evidence.
+  enabled: true
+  prompt_path: prompts/gatekeepers/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: gatekeeper_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - vertical_slice
+  - gatekeepers
+  - skeptic
+- id: gatekeeper_durability
+  name: Gatekeeper Durability
+  panel_id: gatekeepers
+  parent_id: gatekeeper_advocate
+  role_type: durability
+  goal: Evaluate whether the gatekeeper thesis persists through stress and time.
+  enabled: true
+  prompt_path: prompts/gatekeepers/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: gatekeeper_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - vertical_slice
+  - gatekeepers
+  - durability
+- id: gatekeeper_judge
+  name: Gatekeeper Judge
+  panel_id: gatekeepers
+  parent_id: gatekeeper_advocate
+  role_type: judge
+  goal: Consolidate gatekeeper claims into a single panel verdict.
+  enabled: true
+  prompt_path: prompts/gatekeepers/judge.md
+  input_channels:
+  - claims
+  - evidence
+  output_schema: GatekeeperVerdict
+  memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: gatekeeper_research
+  model_profile: quality
+  scope: both
+  tags:
+  - vertical_slice
+  - gatekeepers
+  - judge
+- id: gatekeeper_panel_lead
+  name: Gatekeeper Panel Lead
+  panel_id: gatekeepers
+  parent_id: gatekeeper_judge
+  role_type: lead
+  goal: Decide whether the company clears gatekeeping for deeper memo work.
+  enabled: true
+  prompt_path: prompts/gatekeepers/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: GatekeeperVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - vertical_slice
+  - gatekeepers
+  - lead
+- id: demand_advocate
+  name: Demand Advocate
+  panel_id: demand_revenue_quality
+  parent_id: null
+  role_type: specialist
+  goal: Build the base-case demand and revenue quality thesis.
+  enabled: true
+  prompt_path: prompts/panels/demand_revenue_quality/advocate.md
+  input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: demand_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - vertical_slice
+  - demand
+  - advocate
+- id: demand_skeptic
+  name: Demand Skeptic
+  panel_id: demand_revenue_quality
+  parent_id: demand_advocate
+  role_type: skeptic
+  goal: Stress-test demand quality claims and find disconfirming evidence.
+  enabled: true
+  prompt_path: prompts/panels/demand_revenue_quality/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: demand_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - vertical_slice
+  - demand
+  - skeptic
+- id: demand_durability
+  name: Demand Durability
+  panel_id: demand_revenue_quality
+  parent_id: demand_advocate
+  role_type: durability
+  goal: Evaluate the time durability of the demand thesis.
+  enabled: true
+  prompt_path: prompts/panels/demand_revenue_quality/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: demand_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - vertical_slice
+  - demand
+  - durability
+- id: demand_judge
+  name: Demand Judge
+  panel_id: demand_revenue_quality
+  parent_id: demand_advocate
+  role_type: judge
+  goal: Consolidate demand and revenue quality claims into a verdict.
+  enabled: true
+  prompt_path: prompts/panels/demand_revenue_quality/judge.md
+  input_channels:
+  - claims
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: quality
+  scope: both
+  tags:
+  - vertical_slice
+  - demand
+  - judge
+- id: demand_panel_lead
+  name: Demand Panel Lead
+  panel_id: demand_revenue_quality
+  parent_id: demand_judge
+  role_type: lead
+  goal: Translate the demand verdict into memo-relevant judgment.
+  enabled: true
+  prompt_path: prompts/panels/demand_revenue_quality/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - vertical_slice
+  - demand
+  - lead
+- id: memo_section_updater
+  name: Memo Section Updater
+  panel_id: memo_updates
+  parent_id: null
+  role_type: synthesizer
+  goal: Update only the memo sections affected by completed panel verdicts.
+  enabled: true
+  prompt_path: prompts/memo_updates/section_update.md
+  input_channels:
+  - panel_verdicts
+  - prior_memo
+  output_schema: MemoSectionUpdate
+  memory_read_namespaces:
+  - company/{company_id}/memos/current
+  - company/{company_id}/verdicts/{panel_id}
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/memos/current
+  - company/{company_id}/memos/history
+  allowed_tool_bundle: memo_updater
+  model_profile: balanced
+  scope: both
+  tags:
+  - memo
+  - vertical_slice
+- id: ic_synthesizer
+  name: IC Synthesizer
+  panel_id: ic
+  parent_id: null
+  role_type: synthesizer
+  goal: Reconcile the final memo snapshot and overall recommendation.
+  enabled: true
+  prompt_path: prompts/ic/synthesizer.md
+  input_channels:
+  - panel_verdicts
+  - memo_sections
+  - monitoring_delta
+  output_schema: ICMemo
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  - company/{company_id}/memos/current
+  - company/{company_id}/monitoring
+  memory_write_namespaces:
+  - company/{company_id}/memos/current
+  - company/{company_id}/memos/history
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - ic
+  - vertical_slice
+- id: monitoring_diff_synthesizer
+  name: Monitoring Diff Synthesizer
+  panel_id: monitoring
+  parent_id: null
+  role_type: synthesizer
+  goal: Compare the current run with the prior active run and summarize thesis drift.
+  enabled: true
+  prompt_path: prompts/monitoring/delta.md
+  input_channels:
+  - claims
+  - memo_sections
+  - prior_run
+  output_schema: MonitoringDelta
+  memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/history
+  - company/{company_id}/monitoring
+  memory_write_namespaces:
+  - company/{company_id}/monitoring
+  allowed_tool_bundle: ic_judge
+  model_profile: balanced
+  scope: both
+  tags:
+  - monitoring
+  - vertical_slice
+- id: supply_panel_placeholder
+  name: Supply Panel Placeholder
+  panel_id: supply_product_operations
+  parent_id: null
+  role_type: lead
+  goal: Placeholder agent until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/supply_product_operations/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+- id: market_structure_placeholder
+  name: Market Structure Placeholder
+  panel_id: market_structure_growth
+  parent_id: null
+  role_type: lead
+  goal: Placeholder agent until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/market_structure_growth/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder

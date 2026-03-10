@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Iterator
+from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -27,6 +28,9 @@ class Database:
         self.session_factory = sessionmaker(bind=self.engine, autoflush=True, future=True)
 
     def initialize(self) -> None:
+        if self._should_use_migrations():
+            self._apply_migrations()
+            return
         Base.metadata.create_all(self.engine)
 
     @contextmanager
@@ -40,3 +44,20 @@ class Database:
             raise
         finally:
             session.close()
+
+    def _should_use_migrations(self) -> bool:
+        if self.url == "sqlite+pysqlite:///:memory:":
+            return False
+        return Path("alembic.ini").is_file() and Path("alembic").is_dir()
+
+    def _apply_migrations(self) -> None:
+        from alembic import command
+        from alembic.config import Config
+
+        config = Config("alembic.ini")
+        config.set_main_option("sqlalchemy.url", self.url)
+        table_names = set(inspect(self.engine).get_table_names())
+        if table_names and "alembic_version" not in table_names:
+            command.stamp(config, "head")
+            return
+        command.upgrade(config, "head")
