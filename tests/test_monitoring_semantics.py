@@ -178,7 +178,7 @@ def _evidence_record(*, staleness_days: int, factor_id: str) -> EvidenceRecord:
         source_type="public_filing",
         title=f"{factor_id} evidence",
         body="Evidence body.",
-        source_path="/tmp/source.txt",
+        source_path="fixtures/source.txt",
         namespace="company/ACME/evidence",
         panel_ids=["gatekeepers"],
         factor_ids=[factor_id],
@@ -381,7 +381,11 @@ def test_delta_escalates_gatekeeper_change_to_high_alert(seeded_acme) -> None:
     delta = runtime.compute_monitoring_delta()
 
     assert delta.alert_level == AlertLevel.HIGH
-    assert {"investment_snapshot", "overall_recommendation", "risk"}.issubset(delta.changed_sections)
+    assert {
+        "investment_snapshot",
+        "overall_recommendation",
+        "risk",
+    }.issubset(delta.changed_sections)
     assert "Gatekeeper decision changed." in delta.change_summary
 
 
@@ -398,7 +402,12 @@ def test_stale_fake_provider_claims_lower_confidence() -> None:
     stale_claim = provider.generate_structured(
         _claim_request(
             run_id="run_stale",
-            evidence=[_evidence_record(staleness_days=120, factor_id="balance_sheet_survivability")],
+            evidence=[
+                _evidence_record(
+                    staleness_days=120,
+                    factor_id="balance_sheet_survivability",
+                )
+            ],
         ),
         ClaimCard,
     )
@@ -412,7 +421,12 @@ def test_stale_memo_updates_call_out_tempered_conviction() -> None:
     stale_claim = provider.generate_structured(
         _claim_request(
             run_id="run_stale",
-            evidence=[_evidence_record(staleness_days=120, factor_id="balance_sheet_survivability")],
+            evidence=[
+                _evidence_record(
+                    staleness_days=120,
+                    factor_id="balance_sheet_survivability",
+                )
+            ],
         ),
         ClaimCard,
     )

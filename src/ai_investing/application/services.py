@@ -709,7 +709,10 @@ class RefreshRuntime:
     ) -> str:
         if section_id == "what_changed_since_last_run":
             if self.prior_memo is None:
-                return "No prior active run exists yet, so the run-log delta section is not advanced."
+                return (
+                    "No prior active run exists yet, so the run-log delta section is "
+                    "not advanced."
+                )
             return "This run has not advanced the run-log delta section yet."
 
         gatekeeper_only = self._is_gatekeeper_only_projection(is_partial=is_partial)
@@ -872,7 +875,9 @@ class RefreshRuntime:
                 prior_claim.durability_horizon != claim.durability_horizon,
             )
         )
-        confidence_changed = abs(prior_claim.confidence - claim.confidence) >= confidence_materiality
+        confidence_changed = (
+            abs(prior_claim.confidence - claim.confidence) >= confidence_materiality
+        )
         return meaning_changed or confidence_changed
 
     @staticmethod
@@ -932,7 +937,12 @@ class RefreshRuntime:
         drift_flags: set[str],
         gate_decision_changed: bool,
     ) -> str:
-        if not changed_claim_ids and not changed_sections and not drift_flags and not gate_decision_changed:
+        if (
+            not changed_claim_ids
+            and not changed_sections
+            and not drift_flags
+            and not gate_decision_changed
+        ):
             return (
                 f"{self.company_profile.company_name} reran with no material thesis change. "
                 "Refreshed the run log only."
