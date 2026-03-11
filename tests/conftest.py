@@ -17,10 +17,12 @@ from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus
 from ai_investing.domain.models import CoverageEntry
 from ai_investing.settings import Settings
 
+UTC = getattr(datetime, "UTC", timezone(timedelta(0)))
+
 
 @dataclass
 class DeterministicRuntime:
-    current: datetime = datetime(2026, 3, 11, 9, 0, tzinfo=timezone.utc)
+    current: datetime = datetime(2026, 3, 11, 9, 0, tzinfo=UTC)
     counters: dict[str, int] = field(default_factory=lambda: defaultdict(int))
 
     def utc_now(self) -> datetime:
@@ -61,7 +63,11 @@ def deterministic_runtime() -> DeterministicRuntime:
 
 
 @pytest.fixture
-def context(tmp_path: Path, repo_root: Path, deterministic_runtime: DeterministicRuntime) -> AppContext:
+def context(
+    tmp_path: Path,
+    repo_root: Path,
+    deterministic_runtime: DeterministicRuntime,
+) -> AppContext:
     config_dir = tmp_path / "config"
     shutil.copytree(repo_root / "config", config_dir)
 
