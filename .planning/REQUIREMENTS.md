@@ -15,7 +15,7 @@
 
 - [ ] **COV-01**: A user can register a company coverage entry with company type, coverage status, cadence, next run time, and panel policy.
 - [ ] **COV-02**: A user can disable or remove a coverage entry without deleting historical memory.
-- [ ] **COV-03**: The system can run all due coverage entries and skip disabled entries.
+- [x] **COV-03**: The system can run all due coverage entries and skip disabled entries.
 
 ### Ingestion
 
@@ -27,13 +27,13 @@
 
 - [ ] **MEM-01**: The platform stores evidence, claims, verdicts, memo sections, memo section updates, memo snapshots, monitoring deltas, tool logs, and company profiles as structured records.
 - [ ] **MEM-02**: Claim and verdict records preserve history using statuses such as `active`, `superseded`, and `rejected`.
-- [ ] **MEM-03**: Each company has a readable current memo snapshot plus memo history and memo section update logs.
+- [x] **MEM-03**: Each company has a readable current memo snapshot plus memo history and memo section update logs.
 
 ### Orchestration
 
 - [ ] **ORCH-01**: The system composes a company refresh from reusable LangGraph subgraphs for gatekeeping, debate, panel leadership, memo updates, monitoring diffs, and IC synthesis.
-- [ ] **ORCH-02**: The initial production slice runs `gatekeepers` and `demand_revenue_quality` end-to-end using config-driven agents.
-- [ ] **ORCH-03**: The orchestration runtime can generate a per-company delta against the prior active memo on reruns.
+- [x] **ORCH-02**: The initial production slice runs `gatekeepers` and `demand_revenue_quality` end-to-end using config-driven agents.
+- [x] **ORCH-03**: The orchestration runtime can generate a per-company delta against the prior active memo on reruns.
 
 ### Memo And Monitoring
 
@@ -89,16 +89,16 @@
 | CONF-03 | Phase 1 | Complete |
 | COV-01 | Phase 1 | Complete |
 | COV-02 | Phase 1 | Complete |
-| COV-03 | Phase 2 | Pending |
+| COV-03 | Phase 2 | Complete |
 | ING-01 | Phase 1 | Complete |
 | ING-02 | Phase 1 | Complete |
 | ING-03 | Phase 2 | Pending |
 | MEM-01 | Phase 1 | Complete |
 | MEM-02 | Phase 1 | Complete |
-| MEM-03 | Phase 2 | Pending |
+| MEM-03 | Phase 2 | Complete |
 | ORCH-01 | Phase 1 | Complete |
-| ORCH-02 | Phase 2 | Pending |
-| ORCH-03 | Phase 2 | Pending |
+| ORCH-02 | Phase 2 | Complete |
+| ORCH-03 | Phase 2 | Complete |
 | MEMO-01 | Phase 2 | Pending |
 | MEMO-02 | Phase 1 | Complete |
 | MEMO-03 | Phase 2 | Pending |
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-10 after Phase 01 completion*
+*Last updated: 2026-03-11 after Phase 02 Plan 01 completion*
