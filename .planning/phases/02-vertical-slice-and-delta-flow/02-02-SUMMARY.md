@@ -68,6 +68,7 @@ Each task was committed atomically:
 1. **Task 1: Project the full memo contract across partial, stale, and never-advanced sections** - `d88e58d` (feat)
 2. **Task 2: Replace noisy delta logic with a structured materiality comparator** - `0af961e` (feat)
 3. **Task 3: Surface evidence staleness and real output references through tools and prompts** - `b9e4db7` (feat)
+4. **Verification cleanup** - `b1ef655` (refactor)
 
 **Plan metadata:** Recorded in the final docs commit for this plan.
 
@@ -111,7 +112,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Verified `.planning/phases/02-vertical-slice-and-delta-flow/02-02-SUMMARY.md` exists on disk.
-- Verified task commits `d88e58d`, `0af961e`, and `b9e4db7` are present in local history.
+- Verified task commits `d88e58d`, `0af961e`, `b9e4db7`, and `b1ef655` are present in local history.
 - Verified plan checks in Dockerized Python 3.11: `pytest -q tests/test_monitoring_semantics.py`, `pytest -q tests/test_repository_semantics.py`, and `ruff check src tests`.
 
 ---
