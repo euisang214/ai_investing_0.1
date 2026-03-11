@@ -21,7 +21,7 @@
 
 - [ ] **ING-01**: The platform can ingest sample public-company evidence from a file-based connector and persist immutable raw artifacts plus normalized evidence records.
 - [ ] **ING-02**: The platform can ingest sample private-company evidence from a file-based connector and persist normalized evidence records with provenance and quality metadata.
-- [ ] **ING-03**: Evidence creation records factor tags, source references, time periods, and staleness metadata for downstream agent use.
+- [x] **ING-03**: Evidence creation records factor tags, source references, time periods, and staleness metadata for downstream agent use.
 
 ### Memory And Persistence
 
@@ -37,14 +37,14 @@
 
 ### Memo And Monitoring
 
-- [ ] **MEMO-01**: The memo initializes on first coverage and updates section-by-section as panel verdicts arrive.
+- [x] **MEMO-01**: The memo initializes on first coverage and updates section-by-section as panel verdicts arrive.
 - [ ] **MEMO-02**: The memo exposes stable section IDs and configurable display labels, including optional `sustainability` labeling for `durability_resilience`.
-- [ ] **MEMO-03**: Each rerun writes `what_changed_since_last_run` and a `MonitoringDelta` record with thesis drift metadata.
+- [x] **MEMO-03**: Each rerun writes `what_changed_since_last_run` and a `MonitoringDelta` record with thesis drift metadata.
 
 ### Tooling And Providers
 
 - [ ] **TOOLS-01**: Tools are declared in a registry and assigned to agents through least-privilege bundles.
-- [ ] **TOOLS-02**: Every tool invocation is logged with run, agent, tool, input summary, and output references.
+- [x] **TOOLS-02**: Every tool invocation is logged with run, agent, tool, input summary, and output references.
 - [ ] **PROV-01**: The service supports OpenAI and Anthropic provider adapters plus a fake provider for tests.
 
 ### Interfaces And Operations
@@ -92,18 +92,18 @@
 | COV-03 | Phase 2 | Complete |
 | ING-01 | Phase 1 | Complete |
 | ING-02 | Phase 1 | Complete |
-| ING-03 | Phase 2 | Pending |
+| ING-03 | Phase 2 | Complete |
 | MEM-01 | Phase 1 | Complete |
 | MEM-02 | Phase 1 | Complete |
 | MEM-03 | Phase 2 | Complete |
 | ORCH-01 | Phase 1 | Complete |
 | ORCH-02 | Phase 2 | Complete |
 | ORCH-03 | Phase 2 | Complete |
-| MEMO-01 | Phase 2 | Pending |
+| MEMO-01 | Phase 2 | Complete |
 | MEMO-02 | Phase 1 | Complete |
-| MEMO-03 | Phase 2 | Pending |
+| MEMO-03 | Phase 2 | Complete |
 | TOOLS-01 | Phase 1 | Complete |
-| TOOLS-02 | Phase 2 | Pending |
+| TOOLS-02 | Phase 2 | Complete |
 | PROV-01 | Phase 1 | Complete |
 | API-01 | Phase 1 | Complete |
 | API-02 | Phase 1 | Complete |
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-11 after Phase 02 Plan 01 completion*
+*Last updated: 2026-03-11 after Phase 02 Plan 02 completion*

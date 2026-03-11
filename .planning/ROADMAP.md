@@ -37,11 +37,11 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 2: Vertical Slice And Delta Flow
 
 **Goal:** Prove the architecture by analyzing one company end-to-end and producing memo history plus rerun deltas.
-**Status:** In progress. Plan `02-01` completed on 2026-03-11; 1 of 4 Phase 2 plans now have summaries on disk.
+**Status:** In progress. Plans `02-01`, `02-02`, and `02-03` completed on 2026-03-11; 3 of 4 Phase 2 plans now have summaries on disk.
 
 **Requirements:** `COV-03`, `ING-03`, `MEM-03`, `ORCH-02`, `ORCH-03`, `MEMO-01`, `MEMO-03`, `TOOLS-02`, `TEST-01`, `TEST-02`
 
-**Plan progress:** `1 / 4` completed (`02-01` done; `02-02` through `02-04` remain)
+**Plan progress:** `3 / 4` completed (`02-01`, `02-02`, and `02-03` done; `02-04` remains)
 
 **Success criteria:**
 1. The `CompanyRefreshGraph` executes `gatekeepers` and `demand_revenue_quality` using reusable subgraphs, not one-off orchestration code.
@@ -84,4 +84,4 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 3. Background execution and notification boundaries are documented cleanly.
 
 ---
-*Last updated: 2026-03-11 after Phase 02 Plan 01 completion*
+*Last updated: 2026-03-11 after Phase 02 Plans 02-02 and 02-03 summary updates*
