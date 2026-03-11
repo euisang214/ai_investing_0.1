@@ -67,7 +67,7 @@ class ToolRegistryService:
                 agent_id=agent.id,
                 tool_id=tool_id,
                 input_summary=str(payload),
-                output_refs=[tool_id],
+                output_refs=self._output_refs_for_result(result),
             )
         )
         return result
@@ -81,6 +81,13 @@ class ToolRegistryService:
         if definition.kind == "builtin":
             raise KeyError(f"No builtin handler registered for {definition.handler}")
         return self._mcp.execute(definition.id, payload)
+
+    @staticmethod
+    def _output_refs_for_result(result: dict[str, Any]) -> list[str]:
+        raw_refs = result.get("output_refs")
+        if not isinstance(raw_refs, list):
+            return []
+        return [str(ref) for ref in raw_refs if str(ref)]
 
     def _validate_registry(self) -> None:
         for bundle_id, tool_ids in self._bundles.items():

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from ai_investing.application.services import AnalysisService, RefreshRuntime
 from ai_investing.domain.enums import (
     AlertLevel,
@@ -11,7 +13,18 @@ from ai_investing.domain.enums import (
     RunStatus,
     VerdictRecommendation,
 )
-from ai_investing.domain.models import ClaimCard, GatekeeperVerdict, ICMemo, MemoSection, RunRecord
+from ai_investing.domain.models import (
+    ClaimCard,
+    EvidenceRecord,
+    FactorSignal,
+    GatekeeperVerdict,
+    ICMemo,
+    MemoSection,
+    MemoSectionUpdate,
+    RunRecord,
+    SourceRef,
+    StructuredGenerationRequest,
+)
 from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
 
@@ -155,6 +168,52 @@ def _runtime_for_delta(
         current_sections={section.section_id: section for section in current_sections},
         current_claims=current_claims,
         current_verdicts=current_verdicts,
+    )
+
+
+def _evidence_record(*, staleness_days: int, factor_id: str) -> EvidenceRecord:
+    return EvidenceRecord(
+        company_id="ACME",
+        company_type=CompanyType.PUBLIC,
+        source_type="public_filing",
+        title=f"{factor_id} evidence",
+        body="Evidence body.",
+        source_path="/tmp/source.txt",
+        namespace="company/ACME/evidence",
+        panel_ids=["gatekeepers"],
+        factor_ids=[factor_id],
+        factor_signals={
+            factor_id: FactorSignal(
+                stance="positive",
+                summary=f"{factor_id} remains supportive.",
+            )
+        },
+        source_refs=[SourceRef(label="Form 10-K")],
+        evidence_quality=0.8,
+        staleness_days=staleness_days,
+        as_of_date=datetime(2026, 1, 1, tzinfo=UTC),
+    )
+
+
+def _claim_request(*, run_id: str, evidence: list[EvidenceRecord]) -> StructuredGenerationRequest:
+    return StructuredGenerationRequest(
+        task_type="claim_card",
+        prompt="",
+        input_data={
+            "company_id": "ACME",
+            "company_name": "Acme Cloud",
+            "company_type": "public",
+            "run_id": run_id,
+            "panel_id": "gatekeepers",
+            "factor_id": "balance_sheet_survivability",
+            "factor_name": "Balance Sheet Survivability",
+            "agent_id": "gatekeeper_advocate",
+            "role_type": "specialist",
+            "evidence": [record.model_dump(mode="json") for record in evidence],
+            "prior_claim": "",
+            "section_ids": ["risk", "overall_recommendation"],
+            "namespace": "company/ACME/claims/balance_sheet_survivability",
+        },
     )
 
 
@@ -324,3 +383,79 @@ def test_delta_escalates_gatekeeper_change_to_high_alert(seeded_acme) -> None:
     assert delta.alert_level == AlertLevel.HIGH
     assert {"investment_snapshot", "overall_recommendation", "risk"}.issubset(delta.changed_sections)
     assert "Gatekeeper decision changed." in delta.change_summary
+
+
+def test_stale_fake_provider_claims_lower_confidence() -> None:
+    provider = FakeModelProvider()
+
+    fresh_claim = provider.generate_structured(
+        _claim_request(
+            run_id="run_fresh",
+            evidence=[_evidence_record(staleness_days=5, factor_id="balance_sheet_survivability")],
+        ),
+        ClaimCard,
+    )
+    stale_claim = provider.generate_structured(
+        _claim_request(
+            run_id="run_stale",
+            evidence=[_evidence_record(staleness_days=120, factor_id="balance_sheet_survivability")],
+        ),
+        ClaimCard,
+    )
+
+    assert stale_claim.confidence < fresh_claim.confidence
+    assert "stale evidence" in stale_claim.staleness_assessment.lower()
+
+
+def test_stale_memo_updates_call_out_tempered_conviction() -> None:
+    provider = FakeModelProvider()
+    stale_claim = provider.generate_structured(
+        _claim_request(
+            run_id="run_stale",
+            evidence=[_evidence_record(staleness_days=120, factor_id="balance_sheet_survivability")],
+        ),
+        ClaimCard,
+    )
+    update = provider.generate_structured(
+        StructuredGenerationRequest(
+            task_type="memo_section_update",
+            prompt="",
+            input_data={
+                "company_id": "ACME",
+                "run_id": "run_stale",
+                "section_id": "risk",
+                "prior_text": "",
+                "verdicts": [
+                    _gatekeeper_verdict(
+                        run_id="run_stale",
+                        gate_decision=GateDecision.PASS,
+                    ).model_dump(mode="json")
+                ],
+                "claims": [stale_claim.model_dump(mode="json")],
+            },
+        ),
+        MemoSectionUpdate,
+    )
+
+    assert "tempers conviction" in update.updated_text.lower()
+
+
+def test_tool_logs_capture_record_level_output_refs(seeded_acme) -> None:
+    service = AnalysisService(seeded_acme)
+
+    first = service.analyze_company("ACME")
+    service.continue_run(first["run"]["run_id"])
+    rerun = service.refresh_company("ACME")
+
+    with seeded_acme.database.session() as session:
+        logs = Repository(session).list_tool_logs(rerun["run"]["run_id"])
+
+    evidence_logs = [log for log in logs if log.tool_id == "evidence_search"]
+    claim_logs = [log for log in logs if log.tool_id == "claim_search"]
+
+    assert evidence_logs
+    assert claim_logs
+    assert any(ref.startswith("evidence:") for log in evidence_logs for ref in log.output_refs)
+    assert any(ref.startswith("claim:") for log in claim_logs for ref in log.output_refs)
+    assert all(log.output_refs != ["evidence_search"] for log in evidence_logs)
+    assert all(log.output_refs != ["claim_search"] for log in claim_logs)

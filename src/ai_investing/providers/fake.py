@@ -24,6 +24,8 @@ from ai_investing.domain.models import (
 )
 from ai_investing.providers.base import ModelProvider, ModelT
 
+STALE_EVIDENCE_DAYS = 30
+
 
 def _as_evidence(records: list[dict[str, Any]]) -> list[EvidenceRecord]:
     return [EvidenceRecord.model_validate(record) for record in records]
@@ -49,6 +51,18 @@ def _score_signals(
             positives.append(signal.summary)
             negatives.append(signal.summary)
     return score, positives, negatives
+
+
+def _relevant_evidence(evidence: list[EvidenceRecord], factor_id: str) -> list[EvidenceRecord]:
+    return [record for record in evidence if factor_id in record.factor_ids]
+
+
+def _stale_records(evidence: list[EvidenceRecord], factor_id: str) -> list[EvidenceRecord]:
+    return [
+        record
+        for record in _relevant_evidence(evidence, factor_id)
+        if record.staleness_days >= STALE_EVIDENCE_DAYS
+    ]
 
 
 def _snippets(
@@ -101,13 +115,22 @@ class FakeModelProvider(ModelProvider):
         role_type = str(request.input_data["role_type"])
         score, positives, negatives = _score_signals(evidence, factor_id)
         prior_claim_text = str(request.input_data.get("prior_claim", ""))
+        relevant_evidence = _relevant_evidence(evidence, factor_id)
+        stale_evidence = _stale_records(evidence, factor_id)
         confidence = min(0.95, 0.45 + (abs(score) * 0.12))
         evidence_quality = (
             sum(record.evidence_quality for record in evidence if factor_id in record.factor_ids)
             or 0.6
         )
-        relevant_count = max(1, sum(1 for record in evidence if factor_id in record.factor_ids))
+        relevant_count = max(1, len(relevant_evidence))
         evidence_quality = min(0.95, evidence_quality / relevant_count)
+        if stale_evidence:
+            stale_ratio = len(stale_evidence) / relevant_count
+            confidence = max(0.25, confidence - min(0.18, 0.08 + (stale_ratio * 0.08)))
+            evidence_quality = max(
+                0.2,
+                evidence_quality - min(0.15, 0.04 + (stale_ratio * 0.06)),
+            )
         claim_direction = "durable" if score >= 0 else "under pressure"
         if role_type == "skeptic" and score >= 0:
             claim_direction = "more fragile than the base case implies"
@@ -124,11 +147,26 @@ class FakeModelProvider(ModelProvider):
             if negatives
             else f"few direct negatives surfaced for {factor_name.lower()}"
         )
+        if stale_evidence:
+            top_negative = (
+                f"Part of the support is stale ({len(stale_evidence)}/{relevant_count} records "
+                f"are at least {STALE_EVIDENCE_DAYS} days old)."
+            )
         what_changed = (
             "Initial coverage run."
             if not prior_claim_text
             else "Signal mix changed versus the prior active claim."
         )
+        if stale_evidence:
+            what_changed = (
+                "Stale evidence is weakening conviction versus the freshest possible read."
+            )
+        staleness_assessment = "Fresh enough for current memo update."
+        if stale_evidence:
+            staleness_assessment = (
+                f"Stale evidence is carrying {len(stale_evidence)} of {relevant_count} records "
+                f"(>= {STALE_EVIDENCE_DAYS} days old), so confidence is downgraded until refreshed."
+            )
         return {
             "company_id": request.input_data["company_id"],
             "company_type": request.input_data["company_type"],
@@ -152,7 +190,7 @@ class FakeModelProvider(ModelProvider):
             ],
             "confidence": round(confidence, 2),
             "evidence_quality": round(evidence_quality, 2),
-            "staleness_assessment": "Fresh enough for current memo update.",
+            "staleness_assessment": staleness_assessment,
             "time_horizon": "12-24 months",
             "durability_horizon": "multi-year",
             "falsifiers": [f"{factor_name} weakens materially in the next refresh."],
@@ -161,7 +199,11 @@ class FakeModelProvider(ModelProvider):
                 f"What could invert the current {factor_name.lower()} signal?"
             ],
             "recommended_followups": [
-                f"Refresh evidence on {factor_name.lower()} during the next weekly rerun."
+                (
+                    f"Refresh stale evidence on {factor_name.lower()} before relying on this read."
+                    if stale_evidence
+                    else f"Refresh evidence on {factor_name.lower()} during the next weekly rerun."
+                )
             ],
             "source_refs": [
                 source_ref.model_dump(mode="json")
@@ -196,19 +238,28 @@ class FakeModelProvider(ModelProvider):
             recommendation = VerdictRecommendation.MIXED
         strengths = [claim.bull_case for claim in claims[:3]]
         concerns = [claim.bear_case for claim in claims[:3]]
+        stale_claims = [
+            claim for claim in claims if "stale" in claim.staleness_assessment.lower()
+        ]
+        confidence = round(sum(claim.confidence for claim in claims) / max(1, len(claims)), 2)
+        summary = (
+            f"{company_name} shows a {recommendation.value} read on "
+            f"{request.input_data['panel_name'].lower()}."
+        )
+        if stale_claims:
+            confidence = round(max(0.2, confidence - 0.05), 2)
+            concerns.append("Part of the evidence set is stale, which lowers conviction.")
+            summary = f"{summary} Current conviction is tempered by stale evidence."
         return {
             "company_id": request.input_data["company_id"],
             "company_type": request.input_data["company_type"],
             "run_id": request.input_data["run_id"],
             "panel_id": request.input_data["panel_id"],
             "panel_name": request.input_data["panel_name"],
-            "summary": (
-                f"{company_name} shows a {recommendation.value} read on "
-                f"{request.input_data['panel_name'].lower()}."
-            ),
+            "summary": summary,
             "recommendation": recommendation,
             "score": round(positive / max(1, len(claims)), 2),
-            "confidence": round(sum(claim.confidence for claim in claims) / max(1, len(claims)), 2),
+            "confidence": confidence,
             "strengths": strengths,
             "concerns": concerns,
             "affected_section_ids": request.input_data["affected_section_ids"],
@@ -250,7 +301,13 @@ class FakeModelProvider(ModelProvider):
             "; ".join(verdict.summary for verdict in verdicts) or "No panel verdicts yet."
         )
         notable_claims = "; ".join(claim.claim for claim in claims[:2])
-        updated_text = f"{panel_summaries} Key claims: {notable_claims}".strip()
+        stale_claims = [
+            claim for claim in claims if "stale" in claim.staleness_assessment.lower()
+        ]
+        stale_note = ""
+        if stale_claims:
+            stale_note = " Stale evidence tempers conviction in this section."
+        updated_text = f"{panel_summaries} Key claims: {notable_claims}{stale_note}".strip()
         if not prior_text:
             change = ChangeClassification.INITIAL
         elif prior_text == updated_text:
@@ -283,8 +340,8 @@ class FakeModelProvider(ModelProvider):
                 section = MemoSection(
                     section_id=section_id,
                     label=label,
-                    content="Pending update.",
-                    status=MemoSectionStatus.PENDING,
+                    content="This section has not been advanced yet.",
+                    status=MemoSectionStatus.NOT_ADVANCED,
                 )
             built_sections.append(section.model_dump(mode="json"))
         overall = section_lookup.get("overall_recommendation")

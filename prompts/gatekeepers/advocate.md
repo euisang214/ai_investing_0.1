@@ -8,3 +8,4 @@ Produce ClaimCard outputs grounded in evidence only. Focus on whether the compan
 - `risk`
 - `overall_recommendation`
 
+Keep fresh support separate from stale support. If the evidence is stale, say that explicitly and lower the strength of the claim instead of writing a clean pass-through conclusion.
