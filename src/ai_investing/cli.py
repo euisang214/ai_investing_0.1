@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 
@@ -18,6 +19,7 @@ from ai_investing.application.services import (
 )
 from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
 from ai_investing.domain.models import CoverageEntry
+from ai_investing.persistence.repositories import Repository
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -36,6 +38,56 @@ def _parse_datetime(value: str) -> datetime:
         ) from exc
 
 
+def _emit_json(payload: Any) -> None:
+    typer.echo(json.dumps(payload, indent=2))
+
+
+def _resolve_continue_action(
+    *,
+    action: RunContinueAction | None,
+    stop: bool,
+    provisional: bool,
+) -> RunContinueAction:
+    if stop and provisional:
+        raise typer.BadParameter("Use only one of --stop or --provisional.")
+    if action is not None and (stop or provisional):
+        raise typer.BadParameter("Use either --action or --stop/--provisional, not both.")
+    if stop:
+        return RunContinueAction.STOP
+    if provisional:
+        return RunContinueAction.CONTINUE_PROVISIONAL
+    return action or RunContinueAction.CONTINUE
+
+
+def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
+    with context.database.session() as session:
+        repository = Repository(session)
+        run = repository.get_run(run_id)
+        if run is None:
+            raise KeyError(run_id)
+
+        claims_by_panel: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for claim in repository.list_claim_cards(run.company_id, run_id=run.run_id):
+            claims_by_panel[claim.panel_id].append(claim.model_dump(mode="json"))
+
+        panels: dict[str, dict[str, Any]] = {}
+        for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
+            panels[verdict.panel_id] = {
+                "claims": claims_by_panel.get(verdict.panel_id, []),
+                "verdict": verdict.model_dump(mode="json"),
+            }
+
+        memo = repository.get_memo_for_run(run.company_id, run.run_id)
+        delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)
+
+    return {
+        "run": run.model_dump(mode="json"),
+        "panels": panels,
+        "memo": memo.model_dump(mode="json") if memo is not None else None,
+        "delta": delta.model_dump(mode="json") if delta is not None else None,
+    }
+
+
 @app.command("init-db")
 def init_db() -> None:
     AnalysisService(_context()).initialize_database()
@@ -45,21 +97,13 @@ def init_db() -> None:
 @app.command("ingest-public-data")
 def ingest_public_data(input_dir: Path) -> None:
     profile, evidence_ids = IngestionService(_context()).ingest_public_data(input_dir)
-    typer.echo(
-        json.dumps(
-            {"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}, indent=2
-        )
-    )
+    _emit_json({"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids})
 
 
 @app.command("ingest-private-data")
 def ingest_private_data(input_dir: Path) -> None:
     profile, evidence_ids = IngestionService(_context()).ingest_private_data(input_dir)
-    typer.echo(
-        json.dumps(
-            {"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}, indent=2
-        )
-    )
+    _emit_json({"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids})
 
 
 @app.command("add-coverage")
@@ -85,25 +129,25 @@ def add_coverage(
             notes=notes,
         )
     )
-    typer.echo(json.dumps(entry.model_dump(mode="json"), indent=2))
+    _emit_json(entry.model_dump(mode="json"))
 
 
 @app.command("list-coverage")
 def list_coverage() -> None:
     entries = CoverageService(_context()).list_coverage()
-    typer.echo(json.dumps([entry.model_dump(mode="json") for entry in entries], indent=2))
+    _emit_json([entry.model_dump(mode="json") for entry in entries])
 
 
 @app.command("disable-coverage")
 def disable_coverage(company_id: str) -> None:
     entry = CoverageService(_context()).disable_coverage(company_id)
-    typer.echo(json.dumps(entry.model_dump(mode="json"), indent=2))
+    _emit_json(entry.model_dump(mode="json"))
 
 
 @app.command("remove-coverage")
 def remove_coverage(company_id: str) -> None:
     CoverageService(_context()).remove_coverage(company_id)
-    typer.echo(json.dumps({"company_id": company_id, "removed": True}, indent=2))
+    _emit_json({"company_id": company_id, "removed": True})
 
 
 @app.command("set-next-run-at")
@@ -113,40 +157,52 @@ def set_next_run_at(
 ) -> None:
     parsed_value = _parse_datetime(next_run_at) if next_run_at is not None else None
     entry = CoverageService(_context()).set_next_run_at(company_id, parsed_value)
-    typer.echo(json.dumps(entry.model_dump(mode="json"), indent=2))
+    _emit_json(entry.model_dump(mode="json"))
 
 
 @app.command("analyze-company")
 def analyze_company(company_id: str) -> None:
     result = AnalysisService(_context()).analyze_company(company_id)
-    typer.echo(json.dumps(result, indent=2))
+    _emit_json(result)
 
 
 @app.command("run-panel")
 def run_panel(company_id: str, panel_id: str) -> None:
     result = AnalysisService(_context()).run_panel(company_id, panel_id)
-    typer.echo(json.dumps(result, indent=2))
+    _emit_json(result)
 
 
 @app.command("refresh-company")
 def refresh_company(company_id: str) -> None:
     result = AnalysisService(_context()).refresh_company(company_id)
-    typer.echo(json.dumps(result, indent=2))
+    _emit_json(result)
+
+
+@app.command("show-run")
+def show_run(run_id: str) -> None:
+    _emit_json(_load_run_result(_context(), run_id))
 
 
 @app.command("continue-run")
 def continue_run(
     run_id: str,
-    action: Annotated[RunContinueAction, typer.Option("--action")] = RunContinueAction.CONTINUE,
+    action: Annotated[RunContinueAction | None, typer.Option("--action")] = None,
+    stop: Annotated[bool, typer.Option("--stop")] = False,
+    provisional: Annotated[bool, typer.Option("--provisional")] = False,
 ) -> None:
-    result = AnalysisService(_context()).continue_run(run_id, action=action)
-    typer.echo(json.dumps(result, indent=2))
+    resolved_action = _resolve_continue_action(
+        action=action,
+        stop=stop,
+        provisional=provisional,
+    )
+    result = AnalysisService(_context()).continue_run(run_id, action=resolved_action)
+    _emit_json(result)
 
 
 @app.command("run-due-coverage")
 def run_due_coverage() -> None:
     result = AnalysisService(_context()).run_due_coverage()
-    typer.echo(json.dumps(result, indent=2))
+    _emit_json(result)
 
 
 @app.command("generate-memo")
@@ -164,19 +220,19 @@ def show_delta(company_id: str) -> None:
 @app.command("list-agents")
 def list_agents() -> None:
     agents = AgentConfigService(_context()).list_agents()
-    typer.echo(json.dumps([agent.model_dump(mode="json") for agent in agents], indent=2))
+    _emit_json([agent.model_dump(mode="json") for agent in agents])
 
 
 @app.command("enable-agent")
 def enable_agent(agent_id: str) -> None:
     agent = AgentConfigService(_context()).enable_agent(agent_id)
-    typer.echo(json.dumps(agent.model_dump(mode="json"), indent=2))
+    _emit_json(agent.model_dump(mode="json"))
 
 
 @app.command("disable-agent")
 def disable_agent(agent_id: str) -> None:
     agent = AgentConfigService(_context()).disable_agent(agent_id)
-    typer.echo(json.dumps(agent.model_dump(mode="json"), indent=2))
+    _emit_json(agent.model_dump(mode="json"))
 
 
 @app.command("reparent-agent")
@@ -185,7 +241,7 @@ def reparent_agent(
     new_parent_id: str | None = typer.Argument(default=None),
 ) -> None:
     agent = AgentConfigService(_context()).reparent_agent(agent_id, new_parent_id)
-    typer.echo(json.dumps(agent.model_dump(mode="json"), indent=2))
+    _emit_json(agent.model_dump(mode="json"))
 
 
 if __name__ == "__main__":

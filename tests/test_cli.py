@@ -5,6 +5,7 @@ import json
 from typer.testing import CliRunner
 
 from ai_investing.cli import app
+from ai_investing.domain.enums import RunContinueAction
 
 runner = CliRunner()
 
@@ -73,3 +74,56 @@ def test_cli_run_panel_and_continue_flow(seeded_acme, monkeypatch) -> None:
     resumed_payload = json.loads(resumed.stdout)
     assert resumed_payload["run"]["run_id"] == run_id
     assert resumed_payload["run"]["status"] == "complete"
+
+
+def test_cli_show_run_returns_persisted_checkpoint_state(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+
+    paused = runner.invoke(app, ["analyze-company", "ACME"])
+    run_id = json.loads(paused.stdout)["run"]["run_id"]
+
+    shown = runner.invoke(app, ["show-run", run_id])
+
+    assert shown.exit_code == 0
+    shown_payload = json.loads(shown.stdout)
+    assert shown_payload["run"]["run_id"] == run_id
+    assert shown_payload["run"]["status"] == "awaiting_continue"
+    assert shown_payload["run"]["awaiting_continue"] is True
+    assert shown_payload["run"]["checkpoint_panel_id"] == "gatekeepers"
+    assert shown_payload["run"]["checkpoint"]["allowed_actions"] == ["stop", "continue"]
+    assert "gatekeepers" in shown_payload["panels"]
+    assert shown_payload["delta"] is None
+
+
+def test_cli_continue_run_supports_provisional_flag(context, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: context)
+    captured: dict[str, object] = {}
+
+    def fake_continue_run(_service, run_id: str, action: RunContinueAction) -> dict[str, object]:
+        captured["run_id"] = run_id
+        captured["action"] = action
+        return {
+            "run": {
+                "run_id": run_id,
+                "status": "provisional",
+                "awaiting_continue": False,
+                "gated_out": False,
+                "provisional": True,
+                "stopped_after_panel": None,
+                "checkpoint_panel_id": "gatekeepers",
+            },
+            "panels": {},
+            "memo": None,
+            "delta": None,
+        }
+
+    monkeypatch.setattr("ai_investing.cli.AnalysisService.continue_run", fake_continue_run)
+
+    result = runner.invoke(app, ["continue-run", "run_test", "--provisional"])
+
+    assert result.exit_code == 0
+    assert captured == {
+        "run_id": "run_test",
+        "action": RunContinueAction.CONTINUE_PROVISIONAL,
+    }
+    assert json.loads(result.stdout)["run"]["provisional"] is True
