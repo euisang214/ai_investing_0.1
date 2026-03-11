@@ -1,7 +1,32 @@
 from __future__ import annotations
 
-from ai_investing.domain.enums import GateDecision, RunContinueAction, RunKind, RunStatus
-from ai_investing.domain.models import RunCheckpoint, RunRecord
+from types import SimpleNamespace
+
+from langgraph.types import Command
+
+from ai_investing.domain.enums import (
+    AlertLevel,
+    CompanyType,
+    GateDecision,
+    RunContinueAction,
+    RunKind,
+    RunStatus,
+    VerdictRecommendation,
+)
+from ai_investing.domain.models import (
+    GatekeeperVerdict,
+    ICMemo,
+    MonitoringDelta,
+    PanelVerdict,
+    RunCheckpoint,
+    RunRecord,
+)
+from ai_investing.graphs.checkpointing import (
+    checkpoint_config,
+    graph_checkpointer,
+    interrupt_payloads,
+)
+from ai_investing.graphs.company_refresh import build_company_refresh_graph
 from ai_investing.persistence.repositories import Repository
 
 
@@ -69,3 +94,236 @@ def test_run_record_lookup_returns_terminal_lifecycle_flags(context) -> None:
     assert stored.provisional is True
     assert stored.awaiting_continue is False
     assert stored.stopped_after_panel == "gatekeepers"
+
+
+def test_sqlite_context_uses_reusable_memory_checkpointer(context) -> None:
+    with graph_checkpointer(context.settings) as first:
+        with graph_checkpointer(context.settings) as second:
+            assert first is second
+
+
+def test_company_refresh_graph_pauses_after_gatekeepers_and_resumes_continue(context) -> None:
+    runtime = StubRuntime(gate_decision=GateDecision.PASS)
+
+    with graph_checkpointer(context.settings) as checkpointer:
+        graph = build_company_refresh_graph(
+            runtime=runtime,
+            panel_ids=["gatekeepers", "demand_revenue_quality"],
+            memo_reconciliation=True,
+            monitoring_enabled=True,
+            checkpointer=checkpointer,
+        )
+        initial = graph.invoke(
+            {
+                "company_id": "ACME",
+                "run_id": "run_pause_continue",
+                "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+            },
+            config=checkpoint_config("run_pause_continue"),
+        )
+        payloads = interrupt_payloads(initial)
+        resumed = graph.invoke(
+            Command(resume={"action": "continue"}),
+            config=checkpoint_config("run_pause_continue"),
+        )
+
+    assert payloads and payloads[0]["checkpoint_panel_id"] == "gatekeepers"
+    assert payloads[0]["allowed_actions"] == ["stop", "continue"]
+    assert "demand_revenue_quality" not in initial.get("panel_results", {})
+    assert "demand_revenue_quality" in resumed["panel_results"]
+    assert resumed["provisional"] is False
+    assert resumed["memo"]["recommendation_summary"] == "memo reconciled"
+
+
+def test_company_refresh_graph_routes_failed_gate_to_stop(context) -> None:
+    runtime = StubRuntime(gate_decision=GateDecision.FAIL)
+
+    with graph_checkpointer(context.settings) as checkpointer:
+        graph = build_company_refresh_graph(
+            runtime=runtime,
+            panel_ids=["gatekeepers", "demand_revenue_quality"],
+            memo_reconciliation=True,
+            monitoring_enabled=True,
+            checkpointer=checkpointer,
+        )
+        graph.invoke(
+            {
+                "company_id": "ACME",
+                "run_id": "run_gate_stop",
+                "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+            },
+            config=checkpoint_config("run_gate_stop"),
+        )
+        stopped = graph.invoke(
+            Command(resume={"action": "stop"}),
+            config=checkpoint_config("run_gate_stop"),
+        )
+
+    assert stopped["gated_out"] is True
+    assert stopped["stopped_after_panel"] == "gatekeepers"
+    assert "demand_revenue_quality" not in stopped.get("panel_results", {})
+    assert stopped["delta"]["change_summary"] == "monitoring complete"
+
+
+def test_company_refresh_graph_routes_failed_gate_to_provisional_continue(context) -> None:
+    runtime = StubRuntime(gate_decision=GateDecision.FAIL)
+
+    with graph_checkpointer(context.settings) as checkpointer:
+        graph = build_company_refresh_graph(
+            runtime=runtime,
+            panel_ids=["gatekeepers", "demand_revenue_quality"],
+            memo_reconciliation=True,
+            monitoring_enabled=True,
+            checkpointer=checkpointer,
+        )
+        graph.invoke(
+            {
+                "company_id": "ACME",
+                "run_id": "run_gate_provisional",
+                "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+            },
+            config=checkpoint_config("run_gate_provisional"),
+        )
+        resumed = graph.invoke(
+            Command(resume={"action": "continue_provisional"}),
+            config=checkpoint_config("run_gate_provisional"),
+        )
+
+    assert resumed["provisional"] is True
+    assert resumed["gated_out"] is False
+    assert "demand_revenue_quality" in resumed["panel_results"]
+
+
+class StubContext:
+    def __init__(self) -> None:
+        self._panels = {
+            "gatekeepers": SimpleNamespace(
+                id="gatekeepers",
+                name="Gatekeepers",
+                subgraph="gatekeeper",
+            ),
+            "demand_revenue_quality": SimpleNamespace(
+                id="demand_revenue_quality",
+                name="Demand And Revenue Quality",
+                subgraph="debate",
+            ),
+        }
+
+    def get_panel(self, panel_id: str):
+        return self._panels[panel_id]
+
+
+class StubRuntime:
+    def __init__(self, *, gate_decision: GateDecision) -> None:
+        self.context = StubContext()
+        self.gate_decision = gate_decision
+
+    def execute_panel(self, panel_id: str) -> dict[str, object]:
+        if panel_id == "gatekeepers":
+            verdict = GatekeeperVerdict(
+                company_id="ACME",
+                company_type=CompanyType.PUBLIC,
+                run_id="run_stub",
+                panel_id="gatekeepers",
+                panel_name="Gatekeepers",
+                summary="Gatekeepers complete",
+                recommendation=(
+                    VerdictRecommendation.NEGATIVE
+                    if self.gate_decision == GateDecision.FAIL
+                    else VerdictRecommendation.POSITIVE
+                ),
+                score=0.7,
+                confidence=0.8,
+                namespace="company/ACME/verdicts/gatekeepers",
+                gate_decision=self.gate_decision,
+                gate_reasons=["reason"],
+            )
+        else:
+            verdict = PanelVerdict(
+                company_id="ACME",
+                company_type=CompanyType.PUBLIC,
+                run_id="run_stub",
+                panel_id=panel_id,
+                panel_name="Demand And Revenue Quality",
+                summary="Demand review complete",
+                recommendation=VerdictRecommendation.POSITIVE,
+                score=0.8,
+                confidence=0.8,
+                namespace=f"company/ACME/verdicts/{panel_id}",
+            )
+        return {"claims": [], "verdict": verdict.model_dump(mode="json")}
+
+    def finalize_panel_verdict(self, *, panel_id: str, verdict):
+        return verdict
+
+    def update_memo_for_panel(self, panel_id: str) -> dict[str, object]:
+        return {"memo": {"last_updated_panel": panel_id}}
+
+    def compute_monitoring_delta(self) -> MonitoringDelta:
+        return MonitoringDelta(
+            company_id="ACME",
+            current_run_id="run_stub",
+            change_summary="monitoring complete",
+            alert_level=AlertLevel.LOW,
+        )
+
+    def skip_monitoring_delta(self) -> MonitoringDelta:
+        return MonitoringDelta(
+            company_id="ACME",
+            current_run_id="run_stub",
+            change_summary="monitoring skipped",
+            alert_level=AlertLevel.LOW,
+        )
+
+    def reconcile_ic_memo(self) -> ICMemo:
+        return ICMemo(
+            company_id="ACME",
+            run_id="run_stub",
+            sections=[],
+            recommendation_summary="memo reconciled",
+            namespace="company/ACME/memos/current",
+        )
+
+    def prepare_gatekeeper_checkpoint(
+        self,
+        *,
+        gatekeeper: GatekeeperVerdict,
+        has_downstream_panels: bool,
+    ) -> RunCheckpoint:
+        allowed_actions = [RunContinueAction.STOP]
+        if has_downstream_panels:
+            allowed_actions.append(
+                RunContinueAction.CONTINUE_PROVISIONAL
+                if gatekeeper.gate_decision == GateDecision.FAIL
+                else RunContinueAction.CONTINUE
+            )
+        return RunCheckpoint(
+            checkpoint_panel_id="gatekeepers",
+            allowed_actions=allowed_actions,
+            provisional_required=gatekeeper.gate_decision == GateDecision.FAIL,
+            note="checkpoint ready",
+        )
+
+    def resolve_gatekeeper_action(
+        self,
+        *,
+        action: RunContinueAction,
+        gatekeeper: GatekeeperVerdict,
+        has_downstream_panels: bool,
+    ) -> dict[str, object]:
+        if action != RunContinueAction.STOP and not has_downstream_panels:
+            raise ValueError("No downstream panels available after gatekeepers.")
+        if gatekeeper.gate_decision == GateDecision.FAIL and action == RunContinueAction.CONTINUE:
+            raise ValueError("Failed gatekeepers must resume as provisional.")
+        return {
+            "gate_decision": gatekeeper.gate_decision.value,
+            "awaiting_continue": False,
+            "gated_out": (
+                action == RunContinueAction.STOP
+                and gatekeeper.gate_decision == GateDecision.FAIL
+            ),
+            "provisional": action == RunContinueAction.CONTINUE_PROVISIONAL,
+            "stopped_after_panel": "gatekeepers" if action == RunContinueAction.STOP else None,
+            "checkpoint_panel_id": "gatekeepers",
+            "resume_action": action.value,
+        }

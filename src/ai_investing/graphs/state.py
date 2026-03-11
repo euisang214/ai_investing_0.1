@@ -12,3 +12,10 @@ class RefreshState(TypedDict, total=False):
     verdict: dict[str, Any]
     memo: dict[str, Any]
     delta: dict[str, Any]
+    gate_decision: str
+    awaiting_continue: bool
+    gated_out: bool
+    provisional: bool
+    stopped_after_panel: str | None
+    checkpoint_panel_id: str | None
+    resume_action: str | None

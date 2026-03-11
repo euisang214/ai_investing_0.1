@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, TypedDict
 
 from langgraph.graph import END, StateGraph
+from langgraph.types import Command, interrupt
 
+from ai_investing.domain.enums import RunContinueAction
 from ai_investing.domain.models import GatekeeperVerdict, PanelVerdict
 from ai_investing.graphs.state import RefreshState
 
@@ -77,6 +79,32 @@ def build_gatekeeper_subgraph(runtime: RefreshRuntime, panel_id: str):
     return build_debate_subgraph(runtime, panel_id)
 
 
+def build_gatekeeper_checkpoint(
+    runtime: RefreshRuntime,
+    *,
+    continue_to: str,
+    stop_to: str,
+):
+    def checkpoint(state: RefreshState) -> Command[str]:
+        gatekeeper_verdict = _gatekeeper_verdict_from_state(state)
+        has_downstream_panels = continue_to != stop_to
+        checkpoint_payload = runtime.prepare_gatekeeper_checkpoint(
+            gatekeeper=gatekeeper_verdict,
+            has_downstream_panels=has_downstream_panels,
+        )
+        resume_value = interrupt(checkpoint_payload.model_dump(mode="json"))
+        action = _coerce_resume_action(resume_value)
+        update = runtime.resolve_gatekeeper_action(
+            action=action,
+            gatekeeper=gatekeeper_verdict,
+            has_downstream_panels=has_downstream_panels,
+        )
+        target = stop_to if action == RunContinueAction.STOP else continue_to
+        return Command(update=update, goto=target)
+
+    return checkpoint
+
+
 def build_memo_update_subgraph(runtime: RefreshRuntime, panel_id: str):
     def update(_state: MemoState) -> MemoState:
         result = runtime.update_memo_for_panel(panel_id)
@@ -123,3 +151,22 @@ def build_ic_synthesis_graph(runtime: RefreshRuntime):
     graph.set_entry_point("synthesize")
     graph.add_edge("synthesize", END)
     return graph.compile()
+
+
+def _gatekeeper_verdict_from_state(state: RefreshState) -> GatekeeperVerdict:
+    panel_results = state.get("panel_results", {})
+    gatekeeper_result = panel_results.get("gatekeepers", {})
+    verdict_payload = gatekeeper_result.get("verdict") or state.get("verdict")
+    if verdict_payload is None:
+        raise ValueError("Gatekeeper checkpoint requires a gatekeeper verdict in graph state.")
+    return GatekeeperVerdict.model_validate(verdict_payload)
+
+
+def _coerce_resume_action(value: object) -> RunContinueAction:
+    if isinstance(value, RunContinueAction):
+        return value
+    if isinstance(value, str):
+        return RunContinueAction(value)
+    if isinstance(value, dict) and "action" in value:
+        return RunContinueAction(str(value["action"]))
+    raise ValueError(f"Unsupported gatekeeper resume payload: {value!r}")
