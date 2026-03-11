@@ -47,3 +47,48 @@ def test_generation_script_writes_phase2_checkpoint_examples(
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["delta"]["prior_run_id"] == continued["run"]["run_id"]
     assert "what_changed_since_last_run" in rerun["delta"]["changed_sections"]
+
+
+def test_checked_in_examples_match_generator_output(repo_root: Path, tmp_path: Path) -> None:
+    output_root = tmp_path / "generated" / "ACME"
+    checked_in_root = repo_root / "examples" / "generated" / "ACME"
+
+    _run_generator(repo_root, output_root)
+
+    for relative_path in (
+        Path("initial/result.json"),
+        Path("initial/memo.md"),
+        Path("initial/delta.json"),
+        Path("continued/result.json"),
+        Path("continued/memo.md"),
+        Path("continued/delta.json"),
+        Path("rerun/result.json"),
+        Path("rerun/memo.md"),
+        Path("rerun/delta.json"),
+    ):
+        assert (checked_in_root / relative_path).read_text(encoding="utf-8") == (
+            output_root / relative_path
+        ).read_text(encoding="utf-8")
+
+
+def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> None:
+    generated_root = repo_root / "examples" / "generated"
+    readme = (generated_root / "README.md").read_text(encoding="utf-8")
+    initial = _load_json(generated_root / "ACME" / "initial" / "result.json")
+    continued = _load_json(generated_root / "ACME" / "continued" / "result.json")
+    rerun = _load_json(generated_root / "ACME" / "rerun" / "result.json")
+    initial_delta = _load_json(generated_root / "ACME" / "initial" / "delta.json")
+    continued_delta = _load_json(generated_root / "ACME" / "continued" / "delta.json")
+    rerun_delta = _load_json(generated_root / "ACME" / "rerun" / "delta.json")
+
+    assert "python scripts/generate_phase2_examples.py" in readme
+    assert "initial/" in readme
+    assert "continued/" in readme
+    assert "rerun/" in readme
+    assert initial["run"]["status"] == "awaiting_continue"
+    assert initial_delta is None
+    assert continued["run"]["run_id"] == initial["run"]["run_id"]
+    assert continued_delta["current_run_id"] == continued["run"]["run_id"]
+    assert rerun["run"]["run_kind"] == "refresh"
+    assert rerun_delta["prior_run_id"] == continued["run"]["run_id"]
+    assert (generated_root / "ACME" / "initial" / "memo.md").read_text(encoding="utf-8")

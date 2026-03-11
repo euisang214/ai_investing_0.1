@@ -80,8 +80,8 @@ class CompanyProfile(DomainModel):
     headquarters: str | None = None
     tags: list[str] = Field(default_factory=list)
     namespace: str
-    created_at: datetime = Field(default_factory=utc_now)
-    updated_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
+    updated_at: datetime = Field(default_factory=lambda: utc_now())
 
 
 class EvidenceRecord(DomainModel):
@@ -102,7 +102,7 @@ class EvidenceRecord(DomainModel):
     as_of_date: datetime
     period: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
 
 
 class ClaimCard(DomainModel):
@@ -131,7 +131,7 @@ class ClaimCard(DomainModel):
     section_impacts: list[SectionImpact] = Field(default_factory=list)
     namespace: str
     status: RecordStatus = RecordStatus.ACTIVE
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
     supersedes_claim_id: str | None = None
 
     @model_validator(mode="after")
@@ -161,7 +161,7 @@ class PanelVerdict(DomainModel):
     unresolved_questions: list[str] = Field(default_factory=list)
     namespace: str
     status: RecordStatus = RecordStatus.ACTIVE
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
     supersedes_verdict_id: str | None = None
 
 
@@ -178,7 +178,7 @@ class MemoSection(DomainModel):
     supporting_claim_ids: list[str] = Field(default_factory=list)
     supporting_verdict_ids: list[str] = Field(default_factory=list)
     updated_by_run_id: str | None = None
-    updated_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=lambda: utc_now())
 
 
 class MemoSectionUpdate(DomainModel):
@@ -191,7 +191,7 @@ class MemoSectionUpdate(DomainModel):
     supporting_claim_ids: list[str] = Field(default_factory=list)
     unresolved_items: list[str] = Field(default_factory=list)
     updated_by_run_id: str
-    updated_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=lambda: utc_now())
 
 
 class ICMemo(DomainModel):
@@ -203,8 +203,8 @@ class ICMemo(DomainModel):
     sections: list[MemoSection]
     recommendation_summary: str
     namespace: str
-    created_at: datetime = Field(default_factory=utc_now)
-    updated_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
+    updated_at: datetime = Field(default_factory=lambda: utc_now())
 
     def section_map(self) -> dict[str, MemoSection]:
         return {section.section_id: section for section in self.sections}
@@ -220,7 +220,7 @@ class MonitoringDelta(DomainModel):
     change_summary: str
     thesis_drift_flags: list[str] = Field(default_factory=list)
     alert_level: AlertLevel
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
 
 
 class ToolInvocationLog(DomainModel):
@@ -230,7 +230,7 @@ class ToolInvocationLog(DomainModel):
     tool_id: str
     input_summary: str
     output_refs: list[str] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
 
 
 class RunCheckpoint(DomainModel):
@@ -238,7 +238,7 @@ class RunCheckpoint(DomainModel):
     allowed_actions: list[RunContinueAction] = Field(default_factory=list)
     provisional_required: bool = False
     note: str | None = None
-    requested_at: datetime = Field(default_factory=utc_now)
+    requested_at: datetime = Field(default_factory=lambda: utc_now())
     resolved_at: datetime | None = None
     resolution_action: RunContinueAction | None = None
 
@@ -250,7 +250,7 @@ class RunRecord(DomainModel):
     status: RunStatus = RunStatus.PENDING
     triggered_by: str = "system"
     panel_id: str | None = None
-    started_at: datetime = Field(default_factory=utc_now)
+    started_at: datetime = Field(default_factory=lambda: utc_now())
     completed_at: datetime | None = None
     gate_decision: GateDecision | None = None
     awaiting_continue: bool = False

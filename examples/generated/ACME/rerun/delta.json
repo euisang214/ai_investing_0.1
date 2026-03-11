@@ -1,34 +1,39 @@
 {
-  "delta_id": "dlt_92d61d144073",
+  "delta_id": "dlt_000000000002",
   "company_id": "ACME",
-  "prior_run_id": "run_e054a8b3f328",
-  "current_run_id": "run_9e90130b9231",
+  "prior_run_id": "run_000000000001",
+  "current_run_id": "run_000000000002",
   "changed_claim_ids": [
-    "clm_845cec5d27a4",
-    "clm_cd9c675e9b25",
-    "clm_4cf2f971d4fb",
-    "clm_2253d8c0056f",
-    "clm_b49efda5883f",
-    "clm_8ea8fe3c3454",
-    "clm_5327659c58af",
-    "clm_ce5ef44eb1a2",
-    "clm_bfde568b9744",
-    "clm_5fafb0130c4c",
-    "clm_25ce65699e53",
-    "clm_0b4cb99997b3",
-    "clm_bf38faa97220",
-    "clm_21c88ecef0a9",
-    "clm_5dfb2e8306fa"
+    "clm_000000000057",
+    "clm_000000000056",
+    "clm_000000000055",
+    "clm_000000000064",
+    "clm_000000000065",
+    "clm_000000000066",
+    "clm_000000000079",
+    "clm_000000000080",
+    "clm_000000000081",
+    "clm_000000000082",
+    "clm_000000000083",
+    "clm_000000000084",
+    "clm_000000000085",
+    "clm_000000000086",
+    "clm_000000000087"
   ],
   "changed_sections": [
+    "durability_resilience",
+    "growth",
+    "investment_snapshot",
+    "overall_recommendation",
+    "risk",
     "what_changed_since_last_run"
   ],
-  "change_summary": "Acme Cloud changed in 1 memo sections with 15 materially updated claim cards.",
+  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence.",
   "thesis_drift_flags": [
     "concentration_increase",
     "survivability_deterioration",
     "weakening_recurrence"
   ],
-  "alert_level": "medium",
-  "created_at": "2026-03-08T20:43:45.799114Z"
+  "alert_level": "high",
+  "created_at": "2026-03-11T14:50:00Z"
 }

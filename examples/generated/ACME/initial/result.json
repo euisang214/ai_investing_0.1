@@ -1,23 +1,52 @@
 {
   "run": {
-    "run_id": "run_e054a8b3f328",
+    "run_id": "run_000000000001",
     "company_id": "ACME",
     "run_kind": "analyze",
-    "status": "complete",
+    "status": "awaiting_continue",
     "triggered_by": "system",
     "panel_id": null,
-    "started_at": "2026-03-08T20:43:44.648696Z",
-    "completed_at": "2026-03-08T20:43:45.612113Z",
-    "metadata": {}
+    "started_at": "2026-03-11T09:10:00Z",
+    "completed_at": null,
+    "gate_decision": "review",
+    "awaiting_continue": true,
+    "gated_out": false,
+    "provisional": false,
+    "stopped_after_panel": null,
+    "checkpoint_panel_id": "gatekeepers",
+    "checkpoint": {
+      "checkpoint_panel_id": "gatekeepers",
+      "allowed_actions": [
+        "stop",
+        "continue"
+      ],
+      "provisional_required": false,
+      "note": "Gatekeepers passed. Continue explicitly to run downstream panels.",
+      "requested_at": "2026-03-11T10:22:00Z",
+      "resolved_at": null,
+      "resolution_action": null
+    },
+    "metadata": {
+      "panel_ids": [
+        "gatekeepers",
+        "demand_revenue_quality"
+      ],
+      "panel_policy": "weekly_default",
+      "memo_reconciliation": true,
+      "monitoring_enabled": true,
+      "baseline_memo": null,
+      "baseline_active_claims": [],
+      "baseline_active_verdicts": []
+    }
   },
   "panels": {
     "gatekeepers": {
       "claims": [
         {
-          "claim_id": "clm_0312f3dc8208",
+          "claim_id": "clm_000000000001",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "need_to_exist",
           "agent_id": "gatekeeper_advocate",
@@ -75,14 +104,14 @@
           ],
           "namespace": "company/ACME/claims/need_to_exist",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.475601Z",
+          "created_at": "2026-03-11T09:13:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_e6d47f09d040",
+          "claim_id": "clm_000000000002",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "need_to_exist",
           "agent_id": "gatekeeper_skeptic",
@@ -140,14 +169,14 @@
           ],
           "namespace": "company/ACME/claims/need_to_exist",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.477734Z",
+          "created_at": "2026-03-11T09:16:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_3828ea105419",
+          "claim_id": "clm_000000000003",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "need_to_exist",
           "agent_id": "gatekeeper_durability",
@@ -205,14 +234,14 @@
           ],
           "namespace": "company/ACME/claims/need_to_exist",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.479997Z",
+          "created_at": "2026-03-11T09:19:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_09c7bba6f8dc",
+          "claim_id": "clm_000000000004",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "non_fad_durability",
           "agent_id": "gatekeeper_advocate",
@@ -270,14 +299,14 @@
           ],
           "namespace": "company/ACME/claims/non_fad_durability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.481677Z",
+          "created_at": "2026-03-11T09:22:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_922269a82969",
+          "claim_id": "clm_000000000005",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "non_fad_durability",
           "agent_id": "gatekeeper_skeptic",
@@ -335,14 +364,14 @@
           ],
           "namespace": "company/ACME/claims/non_fad_durability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.482913Z",
+          "created_at": "2026-03-11T09:25:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_70c55c27b090",
+          "claim_id": "clm_000000000006",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "non_fad_durability",
           "agent_id": "gatekeeper_durability",
@@ -400,14 +429,14 @@
           ],
           "namespace": "company/ACME/claims/non_fad_durability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.485031Z",
+          "created_at": "2026-03-11T09:28:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_9ef2b03e4c69",
+          "claim_id": "clm_000000000007",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "accounting_trustworthiness",
           "agent_id": "gatekeeper_advocate",
@@ -465,14 +494,14 @@
           ],
           "namespace": "company/ACME/claims/accounting_trustworthiness",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.486807Z",
+          "created_at": "2026-03-11T09:31:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_b25aa3eef33f",
+          "claim_id": "clm_000000000008",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "accounting_trustworthiness",
           "agent_id": "gatekeeper_skeptic",
@@ -530,14 +559,14 @@
           ],
           "namespace": "company/ACME/claims/accounting_trustworthiness",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.488626Z",
+          "created_at": "2026-03-11T09:34:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_0704d5b87a87",
+          "claim_id": "clm_000000000009",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "accounting_trustworthiness",
           "agent_id": "gatekeeper_durability",
@@ -595,14 +624,14 @@
           ],
           "namespace": "company/ACME/claims/accounting_trustworthiness",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.490255Z",
+          "created_at": "2026-03-11T09:37:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_9dce7e522f03",
+          "claim_id": "clm_000000000010",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "balance_sheet_survivability",
           "agent_id": "gatekeeper_advocate",
@@ -660,14 +689,14 @@
           ],
           "namespace": "company/ACME/claims/balance_sheet_survivability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.491779Z",
+          "created_at": "2026-03-11T09:40:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_74870a5c5f02",
+          "claim_id": "clm_000000000011",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "balance_sheet_survivability",
           "agent_id": "gatekeeper_skeptic",
@@ -725,14 +754,14 @@
           ],
           "namespace": "company/ACME/claims/balance_sheet_survivability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.493084Z",
+          "created_at": "2026-03-11T09:43:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_a8efd0899707",
+          "claim_id": "clm_000000000012",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "balance_sheet_survivability",
           "agent_id": "gatekeeper_durability",
@@ -790,14 +819,14 @@
           ],
           "namespace": "company/ACME/claims/balance_sheet_survivability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.494176Z",
+          "created_at": "2026-03-11T09:46:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_0690903d646c",
+          "claim_id": "clm_000000000013",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "governance_investability",
           "agent_id": "gatekeeper_advocate",
@@ -855,14 +884,14 @@
           ],
           "namespace": "company/ACME/claims/governance_investability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.495418Z",
+          "created_at": "2026-03-11T09:49:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_d2f2c2b0f9f2",
+          "claim_id": "clm_000000000014",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "governance_investability",
           "agent_id": "gatekeeper_skeptic",
@@ -920,14 +949,14 @@
           ],
           "namespace": "company/ACME/claims/governance_investability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.496842Z",
+          "created_at": "2026-03-11T09:52:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_626d1d68bbe2",
+          "claim_id": "clm_000000000015",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "governance_investability",
           "agent_id": "gatekeeper_durability",
@@ -985,14 +1014,14 @@
           ],
           "namespace": "company/ACME/claims/governance_investability",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.498483Z",
+          "created_at": "2026-03-11T09:55:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_ad4e5b50066d",
+          "claim_id": "clm_000000000016",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "legal_regulatory_existential_risk",
           "agent_id": "gatekeeper_advocate",
@@ -1050,14 +1079,14 @@
           ],
           "namespace": "company/ACME/claims/legal_regulatory_existential_risk",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.499812Z",
+          "created_at": "2026-03-11T09:58:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_96490f364da8",
+          "claim_id": "clm_000000000017",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "legal_regulatory_existential_risk",
           "agent_id": "gatekeeper_skeptic",
@@ -1115,14 +1144,14 @@
           ],
           "namespace": "company/ACME/claims/legal_regulatory_existential_risk",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.501447Z",
+          "created_at": "2026-03-11T10:01:00Z",
           "supersedes_claim_id": null
         },
         {
-          "claim_id": "clm_db791da2f861",
+          "claim_id": "clm_000000000018",
           "company_id": "ACME",
           "company_type": "public",
-          "run_id": "run_e054a8b3f328",
+          "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "factor_id": "legal_regulatory_existential_risk",
           "agent_id": "gatekeeper_durability",
@@ -1180,15 +1209,15 @@
           ],
           "namespace": "company/ACME/claims/legal_regulatory_existential_risk",
           "status": "active",
-          "created_at": "2026-03-08T20:43:45.503144Z",
+          "created_at": "2026-03-11T10:04:00Z",
           "supersedes_claim_id": null
         }
       ],
       "verdict": {
-        "verdict_id": "vrd_8a75a33c9799",
+        "verdict_id": "vrd_000000000002",
         "company_id": "ACME",
         "company_type": "public",
-        "run_id": "run_e054a8b3f328",
+        "run_id": "run_000000000001",
         "panel_id": "gatekeepers",
         "panel_name": "Gatekeepers",
         "summary": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers.",
@@ -1211,24 +1240,24 @@
           "overall_recommendation"
         ],
         "claim_ids": [
-          "clm_0312f3dc8208",
-          "clm_e6d47f09d040",
-          "clm_3828ea105419",
-          "clm_09c7bba6f8dc",
-          "clm_922269a82969",
-          "clm_70c55c27b090",
-          "clm_9ef2b03e4c69",
-          "clm_b25aa3eef33f",
-          "clm_0704d5b87a87",
-          "clm_9dce7e522f03",
-          "clm_74870a5c5f02",
-          "clm_a8efd0899707",
-          "clm_0690903d646c",
-          "clm_d2f2c2b0f9f2",
-          "clm_626d1d68bbe2",
-          "clm_ad4e5b50066d",
-          "clm_96490f364da8",
-          "clm_db791da2f861"
+          "clm_000000000001",
+          "clm_000000000002",
+          "clm_000000000003",
+          "clm_000000000004",
+          "clm_000000000005",
+          "clm_000000000006",
+          "clm_000000000007",
+          "clm_000000000008",
+          "clm_000000000009",
+          "clm_000000000010",
+          "clm_000000000011",
+          "clm_000000000012",
+          "clm_000000000013",
+          "clm_000000000014",
+          "clm_000000000015",
+          "clm_000000000016",
+          "clm_000000000017",
+          "clm_000000000018"
         ],
         "unresolved_questions": [
           "What could invert the current need to exist signal?",
@@ -1239,8 +1268,8 @@
         ],
         "namespace": "company/ACME/verdicts/gatekeepers",
         "status": "active",
-        "created_at": "2026-03-08T20:43:45.517841Z",
-        "supersedes_verdict_id": "vrd_6e8725770f9f",
+        "created_at": "2026-03-11T10:05:00Z",
+        "supersedes_verdict_id": "vrd_000000000001",
         "gate_decision": "review",
         "gate_reasons": [
           "The platform sits in billing and procurement workflows and customers describe it as operationally mandatory.",
@@ -1249,2316 +1278,193 @@
           "few direct negatives surfaced for need to exist"
         ]
       }
-    },
-    "demand_revenue_quality": {
-      "claims": [
-        {
-          "claim_id": "clm_70097c4cf104",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "revenue_recurrence_contract_strength",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on revenue recurrence contract strength.",
-          "bull_case": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-          "bear_case": "few direct negatives surfaced for revenue recurrence contract strength",
-          "evidence_for": [
-            {
-              "summary": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Revenue Recurrence Contract Strength weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current revenue recurrence contract strength signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on revenue recurrence contract strength during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Revenue Recurrence Contract Strength affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Revenue Recurrence Contract Strength affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Revenue Recurrence Contract Strength affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Revenue Recurrence Contract Strength affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Revenue Recurrence Contract Strength affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.542684Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_ac72b05377b6",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "revenue_recurrence_contract_strength",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
-          "bull_case": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-          "bear_case": "few direct negatives surfaced for revenue recurrence contract strength",
-          "evidence_for": [
-            {
-              "summary": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Revenue Recurrence Contract Strength weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current revenue recurrence contract strength signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on revenue recurrence contract strength during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Revenue Recurrence Contract Strength affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Revenue Recurrence Contract Strength affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Revenue Recurrence Contract Strength affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Revenue Recurrence Contract Strength affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Revenue Recurrence Contract Strength affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.544530Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_08f612f51b9b",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "revenue_recurrence_contract_strength",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on revenue recurrence contract strength.",
-          "bull_case": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-          "bear_case": "few direct negatives surfaced for revenue recurrence contract strength",
-          "evidence_for": [
-            {
-              "summary": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Revenue Recurrence Contract Strength weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current revenue recurrence contract strength signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on revenue recurrence contract strength during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Revenue Recurrence Contract Strength affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Revenue Recurrence Contract Strength affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Revenue Recurrence Contract Strength affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Revenue Recurrence Contract Strength affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Revenue Recurrence Contract Strength affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.546624Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_cb2bf1656583",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "switching_costs",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on switching costs.",
-          "bull_case": "The product integrates into ERP and procurement workflows, making replacement costly.",
-          "bear_case": "few direct negatives surfaced for switching costs",
-          "evidence_for": [
-            {
-              "summary": "The product integrates into ERP and procurement workflows, making replacement costly.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Switching Costs weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current switching costs signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on switching costs during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Switching Costs affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Switching Costs affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Switching Costs affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Switching Costs affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Switching Costs affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/switching_costs",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.548625Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_f79526c607a6",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "switching_costs",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on switching costs.",
-          "bull_case": "The product integrates into ERP and procurement workflows, making replacement costly.",
-          "bear_case": "few direct negatives surfaced for switching costs",
-          "evidence_for": [
-            {
-              "summary": "The product integrates into ERP and procurement workflows, making replacement costly.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Switching Costs weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current switching costs signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on switching costs during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Switching Costs affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Switching Costs affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Switching Costs affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Switching Costs affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Switching Costs affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/switching_costs",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.550490Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_5b8d90bd6acf",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "switching_costs",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on switching costs.",
-          "bull_case": "The product integrates into ERP and procurement workflows, making replacement costly.",
-          "bear_case": "few direct negatives surfaced for switching costs",
-          "evidence_for": [
-            {
-              "summary": "The product integrates into ERP and procurement workflows, making replacement costly.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Switching Costs weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current switching costs signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on switching costs during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Switching Costs affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Switching Costs affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Switching Costs affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Switching Costs affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Switching Costs affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/switching_costs",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.552410Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_a4347473254f",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "search_costs",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on search costs.",
-          "bull_case": "evidence is mixed for search costs",
-          "bear_case": "few direct negatives surfaced for search costs",
-          "evidence_for": [],
-          "evidence_against": [],
-          "confidence": 0.45,
-          "evidence_quality": 0.6,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Search Costs weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current search costs signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on search costs during the next weekly rerun."
-          ],
-          "source_refs": [],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Search Costs affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Search Costs affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Search Costs affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Search Costs affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Search Costs affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/search_costs",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.554313Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_ee5b2b34e7e0",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "search_costs",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on search costs.",
-          "bull_case": "evidence is mixed for search costs",
-          "bear_case": "few direct negatives surfaced for search costs",
-          "evidence_for": [],
-          "evidence_against": [],
-          "confidence": 0.45,
-          "evidence_quality": 0.6,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Search Costs weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current search costs signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on search costs during the next weekly rerun."
-          ],
-          "source_refs": [],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Search Costs affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Search Costs affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Search Costs affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Search Costs affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Search Costs affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/search_costs",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.555492Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_904b847bf679",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "search_costs",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on search costs.",
-          "bull_case": "evidence is mixed for search costs",
-          "bear_case": "few direct negatives surfaced for search costs",
-          "evidence_for": [],
-          "evidence_against": [],
-          "confidence": 0.45,
-          "evidence_quality": 0.6,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Search Costs weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current search costs signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on search costs during the next weekly rerun."
-          ],
-          "source_refs": [],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Search Costs affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Search Costs affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Search Costs affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Search Costs affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Search Costs affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/search_costs",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.557010Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_b783dac035eb",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "customer_habit",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on customer habit.",
-          "bull_case": "Customers log in daily and rely on approvals running through Acme's workflow engine.",
-          "bear_case": "few direct negatives surfaced for customer habit",
-          "evidence_for": [
-            {
-              "summary": "Customers log in daily and rely on approvals running through Acme's workflow engine.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Customer Habit weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current customer habit signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on customer habit during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Customer Habit affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Customer Habit affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Customer Habit affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Customer Habit affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Customer Habit affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/customer_habit",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.558387Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_027b92f820bd",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "customer_habit",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on customer habit.",
-          "bull_case": "Customers log in daily and rely on approvals running through Acme's workflow engine.",
-          "bear_case": "few direct negatives surfaced for customer habit",
-          "evidence_for": [
-            {
-              "summary": "Customers log in daily and rely on approvals running through Acme's workflow engine.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Customer Habit weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current customer habit signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on customer habit during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Customer Habit affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Customer Habit affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Customer Habit affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Customer Habit affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Customer Habit affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/customer_habit",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.559826Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_743c389b9a3d",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "customer_habit",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on customer habit.",
-          "bull_case": "Customers log in daily and rely on approvals running through Acme's workflow engine.",
-          "bear_case": "few direct negatives surfaced for customer habit",
-          "evidence_for": [
-            {
-              "summary": "Customers log in daily and rely on approvals running through Acme's workflow engine.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Customer Habit weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current customer habit signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on customer habit during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Customer Habit affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Customer Habit affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Customer Habit affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Customer Habit affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Customer Habit affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/customer_habit",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.561137Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_ba51d517eace",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "fad_fashion_risk",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on fad fashion risk.",
-          "bull_case": "evidence is mixed for fad fashion risk",
-          "bear_case": "few direct negatives surfaced for fad fashion risk",
-          "evidence_for": [],
-          "evidence_against": [],
-          "confidence": 0.45,
-          "evidence_quality": 0.6,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Fad Fashion Risk weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current fad fashion risk signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on fad fashion risk during the next weekly rerun."
-          ],
-          "source_refs": [],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Fad Fashion Risk affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Fad Fashion Risk affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Fad Fashion Risk affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Fad Fashion Risk affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Fad Fashion Risk affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/fad_fashion_risk",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.562630Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_1b9b9a415720",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "fad_fashion_risk",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on fad fashion risk.",
-          "bull_case": "evidence is mixed for fad fashion risk",
-          "bear_case": "few direct negatives surfaced for fad fashion risk",
-          "evidence_for": [],
-          "evidence_against": [],
-          "confidence": 0.45,
-          "evidence_quality": 0.6,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Fad Fashion Risk weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current fad fashion risk signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on fad fashion risk during the next weekly rerun."
-          ],
-          "source_refs": [],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Fad Fashion Risk affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Fad Fashion Risk affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Fad Fashion Risk affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Fad Fashion Risk affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Fad Fashion Risk affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/fad_fashion_risk",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.563882Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_ef7cb49ada05",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "fad_fashion_risk",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on fad fashion risk.",
-          "bull_case": "evidence is mixed for fad fashion risk",
-          "bear_case": "few direct negatives surfaced for fad fashion risk",
-          "evidence_for": [],
-          "evidence_against": [],
-          "confidence": 0.45,
-          "evidence_quality": 0.6,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Fad Fashion Risk weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current fad fashion risk signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on fad fashion risk during the next weekly rerun."
-          ],
-          "source_refs": [],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Fad Fashion Risk affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Fad Fashion Risk affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Fad Fashion Risk affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Fad Fashion Risk affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Fad Fashion Risk affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/fad_fashion_risk",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.565682Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_b4869a50b960",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "customer_concentration",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on customer concentration.",
-          "bull_case": "No customer accounts for more than 4% of revenue.",
-          "bear_case": "few direct negatives surfaced for customer concentration",
-          "evidence_for": [
-            {
-              "summary": "No customer accounts for more than 4% of revenue.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Customer Concentration weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current customer concentration signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on customer concentration during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Customer Concentration affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Customer Concentration affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Customer Concentration affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Customer Concentration affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Customer Concentration affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/customer_concentration",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.567241Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_5001f4a71023",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "customer_concentration",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on customer concentration.",
-          "bull_case": "No customer accounts for more than 4% of revenue.",
-          "bear_case": "few direct negatives surfaced for customer concentration",
-          "evidence_for": [
-            {
-              "summary": "No customer accounts for more than 4% of revenue.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Customer Concentration weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current customer concentration signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on customer concentration during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Customer Concentration affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Customer Concentration affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Customer Concentration affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Customer Concentration affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Customer Concentration affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/customer_concentration",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.568631Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_54c37315067c",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "customer_concentration",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on customer concentration.",
-          "bull_case": "No customer accounts for more than 4% of revenue.",
-          "bear_case": "few direct negatives surfaced for customer concentration",
-          "evidence_for": [
-            {
-              "summary": "No customer accounts for more than 4% of revenue.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Customer Concentration weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current customer concentration signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on customer concentration during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Customer Concentration affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Customer Concentration affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Customer Concentration affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Customer Concentration affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Customer Concentration affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/customer_concentration",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.570047Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_8131914f429b",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "pricing_power",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on pricing power.",
-          "bull_case": "The company raised prices 6% with limited churn impact.",
-          "bear_case": "few direct negatives surfaced for pricing power",
-          "evidence_for": [
-            {
-              "summary": "The company raised prices 6% with limited churn impact.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Pricing Power weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current pricing power signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on pricing power during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Pricing Power affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Pricing Power affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Pricing Power affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Pricing Power affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Pricing Power affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/pricing_power",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.571503Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_692f9ca8038b",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "pricing_power",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on pricing power.",
-          "bull_case": "The company raised prices 6% with limited churn impact.",
-          "bear_case": "few direct negatives surfaced for pricing power",
-          "evidence_for": [
-            {
-              "summary": "The company raised prices 6% with limited churn impact.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Pricing Power weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current pricing power signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on pricing power during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Pricing Power affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Pricing Power affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Pricing Power affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Pricing Power affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Pricing Power affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/pricing_power",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.572700Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_68f86ce1a24d",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "pricing_power",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on pricing power.",
-          "bull_case": "The company raised prices 6% with limited churn impact.",
-          "bear_case": "few direct negatives surfaced for pricing power",
-          "evidence_for": [
-            {
-              "summary": "The company raised prices 6% with limited churn impact.",
-              "source_ref": {
-                "label": "FY2025 10-K",
-                "url": "https://example.com/acme-10k",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.92,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Pricing Power weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current pricing power signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on pricing power during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "FY2025 10-K",
-              "url": "https://example.com/acme-10k",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Pricing Power affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Pricing Power affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Pricing Power affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Pricing Power affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Pricing Power affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/pricing_power",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.574522Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_0ef80db5702c",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "demand_cyclicality_purchase_deferrability",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on demand cyclicality purchase deferrability.",
-          "bull_case": "SMB seat growth slowed, but enterprise expansions remained stable.",
-          "bear_case": "SMB seat growth slowed, but enterprise expansions remained stable.",
-          "evidence_for": [
-            {
-              "summary": "SMB seat growth slowed, but enterprise expansions remained stable.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [
-            {
-              "summary": "SMB seat growth slowed, but enterprise expansions remained stable.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "confidence": 0.45,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Demand Cyclicality Purchase Deferrability weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current demand cyclicality purchase deferrability signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on demand cyclicality purchase deferrability during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.576003Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_317f28ae5158",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "demand_cyclicality_purchase_deferrability",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on demand cyclicality purchase deferrability.",
-          "bull_case": "SMB seat growth slowed, but enterprise expansions remained stable.",
-          "bear_case": "SMB seat growth slowed, but enterprise expansions remained stable.",
-          "evidence_for": [
-            {
-              "summary": "SMB seat growth slowed, but enterprise expansions remained stable.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [
-            {
-              "summary": "SMB seat growth slowed, but enterprise expansions remained stable.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "confidence": 0.45,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Demand Cyclicality Purchase Deferrability weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current demand cyclicality purchase deferrability signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on demand cyclicality purchase deferrability during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.577578Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_2003a576ea62",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "demand_cyclicality_purchase_deferrability",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on demand cyclicality purchase deferrability.",
-          "bull_case": "SMB seat growth slowed, but enterprise expansions remained stable.",
-          "bear_case": "SMB seat growth slowed, but enterprise expansions remained stable.",
-          "evidence_for": [
-            {
-              "summary": "SMB seat growth slowed, but enterprise expansions remained stable.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [
-            {
-              "summary": "SMB seat growth slowed, but enterprise expansions remained stable.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "confidence": 0.45,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Demand Cyclicality Purchase Deferrability weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current demand cyclicality purchase deferrability signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on demand cyclicality purchase deferrability during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Demand Cyclicality Purchase Deferrability affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.578940Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_72328d90c6e4",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "brand_reputation_consideration_set",
-          "agent_id": "demand_advocate",
-          "claim": "Acme Cloud appears durable on brand reputation consideration set.",
-          "bull_case": "Acme remains a top-three vendor in competitive evaluations.",
-          "bear_case": "few direct negatives surfaced for brand reputation consideration set",
-          "evidence_for": [
-            {
-              "summary": "Acme remains a top-three vendor in competitive evaluations.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Brand Reputation Consideration Set weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current brand reputation consideration set signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on brand reputation consideration set during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Brand Reputation Consideration Set affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Brand Reputation Consideration Set affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Brand Reputation Consideration Set affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Brand Reputation Consideration Set affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Brand Reputation Consideration Set affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/brand_reputation_consideration_set",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.580603Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_74632664b204",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "brand_reputation_consideration_set",
-          "agent_id": "demand_skeptic",
-          "claim": "Acme Cloud appears more fragile than the base case implies on brand reputation consideration set.",
-          "bull_case": "Acme remains a top-three vendor in competitive evaluations.",
-          "bear_case": "few direct negatives surfaced for brand reputation consideration set",
-          "evidence_for": [
-            {
-              "summary": "Acme remains a top-three vendor in competitive evaluations.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Brand Reputation Consideration Set weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current brand reputation consideration set signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on brand reputation consideration set during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Brand Reputation Consideration Set affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Brand Reputation Consideration Set affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Brand Reputation Consideration Set affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Brand Reputation Consideration Set affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Brand Reputation Consideration Set affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/brand_reputation_consideration_set",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.582529Z",
-          "supersedes_claim_id": null
-        },
-        {
-          "claim_id": "clm_7f200bf496f2",
-          "company_id": "ACME",
-          "company_type": "public",
-          "run_id": "run_e054a8b3f328",
-          "panel_id": "demand_revenue_quality",
-          "factor_id": "brand_reputation_consideration_set",
-          "agent_id": "demand_durability",
-          "claim": "Acme Cloud appears durable through a medium-term stress case on brand reputation consideration set.",
-          "bull_case": "Acme remains a top-three vendor in competitive evaluations.",
-          "bear_case": "few direct negatives surfaced for brand reputation consideration set",
-          "evidence_for": [
-            {
-              "summary": "Acme remains a top-three vendor in competitive evaluations.",
-              "source_ref": {
-                "label": "Q4 2025 Call",
-                "url": "https://example.com/acme-call",
-                "page": null,
-                "excerpt": null
-              }
-            }
-          ],
-          "evidence_against": [],
-          "confidence": 0.57,
-          "evidence_quality": 0.82,
-          "staleness_assessment": "Fresh enough for current memo update.",
-          "time_horizon": "12-24 months",
-          "durability_horizon": "multi-year",
-          "falsifiers": [
-            "Brand Reputation Consideration Set weakens materially in the next refresh."
-          ],
-          "what_changed": "Initial coverage run.",
-          "unresolved_questions": [
-            "What could invert the current brand reputation consideration set signal?"
-          ],
-          "recommended_followups": [
-            "Refresh evidence on brand reputation consideration set during the next weekly rerun."
-          ],
-          "source_refs": [
-            {
-              "label": "Q4 2025 Call",
-              "url": "https://example.com/acme-call",
-              "page": null,
-              "excerpt": null
-            }
-          ],
-          "section_impacts": [
-            {
-              "section_id": "investment_snapshot",
-              "rationale": "Brand Reputation Consideration Set affects investment snapshot."
-            },
-            {
-              "section_id": "growth",
-              "rationale": "Brand Reputation Consideration Set affects growth."
-            },
-            {
-              "section_id": "durability_resilience",
-              "rationale": "Brand Reputation Consideration Set affects durability resilience."
-            },
-            {
-              "section_id": "risk",
-              "rationale": "Brand Reputation Consideration Set affects risk."
-            },
-            {
-              "section_id": "overall_recommendation",
-              "rationale": "Brand Reputation Consideration Set affects overall recommendation."
-            }
-          ],
-          "namespace": "company/ACME/claims/brand_reputation_consideration_set",
-          "status": "active",
-          "created_at": "2026-03-08T20:43:45.585359Z",
-          "supersedes_claim_id": null
-        }
-      ],
-      "verdict": {
-        "verdict_id": "vrd_0325a5ae6bbe",
-        "company_id": "ACME",
-        "company_type": "public",
-        "run_id": "run_e054a8b3f328",
-        "panel_id": "demand_revenue_quality",
-        "panel_name": "Demand And Revenue Quality",
-        "summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality.",
-        "recommendation": "mixed",
-        "score": 0.67,
-        "confidence": 0.53,
-        "strengths": [
-          "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-          "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
-          "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers."
-        ],
-        "concerns": [
-          "few direct negatives surfaced for revenue recurrence contract strength",
-          "few direct negatives surfaced for revenue recurrence contract strength",
-          "few direct negatives surfaced for revenue recurrence contract strength"
-        ],
-        "affected_section_ids": [
-          "investment_snapshot",
-          "growth",
-          "durability_resilience",
-          "risk",
-          "overall_recommendation"
-        ],
-        "claim_ids": [
-          "clm_70097c4cf104",
-          "clm_ac72b05377b6",
-          "clm_08f612f51b9b",
-          "clm_cb2bf1656583",
-          "clm_f79526c607a6",
-          "clm_5b8d90bd6acf",
-          "clm_a4347473254f",
-          "clm_ee5b2b34e7e0",
-          "clm_904b847bf679",
-          "clm_b783dac035eb",
-          "clm_027b92f820bd",
-          "clm_743c389b9a3d",
-          "clm_ba51d517eace",
-          "clm_1b9b9a415720",
-          "clm_ef7cb49ada05",
-          "clm_b4869a50b960",
-          "clm_5001f4a71023",
-          "clm_54c37315067c",
-          "clm_8131914f429b",
-          "clm_692f9ca8038b",
-          "clm_68f86ce1a24d",
-          "clm_0ef80db5702c",
-          "clm_317f28ae5158",
-          "clm_2003a576ea62",
-          "clm_72328d90c6e4",
-          "clm_74632664b204",
-          "clm_7f200bf496f2"
-        ],
-        "unresolved_questions": [
-          "What could invert the current revenue recurrence contract strength signal?",
-          "What could invert the current revenue recurrence contract strength signal?",
-          "What could invert the current revenue recurrence contract strength signal?",
-          "What could invert the current switching costs signal?",
-          "What could invert the current switching costs signal?"
-        ],
-        "namespace": "company/ACME/verdicts/demand_revenue_quality",
-        "status": "active",
-        "created_at": "2026-03-08T20:43:45.595928Z",
-        "supersedes_verdict_id": "vrd_a4eb4d74e234"
-      }
     }
   },
   "memo": {
-    "memo_id": "memo_d372b6daa6a2",
+    "memo_id": "memo_000000000001",
     "company_id": "ACME",
-    "run_id": "run_e054a8b3f328",
+    "run_id": "run_000000000001",
     "is_active": true,
     "is_initial_coverage": true,
     "sections": [
       {
         "section_id": "investment_snapshot",
         "label": "Investment Snapshot",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.",
         "status": "refreshed",
         "supporting_claim_ids": [
-          "clm_70097c4cf104",
-          "clm_ac72b05377b6",
-          "clm_08f612f51b9b",
-          "clm_cb2bf1656583",
-          "clm_f79526c607a6",
-          "clm_5b8d90bd6acf",
-          "clm_a4347473254f",
-          "clm_ee5b2b34e7e0",
-          "clm_904b847bf679",
-          "clm_b783dac035eb",
-          "clm_027b92f820bd",
-          "clm_743c389b9a3d",
-          "clm_ba51d517eace",
-          "clm_1b9b9a415720",
-          "clm_ef7cb49ada05",
-          "clm_b4869a50b960",
-          "clm_5001f4a71023",
-          "clm_54c37315067c",
-          "clm_8131914f429b",
-          "clm_692f9ca8038b",
-          "clm_68f86ce1a24d",
-          "clm_0ef80db5702c",
-          "clm_317f28ae5158",
-          "clm_2003a576ea62",
-          "clm_72328d90c6e4",
-          "clm_74632664b204",
-          "clm_7f200bf496f2"
+          "clm_000000000001",
+          "clm_000000000002",
+          "clm_000000000003",
+          "clm_000000000004",
+          "clm_000000000005",
+          "clm_000000000006",
+          "clm_000000000007",
+          "clm_000000000008",
+          "clm_000000000009",
+          "clm_000000000010",
+          "clm_000000000011",
+          "clm_000000000012",
+          "clm_000000000013",
+          "clm_000000000014",
+          "clm_000000000015",
+          "clm_000000000016",
+          "clm_000000000017",
+          "clm_000000000018"
         ],
         "supporting_verdict_ids": [
-          "vrd_0325a5ae6bbe"
+          "vrd_000000000002"
         ],
-        "updated_by_run_id": "run_e054a8b3f328",
-        "updated_at": "2026-03-08T20:43:45.600519Z"
+        "updated_by_run_id": "run_000000000001",
+        "updated_at": "2026-03-11T10:07:00Z"
       },
       {
         "section_id": "what_changed_since_last_run",
         "label": "What Changed Since Last Run",
-        "content": "Initial coverage run. No prior memo exists.",
-        "status": "refreshed",
+        "content": "No prior active run exists yet, so the run-log delta section is not advanced.",
+        "status": "not_advanced",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
-        "updated_by_run_id": "run_e054a8b3f328",
-        "updated_at": "2026-03-08T20:43:45.606987Z"
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-11T10:12:00Z"
       },
       {
         "section_id": "risk",
         "label": "Risk",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.",
         "status": "refreshed",
         "supporting_claim_ids": [
-          "clm_70097c4cf104",
-          "clm_ac72b05377b6",
-          "clm_08f612f51b9b",
-          "clm_cb2bf1656583",
-          "clm_f79526c607a6",
-          "clm_5b8d90bd6acf",
-          "clm_a4347473254f",
-          "clm_ee5b2b34e7e0",
-          "clm_904b847bf679",
-          "clm_b783dac035eb",
-          "clm_027b92f820bd",
-          "clm_743c389b9a3d",
-          "clm_ba51d517eace",
-          "clm_1b9b9a415720",
-          "clm_ef7cb49ada05",
-          "clm_b4869a50b960",
-          "clm_5001f4a71023",
-          "clm_54c37315067c",
-          "clm_8131914f429b",
-          "clm_692f9ca8038b",
-          "clm_68f86ce1a24d",
-          "clm_0ef80db5702c",
-          "clm_317f28ae5158",
-          "clm_2003a576ea62",
-          "clm_72328d90c6e4",
-          "clm_74632664b204",
-          "clm_7f200bf496f2"
+          "clm_000000000001",
+          "clm_000000000002",
+          "clm_000000000003",
+          "clm_000000000004",
+          "clm_000000000005",
+          "clm_000000000006",
+          "clm_000000000007",
+          "clm_000000000008",
+          "clm_000000000009",
+          "clm_000000000010",
+          "clm_000000000011",
+          "clm_000000000012",
+          "clm_000000000013",
+          "clm_000000000014",
+          "clm_000000000015",
+          "clm_000000000016",
+          "clm_000000000017",
+          "clm_000000000018"
         ],
         "supporting_verdict_ids": [
-          "vrd_0325a5ae6bbe"
+          "vrd_000000000002"
         ],
-        "updated_by_run_id": "run_e054a8b3f328",
-        "updated_at": "2026-03-08T20:43:45.603427Z"
+        "updated_by_run_id": "run_000000000001",
+        "updated_at": "2026-03-11T10:09:00Z"
       },
       {
         "section_id": "durability_resilience",
         "label": "Durability And Resilience",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
-        "status": "refreshed",
-        "supporting_claim_ids": [
-          "clm_70097c4cf104",
-          "clm_ac72b05377b6",
-          "clm_08f612f51b9b",
-          "clm_cb2bf1656583",
-          "clm_f79526c607a6",
-          "clm_5b8d90bd6acf",
-          "clm_a4347473254f",
-          "clm_ee5b2b34e7e0",
-          "clm_904b847bf679",
-          "clm_b783dac035eb",
-          "clm_027b92f820bd",
-          "clm_743c389b9a3d",
-          "clm_ba51d517eace",
-          "clm_1b9b9a415720",
-          "clm_ef7cb49ada05",
-          "clm_b4869a50b960",
-          "clm_5001f4a71023",
-          "clm_54c37315067c",
-          "clm_8131914f429b",
-          "clm_692f9ca8038b",
-          "clm_68f86ce1a24d",
-          "clm_0ef80db5702c",
-          "clm_317f28ae5158",
-          "clm_2003a576ea62",
-          "clm_72328d90c6e4",
-          "clm_74632664b204",
-          "clm_7f200bf496f2"
-        ],
-        "supporting_verdict_ids": [
-          "vrd_0325a5ae6bbe"
-        ],
-        "updated_by_run_id": "run_e054a8b3f328",
-        "updated_at": "2026-03-08T20:43:45.602544Z"
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-11T10:13:00Z"
       },
       {
         "section_id": "growth",
         "label": "Growth",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
-        "status": "refreshed",
-        "supporting_claim_ids": [
-          "clm_70097c4cf104",
-          "clm_ac72b05377b6",
-          "clm_08f612f51b9b",
-          "clm_cb2bf1656583",
-          "clm_f79526c607a6",
-          "clm_5b8d90bd6acf",
-          "clm_a4347473254f",
-          "clm_ee5b2b34e7e0",
-          "clm_904b847bf679",
-          "clm_b783dac035eb",
-          "clm_027b92f820bd",
-          "clm_743c389b9a3d",
-          "clm_ba51d517eace",
-          "clm_1b9b9a415720",
-          "clm_ef7cb49ada05",
-          "clm_b4869a50b960",
-          "clm_5001f4a71023",
-          "clm_54c37315067c",
-          "clm_8131914f429b",
-          "clm_692f9ca8038b",
-          "clm_68f86ce1a24d",
-          "clm_0ef80db5702c",
-          "clm_317f28ae5158",
-          "clm_2003a576ea62",
-          "clm_72328d90c6e4",
-          "clm_74632664b204",
-          "clm_7f200bf496f2"
-        ],
-        "supporting_verdict_ids": [
-          "vrd_0325a5ae6bbe"
-        ],
-        "updated_by_run_id": "run_e054a8b3f328",
-        "updated_at": "2026-03-08T20:43:45.601493Z"
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
+        "supporting_claim_ids": [],
+        "supporting_verdict_ids": [],
+        "updated_by_run_id": null,
+        "updated_at": "2026-03-11T10:14:00Z"
       },
       {
         "section_id": "economic_spread",
         "label": "Economic Spread",
-        "content": "Pending update.",
-        "status": "pending",
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-08T20:43:45.607727Z"
+        "updated_at": "2026-03-11T10:15:00Z"
       },
       {
         "section_id": "valuation_terms",
         "label": "Valuation Terms",
-        "content": "Pending update.",
-        "status": "pending",
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-08T20:43:45.607730Z"
+        "updated_at": "2026-03-11T10:16:00Z"
       },
       {
         "section_id": "expectations_variant_view",
         "label": "Expectations And Variant View",
-        "content": "Pending update.",
-        "status": "pending",
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-08T20:43:45.607732Z"
+        "updated_at": "2026-03-11T10:17:00Z"
       },
       {
         "section_id": "realization_path_catalysts",
         "label": "Realization Path And Catalysts",
-        "content": "Pending update.",
-        "status": "pending",
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-08T20:43:45.607733Z"
+        "updated_at": "2026-03-11T10:18:00Z"
       },
       {
         "section_id": "portfolio_fit_positioning",
         "label": "Portfolio Fit And Positioning",
-        "content": "Pending update.",
-        "status": "pending",
+        "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "status": "not_advanced",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-08T20:43:45.607735Z"
+        "updated_at": "2026-03-11T10:19:00Z"
       },
       {
         "section_id": "overall_recommendation",
         "label": "Overall Recommendation",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.",
         "status": "refreshed",
         "supporting_claim_ids": [
-          "clm_70097c4cf104",
-          "clm_ac72b05377b6",
-          "clm_08f612f51b9b",
-          "clm_cb2bf1656583",
-          "clm_f79526c607a6",
-          "clm_5b8d90bd6acf",
-          "clm_a4347473254f",
-          "clm_ee5b2b34e7e0",
-          "clm_904b847bf679",
-          "clm_b783dac035eb",
-          "clm_027b92f820bd",
-          "clm_743c389b9a3d",
-          "clm_ba51d517eace",
-          "clm_1b9b9a415720",
-          "clm_ef7cb49ada05",
-          "clm_b4869a50b960",
-          "clm_5001f4a71023",
-          "clm_54c37315067c",
-          "clm_8131914f429b",
-          "clm_692f9ca8038b",
-          "clm_68f86ce1a24d",
-          "clm_0ef80db5702c",
-          "clm_317f28ae5158",
-          "clm_2003a576ea62",
-          "clm_72328d90c6e4",
-          "clm_74632664b204",
-          "clm_7f200bf496f2"
+          "clm_000000000001",
+          "clm_000000000002",
+          "clm_000000000003",
+          "clm_000000000004",
+          "clm_000000000005",
+          "clm_000000000006",
+          "clm_000000000007",
+          "clm_000000000008",
+          "clm_000000000009",
+          "clm_000000000010",
+          "clm_000000000011",
+          "clm_000000000012",
+          "clm_000000000013",
+          "clm_000000000014",
+          "clm_000000000015",
+          "clm_000000000016",
+          "clm_000000000017",
+          "clm_000000000018"
         ],
         "supporting_verdict_ids": [
-          "vrd_0325a5ae6bbe"
+          "vrd_000000000002"
         ],
-        "updated_by_run_id": "run_e054a8b3f328",
-        "updated_at": "2026-03-08T20:43:45.604179Z"
+        "updated_by_run_id": "run_000000000001",
+        "updated_at": "2026-03-11T10:11:00Z"
       }
     ],
-    "recommendation_summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+    "recommendation_summary": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.",
     "namespace": "company/ACME/memos/current",
-    "created_at": "2026-03-08T20:43:45.608449Z",
-    "updated_at": "2026-03-08T20:43:45.608453Z"
+    "created_at": "2026-03-11T10:20:00Z",
+    "updated_at": "2026-03-11T10:21:00Z"
   },
-  "delta": {
-    "delta_id": "dlt_e7db271f8b9a",
-    "company_id": "ACME",
-    "prior_run_id": null,
-    "current_run_id": "run_e054a8b3f328",
-    "changed_claim_ids": [
-      "clm_0312f3dc8208",
-      "clm_e6d47f09d040",
-      "clm_3828ea105419",
-      "clm_09c7bba6f8dc",
-      "clm_922269a82969",
-      "clm_70c55c27b090",
-      "clm_9ef2b03e4c69",
-      "clm_b25aa3eef33f",
-      "clm_0704d5b87a87",
-      "clm_9dce7e522f03",
-      "clm_74870a5c5f02",
-      "clm_a8efd0899707",
-      "clm_0690903d646c",
-      "clm_d2f2c2b0f9f2",
-      "clm_626d1d68bbe2",
-      "clm_ad4e5b50066d",
-      "clm_96490f364da8",
-      "clm_db791da2f861",
-      "clm_70097c4cf104",
-      "clm_ac72b05377b6",
-      "clm_08f612f51b9b",
-      "clm_cb2bf1656583",
-      "clm_f79526c607a6",
-      "clm_5b8d90bd6acf",
-      "clm_a4347473254f",
-      "clm_ee5b2b34e7e0",
-      "clm_904b847bf679",
-      "clm_b783dac035eb",
-      "clm_027b92f820bd",
-      "clm_743c389b9a3d",
-      "clm_ba51d517eace",
-      "clm_1b9b9a415720",
-      "clm_ef7cb49ada05",
-      "clm_b4869a50b960",
-      "clm_5001f4a71023",
-      "clm_54c37315067c",
-      "clm_8131914f429b",
-      "clm_692f9ca8038b",
-      "clm_68f86ce1a24d",
-      "clm_0ef80db5702c",
-      "clm_317f28ae5158",
-      "clm_2003a576ea62",
-      "clm_72328d90c6e4",
-      "clm_74632664b204",
-      "clm_7f200bf496f2"
-    ],
-    "changed_sections": [
-      "investment_snapshot",
-      "risk",
-      "overall_recommendation",
-      "growth",
-      "durability_resilience",
-      "what_changed_since_last_run"
-    ],
-    "change_summary": "Initial coverage run. No prior memo exists.",
-    "thesis_drift_flags": [],
-    "alert_level": "low",
-    "created_at": "2026-03-08T20:43:45.606972Z"
-  }
+  "delta": null
 }

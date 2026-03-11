@@ -4,7 +4,7 @@
 Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## What Changed Since Last Run
- Changed sections: no memo sections.
+Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Changed sections: investment_snapshot, risk, durability_resilience, growth, overall_recommendation.
 
 ## Risk
 Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
@@ -16,19 +16,19 @@ Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key cla
 Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## Economic Spread
-Pending update.
+Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
 
 ## Valuation Terms
-Pending update.
+Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
 
 ## Expectations And Variant View
-Pending update.
+Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
 
 ## Realization Path And Catalysts
-Pending update.
+Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
 
 ## Portfolio Fit And Positioning
-Pending update.
+Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
 
 ## Overall Recommendation
 Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
