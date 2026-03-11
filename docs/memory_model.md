@@ -37,3 +37,11 @@ The platform persists the following typed records:
 - Memo snapshots are versioned; only one memo is active at a time.
 - Memo section updates are logged independently from memo snapshots.
 
+## Memo Projection Rules
+
+- Every run projects the full required memo section set, even when execution pauses after `gatekeepers`.
+- Memo sections use explicit posture states: `refreshed`, `stale`, or `not_advanced`.
+- `stale` means prior active memo content is carried forward because the current run did not refresh that section.
+- `not_advanced` means the section has never been advanced for the company, or this run stopped before any supporting work existed.
+- A gatekeeper-only run must say that deeper work has not run yet instead of inserting generic filler.
+- A failed gatekeeper override must keep downstream memo language visibly provisional.

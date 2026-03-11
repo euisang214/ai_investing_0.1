@@ -589,32 +589,15 @@ class RefreshRuntime:
 
     def _build_memo(self, *, is_partial: bool) -> ICMemo:
         labels = self.context.memo_section_labels(self.coverage.memo_label_profile)
+        gatekeeper_section_ids = self._gatekeeper_section_ids()
         ordered_sections: list[MemoSection] = []
         for section_id, label in labels.items():
-            section = self.current_sections.get(section_id)
-            if section is None:
-                ordered_sections.append(
-                    MemoSection(
-                        section_id=section_id,
-                        label=label,
-                        content="This section has not been advanced yet.",
-                        status=MemoSectionStatus.NOT_ADVANCED,
-                    )
-                )
-                continue
-            status = (
-                MemoSectionStatus.REFRESHED
-                if section.updated_by_run_id == self.run.run_id
-                else MemoSectionStatus.STALE
-            )
-            if status == MemoSectionStatus.STALE and not section.content:
-                status = MemoSectionStatus.NOT_ADVANCED
             ordered_sections.append(
-                section.model_copy(
-                    update={
-                        "label": label,
-                        "status": status,
-                    }
+                self._project_memo_section(
+                    section_id=section_id,
+                    label=label,
+                    gatekeeper_section_ids=gatekeeper_section_ids,
+                    is_partial=is_partial,
                 )
             )
         provider = self.context.get_provider("quality")
@@ -631,9 +614,155 @@ class RefreshRuntime:
                     "section_labels": list(labels.items()),
                     "namespace": f"company/{self.company_profile.company_id}/memos/current",
                     "is_partial": is_partial,
+                    "gate_decision": (
+                        self._current_gate_decision().value
+                        if self._current_gate_decision() is not None
+                        else None
+                    ),
+                    "awaiting_continue": self.run.awaiting_continue,
+                    "provisional": self.run.provisional,
+                    "stopped_after_panel": self.run.stopped_after_panel,
                 },
             ),
             ICMemo,
+        )
+
+    def _project_memo_section(
+        self,
+        *,
+        section_id: str,
+        label: str,
+        gatekeeper_section_ids: set[str],
+        is_partial: bool,
+    ) -> MemoSection:
+        section = self.current_sections.get(section_id)
+        if section is None:
+            return MemoSection(
+                section_id=section_id,
+                label=label,
+                content=self._default_section_content(
+                    section_id=section_id,
+                    gatekeeper_section_ids=gatekeeper_section_ids,
+                    is_partial=is_partial,
+                ),
+                status=MemoSectionStatus.NOT_ADVANCED,
+            )
+
+        status = (
+            MemoSectionStatus.REFRESHED
+            if section.updated_by_run_id == self.run.run_id
+            else MemoSectionStatus.STALE
+        )
+        if status == MemoSectionStatus.STALE and not section.content:
+            status = MemoSectionStatus.NOT_ADVANCED
+
+        content = section.content or self._default_section_content(
+            section_id=section_id,
+            gatekeeper_section_ids=gatekeeper_section_ids,
+            is_partial=is_partial,
+        )
+        if status == MemoSectionStatus.STALE:
+            content = self._stale_section_content(
+                section_id=section_id,
+                content=content,
+                gatekeeper_section_ids=gatekeeper_section_ids,
+                is_partial=is_partial,
+            )
+        if self.run.provisional and status == MemoSectionStatus.REFRESHED:
+            content = self._prefix_content(
+                content,
+                "Provisional after failed gatekeeper override.",
+            )
+
+        return section.model_copy(
+            update={
+                "label": label,
+                "content": content,
+                "status": status,
+            }
+        )
+
+    def _default_section_content(
+        self,
+        *,
+        section_id: str,
+        gatekeeper_section_ids: set[str],
+        is_partial: bool,
+    ) -> str:
+        if section_id == "what_changed_since_last_run":
+            if self.prior_memo is None:
+                return "No prior active run exists yet, so the run-log delta section is not advanced."
+            return "This run has not advanced the run-log delta section yet."
+
+        gatekeeper_only = self._is_gatekeeper_only_projection(is_partial=is_partial)
+        gate_decision = self._current_gate_decision()
+        if gatekeeper_only and section_id not in gatekeeper_section_ids:
+            if gate_decision == GateDecision.FAIL:
+                return (
+                    "Gatekeepers blocked deeper panel work this run, so this section has not "
+                    "been advanced yet."
+                )
+            return (
+                "Gatekeepers completed this run, but deeper panel work has not advanced this "
+                "section yet."
+            )
+        return "This section has not been advanced yet."
+
+    def _stale_section_content(
+        self,
+        *,
+        section_id: str,
+        content: str,
+        gatekeeper_section_ids: set[str],
+        is_partial: bool,
+    ) -> str:
+        if self._is_gatekeeper_only_projection(is_partial=is_partial):
+            if section_id == "what_changed_since_last_run":
+                return self._prefix_content(
+                    content,
+                    "Carried forward from the prior memo until this run completes monitoring.",
+                )
+            if section_id not in gatekeeper_section_ids:
+                gate_decision = self._current_gate_decision()
+                prefix = (
+                    "Carried forward from the prior memo because gatekeepers blocked deeper "
+                    "refresh work this run."
+                    if gate_decision == GateDecision.FAIL
+                    else "Carried forward from the prior memo because deeper panel work has not "
+                    "refreshed this section yet."
+                )
+                return self._prefix_content(content, prefix)
+        return self._prefix_content(content, "Stale from the prior active memo.")
+
+    @staticmethod
+    def _prefix_content(content: str, prefix: str) -> str:
+        if content.startswith(prefix):
+            return content
+        return f"{prefix} {content}".strip()
+
+    def _current_gate_decision(self) -> GateDecision | None:
+        if self.run.gate_decision is not None:
+            return self.run.gate_decision
+        verdict = self.current_verdicts.get("gatekeepers")
+        if isinstance(verdict, GatekeeperVerdict):
+            return verdict.gate_decision
+        return None
+
+    def _gatekeeper_section_ids(self) -> set[str]:
+        try:
+            return set(self.context.get_panel("gatekeepers").memo_section_ids)
+        except KeyError:
+            return set()
+
+    def _is_gatekeeper_only_projection(self, *, is_partial: bool) -> bool:
+        if "gatekeepers" not in self.current_verdicts:
+            return False
+        if set(self.current_verdicts) != {"gatekeepers"}:
+            return False
+        return (
+            is_partial
+            or self.run.awaiting_continue
+            or self.run.stopped_after_panel == "gatekeepers"
         )
 
     def _update_delta_section(self, delta: MonitoringDelta) -> None:
