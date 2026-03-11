@@ -13,7 +13,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
 | 1 | Foundation And Contracts | Establish the repo, registries, schemas, persistence contracts, provider/tool abstractions, and interface skeletons | CONF-01, CONF-02, CONF-03, COV-01, COV-02, ING-01, ING-02, MEM-01, MEM-02, MEMO-02, ORCH-01, TOOLS-01, PROV-01, API-01, API-02, OPS-01 | 5 |
-| 2 | Vertical Slice And Delta Flow | Run one company through ingestion, gatekeepers + demand panels, memo updates, IC synthesis, and rerun delta generation | COV-03, ING-03, MEM-03, ORCH-02, ORCH-03, MEMO-01, MEMO-03, TOOLS-02, TEST-01, TEST-02 | 5 |
+| 2 | Vertical Slice And Delta Flow | Completed on 2026-03-11 with deterministic artifacts and full regression coverage | COV-03, ING-03, MEM-03, ORCH-02, ORCH-03, MEMO-01, MEMO-03, TOOLS-02, TEST-01, TEST-02 | 5 |
 | 3 | Remaining Panel Scaffolds | Add configurable placeholder prompts, schemas, and registry entries for the remaining top-level panels | V2-01 | 3 |
 | 4 | Monitoring And Connectors | Expand monitoring logic, add reusable services, and include richer sample public/private adapters | V2-02, V2-04 | 3 |
 | 5 | Scheduling And Notifications | Harden n8n workflows, configurable cadence policies, and run notifications | V2-03, V2-05 | 3 |
@@ -37,11 +37,11 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 2: Vertical Slice And Delta Flow
 
 **Goal:** Prove the architecture by analyzing one company end-to-end and producing memo history plus rerun deltas.
-**Status:** In progress. Plans `02-01`, `02-02`, and `02-03` completed on 2026-03-11; 3 of 4 Phase 2 plans now have summaries on disk.
+**Status:** Completed on 2026-03-11.
 
 **Requirements:** `COV-03`, `ING-03`, `MEM-03`, `ORCH-02`, `ORCH-03`, `MEMO-01`, `MEMO-03`, `TOOLS-02`, `TEST-01`, `TEST-02`
 
-**Plan progress:** `3 / 4` completed (`02-01`, `02-02`, and `02-03` done; `02-04` remains)
+**Plan progress:** `4 / 4` completed (`02-01`, `02-02`, `02-03`, and `02-04` done)
 
 **Success criteria:**
 1. The `CompanyRefreshGraph` executes `gatekeepers` and `demand_revenue_quality` using reusable subgraphs, not one-off orchestration code.
@@ -84,4 +84,4 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 3. Background execution and notification boundaries are documented cleanly.
 
 ---
-*Last updated: 2026-03-11 after Phase 02 Plans 02-02 and 02-03 summary updates*
+*Last updated: 2026-03-11 after Phase 02 Plan 02-04 completion*

@@ -55,8 +55,8 @@
 
 ### Validation
 
-- [ ] **TEST-01**: The repo includes tests for config loading, registries, graph composition, memo update semantics, rerun deltas, tool bundle enforcement, ingestion parsing, and an end-to-end fake-provider run.
-- [ ] **TEST-02**: The repo ships sample data plus sample generated memo and delta artifacts for another engineer to inspect.
+- [x] **TEST-01**: The repo includes tests for config loading, registries, graph composition, memo update semantics, rerun deltas, tool bundle enforcement, ingestion parsing, and an end-to-end fake-provider run.
+- [x] **TEST-02**: The repo ships sample data plus sample generated memo and delta artifacts for another engineer to inspect.
 
 ## v2 Requirements
 
@@ -108,8 +108,8 @@
 | API-01 | Phase 1 | Complete |
 | API-02 | Phase 1 | Complete |
 | OPS-01 | Phase 1 | Complete |
-| TEST-01 | Phase 2 | Pending |
-| TEST-02 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Complete |
+| TEST-02 | Phase 2 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-11 after Phase 02 Plan 02 completion*
+*Last updated: 2026-03-11 after Phase 02 Plan 04 completion*
