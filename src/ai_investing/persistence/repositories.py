@@ -256,6 +256,28 @@ class Repository:
         rows = self.session.scalars(stmt.order_by(ClaimCardRow.created_at.desc())).all()
         return [ClaimCard.model_validate(row.payload) for row in rows]
 
+    def list_latest_claim_cards_excluding_run(
+        self,
+        company_id: str,
+        *,
+        run_id: str,
+    ) -> list[ClaimCard]:
+        rows = self.session.scalars(
+            select(ClaimCardRow)
+            .where(ClaimCardRow.company_id == company_id, ClaimCardRow.run_id != run_id)
+            .order_by(ClaimCardRow.created_at.desc())
+        ).all()
+        claims: list[ClaimCard] = []
+        seen_keys: set[tuple[str, str]] = set()
+        for row in rows:
+            claim = ClaimCard.model_validate(row.payload)
+            key = (claim.factor_id, claim.agent_id)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            claims.append(claim)
+        return claims
+
     def save_panel_verdict(self, verdict: PanelVerdict) -> PanelVerdict:
         prior_rows = self.session.scalars(
             select(PanelVerdictRow).where(
@@ -294,6 +316,27 @@ class Repository:
         rows = self.session.scalars(stmt.order_by(PanelVerdictRow.created_at.desc())).all()
         return [_deserialize_panel_verdict(row.payload) for row in rows]
 
+    def list_latest_panel_verdicts_excluding_run(
+        self,
+        company_id: str,
+        *,
+        run_id: str,
+    ) -> list[PanelVerdict]:
+        rows = self.session.scalars(
+            select(PanelVerdictRow)
+            .where(PanelVerdictRow.company_id == company_id, PanelVerdictRow.run_id != run_id)
+            .order_by(PanelVerdictRow.created_at.desc())
+        ).all()
+        verdicts: list[PanelVerdict] = []
+        seen_panel_ids: set[str] = set()
+        for row in rows:
+            verdict = _deserialize_panel_verdict(row.payload)
+            if verdict.panel_id in seen_panel_ids:
+                continue
+            seen_panel_ids.add(verdict.panel_id)
+            verdicts.append(verdict)
+        return verdicts
+
     def save_memo(self, memo: ICMemo) -> ICMemo:
         prior_rows = self.session.scalars(
             select(MemoRow).where(
@@ -322,6 +365,16 @@ class Repository:
         row = self.session.scalar(
             select(MemoRow)
             .where(MemoRow.company_id == company_id, MemoRow.is_active.is_(True))
+            .order_by(MemoRow.updated_at.desc())
+        )
+        if row is None:
+            return None
+        return ICMemo.model_validate(row.payload)
+
+    def get_latest_memo_excluding_run(self, company_id: str, *, run_id: str) -> ICMemo | None:
+        row = self.session.scalar(
+            select(MemoRow)
+            .where(MemoRow.company_id == company_id, MemoRow.run_id != run_id)
             .order_by(MemoRow.updated_at.desc())
         )
         if row is None:

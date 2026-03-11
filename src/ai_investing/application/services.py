@@ -40,6 +40,8 @@ from ai_investing.domain.models import (
 from ai_investing.ingestion.file_connectors import FileBundleConnector
 from ai_investing.persistence.repositories import Repository
 
+_MISSING_BASELINE = object()
+
 
 @dataclass
 class AgentConfigService:
@@ -666,11 +668,12 @@ class RefreshRuntime:
                 status=MemoSectionStatus.NOT_ADVANCED,
             )
 
-        status = (
-            MemoSectionStatus.REFRESHED
-            if section.updated_by_run_id == self.run.run_id
-            else MemoSectionStatus.STALE
-        )
+        if section.updated_by_run_id == self.run.run_id:
+            status = MemoSectionStatus.REFRESHED
+        elif self._is_same_run_placeholder_section(section):
+            status = MemoSectionStatus.NOT_ADVANCED
+        else:
+            status = MemoSectionStatus.STALE
         if status == MemoSectionStatus.STALE and not section.content:
             status = MemoSectionStatus.NOT_ADVANCED
 
@@ -786,6 +789,13 @@ class RefreshRuntime:
             or self.run.stopped_after_panel == "gatekeepers"
         )
 
+    def _is_same_run_placeholder_section(self, section: MemoSection) -> bool:
+        return (
+            self.prior_memo is None
+            and section.updated_by_run_id is None
+            and section.status == MemoSectionStatus.NOT_ADVANCED
+        )
+
     def _update_delta_section(self, delta: MonitoringDelta) -> None:
         label = self.context.memo_section_labels(self.coverage.memo_label_profile)[
             "what_changed_since_last_run"
@@ -811,10 +821,12 @@ class RefreshRuntime:
         repository: Repository,
         company_id: str,
     ) -> ICMemo | None:
-        baseline = run.metadata.get("baseline_memo")
-        if baseline:
+        baseline = run.metadata.get("baseline_memo", _MISSING_BASELINE)
+        if baseline is not _MISSING_BASELINE:
+            if baseline in (None, {}, []):
+                return None
             return ICMemo.model_validate(baseline)
-        return repository.get_current_memo(company_id)
+        return repository.get_latest_memo_excluding_run(company_id, run_id=run.run_id)
 
     @staticmethod
     def _baseline_claims_from_run(
@@ -822,10 +834,12 @@ class RefreshRuntime:
         repository: Repository,
         company_id: str,
     ) -> list[ClaimCard]:
-        baseline_claims = run.metadata.get("baseline_active_claims")
-        if baseline_claims:
+        baseline_claims = run.metadata.get("baseline_active_claims", _MISSING_BASELINE)
+        if baseline_claims is not _MISSING_BASELINE:
+            if baseline_claims in (None, {}, []):
+                return []
             return [ClaimCard.model_validate(claim) for claim in baseline_claims]
-        return repository.list_claim_cards(company_id, active_only=True)
+        return repository.list_latest_claim_cards_excluding_run(company_id, run_id=run.run_id)
 
     @staticmethod
     def _baseline_verdicts_from_run(
@@ -833,8 +847,10 @@ class RefreshRuntime:
         repository: Repository,
         company_id: str,
     ) -> dict[str, PanelVerdict]:
-        baseline_verdicts = run.metadata.get("baseline_active_verdicts")
-        if baseline_verdicts:
+        baseline_verdicts = run.metadata.get("baseline_active_verdicts", _MISSING_BASELINE)
+        if baseline_verdicts is not _MISSING_BASELINE:
+            if baseline_verdicts in (None, {}, []):
+                return {}
             verdicts = (
                 GatekeeperVerdict.model_validate(verdict)
                 if "gate_decision" in verdict
@@ -844,7 +860,10 @@ class RefreshRuntime:
             return {verdict.panel_id: verdict for verdict in verdicts}
         return {
             verdict.panel_id: verdict
-            for verdict in repository.list_panel_verdicts(company_id, active_only=True)
+            for verdict in repository.list_latest_panel_verdicts_excluding_run(
+                company_id,
+                run_id=run.run_id,
+            )
         }
 
     def _delta_thresholds(self) -> dict[str, Any]:
