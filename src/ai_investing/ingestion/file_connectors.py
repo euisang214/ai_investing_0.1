@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -119,5 +119,5 @@ class FileBundleConnector(SourceConnector):
         }.get(source_type, 0.6)
 
     def _staleness_days(self, as_of_date: datetime) -> int:
-        now = datetime.now(UTC)
+        now = utc_now()
         return max(0, int((now - as_of_date).days))

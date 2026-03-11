@@ -18,6 +18,7 @@ COPY config /app/config
 COPY prompts /app/prompts
 COPY examples /app/examples
 COPY docs /app/docs
+COPY scripts /app/scripts
 COPY tests /app/tests
 
 RUN uv pip install --system -e ".[dev]"

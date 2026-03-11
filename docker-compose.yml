@@ -35,6 +35,7 @@ services:
       - ./config:/app/config
       - ./prompts:/app/prompts
       - ./examples:/app/examples
+      - ./scripts:/app/scripts
       - ./src:/app/src
       - ./tests:/app/tests
 

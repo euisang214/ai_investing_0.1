@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import shutil
+from collections import defaultdict
+from contextlib import ExitStack
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 import yaml
@@ -13,13 +18,50 @@ from ai_investing.domain.models import CoverageEntry
 from ai_investing.settings import Settings
 
 
+@dataclass
+class DeterministicRuntime:
+    current: datetime = datetime(2026, 3, 11, 9, 0, tzinfo=timezone.utc)
+    counters: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+
+    def utc_now(self) -> datetime:
+        now = self.current
+        self.current = now + timedelta(minutes=1)
+        return now
+
+    def new_id(self, prefix: str) -> str:
+        self.counters[prefix] += 1
+        return f"{prefix}_{self.counters[prefix]:012d}"
+
+    def install(self) -> ExitStack:
+        stack = ExitStack()
+        for target in (
+            "ai_investing.domain.models.utc_now",
+            "ai_investing.application.services.utc_now",
+            "ai_investing.ingestion.file_connectors.utc_now",
+        ):
+            stack.enter_context(patch(target, side_effect=self.utc_now))
+        for target in (
+            "ai_investing.domain.models.new_id",
+            "ai_investing.application.services.new_id",
+        ):
+            stack.enter_context(patch(target, side_effect=self.new_id))
+        return stack
+
+
 @pytest.fixture
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
-def context(tmp_path: Path, repo_root: Path) -> AppContext:
+def deterministic_runtime() -> DeterministicRuntime:
+    runtime = DeterministicRuntime()
+    with runtime.install():
+        yield runtime
+
+
+@pytest.fixture
+def context(tmp_path: Path, repo_root: Path, deterministic_runtime: DeterministicRuntime) -> AppContext:
     config_dir = tmp_path / "config"
     shutil.copytree(repo_root / "config", config_dir)
 
