@@ -22,13 +22,18 @@
   ],
   "changed_sections": [
     "durability_resilience",
+    "economic_spread",
+    "expectations_variant_view",
     "growth",
     "investment_snapshot",
     "overall_recommendation",
+    "portfolio_fit_positioning",
+    "realization_path_catalysts",
     "risk",
+    "valuation_terms",
     "what_changed_since_last_run"
   ],
-  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence.",
+  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence.",
   "thesis_drift_flags": [
     "concentration_increase",
     "survivability_deterioration",

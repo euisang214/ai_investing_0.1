@@ -5,8 +5,8 @@ These artifacts make the Phase 2 checkpoint flow inspectable without running the
 ## ACME
 
 - `initial/`: the first `analyze_company("ACME")` result. The run pauses after `gatekeepers`, `result.json` shows `awaiting_continue`, `memo.md` is partial, and `delta.json` is `null` because monitoring has not run yet.
-- `continued/`: the same run after `continue_run(..., continue)`. This shows the downstream `demand_revenue_quality` panel, the reconciled memo, and the initial monitoring delta.
-- `rerun/`: a later `refresh_company("ACME")` run after new evidence is ingested and the operator explicitly continues past the checkpoint again. `delta.json` is the materiality-aware rerun delta against the prior active run.
+- `continued/`: the same run after `continue_run(..., continue)`. This is still the first completed coverage run, so `result.json` keeps `memo.is_initial_coverage` true, `delta.json` leaves `prior_run_id` null, and untouched sections remain `not_advanced` instead of reading as stale carry-forward.
+- `rerun/`: a later `refresh_company("ACME")` run after new evidence is ingested and the operator explicitly continues past the checkpoint again. This is the first place `delta.json` compares against a prior active run and where carried-forward memo sections may legitimately read as stale.
 
 ## BETA
 

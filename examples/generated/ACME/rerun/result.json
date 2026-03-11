@@ -39,7 +39,7 @@
         "company_id": "ACME",
         "run_id": "run_000000000001",
         "is_active": true,
-        "is_initial_coverage": false,
+        "is_initial_coverage": true,
         "sections": [
           {
             "section_id": "investment_snapshot",
@@ -84,7 +84,7 @@
           {
             "section_id": "what_changed_since_last_run",
             "label": "What Changed Since Last Run",
-            "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 27. Drift flags: concentration_increase, weakening_recurrence. Changed sections: investment_snapshot, risk, durability_resilience, growth, overall_recommendation.",
+            "content": "Initial coverage run. No prior memo exists.",
             "status": "refreshed",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
@@ -214,8 +214,8 @@
           {
             "section_id": "economic_spread",
             "label": "Economic Spread",
-            "content": "Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
-            "status": "stale",
+            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
@@ -224,8 +224,8 @@
           {
             "section_id": "valuation_terms",
             "label": "Valuation Terms",
-            "content": "Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
-            "status": "stale",
+            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
@@ -234,8 +234,8 @@
           {
             "section_id": "expectations_variant_view",
             "label": "Expectations And Variant View",
-            "content": "Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
-            "status": "stale",
+            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
@@ -244,8 +244,8 @@
           {
             "section_id": "realization_path_catalysts",
             "label": "Realization Path And Catalysts",
-            "content": "Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
-            "status": "stale",
+            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
@@ -254,8 +254,8 @@
           {
             "section_id": "portfolio_fit_positioning",
             "label": "Portfolio Fit And Positioning",
-            "content": "Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
-            "status": "stale",
+            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
@@ -7037,7 +7037,7 @@
       {
         "section_id": "what_changed_since_last_run",
         "label": "What Changed Since Last Run",
-        "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Changed sections: investment_snapshot, risk, durability_resilience, growth, overall_recommendation.",
+        "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Changed sections: investment_snapshot, risk, durability_resilience, growth, economic_spread, valuation_terms, expectations_variant_view, realization_path_catalysts, portfolio_fit_positioning, overall_recommendation.",
         "status": "refreshed",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7167,7 +7167,7 @@
       {
         "section_id": "economic_spread",
         "label": "Economic Spread",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7177,7 +7177,7 @@
       {
         "section_id": "valuation_terms",
         "label": "Valuation Terms",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7187,7 +7187,7 @@
       {
         "section_id": "expectations_variant_view",
         "label": "Expectations And Variant View",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7197,7 +7197,7 @@
       {
         "section_id": "realization_path_catalysts",
         "label": "Realization Path And Catalysts",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7207,7 +7207,7 @@
       {
         "section_id": "portfolio_fit_positioning",
         "label": "Portfolio Fit And Positioning",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Stale from the prior active memo. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7284,13 +7284,18 @@
     ],
     "changed_sections": [
       "durability_resilience",
+      "economic_spread",
+      "expectations_variant_view",
       "growth",
       "investment_snapshot",
       "overall_recommendation",
+      "portfolio_fit_positioning",
+      "realization_path_catalysts",
       "risk",
+      "valuation_terms",
       "what_changed_since_last_run"
     ],
-    "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence.",
+    "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence.",
     "thesis_drift_flags": [
       "concentration_increase",
       "survivability_deterioration",
