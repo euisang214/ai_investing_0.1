@@ -106,5 +106,8 @@ def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> N
 
     assert initial_memo
     assert "Stale from the prior active memo." not in continued_memo
-    assert "Gatekeepers completed this run, but deeper panel work has not advanced this section yet." in continued_memo
+    assert (
+        "Gatekeepers completed this run, but deeper panel work has not advanced this section yet."
+        in continued_memo
+    )
     assert "Stale from the prior active memo." in rerun_memo
