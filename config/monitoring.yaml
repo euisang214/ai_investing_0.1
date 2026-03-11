@@ -1,14 +1,27 @@
 monitoring:
   delta_thresholds:
-    claim_change_count_for_alert: 3
+    confidence_materiality: 0.05
+    always_refresh_sections: [what_changed_since_last_run]
     high_alert_changed_sections: [overall_recommendation, risk]
+    medium_alert_changed_sections:
+      [
+        investment_snapshot,
+        durability_resilience,
+        growth,
+        economic_spread,
+        valuation_terms,
+        expectations_variant_view,
+        realization_path_catalysts,
+        portfolio_fit_positioning,
+      ]
+    high_alert_drift_flags: [survivability_deterioration, governance_risk_increase]
+    medium_alert_claim_change_count: 1
   drift_flags:
     - weakening_recurrence
     - governance_risk_increase
     - concentration_increase
     - survivability_deterioration
   alert_levels:
-    low: "Minor wording or confidence changes"
-    medium: "Meaningful factor or memo section change"
-    high: "Recommendation, survivability, or core thesis changed"
-
+    low: "Run log refreshed with no material thesis change"
+    medium: "Meaningful factor drift or memo section movement"
+    high: "Recommendation, gatekeeper, survivability, or core risk changed"

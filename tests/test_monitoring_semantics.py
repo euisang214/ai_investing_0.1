@@ -1,7 +1,18 @@
 from __future__ import annotations
 
-from ai_investing.application.services import AnalysisService
-from ai_investing.domain.enums import GateDecision, RunContinueAction
+from ai_investing.application.services import AnalysisService, RefreshRuntime
+from ai_investing.domain.enums import (
+    AlertLevel,
+    CompanyType,
+    GateDecision,
+    MemoSectionStatus,
+    RunContinueAction,
+    RunKind,
+    RunStatus,
+    VerdictRecommendation,
+)
+from ai_investing.domain.models import ClaimCard, GatekeeperVerdict, ICMemo, MemoSection, RunRecord
+from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
 
 
@@ -15,6 +26,136 @@ def _section_map(result: dict[str, object]) -> dict[str, dict[str, object]]:
         for section in sections
         if isinstance(section, dict) and "section_id" in section
     }
+
+
+def _claim(
+    *,
+    run_id: str,
+    claim_text: str,
+    confidence: float,
+    section_ids: list[str],
+    factor_id: str = "customer_concentration",
+    staleness_assessment: str = "Fresh enough for current memo update.",
+) -> ClaimCard:
+    return ClaimCard(
+        company_id="ACME",
+        company_type=CompanyType.PUBLIC,
+        run_id=run_id,
+        panel_id="demand_revenue_quality",
+        factor_id=factor_id,
+        agent_id="demand_advocate",
+        claim=claim_text,
+        bull_case="Bull case unchanged.",
+        bear_case="Bear case unchanged.",
+        confidence=confidence,
+        evidence_quality=0.8,
+        staleness_assessment=staleness_assessment,
+        time_horizon="12-24 months",
+        durability_horizon="multi-year",
+        what_changed="No material change.",
+        namespace=f"company/ACME/claims/{factor_id}",
+        section_impacts=[
+            {
+                "section_id": section_id,
+                "rationale": f"{factor_id} affects {section_id}.",
+            }
+            for section_id in section_ids
+        ],
+    )
+
+
+def _memo_section(
+    *,
+    section_id: str,
+    content: str,
+    run_id: str,
+    status: MemoSectionStatus = MemoSectionStatus.REFRESHED,
+) -> MemoSection:
+    return MemoSection(
+        section_id=section_id,
+        label=section_id.replace("_", " "),
+        content=content,
+        status=status,
+        updated_by_run_id=run_id,
+    )
+
+
+def _gatekeeper_verdict(*, run_id: str, gate_decision: GateDecision) -> GatekeeperVerdict:
+    recommendation_map = {
+        GateDecision.PASS: VerdictRecommendation.POSITIVE,
+        GateDecision.REVIEW: VerdictRecommendation.MIXED,
+        GateDecision.FAIL: VerdictRecommendation.NEGATIVE,
+    }
+    return GatekeeperVerdict(
+        company_id="ACME",
+        company_type=CompanyType.PUBLIC,
+        run_id=run_id,
+        panel_id="gatekeepers",
+        panel_name="Gatekeepers",
+        summary=f"Gatekeepers {gate_decision.value}.",
+        recommendation=recommendation_map[gate_decision],
+        score=0.5,
+        confidence=0.7,
+        affected_section_ids=["investment_snapshot", "risk", "overall_recommendation"],
+        claim_ids=[],
+        namespace="company/ACME/verdicts/gatekeepers",
+        gate_decision=gate_decision,
+        gate_reasons=["reason"],
+    )
+
+
+def _runtime_for_delta(
+    seeded_acme,
+    *,
+    prior_claims: list[ClaimCard],
+    current_claims: list[ClaimCard],
+    prior_sections: list[MemoSection],
+    current_sections: list[MemoSection],
+    prior_gate_decision: GateDecision | None = None,
+    current_gate_decision: GateDecision | None = None,
+) -> RefreshRuntime:
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        company_profile = repository.get_company_profile("ACME")
+
+    assert coverage is not None
+    assert company_profile is not None
+
+    run = RunRecord(
+        company_id="ACME",
+        run_kind=RunKind.REFRESH,
+        status=RunStatus.RUNNING,
+    )
+    prior_memo = ICMemo(
+        company_id="ACME",
+        run_id="run_prior",
+        sections=prior_sections,
+        recommendation_summary="Prior memo.",
+        namespace="company/ACME/memos/current",
+    )
+    prior_verdicts = (
+        {"gatekeepers": _gatekeeper_verdict(run_id="run_prior", gate_decision=prior_gate_decision)}
+        if prior_gate_decision is not None
+        else {}
+    )
+    current_verdicts = (
+        {"gatekeepers": _gatekeeper_verdict(run_id=run.run_id, gate_decision=current_gate_decision)}
+        if current_gate_decision is not None
+        else {}
+    )
+    return RefreshRuntime(
+        context=seeded_acme,
+        run=run,
+        coverage=coverage,
+        company_profile=company_profile,
+        prior_memo=prior_memo,
+        prior_active_claims=prior_claims,
+        prior_active_verdicts=prior_verdicts,
+        current_sections={section.section_id: section for section in current_sections},
+        current_claims=current_claims,
+        current_verdicts=current_verdicts,
+    )
 
 
 def test_memo_projects_full_contract_for_gatekeeper_pause(seeded_acme) -> None:
@@ -70,3 +211,116 @@ def test_memo_keeps_provisional_language_after_failed_gatekeeper_override(
     assert sections["overall_recommendation"]["content"].startswith(
         "Provisional after failed gatekeeper override."
     )
+
+
+def test_delta_refreshes_run_log_for_low_material_fake_provider_rerun(
+    seeded_acme, monkeypatch
+) -> None:
+    service = AnalysisService(seeded_acme)
+
+    first = service.analyze_company("ACME")
+    service.continue_run(first["run"]["run_id"])
+
+    original_claim_payload = FakeModelProvider._claim_card_payload
+
+    def low_material_confidence_shift(self, request):
+        payload = original_claim_payload(self, request)
+        payload["confidence"] = round(min(0.99, payload["confidence"] + 0.04), 2)
+        return payload
+
+    monkeypatch.setattr(
+        FakeModelProvider,
+        "_claim_card_payload",
+        low_material_confidence_shift,
+    )
+
+    rerun = service.refresh_company("ACME")
+    completed = service.continue_run(rerun["run"]["run_id"])
+    sections = _section_map(completed)
+
+    assert completed["delta"]["alert_level"] == "low"
+    assert completed["delta"]["changed_sections"] == ["what_changed_since_last_run"]
+    assert "run log only" in completed["delta"]["change_summary"]
+    assert sections["what_changed_since_last_run"]["status"] == "refreshed"
+
+
+def test_delta_ignores_sub_material_confidence_only_changes(seeded_acme) -> None:
+    prior_claim = _claim(
+        run_id="run_prior",
+        claim_text="ACME appears stable on demand quality.",
+        confidence=0.7,
+        section_ids=["investment_snapshot"],
+    )
+    current_claim = _claim(
+        run_id="run_current",
+        claim_text="ACME appears stable on demand quality.",
+        confidence=0.74,
+        section_ids=["investment_snapshot"],
+    )
+    runtime = _runtime_for_delta(
+        seeded_acme,
+        prior_claims=[prior_claim],
+        current_claims=[current_claim],
+        prior_sections=[
+            _memo_section(
+                section_id="investment_snapshot",
+                content="Demand remains steady.",
+                run_id="run_prior",
+            )
+        ],
+        current_sections=[
+            _memo_section(
+                section_id="investment_snapshot",
+                content="Demand remains steady.",
+                run_id="run_current",
+            )
+        ],
+    )
+
+    delta = runtime.compute_monitoring_delta()
+
+    assert delta.changed_claim_ids == []
+    assert delta.changed_sections == ["what_changed_since_last_run"]
+    assert delta.alert_level == AlertLevel.LOW
+
+
+def test_delta_escalates_gatekeeper_change_to_high_alert(seeded_acme) -> None:
+    runtime = _runtime_for_delta(
+        seeded_acme,
+        prior_claims=[],
+        current_claims=[],
+        prior_sections=[
+            _memo_section(
+                section_id="investment_snapshot",
+                content="Snapshot was investable.",
+                run_id="run_prior",
+            ),
+            _memo_section(section_id="risk", content="Risk was manageable.", run_id="run_prior"),
+            _memo_section(
+                section_id="overall_recommendation",
+                content="Recommendation was positive.",
+                run_id="run_prior",
+            ),
+        ],
+        current_sections=[
+            _memo_section(
+                section_id="investment_snapshot",
+                content="Snapshot is blocked pending review.",
+                run_id="run_current",
+            ),
+            _memo_section(section_id="risk", content="Risk is elevated.", run_id="run_current"),
+            _memo_section(
+                section_id="overall_recommendation",
+                content="Recommendation is blocked pending review.",
+                run_id="run_current",
+            ),
+        ],
+        prior_gate_decision=GateDecision.PASS,
+        current_gate_decision=GateDecision.FAIL,
+    )
+
+    delta = runtime.compute_monitoring_delta()
+
+    assert delta.alert_level == AlertLevel.HIGH
+    assert {"investment_snapshot", "overall_recommendation", "risk"}.issubset(delta.changed_sections)
+    assert "Gatekeeper decision changed." in delta.change_summary

@@ -170,6 +170,7 @@ class RefreshRuntime:
     company_profile: CompanyProfile
     prior_memo: ICMemo | None
     prior_active_claims: list[ClaimCard]
+    prior_active_verdicts: dict[str, PanelVerdict]
     current_sections: dict[str, MemoSection]
     current_claims: list[ClaimCard]
     current_verdicts: dict[str, PanelVerdict]
@@ -187,6 +188,11 @@ class RefreshRuntime:
     ) -> RefreshRuntime:
         prior_memo = cls._baseline_memo_from_run(run, repository, company_profile.company_id)
         prior_active_claims = cls._baseline_claims_from_run(
+            run,
+            repository,
+            company_profile.company_id,
+        )
+        prior_active_verdicts = cls._baseline_verdicts_from_run(
             run,
             repository,
             company_profile.company_id,
@@ -213,6 +219,7 @@ class RefreshRuntime:
             company_profile=company_profile,
             prior_memo=prior_memo,
             prior_active_claims=prior_active_claims,
+            prior_active_verdicts=prior_active_verdicts,
             current_sections=current_sections,
             current_claims=current_claims,
             current_verdicts=current_verdicts,
@@ -295,78 +302,89 @@ class RefreshRuntime:
         }
 
     def compute_monitoring_delta(self) -> MonitoringDelta:
+        thresholds = self._delta_thresholds()
+        confidence_materiality = float(thresholds.get("confidence_materiality", 0.05))
+        always_refresh_sections = self._threshold_string_set("always_refresh_sections")
+        if not always_refresh_sections:
+            always_refresh_sections = {"what_changed_since_last_run"}
+        high_alert_sections = self._threshold_string_set("high_alert_changed_sections")
+        medium_alert_sections = self._threshold_string_set("medium_alert_changed_sections")
+        high_alert_drift_flags = self._threshold_string_set("high_alert_drift_flags")
+        medium_alert_claim_change_count = int(
+            thresholds.get(
+                "medium_alert_claim_change_count",
+                thresholds.get("claim_change_count_for_alert", 1),
+            )
+        )
         prior_claim_map = {
             (claim.factor_id, claim.agent_id): claim for claim in self.prior_active_claims
         }
         changed_claim_ids: list[str] = []
         drift_flags: set[str] = set()
+        materially_impacted_sections: set[str] = set()
         for claim in self.current_claims:
             prior_claim = prior_claim_map.get((claim.factor_id, claim.agent_id))
-            if prior_claim is None:
-                changed_claim_ids.append(claim.claim_id)
-                continue
-            if (
-                prior_claim.claim != claim.claim
-                or prior_claim.bull_case != claim.bull_case
-                or abs(prior_claim.confidence - claim.confidence) >= 0.05
+            if not self._claim_change_is_material(
+                prior_claim=prior_claim,
+                claim=claim,
+                confidence_materiality=confidence_materiality,
             ):
-                changed_claim_ids.append(claim.claim_id)
-                if claim.factor_id == "customer_concentration":
-                    drift_flags.add("concentration_increase")
-                if claim.factor_id == "balance_sheet_survivability":
-                    drift_flags.add("survivability_deterioration")
-                if claim.factor_id == "revenue_recurrence_contract_strength":
-                    drift_flags.add("weakening_recurrence")
-                if claim.factor_id == "governance_investability":
-                    drift_flags.add("governance_risk_increase")
+                continue
+            changed_claim_ids.append(claim.claim_id)
+            materially_impacted_sections.update(
+                impact.section_id for impact in claim.section_impacts
+            )
+            drift_flags.update(self._drift_flags_for_claim_change(claim))
+
+        gate_decision_changed = self._gatekeeper_decision_changed()
+        materially_impacted_sections.update(self._verdict_changed_sections())
+        material_sections = [
+            section_id
+            for section_id, section in self.current_sections.items()
+            if section_id not in always_refresh_sections
+            if self._section_change_is_material(
+                section_id=section_id,
+                section=section,
+                materially_impacted_sections=materially_impacted_sections,
+            )
+        ]
 
         if self.prior_memo is None:
             summary = "Initial coverage run. No prior memo exists."
-            alert_level = AlertLevel.LOW
         else:
-            summary = ""
-            alert_level = AlertLevel.LOW
+            summary = self._monitoring_change_summary(
+                changed_claim_ids=changed_claim_ids,
+                changed_sections=material_sections,
+                drift_flags=drift_flags,
+                gate_decision_changed=gate_decision_changed,
+            )
         delta = MonitoringDelta(
             company_id=self.company_profile.company_id,
             prior_run_id=self.prior_memo.run_id if self.prior_memo is not None else None,
             current_run_id=self.run.run_id,
             changed_claim_ids=changed_claim_ids,
-            changed_sections=[],
+            changed_sections=material_sections,
             change_summary=summary,
             thesis_drift_flags=sorted(drift_flags),
-            alert_level=alert_level,
+            alert_level=self._delta_alert_level(
+                changed_claim_ids=changed_claim_ids,
+                changed_sections=material_sections,
+                drift_flags=drift_flags,
+                gate_decision_changed=gate_decision_changed,
+                high_alert_sections=high_alert_sections,
+                medium_alert_sections=medium_alert_sections,
+                high_alert_drift_flags=high_alert_drift_flags,
+                medium_alert_claim_change_count=medium_alert_claim_change_count,
+            ),
         )
         self._update_delta_section(delta)
-        changed_sections = [
-            section_id
-            for section_id, section in self.current_sections.items()
-            if self.prior_memo is None
-            or self.prior_memo.section_map()
-            .get(
-                section_id,
-                MemoSection(section_id=section_id, label=section.label, content=""),
+        delta.changed_sections = sorted(
+            set(delta.changed_sections).union(
+                section_id
+                for section_id in always_refresh_sections
+                if section_id in self.current_sections
             )
-            .content
-            != section.content
-        ]
-        delta.changed_sections = changed_sections
-        if self.prior_memo is not None:
-            delta.change_summary = (
-                f"{self.company_profile.company_name} changed in "
-                f"{len(changed_sections)} memo sections "
-                f"with {len(changed_claim_ids)} materially updated claim cards."
-            )
-            high_sections = set(
-                self.context.registries.monitoring.monitoring.delta_thresholds.get(
-                    "high_alert_changed_sections", []
-                )
-            )
-            if high_sections.intersection(changed_sections):
-                delta.alert_level = AlertLevel.HIGH
-            elif changed_claim_ids:
-                delta.alert_level = AlertLevel.MEDIUM
-            else:
-                delta.alert_level = AlertLevel.LOW
+        )
         self.current_delta = delta
         with self.context.database.session() as session:
             Repository(session).save_monitoring_delta(delta)
@@ -807,6 +825,158 @@ class RefreshRuntime:
         return repository.list_claim_cards(company_id, active_only=True)
 
     @staticmethod
+    def _baseline_verdicts_from_run(
+        run: RunRecord,
+        repository: Repository,
+        company_id: str,
+    ) -> dict[str, PanelVerdict]:
+        baseline_verdicts = run.metadata.get("baseline_active_verdicts")
+        if baseline_verdicts:
+            verdicts = (
+                GatekeeperVerdict.model_validate(verdict)
+                if "gate_decision" in verdict
+                else PanelVerdict.model_validate(verdict)
+                for verdict in baseline_verdicts
+            )
+            return {verdict.panel_id: verdict for verdict in verdicts}
+        return {
+            verdict.panel_id: verdict
+            for verdict in repository.list_panel_verdicts(company_id, active_only=True)
+        }
+
+    def _delta_thresholds(self) -> dict[str, Any]:
+        return dict(self.context.registries.monitoring.monitoring.delta_thresholds)
+
+    def _threshold_string_set(self, key: str) -> set[str]:
+        value = self._delta_thresholds().get(key, [])
+        if not isinstance(value, list):
+            return set()
+        return {str(item) for item in value}
+
+    @staticmethod
+    def _claim_change_is_material(
+        *,
+        prior_claim: ClaimCard | None,
+        claim: ClaimCard,
+        confidence_materiality: float,
+    ) -> bool:
+        if prior_claim is None:
+            return True
+        meaning_changed = any(
+            (
+                prior_claim.claim != claim.claim,
+                prior_claim.bull_case != claim.bull_case,
+                prior_claim.bear_case != claim.bear_case,
+                prior_claim.staleness_assessment != claim.staleness_assessment,
+                prior_claim.time_horizon != claim.time_horizon,
+                prior_claim.durability_horizon != claim.durability_horizon,
+            )
+        )
+        confidence_changed = abs(prior_claim.confidence - claim.confidence) >= confidence_materiality
+        return meaning_changed or confidence_changed
+
+    @staticmethod
+    def _drift_flags_for_claim_change(claim: ClaimCard) -> set[str]:
+        flags: set[str] = set()
+        if claim.factor_id == "customer_concentration":
+            flags.add("concentration_increase")
+        if claim.factor_id == "balance_sheet_survivability":
+            flags.add("survivability_deterioration")
+        if claim.factor_id == "revenue_recurrence_contract_strength":
+            flags.add("weakening_recurrence")
+        if claim.factor_id == "governance_investability":
+            flags.add("governance_risk_increase")
+        return flags
+
+    def _section_change_is_material(
+        self,
+        *,
+        section_id: str,
+        section: MemoSection,
+        materially_impacted_sections: set[str],
+    ) -> bool:
+        if self.prior_memo is None:
+            return section.updated_by_run_id == self.run.run_id
+        prior_section = self.prior_memo.section_map().get(section_id)
+        if prior_section is None:
+            return section.updated_by_run_id == self.run.run_id
+        if section.status != prior_section.status:
+            return True
+        return section_id in materially_impacted_sections
+
+    def _verdict_changed_sections(self) -> set[str]:
+        changed_sections: set[str] = set()
+        for panel_id, verdict in self.current_verdicts.items():
+            prior_verdict = self.prior_active_verdicts.get(panel_id)
+            if prior_verdict is None:
+                changed_sections.update(verdict.affected_section_ids)
+                continue
+            if verdict.recommendation != prior_verdict.recommendation:
+                changed_sections.update(verdict.affected_section_ids)
+        return changed_sections
+
+    def _gatekeeper_decision_changed(self) -> bool:
+        prior_verdict = self.prior_active_verdicts.get("gatekeepers")
+        current_verdict = self.current_verdicts.get("gatekeepers")
+        if not isinstance(prior_verdict, GatekeeperVerdict):
+            return False
+        if not isinstance(current_verdict, GatekeeperVerdict):
+            return False
+        return prior_verdict.gate_decision != current_verdict.gate_decision
+
+    def _monitoring_change_summary(
+        self,
+        *,
+        changed_claim_ids: list[str],
+        changed_sections: list[str],
+        drift_flags: set[str],
+        gate_decision_changed: bool,
+    ) -> str:
+        if not changed_claim_ids and not changed_sections and not drift_flags and not gate_decision_changed:
+            return (
+                f"{self.company_profile.company_name} reran with no material thesis change. "
+                "Refreshed the run log only."
+            )
+
+        parts = [f"{self.company_profile.company_name} rerun detected thesis movement."]
+        if gate_decision_changed:
+            parts.append("Gatekeeper decision changed.")
+        if changed_sections:
+            parts.append(f"Material sections: {', '.join(sorted(changed_sections))}.")
+        if changed_claim_ids:
+            parts.append(f"Material claim cards: {len(changed_claim_ids)}.")
+        if drift_flags:
+            parts.append(f"Drift flags: {', '.join(sorted(drift_flags))}.")
+        return " ".join(parts)
+
+    @staticmethod
+    def _delta_alert_level(
+        *,
+        changed_claim_ids: list[str],
+        changed_sections: list[str],
+        drift_flags: set[str],
+        gate_decision_changed: bool,
+        high_alert_sections: set[str],
+        medium_alert_sections: set[str],
+        high_alert_drift_flags: set[str],
+        medium_alert_claim_change_count: int,
+    ) -> AlertLevel:
+        changed_section_set = set(changed_sections)
+        if gate_decision_changed:
+            return AlertLevel.HIGH
+        if high_alert_sections.intersection(changed_section_set):
+            return AlertLevel.HIGH
+        if high_alert_drift_flags.intersection(drift_flags):
+            return AlertLevel.HIGH
+        if medium_alert_sections.intersection(changed_section_set):
+            return AlertLevel.MEDIUM
+        if drift_flags:
+            return AlertLevel.MEDIUM
+        if len(changed_claim_ids) >= medium_alert_claim_change_count:
+            return AlertLevel.MEDIUM
+        return AlertLevel.LOW
+
+    @staticmethod
     def _checkpoint_note(gate_decision: GateDecision, has_downstream_panels: bool) -> str:
         if gate_decision == GateDecision.FAIL:
             if has_downstream_panels:
@@ -932,6 +1102,10 @@ class AnalysisService:
                 ),
                 "baseline_active_claims": [
                     claim.model_dump(mode="json") for claim in prior_active_claims
+                ],
+                "baseline_active_verdicts": [
+                    verdict.model_dump(mode="json")
+                    for verdict in repository.list_panel_verdicts(company_id, active_only=True)
                 ],
             }
             repository.save_run(run)
