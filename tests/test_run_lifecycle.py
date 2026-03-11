@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import pytest
 from langgraph.types import Command
 
+from ai_investing.application.services import AnalysisService
 from ai_investing.domain.enums import (
     AlertLevel,
     CompanyType,
@@ -192,6 +194,58 @@ def test_company_refresh_graph_routes_failed_gate_to_provisional_continue(contex
     assert resumed["provisional"] is True
     assert resumed["gated_out"] is False
     assert "demand_revenue_quality" in resumed["panel_results"]
+
+
+def test_analysis_service_pauses_and_resumes_same_run_id(seeded_acme) -> None:
+    service = AnalysisService(seeded_acme)
+
+    paused = service.analyze_company("ACME")
+    run_id = paused["run"]["run_id"]
+
+    assert paused["run"]["status"] == "awaiting_continue"
+    assert paused["run"]["awaiting_continue"] is True
+    assert paused["delta"] is None
+    assert "gatekeepers" in paused["panels"]
+    assert "demand_revenue_quality" not in paused["panels"]
+
+    resumed = service.continue_run(run_id)
+
+    assert resumed["run"]["run_id"] == run_id
+    assert resumed["run"]["status"] == "complete"
+    assert resumed["run"]["awaiting_continue"] is False
+    assert "demand_revenue_quality" in resumed["panels"]
+    assert resumed["delta"] is not None
+
+
+def test_run_due_coverage_keeps_paused_runs_due_and_queryable(seeded_acme) -> None:
+    service = AnalysisService(seeded_acme)
+
+    first = service.run_due_coverage()
+    first_run_id = first[0]["run"]["run_id"]
+
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        runs = repository.list_runs("ACME")
+
+    assert coverage is not None
+    assert coverage.last_run_at is None
+    assert len(runs) == 1
+    assert runs[0].status == RunStatus.AWAITING_CONTINUE
+
+    second = service.run_due_coverage()
+
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        runs = repository.list_runs("ACME")
+
+    assert second[0]["run"]["run_id"] == first_run_id
+    assert len(runs) == 1
+
+
+def test_run_panel_rejects_direct_downstream_execution(seeded_acme) -> None:
+    with pytest.raises(ValueError, match="gatekeepers"):
+        AnalysisService(seeded_acme).run_panel("ACME", "demand_revenue_quality")
 
 
 class StubContext:

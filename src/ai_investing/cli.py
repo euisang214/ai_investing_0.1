@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Annotated
 
 import typer
 
@@ -15,7 +16,7 @@ from ai_investing.application.services import (
     render_delta_json,
     render_memo_markdown,
 )
-from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus
+from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
 from ai_investing.domain.models import CoverageEntry
 
 app = typer.Typer(no_args_is_help=True)
@@ -130,6 +131,15 @@ def run_panel(company_id: str, panel_id: str) -> None:
 @app.command("refresh-company")
 def refresh_company(company_id: str) -> None:
     result = AnalysisService(_context()).refresh_company(company_id)
+    typer.echo(json.dumps(result, indent=2))
+
+
+@app.command("continue-run")
+def continue_run(
+    run_id: str,
+    action: Annotated[RunContinueAction, typer.Option("--action")] = RunContinueAction.CONTINUE,
+) -> None:
+    result = AnalysisService(_context()).continue_run(run_id, action=action)
     typer.echo(json.dumps(result, indent=2))
 
 

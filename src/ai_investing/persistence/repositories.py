@@ -328,6 +328,16 @@ class Repository:
             return None
         return ICMemo.model_validate(row.payload)
 
+    def get_memo_for_run(self, company_id: str, run_id: str) -> ICMemo | None:
+        row = self.session.scalar(
+            select(MemoRow)
+            .where(MemoRow.company_id == company_id, MemoRow.run_id == run_id)
+            .order_by(MemoRow.updated_at.desc())
+        )
+        if row is None:
+            return None
+        return ICMemo.model_validate(row.payload)
+
     def list_memos(self, company_id: str) -> list[ICMemo]:
         rows = self.session.scalars(
             select(MemoRow)
@@ -368,12 +378,13 @@ class Repository:
         self.session.add(row)
         return delta
 
-    def get_latest_monitoring_delta(self, company_id: str) -> MonitoringDelta | None:
-        row = self.session.scalar(
-            select(MonitoringDeltaRow)
-            .where(MonitoringDeltaRow.company_id == company_id)
-            .order_by(MonitoringDeltaRow.created_at.desc())
-        )
+    def get_latest_monitoring_delta(
+        self, company_id: str, *, run_id: str | None = None
+    ) -> MonitoringDelta | None:
+        stmt = select(MonitoringDeltaRow).where(MonitoringDeltaRow.company_id == company_id)
+        if run_id is not None:
+            stmt = stmt.where(MonitoringDeltaRow.current_run_id == run_id)
+        row = self.session.scalar(stmt.order_by(MonitoringDeltaRow.created_at.desc()))
         if row is None:
             return None
         return MonitoringDelta.model_validate(row.payload)

@@ -6,8 +6,8 @@ from langgraph.graph import END, StateGraph
 
 from ai_investing.graphs.state import RefreshState
 from ai_investing.graphs.subgraphs import (
-    build_ic_synthesis_graph,
     build_gatekeeper_checkpoint,
+    build_ic_synthesis_graph,
     build_memo_update_subgraph,
     build_monitoring_diff_subgraph,
     build_monitoring_skip_subgraph,

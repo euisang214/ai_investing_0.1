@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -14,7 +15,9 @@ from ai_investing.domain.enums import (
     AlertLevel,
     Cadence,
     CompanyType,
+    GateDecision,
     MemoSectionStatus,
+    RunContinueAction,
     RunKind,
     RunStatus,
 )
@@ -28,6 +31,7 @@ from ai_investing.domain.models import (
     MemoSectionUpdate,
     MonitoringDelta,
     PanelVerdict,
+    RunCheckpoint,
     RunRecord,
     StructuredGenerationRequest,
     new_id,
@@ -161,7 +165,6 @@ class IngestionService:
 @dataclass
 class RefreshRuntime:
     context: AppContext
-    repository: Repository
     run: RunRecord
     coverage: CoverageEntry
     company_profile: CompanyProfile
@@ -182,29 +185,58 @@ class RefreshRuntime:
         coverage: CoverageEntry,
         company_profile: CompanyProfile,
     ) -> RefreshRuntime:
-        prior_memo = repository.get_current_memo(company_profile.company_id)
-        prior_active_claims = repository.list_claim_cards(
-            company_profile.company_id, active_only=True
+        prior_memo = cls._baseline_memo_from_run(run, repository, company_profile.company_id)
+        prior_active_claims = cls._baseline_claims_from_run(
+            run,
+            repository,
+            company_profile.company_id,
         )
-        current_sections = prior_memo.section_map() if prior_memo is not None else {}
+        current_memo = repository.get_memo_for_run(company_profile.company_id, run.run_id)
+        if current_memo is not None:
+            current_sections = current_memo.section_map()
+        elif prior_memo is not None:
+            current_sections = prior_memo.section_map()
+        else:
+            current_sections = {}
+        current_claims = repository.list_claim_cards(company_profile.company_id, run_id=run.run_id)
+        current_verdicts = {
+            verdict.panel_id: verdict
+            for verdict in repository.list_panel_verdicts(
+                company_profile.company_id,
+                run_id=run.run_id,
+            )
+        }
         return cls(
             context=context,
-            repository=repository,
             run=run,
             coverage=coverage,
             company_profile=company_profile,
             prior_memo=prior_memo,
             prior_active_claims=prior_active_claims,
             current_sections=current_sections,
-            current_claims=[],
-            current_verdicts={},
+            current_claims=current_claims,
+            current_verdicts=current_verdicts,
+            current_delta=repository.get_latest_monitoring_delta(
+                company_profile.company_id,
+                run_id=run.run_id,
+            ),
         )
 
     def execute_panel(self, panel_id: str) -> dict[str, Any]:
-        panel = self.context.get_panel(panel_id)
-        evidence = self.repository.list_evidence(self.company_profile.company_id, panel_id=panel_id)
-        specialist_claims = self._run_specialists(panel=panel, evidence=evidence)
-        verdict = self._run_judge(panel=panel, claims=specialist_claims)
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            panel = self.context.get_panel(panel_id)
+            evidence = repository.list_evidence(self.company_profile.company_id, panel_id=panel_id)
+            specialist_claims = self._run_specialists(
+                repository=repository,
+                panel=panel,
+                evidence=evidence,
+            )
+            verdict = self._run_judge(
+                repository=repository,
+                panel=panel,
+                claims=specialist_claims,
+            )
         self.current_claims.extend(specialist_claims)
         return {
             "claims": [claim.model_dump(mode="json") for claim in specialist_claims],
@@ -249,11 +281,14 @@ class RefreshRuntime:
                 updated_by_run_id=self.run.run_id,
             )
             self.current_sections[section_id] = section
-            self.repository.save_memo_section_update(update)
             updates.append(update)
 
         partial_memo = self._build_memo(is_partial=True)
-        self.repository.save_memo(partial_memo)
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            for update in updates:
+                repository.save_memo_section_update(update)
+            repository.save_memo(partial_memo)
         return {
             "updates": [update.model_dump(mode="json") for update in updates],
             "memo": partial_memo.model_dump(mode="json"),
@@ -273,7 +308,7 @@ class RefreshRuntime:
             if (
                 prior_claim.claim != claim.claim
                 or prior_claim.bull_case != claim.bull_case
-                or abs(prior_claim.confidence - claim.confidence) >= 0.1
+                or abs(prior_claim.confidence - claim.confidence) >= 0.05
             ):
                 changed_claim_ids.append(claim.claim_id)
                 if claim.factor_id == "customer_concentration":
@@ -333,7 +368,8 @@ class RefreshRuntime:
             else:
                 delta.alert_level = AlertLevel.LOW
         self.current_delta = delta
-        self.repository.save_monitoring_delta(delta)
+        with self.context.database.session() as session:
+            Repository(session).save_monitoring_delta(delta)
         return delta
 
     def skip_monitoring_delta(self) -> MonitoringDelta:
@@ -347,15 +383,94 @@ class RefreshRuntime:
         self._update_delta_section(delta)
         delta.changed_sections = ["what_changed_since_last_run"]
         self.current_delta = delta
-        self.repository.save_monitoring_delta(delta)
+        with self.context.database.session() as session:
+            Repository(session).save_monitoring_delta(delta)
         return delta
 
     def reconcile_ic_memo(self) -> ICMemo:
         memo = self._build_memo(is_partial=False)
-        self.repository.save_memo(memo)
+        with self.context.database.session() as session:
+            Repository(session).save_memo(memo)
         return memo
 
-    def _run_specialists(self, *, panel: PanelConfig, evidence: list[Any]) -> list[ClaimCard]:
+    def prepare_gatekeeper_checkpoint(
+        self,
+        *,
+        gatekeeper: GatekeeperVerdict,
+        has_downstream_panels: bool,
+    ) -> RunCheckpoint:
+        allowed_actions = [RunContinueAction.STOP]
+        if has_downstream_panels:
+            allowed_actions.append(
+                RunContinueAction.CONTINUE_PROVISIONAL
+                if gatekeeper.gate_decision == GateDecision.FAIL
+                else RunContinueAction.CONTINUE
+            )
+        checkpoint = RunCheckpoint(
+            checkpoint_panel_id="gatekeepers",
+            allowed_actions=allowed_actions,
+            provisional_required=gatekeeper.gate_decision == GateDecision.FAIL,
+            note=self._checkpoint_note(gatekeeper.gate_decision, has_downstream_panels),
+        )
+        self.run.gate_decision = gatekeeper.gate_decision
+        self.run.awaiting_continue = True
+        self.run.gated_out = False
+        self.run.provisional = False
+        self.run.stopped_after_panel = None
+        self.run.checkpoint_panel_id = "gatekeepers"
+        self.run.checkpoint = checkpoint
+        self.run.status = RunStatus.AWAITING_CONTINUE
+        with self.context.database.session() as session:
+            Repository(session).save_run(self.run)
+        return checkpoint
+
+    def resolve_gatekeeper_action(
+        self,
+        *,
+        action: RunContinueAction,
+        gatekeeper: GatekeeperVerdict,
+        has_downstream_panels: bool,
+    ) -> dict[str, Any]:
+        if action != RunContinueAction.STOP and not has_downstream_panels:
+            raise ValueError("No downstream panels remain after gatekeepers.")
+        if gatekeeper.gate_decision == GateDecision.FAIL and action == RunContinueAction.CONTINUE:
+            raise ValueError("Failed gatekeepers can only resume as provisional analysis.")
+
+        self.run.gate_decision = gatekeeper.gate_decision
+        self.run.awaiting_continue = False
+        self.run.gated_out = (
+            action == RunContinueAction.STOP and gatekeeper.gate_decision == GateDecision.FAIL
+        )
+        self.run.provisional = action == RunContinueAction.CONTINUE_PROVISIONAL
+        self.run.stopped_after_panel = "gatekeepers" if action == RunContinueAction.STOP else None
+        self.run.checkpoint_panel_id = "gatekeepers"
+        self.run.status = RunStatus.RUNNING
+        if self.run.checkpoint is not None:
+            self.run.checkpoint = self.run.checkpoint.model_copy(
+                update={
+                    "resolved_at": utc_now(),
+                    "resolution_action": action,
+                }
+            )
+        with self.context.database.session() as session:
+            Repository(session).save_run(self.run)
+        return {
+            "gate_decision": gatekeeper.gate_decision.value,
+            "awaiting_continue": False,
+            "gated_out": self.run.gated_out,
+            "provisional": self.run.provisional,
+            "stopped_after_panel": self.run.stopped_after_panel,
+            "checkpoint_panel_id": self.run.checkpoint_panel_id,
+            "resume_action": action.value,
+        }
+
+    def _run_specialists(
+        self,
+        *,
+        repository: Repository,
+        panel: PanelConfig,
+        evidence: list[Any],
+    ) -> list[ClaimCard]:
         claims: list[ClaimCard] = []
         specialist_agents = [
             agent
@@ -366,7 +481,7 @@ class RefreshRuntime:
             factor_name = self.context.get_factor_name(factor_id)
             for agent in specialist_agents:
                 tool_evidence = self.context.tool_registry.execute(
-                    repository=self.repository,
+                    repository=repository,
                     agent=agent,
                     company_id=self.company_profile.company_id,
                     run_id=self.run.run_id,
@@ -374,7 +489,7 @@ class RefreshRuntime:
                     payload={"panel_id": panel.id, "factor_id": factor_id},
                 )["records"]
                 prior_claims = self.context.tool_registry.execute(
-                    repository=self.repository,
+                    repository=repository,
                     agent=agent,
                     company_id=self.company_profile.company_id,
                     run_id=self.run.run_id,
@@ -410,10 +525,16 @@ class RefreshRuntime:
                     ClaimCard,
                 )
                 claims.append(claim)
-        self.repository.save_claim_cards(claims)
+        repository.save_claim_cards(claims)
         return claims
 
-    def _run_judge(self, *, panel: PanelConfig, claims: list[ClaimCard]) -> PanelVerdict:
+    def _run_judge(
+        self,
+        *,
+        repository: Repository,
+        panel: PanelConfig,
+        claims: list[ClaimCard],
+    ) -> PanelVerdict:
         judge = next(
             agent
             for agent in self.context.active_agents_for_panel(panel.id)
@@ -440,7 +561,7 @@ class RefreshRuntime:
             ),
             response_model,
         )
-        self.repository.save_panel_verdict(verdict)
+        repository.save_panel_verdict(verdict)
         return verdict
 
     def finalize_panel_verdict(self, *, panel_id: str, verdict: PanelVerdict) -> PanelVerdict:
@@ -461,7 +582,8 @@ class RefreshRuntime:
                 "supersedes_verdict_id": verdict.verdict_id,
             }
         )
-        self.repository.save_panel_verdict(updated)
+        with self.context.database.session() as session:
+            Repository(session).save_panel_verdict(updated)
         self.current_verdicts[panel_id] = updated
         return updated
 
@@ -471,21 +593,30 @@ class RefreshRuntime:
         for section_id, label in labels.items():
             section = self.current_sections.get(section_id)
             if section is None:
-                status = MemoSectionStatus.DRAFT if is_partial else MemoSectionStatus.PENDING
-                content = "Pending update."
-                if section_id == "what_changed_since_last_run":
-                    content = (
-                        "Initial coverage run."
-                        if self.prior_memo is None
-                        else "Waiting for monitoring diff."
+                ordered_sections.append(
+                    MemoSection(
+                        section_id=section_id,
+                        label=label,
+                        content="This section has not been advanced yet.",
+                        status=MemoSectionStatus.NOT_ADVANCED,
                     )
-                section = MemoSection(
-                    section_id=section_id,
-                    label=label,
-                    content=content,
-                    status=status,
                 )
-            ordered_sections.append(section)
+                continue
+            status = (
+                MemoSectionStatus.REFRESHED
+                if section.updated_by_run_id == self.run.run_id
+                else MemoSectionStatus.STALE
+            )
+            if status == MemoSectionStatus.STALE and not section.content:
+                status = MemoSectionStatus.NOT_ADVANCED
+            ordered_sections.append(
+                section.model_copy(
+                    update={
+                        "label": label,
+                        "status": status,
+                    }
+                )
+            )
         provider = self.context.get_provider("quality")
         prompt = self.context.prompt_loader.load("prompts/ic/synthesizer.md")
         return provider.generate_structured(
@@ -499,6 +630,7 @@ class RefreshRuntime:
                     "sections": [section.model_dump(mode="json") for section in ordered_sections],
                     "section_labels": list(labels.items()),
                     "namespace": f"company/{self.company_profile.company_id}/memos/current",
+                    "is_partial": is_partial,
                 },
             ),
             ICMemo,
@@ -523,6 +655,38 @@ class RefreshRuntime:
             updated_by_run_id=self.run.run_id,
         )
 
+    @staticmethod
+    def _baseline_memo_from_run(
+        run: RunRecord,
+        repository: Repository,
+        company_id: str,
+    ) -> ICMemo | None:
+        baseline = run.metadata.get("baseline_memo")
+        if baseline:
+            return ICMemo.model_validate(baseline)
+        return repository.get_current_memo(company_id)
+
+    @staticmethod
+    def _baseline_claims_from_run(
+        run: RunRecord,
+        repository: Repository,
+        company_id: str,
+    ) -> list[ClaimCard]:
+        baseline_claims = run.metadata.get("baseline_active_claims")
+        if baseline_claims:
+            return [ClaimCard.model_validate(claim) for claim in baseline_claims]
+        return repository.list_claim_cards(company_id, active_only=True)
+
+    @staticmethod
+    def _checkpoint_note(gate_decision: GateDecision, has_downstream_panels: bool) -> str:
+        if gate_decision == GateDecision.FAIL:
+            if has_downstream_panels:
+                return "Gatekeepers failed. Continue only as provisional downstream analysis."
+            return "Gatekeepers failed. Finalize by stopping after this panel."
+        if has_downstream_panels:
+            return "Gatekeepers passed. Continue explicitly to run downstream panels."
+        return "Gatekeepers passed. Finalize by stopping after this panel."
+
 
 @dataclass
 class AnalysisService:
@@ -534,15 +698,35 @@ class AnalysisService:
     def analyze_company(
         self, company_id: str, panel_ids: list[str] | None = None
     ) -> dict[str, Any]:
-        return self._run_company(
-            company_id=company_id, panel_ids=panel_ids, run_kind=RunKind.ANALYZE
+        return self._start_run(
+            company_id=company_id,
+            panel_ids=panel_ids,
+            run_kind=RunKind.ANALYZE,
         )
 
     def refresh_company(self, company_id: str) -> dict[str, Any]:
-        return self._run_company(company_id=company_id, panel_ids=None, run_kind=RunKind.REFRESH)
+        return self._start_run(
+            company_id=company_id,
+            panel_ids=None,
+            run_kind=RunKind.REFRESH,
+        )
+
+    def continue_run(
+        self,
+        run_id: str,
+        action: RunContinueAction = RunContinueAction.CONTINUE,
+    ) -> dict[str, Any]:
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            run = repository.get_run(run_id)
+            if run is None:
+                raise KeyError(run_id)
+            if run.status != RunStatus.AWAITING_CONTINUE:
+                raise ValueError(f"Run {run_id} is not awaiting continuation.")
+        return self._execute_run(run_id=run_id, resume_action=action)
 
     def run_panel(self, company_id: str, panel_id: str) -> dict[str, Any]:
-        return self._run_company(
+        return self._start_run(
             company_id=company_id,
             panel_ids=[panel_id],
             run_kind=RunKind.PANEL,
@@ -554,6 +738,12 @@ class AnalysisService:
             repository = Repository(session)
             due_entries = repository.list_coverage(enabled_only=True, due_only=True, now=utc_now())
         for entry in due_entries:
+            with self.context.database.session() as session:
+                repository = Repository(session)
+                latest_runs = repository.list_runs(entry.company_id)
+                if latest_runs and latest_runs[0].status == RunStatus.AWAITING_CONTINUE:
+                    results.append(self._build_persisted_result(repository, latest_runs[0]))
+                    continue
             results.append(self.refresh_company(entry.company_id))
         return results
 
@@ -573,11 +763,13 @@ class AnalysisService:
                 raise KeyError(company_id)
             return delta
 
-    def _run_company(
-        self, *, company_id: str, panel_ids: list[str] | None, run_kind: RunKind
+    def _start_run(
+        self,
+        *,
+        company_id: str,
+        panel_ids: list[str] | None,
+        run_kind: RunKind,
     ) -> dict[str, Any]:
-        error: Exception | None = None
-        result: dict[str, Any] | None = None
         with self.context.database.session() as session:
             repository = Repository(session)
             coverage = repository.get_coverage(company_id)
@@ -586,8 +778,55 @@ class AnalysisService:
             company_profile = repository.get_company_profile(company_id)
             if company_profile is None:
                 raise KeyError(f"No company profile for {company_id}")
+            latest_runs = repository.list_runs(company_id)
+            if latest_runs and latest_runs[0].status == RunStatus.AWAITING_CONTINUE:
+                raise ValueError(
+                    f"Run {latest_runs[0].run_id} is awaiting continuation. Resume it instead."
+                )
+            policy = self.context.registries.run_policies.run_policies[coverage.panel_policy]
+            selected_panels = self._resolve_panel_ids(
+                coverage=coverage,
+                panel_ids=panel_ids,
+                run_kind=run_kind,
+            )
+            prior_memo = repository.get_current_memo(company_id)
+            prior_active_claims = repository.list_claim_cards(company_id, active_only=True)
             run = RunRecord(company_id=company_id, run_kind=run_kind, status=RunStatus.RUNNING)
+            run.metadata = {
+                **run.metadata,
+                "panel_ids": selected_panels,
+                "panel_policy": coverage.panel_policy,
+                "memo_reconciliation": policy.memo_reconciliation,
+                "monitoring_enabled": policy.monitoring_enabled,
+                "baseline_memo": (
+                    prior_memo.model_dump(mode="json") if prior_memo is not None else None
+                ),
+                "baseline_active_claims": [
+                    claim.model_dump(mode="json") for claim in prior_active_claims
+                ],
+            }
             repository.save_run(run)
+        return self._execute_run(run_id=run.run_id)
+
+    def _execute_run(
+        self,
+        *,
+        run_id: str,
+        resume_action: RunContinueAction | None = None,
+    ) -> dict[str, Any]:
+        error: Exception | None = None
+        result: dict[str, Any] | None = None
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            run = repository.get_run(run_id)
+            if run is None:
+                raise KeyError(run_id)
+            coverage = repository.get_coverage(run.company_id)
+            if coverage is None:
+                raise KeyError(f"No coverage entry for {run.company_id}")
+            company_profile = repository.get_company_profile(run.company_id)
+            if company_profile is None:
+                raise KeyError(f"No company profile for {run.company_id}")
             runtime = RefreshRuntime.create(
                 context=self.context,
                 repository=repository,
@@ -595,44 +834,71 @@ class AnalysisService:
                 coverage=coverage,
                 company_profile=company_profile,
             )
-            from ai_investing.graphs.company_refresh import build_company_refresh_graph
+            selected_panels = self._panel_ids_for_run(run)
+            memo_reconciliation = bool(run.metadata.get("memo_reconciliation", True))
+            monitoring_enabled = bool(run.metadata.get("monitoring_enabled", True))
 
-            try:
-                policy = self.context.registries.run_policies.run_policies[coverage.panel_policy]
-                selected_panels = self._resolve_panel_ids(coverage=coverage, panel_ids=panel_ids)
+        from ai_investing.graphs.checkpointing import (
+            checkpoint_config,
+            graph_checkpointer,
+            interrupt_payloads,
+        )
+        from ai_investing.graphs.company_refresh import build_company_refresh_graph
+
+        try:
+            with graph_checkpointer(self.context.settings) as checkpointer:
                 graph = build_company_refresh_graph(
                     runtime=runtime,
                     panel_ids=selected_panels,
-                    memo_reconciliation=policy.memo_reconciliation,
-                    monitoring_enabled=policy.monitoring_enabled,
+                    memo_reconciliation=memo_reconciliation,
+                    monitoring_enabled=monitoring_enabled,
+                    checkpointer=checkpointer,
                 )
-                graph_result = graph.invoke(
-                    {
-                        "company_id": company_id,
-                        "run_id": run.run_id,
-                        "panel_ids": selected_panels,
-                    }
-                )
-            except Exception as exc:
-                run.status = RunStatus.FAILED
-                run.completed_at = utc_now()
-                run.metadata = {**run.metadata, "error": str(exc)}
-                repository.save_run(run)
-                error = exc
+                config = checkpoint_config(runtime.run.run_id)
+                if resume_action is None:
+                    graph_result = graph.invoke(
+                        {
+                            "company_id": runtime.company_profile.company_id,
+                            "run_id": runtime.run.run_id,
+                            "panel_ids": selected_panels,
+                        },
+                        config=config,
+                    )
+                else:
+                    from langgraph.types import Command
+
+                    graph_result = graph.invoke(
+                        Command(resume={"action": resume_action.value}),
+                        config=config,
+                    )
+        except Exception as exc:
+            runtime.run.status = RunStatus.FAILED
+            runtime.run.completed_at = utc_now()
+            runtime.run.metadata = {**runtime.run.metadata, "error": str(exc)}
+            with self.context.database.session() as session:
+                Repository(session).save_run(runtime.run)
+            error = exc
+        else:
+            if interrupt_payloads(graph_result):
+                runtime.run.status = RunStatus.AWAITING_CONTINUE
+                runtime.run.completed_at = None
             else:
-                run.status = RunStatus.COMPLETE
-                run.completed_at = utc_now()
-                repository.save_run(run)
-                coverage.last_run_at = run.completed_at
-                if coverage.cadence == Cadence.WEEKLY and run.completed_at is not None:
-                    coverage.next_run_at = run.completed_at + timedelta(days=7)
-                repository.upsert_coverage(coverage)
-                result = {
-                    "run": run.model_dump(mode="json"),
-                    "panels": graph_result.get("panel_results", {}),
-                    "memo": graph_result["memo"],
-                    "delta": graph_result["delta"],
-                }
+                runtime.run.status = self._terminal_status(runtime.run)
+                runtime.run.completed_at = utc_now()
+                with self.context.database.session() as session:
+                    repository = Repository(session)
+                    repository.save_run(runtime.run)
+                    if self._should_advance_coverage(runtime.run):
+                        runtime.coverage.last_run_at = runtime.run.completed_at
+                        if (
+                            runtime.coverage.cadence == Cadence.WEEKLY
+                            and runtime.run.completed_at is not None
+                        ):
+                            runtime.coverage.next_run_at = (
+                                runtime.run.completed_at + timedelta(days=7)
+                            )
+                        repository.upsert_coverage(runtime.coverage)
+            result = self._build_graph_result(runtime.run, graph_result)
 
         if error is not None:
             raise error
@@ -640,7 +906,11 @@ class AnalysisService:
         return result
 
     def _resolve_panel_ids(
-        self, *, coverage: CoverageEntry, panel_ids: list[str] | None
+        self,
+        *,
+        coverage: CoverageEntry,
+        panel_ids: list[str] | None,
+        run_kind: RunKind,
     ) -> list[str]:
         policy = self.context.registries.run_policies.run_policies[coverage.panel_policy]
         requested_panel_ids = panel_ids or list(policy.default_panel_ids)
@@ -656,7 +926,68 @@ class AnalysisService:
                     f"Panel {panel_id} is not implemented for policy {coverage.panel_policy}."
                 )
             validated_panel_ids.append(panel_id)
+        if validated_panel_ids and validated_panel_ids[0] != "gatekeepers":
+            raise ValueError(
+                "Runs must begin at gatekeepers. "
+                "Resume an existing paused run for downstream panels."
+            )
+        if run_kind == RunKind.PANEL and validated_panel_ids != ["gatekeepers"]:
+            raise ValueError(
+                "run_panel can only start at gatekeepers. Use continue_run for downstream panels."
+            )
         return validated_panel_ids
+
+    def _panel_ids_for_run(self, run: RunRecord) -> list[str]:
+        panel_ids = run.metadata.get("panel_ids")
+        if not isinstance(panel_ids, list):
+            raise ValueError(f"Run {run.run_id} is missing persisted panel_ids.")
+        return [str(panel_id) for panel_id in panel_ids]
+
+    def _build_graph_result(self, run: RunRecord, graph_result: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "run": run.model_dump(mode="json"),
+            "panels": graph_result.get("panel_results", {}),
+            "memo": graph_result.get("memo"),
+            "delta": graph_result.get("delta"),
+        }
+
+    def _build_persisted_result(self, repository: Repository, run: RunRecord) -> dict[str, Any]:
+        claims_by_panel: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for claim in repository.list_claim_cards(run.company_id, run_id=run.run_id):
+            claims_by_panel[claim.panel_id].append(claim.model_dump(mode="json"))
+        panels: dict[str, dict[str, Any]] = {}
+        for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
+            panels[verdict.panel_id] = {
+                "claims": claims_by_panel.get(verdict.panel_id, []),
+                "verdict": verdict.model_dump(mode="json"),
+            }
+        memo = repository.get_memo_for_run(run.company_id, run.run_id)
+        delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)
+        return {
+            "run": run.model_dump(mode="json"),
+            "panels": panels,
+            "memo": memo.model_dump(mode="json") if memo is not None else None,
+            "delta": delta.model_dump(mode="json") if delta is not None else None,
+        }
+
+    @staticmethod
+    def _terminal_status(run: RunRecord) -> RunStatus:
+        if run.provisional:
+            return RunStatus.PROVISIONAL
+        if run.gated_out:
+            return RunStatus.GATED_OUT
+        if run.stopped_after_panel is not None:
+            return RunStatus.STOPPED
+        return RunStatus.COMPLETE
+
+    @staticmethod
+    def _should_advance_coverage(run: RunRecord) -> bool:
+        return run.status in {
+            RunStatus.COMPLETE,
+            RunStatus.PROVISIONAL,
+            RunStatus.GATED_OUT,
+            RunStatus.STOPPED,
+        }
 
 
 def render_memo_markdown(memo: ICMemo) -> str:

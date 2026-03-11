@@ -57,6 +57,7 @@ def test_api_preserves_phase_one_operator_routes(context) -> None:
     assert "/companies/{company_id}/ingest-private" in route_paths
     assert "/companies/{company_id}/analyze" in route_paths
     assert "/companies/{company_id}/refresh" in route_paths
+    assert "/runs/{run_id}/continue" in route_paths
     assert "/companies/{company_id}/panels/{panel_id}/run" in route_paths
     assert "/companies/{company_id}/memo" in route_paths
     assert "/companies/{company_id}/delta" in route_paths
@@ -126,3 +127,25 @@ def test_api_rejects_company_id_mismatch_on_ingest(context, repo_root) -> None:
             "message": "Path company_id BETA does not match manifest company_id ACME.",
         }
     }
+
+
+def test_api_run_panel_and_continue_flow(seeded_acme) -> None:
+    with TestClient(create_app(seeded_acme)) as client:
+        invalid = client.post("/companies/ACME/panels/demand_revenue_quality/run")
+
+        assert invalid.status_code == 400
+        assert "gatekeepers" in invalid.json()["error"]["message"]
+
+        paused = client.post("/companies/ACME/analyze")
+
+        assert paused.status_code == 200
+        paused_payload = paused.json()["data"]
+        run_id = paused_payload["run"]["run_id"]
+        assert paused_payload["run"]["status"] == "awaiting_continue"
+
+        resumed = client.post(f"/runs/{run_id}/continue", json={"action": "continue"})
+
+        assert resumed.status_code == 200
+        resumed_payload = resumed.json()["data"]
+        assert resumed_payload["run"]["run_id"] == run_id
+        assert resumed_payload["run"]["status"] == "complete"

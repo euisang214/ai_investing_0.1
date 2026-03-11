@@ -49,3 +49,27 @@ def test_cli_reparent_agent_command(context, monkeypatch) -> None:
 
     assert result.exit_code == 0
     assert json.loads(result.stdout)["parent_id"] == "gatekeeper_advocate"
+
+
+def test_cli_run_panel_and_continue_flow(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+
+    invalid = runner.invoke(app, ["run-panel", "ACME", "demand_revenue_quality"])
+
+    assert invalid.exit_code != 0
+    assert invalid.exception is not None
+    assert "gatekeepers" in str(invalid.exception)
+
+    paused = runner.invoke(app, ["analyze-company", "ACME"])
+
+    assert paused.exit_code == 0
+    paused_payload = json.loads(paused.stdout)
+    run_id = paused_payload["run"]["run_id"]
+    assert paused_payload["run"]["status"] == "awaiting_continue"
+
+    resumed = runner.invoke(app, ["continue-run", run_id, "--action", "continue"])
+
+    assert resumed.exit_code == 0
+    resumed_payload = json.loads(resumed.stdout)
+    assert resumed_payload["run"]["run_id"] == run_id
+    assert resumed_payload["run"]["status"] == "complete"

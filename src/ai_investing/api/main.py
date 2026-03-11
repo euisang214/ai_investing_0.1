@@ -17,7 +17,7 @@ from ai_investing.application.services import (
     CoverageService,
     IngestionService,
 )
-from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus
+from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
 from ai_investing.domain.models import CoverageEntry
 
 
@@ -50,6 +50,12 @@ class ReparentAgentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     parent_id: str | None = None
+
+
+class ContinueRunRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: RunContinueAction = RunContinueAction.CONTINUE
 
 
 def create_app(context: AppContext | None = None) -> FastAPI:
@@ -160,6 +166,15 @@ def create_app(context: AppContext | None = None) -> FastAPI:
     @app.post("/companies/{company_id}/refresh")
     def refresh_company(company_id: str, request: Request) -> JSONResponse:
         return _success_response(AnalysisService(_context(request)).refresh_company(company_id))
+
+    @app.post("/runs/{run_id}/continue")
+    def continue_run(
+        run_id: str,
+        payload: ContinueRunRequest,
+        request: Request,
+    ) -> JSONResponse:
+        result = AnalysisService(_context(request)).continue_run(run_id, action=payload.action)
+        return _success_response(result)
 
     @app.post("/companies/{company_id}/panels/{panel_id}/run")
     def run_panel(company_id: str, panel_id: str, request: Request) -> JSONResponse:
