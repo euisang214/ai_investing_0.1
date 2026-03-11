@@ -44,6 +44,8 @@ def test_generation_script_writes_phase2_checkpoint_examples(
     assert initial["delta"] is None
     assert continued["run"]["run_id"] == initial["run"]["run_id"]
     assert continued["run"]["status"] == "complete"
+    assert continued["memo"]["is_initial_coverage"] is True
+    assert continued["delta"]["prior_run_id"] is None
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["delta"]["prior_run_id"] == continued["run"]["run_id"]
     assert "what_changed_since_last_run" in rerun["delta"]["changed_sections"]
@@ -88,7 +90,21 @@ def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> N
     assert initial["run"]["status"] == "awaiting_continue"
     assert initial_delta is None
     assert continued["run"]["run_id"] == initial["run"]["run_id"]
+    assert continued["run"]["metadata"]["baseline_memo"] is None
+    assert continued["run"]["metadata"]["baseline_active_claims"] == []
+    assert continued["run"]["metadata"]["baseline_active_verdicts"] == []
+    assert continued["memo"]["is_initial_coverage"] is True
     assert continued_delta["current_run_id"] == continued["run"]["run_id"]
+    assert continued_delta["prior_run_id"] is None
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun_delta["prior_run_id"] == continued["run"]["run_id"]
-    assert (generated_root / "ACME" / "initial" / "memo.md").read_text(encoding="utf-8")
+    initial_memo = (generated_root / "ACME" / "initial" / "memo.md").read_text(encoding="utf-8")
+    continued_memo = (generated_root / "ACME" / "continued" / "memo.md").read_text(
+        encoding="utf-8"
+    )
+    rerun_memo = (generated_root / "ACME" / "rerun" / "memo.md").read_text(encoding="utf-8")
+
+    assert initial_memo
+    assert "Stale from the prior active memo." not in continued_memo
+    assert "Gatekeepers completed this run, but deeper panel work has not advanced this section yet." in continued_memo
+    assert "Stale from the prior active memo." in rerun_memo

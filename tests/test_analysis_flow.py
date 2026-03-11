@@ -10,6 +10,28 @@ from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
 
 
+def _memo_section_map(result: dict[str, object]) -> dict[str, dict[str, object]]:
+    memo = result["memo"]
+    assert isinstance(memo, dict)
+    sections = memo["sections"]
+    assert isinstance(sections, list)
+    return {section["section_id"]: section for section in sections}
+
+
+def _clear_run_baseline_metadata(context, run_id: str) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        run = repository.get_run(run_id)
+        assert run is not None
+        run.metadata = {
+            key: value
+            for key, value in run.metadata.items()
+            if key
+            not in {"baseline_memo", "baseline_active_claims", "baseline_active_verdicts"}
+        }
+        repository.save_run(run)
+
+
 def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -71,6 +93,13 @@ def test_end_to_end_fake_provider_run_requires_explicit_continue(seeded_acme) ->
     assert set(resumed["panels"]) == {"gatekeepers", "demand_revenue_quality"}
     assert resumed["delta"] is not None
     assert resumed["delta"]["current_run_id"] == resumed["run"]["run_id"]
+    assert resumed["delta"]["prior_run_id"] is None
+    assert resumed["delta"]["change_summary"] == "Initial coverage run. No prior memo exists."
+    assert resumed["memo"]["is_initial_coverage"] is True
+    sections = _memo_section_map(resumed)
+    assert sections["economic_spread"]["status"] == "not_advanced"
+    assert "Stale from the prior active memo." not in sections["economic_spread"]["content"]
+    assert sections["valuation_terms"]["status"] == "not_advanced"
 
 
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:
@@ -119,6 +148,40 @@ def test_refresh_rerun_emits_materiality_aware_delta(seeded_acme, repo_root: Pat
     assert delta["current_run_id"] == rerun["run"]["run_id"]
     assert "what_changed_since_last_run" in delta["changed_sections"]
     assert delta["changed_claim_ids"]
+    assert rerun["memo"]["is_initial_coverage"] is False
+
+
+def test_legacy_paused_run_without_baseline_metadata_does_not_self_baseline(seeded_acme) -> None:
+    service = AnalysisService(seeded_acme)
+
+    paused = service.analyze_company("ACME")
+    _clear_run_baseline_metadata(seeded_acme, paused["run"]["run_id"])
+
+    resumed = service.continue_run(paused["run"]["run_id"])
+
+    assert resumed["memo"]["is_initial_coverage"] is True
+    assert resumed["delta"]["prior_run_id"] is None
+    assert resumed["delta"]["current_run_id"] == paused["run"]["run_id"]
+    assert resumed["delta"]["change_summary"] == "Initial coverage run. No prior memo exists."
+
+
+def test_legacy_rerun_resume_recovers_prior_history_excluding_current_run(
+    seeded_acme, repo_root: Path
+) -> None:
+    service = AnalysisService(seeded_acme)
+
+    initial_pause = service.analyze_company("ACME")
+    initial = service.continue_run(initial_pause["run"]["run_id"])
+
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    rerun_pause = service.refresh_company("ACME")
+    _clear_run_baseline_metadata(seeded_acme, rerun_pause["run"]["run_id"])
+
+    rerun = service.continue_run(rerun_pause["run"]["run_id"])
+
+    assert rerun["delta"]["prior_run_id"] == initial["run"]["run_id"]
+    assert rerun["delta"]["current_run_id"] == rerun["run"]["run_id"]
+    assert rerun["memo"]["is_initial_coverage"] is False
 
 
 def test_run_due_coverage_skips_disabled_entries(seeded_acme) -> None:

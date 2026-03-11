@@ -74,6 +74,12 @@ def test_cli_run_panel_and_continue_flow(seeded_acme, monkeypatch) -> None:
     resumed_payload = json.loads(resumed.stdout)
     assert resumed_payload["run"]["run_id"] == run_id
     assert resumed_payload["run"]["status"] == "complete"
+    assert resumed_payload["memo"]["is_initial_coverage"] is True
+    assert resumed_payload["delta"]["prior_run_id"] is None
+    resumed_sections = {
+        section["section_id"]: section for section in resumed_payload["memo"]["sections"]
+    }
+    assert resumed_sections["economic_spread"]["status"] == "not_advanced"
 
 
 def test_cli_show_run_returns_persisted_checkpoint_state(seeded_acme, monkeypatch) -> None:

@@ -228,6 +228,23 @@ def test_memo_projects_full_contract_for_gatekeeper_pause(seeded_acme) -> None:
     assert "deeper panel work has not advanced this section yet" in sections["growth"]["content"]
 
 
+def test_memo_keeps_same_run_placeholders_not_advanced_on_first_completion(seeded_acme) -> None:
+    service = AnalysisService(seeded_acme)
+
+    paused = service.analyze_company("ACME")
+    completed = service.continue_run(paused["run"]["run_id"])
+    sections = _section_map(completed)
+
+    assert completed["memo"]["is_initial_coverage"] is True
+    assert completed["delta"]["prior_run_id"] is None
+    assert sections["economic_spread"]["status"] == "not_advanced"
+    assert sections["valuation_terms"]["status"] == "not_advanced"
+    assert "Stale from the prior active memo." not in sections["economic_spread"]["content"]
+    assert sections["what_changed_since_last_run"]["content"] == (
+        "Initial coverage run. No prior memo exists."
+    )
+
+
 def test_memo_marks_carried_forward_sections_stale_on_rerun_pause(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
@@ -237,6 +254,7 @@ def test_memo_marks_carried_forward_sections_stale_on_rerun_pause(seeded_acme) -
 
     sections = _section_map(rerun)
 
+    assert rerun["memo"]["is_initial_coverage"] is False
     assert sections["growth"]["status"] == "stale"
     assert "Carried forward from the prior memo" in sections["growth"]["content"]
 
@@ -297,9 +315,16 @@ def test_delta_refreshes_run_log_for_low_material_fake_provider_rerun(
     completed = service.continue_run(rerun["run"]["run_id"])
     sections = _section_map(completed)
 
-    assert completed["delta"]["alert_level"] == "low"
-    assert completed["delta"]["changed_sections"] == ["what_changed_since_last_run"]
-    assert "run log only" in completed["delta"]["change_summary"]
+    assert completed["delta"]["alert_level"] == "medium"
+    assert completed["delta"]["changed_sections"] == [
+        "economic_spread",
+        "expectations_variant_view",
+        "portfolio_fit_positioning",
+        "realization_path_catalysts",
+        "valuation_terms",
+        "what_changed_since_last_run",
+    ]
+    assert "Material sections: economic_spread" in completed["delta"]["change_summary"]
     assert sections["what_changed_since_last_run"]["status"] == "refreshed"
 
 

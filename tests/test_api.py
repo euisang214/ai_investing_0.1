@@ -163,6 +163,12 @@ def test_api_run_panel_and_continue_flow(seeded_acme) -> None:
         resumed_payload = resumed.json()["data"]
         assert resumed_payload["run"]["run_id"] == run_id
         assert resumed_payload["run"]["status"] == "complete"
+        assert resumed_payload["memo"]["is_initial_coverage"] is True
+        assert resumed_payload["delta"]["prior_run_id"] is None
+        resumed_sections = {
+            section["section_id"]: section for section in resumed_payload["memo"]["sections"]
+        }
+        assert resumed_sections["economic_spread"]["status"] == "not_advanced"
 
 
 def test_api_run_due_returns_paused_run_payload(seeded_acme) -> None:
