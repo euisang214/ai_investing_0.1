@@ -140,6 +140,14 @@ LangGraph composes reusable subgraphs:
 
 The `CompanyRefreshGraph` loads due panels from config and run policy, executes the active subgraphs, persists outputs, and updates memo sections incrementally.
 
+The first production checkpoint is mandatory:
+
+- `gatekeepers` always runs before downstream panels
+- the graph pauses after `gatekeepers` even when the company passes
+- downstream work resumes only after an explicit operator action
+- failed gatekeepers can continue only as provisional analysis
+- direct downstream `run-panel` execution is rejected unless the run already has the required resume context
+
 ### 5. Provider Layer
 
 `ModelProvider` adapters shield the domain logic from provider-specific SDKs. v1 includes:
@@ -157,6 +165,14 @@ All tools are declared in `config/tool_registry.yaml` and attached to agents via
 ### 7. Interface Layer
 
 Typer CLI and FastAPI endpoints both call the same application services. n8n stays outside the service boundary and interacts through HTTP and webhook-friendly APIs.
+
+The operator-facing contract is checkpoint-aware:
+
+- `analyze-company`, `refresh-company`, and due-coverage entrypoints return a structured run payload
+- `show-run` and `GET /runs/{run_id}` expose persisted paused or completed runs by `run_id`
+- `continue-run` and `POST /runs/{run_id}/continue` require an explicit action instead of silently chaining past the gatekeeper
+- stable fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`, and `checkpoint` make automation clients parse state without scraping prose
+- paused runs persist gatekeeper verdicts and partial memo artifacts immediately; terminal runs add final memo reconciliation and monitoring delta output
 
 ## Data Model And Memory Strategy
 
