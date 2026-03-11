@@ -37,6 +37,7 @@ class RecordStatus(str, Enum):
 
 
 class MemoSectionStatus(str, Enum):
+    NOT_ADVANCED = "not_advanced"
     PENDING = "pending"
     DRAFT = "draft"
     REFRESHED = "refreshed"
@@ -78,5 +79,15 @@ class RunKind(str, Enum):
 class RunStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
+    AWAITING_CONTINUE = "awaiting_continue"
+    GATED_OUT = "gated_out"
+    STOPPED = "stopped"
+    PROVISIONAL = "provisional"
     COMPLETE = "complete"
     FAILED = "failed"
+
+
+class RunContinueAction(str, Enum):
+    STOP = "stop"
+    CONTINUE = "continue"
+    CONTINUE_PROVISIONAL = "continue_provisional"

@@ -131,6 +131,12 @@ class Repository:
                 panel_id=run.panel_id,
                 started_at=run.started_at,
                 completed_at=run.completed_at,
+                gate_decision=run.gate_decision.value if run.gate_decision is not None else None,
+                awaiting_continue=run.awaiting_continue,
+                gated_out=run.gated_out,
+                provisional=run.provisional,
+                stopped_after_panel=run.stopped_after_panel,
+                checkpoint_panel_id=run.checkpoint_panel_id,
                 payload=payload,
             )
             self.session.add(row)
@@ -138,8 +144,20 @@ class Repository:
             row.status = run.status.value
             row.panel_id = run.panel_id
             row.completed_at = run.completed_at
+            row.gate_decision = run.gate_decision.value if run.gate_decision is not None else None
+            row.awaiting_continue = run.awaiting_continue
+            row.gated_out = run.gated_out
+            row.provisional = run.provisional
+            row.stopped_after_panel = run.stopped_after_panel
+            row.checkpoint_panel_id = run.checkpoint_panel_id
             row.payload = payload
         return run
+
+    def get_run(self, run_id: str) -> RunRecord | None:
+        row = self.session.scalar(select(RunRecordRow).where(RunRecordRow.run_id == run_id))
+        if row is None:
+            return None
+        return RunRecord.model_validate(row.payload)
 
     def list_runs(self, company_id: str) -> list[RunRecord]:
         rows = self.session.scalars(

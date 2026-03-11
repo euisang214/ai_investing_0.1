@@ -15,6 +15,7 @@ from ai_investing.domain.enums import (
     GateDecision,
     MemoSectionStatus,
     RecordStatus,
+    RunContinueAction,
     RunKind,
     RunStatus,
     VerdictRecommendation,
@@ -232,6 +233,16 @@ class ToolInvocationLog(DomainModel):
     created_at: datetime = Field(default_factory=utc_now)
 
 
+class RunCheckpoint(DomainModel):
+    checkpoint_panel_id: str
+    allowed_actions: list[RunContinueAction] = Field(default_factory=list)
+    provisional_required: bool = False
+    note: str | None = None
+    requested_at: datetime = Field(default_factory=utc_now)
+    resolved_at: datetime | None = None
+    resolution_action: RunContinueAction | None = None
+
+
 class RunRecord(DomainModel):
     run_id: str = Field(default_factory=lambda: new_id("run"))
     company_id: str
@@ -241,6 +252,13 @@ class RunRecord(DomainModel):
     panel_id: str | None = None
     started_at: datetime = Field(default_factory=utc_now)
     completed_at: datetime | None = None
+    gate_decision: GateDecision | None = None
+    awaiting_continue: bool = False
+    gated_out: bool = False
+    provisional: bool = False
+    stopped_after_panel: str | None = None
+    checkpoint_panel_id: str | None = None
+    checkpoint: RunCheckpoint | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
