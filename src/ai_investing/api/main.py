@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -8,7 +9,7 @@ from typing import Any
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from ai_investing.application.context import AppContext
 from ai_investing.application.services import (
@@ -18,7 +19,16 @@ from ai_investing.application.services import (
     IngestionService,
 )
 from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
-from ai_investing.domain.models import CoverageEntry
+from ai_investing.domain.models import (
+    ClaimCard,
+    CoverageEntry,
+    GatekeeperVerdict,
+    ICMemo,
+    MonitoringDelta,
+    PanelVerdict,
+    RunRecord,
+)
+from ai_investing.persistence.repositories import Repository
 
 
 class CoverageCreateRequest(BaseModel):
@@ -56,6 +66,34 @@ class ContinueRunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     action: RunContinueAction = RunContinueAction.CONTINUE
+
+
+class PanelResultResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    claims: list[ClaimCard] = Field(default_factory=list)
+    verdict: GatekeeperVerdict | PanelVerdict
+
+
+class RunResultResponseData(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run: RunRecord
+    panels: dict[str, PanelResultResponse] = Field(default_factory=dict)
+    memo: ICMemo | None = None
+    delta: MonitoringDelta | None = None
+
+
+class RunResultEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    data: RunResultResponseData
+
+
+class RunResultListEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    data: list[RunResultResponseData] = Field(default_factory=list)
 
 
 def create_app(context: AppContext | None = None) -> FastAPI:
@@ -135,9 +173,9 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         entry = CoverageService(_context(request)).set_next_run_at(company_id, next_run_at)
         return _success_response(entry.model_dump(mode="json"))
 
-    @app.post("/coverage/run-due")
-    def run_due(request: Request) -> JSONResponse:
-        return _success_response(AnalysisService(_context(request)).run_due_coverage())
+    @app.post("/coverage/run-due", response_model=RunResultListEnvelope)
+    def run_due(request: Request) -> RunResultListEnvelope:
+        return _run_result_list_response(AnalysisService(_context(request)).run_due_coverage())
 
     @app.post("/companies/{company_id}/ingest-public")
     def ingest_public(company_id: str, payload: IngestRequest, request: Request) -> JSONResponse:
@@ -159,26 +197,33 @@ def create_app(context: AppContext | None = None) -> FastAPI:
             {"profile": profile.model_dump(mode="json"), "evidence_ids": evidence_ids}
         )
 
-    @app.post("/companies/{company_id}/analyze")
-    def analyze_company(company_id: str, request: Request) -> JSONResponse:
-        return _success_response(AnalysisService(_context(request)).analyze_company(company_id))
+    @app.post("/companies/{company_id}/analyze", response_model=RunResultEnvelope)
+    def analyze_company(company_id: str, request: Request) -> RunResultEnvelope:
+        result = AnalysisService(_context(request)).analyze_company(company_id)
+        return _run_result_response(result)
 
-    @app.post("/companies/{company_id}/refresh")
-    def refresh_company(company_id: str, request: Request) -> JSONResponse:
-        return _success_response(AnalysisService(_context(request)).refresh_company(company_id))
+    @app.post("/companies/{company_id}/refresh", response_model=RunResultEnvelope)
+    def refresh_company(company_id: str, request: Request) -> RunResultEnvelope:
+        result = AnalysisService(_context(request)).refresh_company(company_id)
+        return _run_result_response(result)
 
-    @app.post("/runs/{run_id}/continue")
+    @app.get("/runs/{run_id}", response_model=RunResultEnvelope)
+    def get_run(run_id: str, request: Request) -> RunResultEnvelope:
+        return _run_result_response(_load_run_result(_context(request), run_id))
+
+    @app.post("/runs/{run_id}/continue", response_model=RunResultEnvelope)
     def continue_run(
         run_id: str,
         payload: ContinueRunRequest,
         request: Request,
-    ) -> JSONResponse:
+    ) -> RunResultEnvelope:
         result = AnalysisService(_context(request)).continue_run(run_id, action=payload.action)
-        return _success_response(result)
+        return _run_result_response(result)
 
-    @app.post("/companies/{company_id}/panels/{panel_id}/run")
-    def run_panel(company_id: str, panel_id: str, request: Request) -> JSONResponse:
-        return _success_response(AnalysisService(_context(request)).run_panel(company_id, panel_id))
+    @app.post("/companies/{company_id}/panels/{panel_id}/run", response_model=RunResultEnvelope)
+    def run_panel(company_id: str, panel_id: str, request: Request) -> RunResultEnvelope:
+        result = AnalysisService(_context(request)).run_panel(company_id, panel_id)
+        return _run_result_response(result)
 
     @app.get("/companies/{company_id}/memo")
     def get_memo(company_id: str, request: Request) -> JSONResponse:
@@ -244,6 +289,45 @@ def _validate_company_id(requested_company_id: str, manifest_company_id: str) ->
             f"{requested_company_id} does not match manifest company_id "
             f"{manifest_company_id}."
         )
+
+
+def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
+    with context.database.session() as session:
+        repository = Repository(session)
+        run = repository.get_run(run_id)
+        if run is None:
+            raise KeyError(run_id)
+
+        claims_by_panel: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for claim in repository.list_claim_cards(run.company_id, run_id=run.run_id):
+            claims_by_panel[claim.panel_id].append(claim.model_dump(mode="json"))
+
+        panels: dict[str, dict[str, Any]] = {}
+        for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
+            panels[verdict.panel_id] = {
+                "claims": claims_by_panel.get(verdict.panel_id, []),
+                "verdict": verdict.model_dump(mode="json"),
+            }
+
+        memo = repository.get_memo_for_run(run.company_id, run.run_id)
+        delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)
+
+    return {
+        "run": run.model_dump(mode="json"),
+        "panels": panels,
+        "memo": memo.model_dump(mode="json") if memo is not None else None,
+        "delta": delta.model_dump(mode="json") if delta is not None else None,
+    }
+
+
+def _run_result_response(data: dict[str, Any]) -> RunResultEnvelope:
+    return RunResultEnvelope(data=RunResultResponseData.model_validate(data))
+
+
+def _run_result_list_response(data: list[dict[str, Any]]) -> RunResultListEnvelope:
+    return RunResultListEnvelope(
+        data=[RunResultResponseData.model_validate(item) for item in data]
+    )
 
 
 def _error_response(*, code: str, message: str, status_code: int) -> JSONResponse:
