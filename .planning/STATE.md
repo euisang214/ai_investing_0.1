@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 3
 current_phase_name: Remaining Panel Scaffolds
-current_plan: 2
+current_plan: 3
 status: executing
 stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-03-12T11:17:46.485Z"
+last_updated: "2026-03-12T11:22:13.520Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
   percent: 85
 ---
 
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Current Phase:** 3
 **Current Phase Name:** Remaining Panel Scaffolds
 **Total Phases:** 5
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 4
 **Status:** Ready to execute
 **Progress:** [█████████░] 85%
@@ -45,8 +45,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 2 Plan 01 completed on 2026-03-11 with passing Docker-based tests and lint for the checkpoint runtime slice.
 - Phase 2 completed on 2026-03-11 with repaired first-completion baseline semantics, deterministic ACME artifacts, and Docker-verified lint/test/example generation passes.
 - Phase 3 Plan 01 completed on 2026-03-12 with normalized disabled placeholder leads, explicit scaffold panel factor mappings, and passing registry verification.
+- Phase 3 Plan 02 completed on 2026-03-12 with panel-specific factor ontology, scaffold prompt contracts, prompt-asset tests, and Docker-visible prompt strategy docs.
 - Phase 3 Plan 03 completed on 2026-03-12 with service, CLI, and API regressions that keep scaffold-only panels and `full_surface` visible in config while blocking execution before partial runs start.
-- All remaining top-level panels now have config-backed scaffold topology with matching placeholder prompt paths and non-empty owned factor mappings.
+- All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 
 ## Key Risks
@@ -57,7 +58,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 3 Plan 02 to replace generic scaffold factor descriptions and placeholder prompt bodies against the now-complete registry surface.
+- Execute Phase 3 Plan 04 to document the scaffold extension path now that Plans `03-01`, `03-02`, and `03-03` have established the registry, prompt, and execution-boundary slices.
 
 ## Decisions
 
@@ -78,6 +79,8 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 03]: Leave parent requirement V2-01 open because Plan 03-01 delivers only prerequisite slice V2-01A.
 - [Phase 03]: Keep scaffold execution protection in generic panel resolution and add regressions before changing runtime behavior.
 - [Phase 03]: Assert the same scaffold-only panel rejection contract across service, CLI, and API while leaving full_surface loadable in config.
+- [Phase 03]: Use one shared scaffold prompt heading contract, but bind memo sections and factor coverage directly to panel config.
+- [Phase 03]: Keep parent requirement V2-01 open because Plan 03-02 delivers prerequisite slice V2-01B rather than runnable panel implementation.
 
 ## Performance Metrics
 
@@ -89,9 +92,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 02 P05 | 11min | 4 tasks | 16 files |
 | Phase 03 P01 | 5min | 3 tasks | 6 files |
 | Phase 03 P03 | 13min | 2 tasks | 6 files |
+| Phase 03 P02 | 12min | 3 tasks | 13 files |
 
 ## Session
 
-**Last Date:** 2026-03-12T11:17:46.483Z
+**Last Date:** 2026-03-12T11:22:13.517Z
 **Stopped At:** Completed 03-03-PLAN.md
 **Resume File:** None
