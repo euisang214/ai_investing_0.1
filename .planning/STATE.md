@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: Vertical Slice And Delta Flow
-current_plan: 5
-status: verifying
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-03-11T12:04:32.531Z"
-last_activity: 2026-03-11
+current_phase: 3
+current_phase_name: Remaining Panel Scaffolds
+current_plan: 1
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-12T11:02:01.611Z"
+last_activity: 2026-03-12
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 13
+  completed_plans: 10
+  percent: 77
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 3 planning after closing the Phase 2 baseline-repair gap
+**Current focus:** Phase 3 scaffold completion for the remaining top-level panels
 
 ## Execution Tracking
 
-**Current Phase:** 2
-**Current Phase Name:** Vertical Slice And Delta Flow
+**Current Phase:** 3
+**Current Phase Name:** Remaining Panel Scaffolds
 **Total Phases:** 5
-**Current Plan:** 5
-**Total Plans in Phase:** 5
-**Status:** Phase complete — verification passed, ready for Phase 3 planning
-**Progress:** [██████████] 100%
-**Last Activity:** 2026-03-11
-**Last Activity Description:** Completed Phase 2 Plan 05 baseline repair, regenerated artifacts, and closed the verification gap
+**Current Plan:** 1
+**Total Plans in Phase:** 4
+**Status:** Phase 3 in progress — scaffold registry slice complete
+**Progress:** [████████░░] 77%
+**Last Activity:** 2026-03-12
+**Last Activity Description:** Completed Phase 3 Plan 01 scaffold registry coverage with Docker-verified registry tests
 
 ## Current Status
 
@@ -44,8 +44,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Core config, persistence, interface, provider/tool, and orchestration contracts are now in place.
 - Phase 2 Plan 01 completed on 2026-03-11 with passing Docker-based tests and lint for the checkpoint runtime slice.
 - Phase 2 completed on 2026-03-11 with repaired first-completion baseline semantics, deterministic ACME artifacts, and Docker-verified lint/test/example generation passes.
-- All 5 Phase 2 plan summaries are now on disk, including the baseline-repair gap-closure plan.
-- The first production panels remain `gatekeepers` and `demand_revenue_quality`, now backed by inspectable paused, continued, and rerun outputs.
+- Phase 3 Plan 01 completed on 2026-03-12 with normalized disabled placeholder leads, explicit scaffold panel factor mappings, and passing registry verification.
+- All remaining top-level panels now have config-backed scaffold topology with matching placeholder prompt paths and non-empty owned factor mappings.
+- The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 
 ## Key Risks
 
@@ -55,7 +56,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Begin Phase 3 planning for the remaining panel scaffolds.
+- Execute Phase 3 Plan 02 to replace generic scaffold factor descriptions and placeholder prompt bodies against the now-complete registry surface.
 
 ## Decisions
 
@@ -71,6 +72,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 02]: Treat explicit null and empty baseline metadata as intentional no-baseline state during resume.
 - [Phase 02]: Recover legacy paused-run baselines from the latest non-current memo, claim, and verdict history instead of the paused run's promoted active state.
 - [Phase 02]: Keep same-run placeholder memo sections not_advanced on first completion and reserve stale carry-forward for true reruns.
+- [Phase 03]: Make scaffold factor ownership explicit through panel.factor_ids rather than relying on implicit grouping in factors.yaml.
+- [Phase 03]: Normalize scaffold-only panels around one disabled lead placeholder instead of adding deeper agent trees in Phase 3.
+- [Phase 03]: Leave parent requirement V2-01 open because Plan 03-01 delivers only prerequisite slice V2-01A.
 
 ## Performance Metrics
 
@@ -80,9 +84,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 02 P02 | 14 min | 3 tasks | 21 files |
 | Phase 02 P04 | 10min | 3 tasks | 18 files |
 | Phase 02 P05 | 11min | 4 tasks | 16 files |
+| Phase 03 P01 | 5min | 3 tasks | 6 files |
 
 ## Session
 
-**Last Date:** 2026-03-11T12:04:32.528Z
-**Stopped At:** Completed 02-05-PLAN.md
+**Last Date:** 2026-03-12T11:02:01.608Z
+**Stopped At:** Completed 03-01-PLAN.md
 **Resume File:** None
