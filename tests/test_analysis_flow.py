@@ -32,6 +32,15 @@ def _clear_run_baseline_metadata(context, run_id: str) -> None:
         repository.save_run(run)
 
 
+def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage(company_id)
+        assert coverage is not None
+        coverage.panel_policy = panel_policy
+        repository.upsert_coverage(coverage)
+
+
 def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -100,6 +109,42 @@ def test_end_to_end_fake_provider_run_requires_explicit_continue(seeded_acme) ->
     assert sections["economic_spread"]["status"] == "not_advanced"
     assert "Stale from the prior active memo." not in sections["economic_spread"]["content"]
     assert sections["valuation_terms"]["status"] == "not_advanced"
+
+
+def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seeded_acme) -> None:
+    policy = seeded_acme.registries.run_policies.run_policies["full_surface"]
+
+    assert "supply_product_operations" in policy.default_panel_ids
+    assert policy.allow_unimplemented_panels is False
+
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+
+    with pytest.raises(
+        ValueError,
+        match=r"Panel supply_product_operations is not implemented for policy full_surface\.",
+    ):
+        AnalysisService(seeded_acme).analyze_company("ACME")
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
+
+
+def test_analyze_company_rejects_explicit_scaffold_panel_selection(seeded_acme) -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"Panel supply_product_operations is not implemented for policy weekly_default\.",
+    ):
+        AnalysisService(seeded_acme).analyze_company(
+            "ACME",
+            panel_ids=["gatekeepers", "supply_product_operations"],
+        )
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
 
 
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:

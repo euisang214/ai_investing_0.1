@@ -32,6 +32,15 @@ from ai_investing.graphs.company_refresh import build_company_refresh_graph
 from ai_investing.persistence.repositories import Repository
 
 
+def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage(company_id)
+        assert coverage is not None
+        coverage.panel_policy = panel_policy
+        repository.upsert_coverage(coverage)
+
+
 def test_run_record_round_trips_checkpoint_state(context) -> None:
     run = RunRecord(
         company_id="ACME",
@@ -246,6 +255,34 @@ def test_run_due_coverage_keeps_paused_runs_due_and_queryable(seeded_acme) -> No
 def test_run_panel_rejects_direct_downstream_execution(seeded_acme) -> None:
     with pytest.raises(ValueError, match="gatekeepers"):
         AnalysisService(seeded_acme).run_panel("ACME", "demand_revenue_quality")
+
+
+def test_run_panel_rejects_unimplemented_scaffold_panel(seeded_acme) -> None:
+    with pytest.raises(
+        ValueError,
+        match=r"Panel supply_product_operations is not implemented for policy weekly_default\.",
+    ):
+        AnalysisService(seeded_acme).run_panel("ACME", "supply_product_operations")
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
+
+
+def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_acme) -> None:
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+
+    with pytest.raises(
+        ValueError,
+        match=r"Panel supply_product_operations is not implemented for policy full_surface\.",
+    ):
+        AnalysisService(seeded_acme).refresh_company("ACME")
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
 
 
 class StubContext:
