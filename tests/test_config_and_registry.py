@@ -12,6 +12,18 @@ from ai_investing.config.loader import RegistryLoader
 from ai_investing.domain.models import ClaimCard
 from ai_investing.settings import Settings
 
+EXPECTED_SCAFFOLD_PANEL_IDS = {
+    "expectations_catalyst_realization",
+    "external_regulatory_geopolitical",
+    "financial_quality_liquidity_economic_model",
+    "macro_industry_transmission",
+    "management_governance_capital_allocation",
+    "market_structure_growth",
+    "portfolio_fit_positioning",
+    "security_or_deal_overlay",
+    "supply_product_operations",
+}
+
 
 def _settings_for(repo_root: Path, config_dir: Path, *, provider: str = "fake") -> Settings:
     return Settings(
@@ -28,6 +40,10 @@ def _copy_config(repo_root: Path, tmp_path: Path) -> Path:
     return config_dir
 
 
+def _scaffold_panels(context) -> list:
+    return [panel for panel in context.registries.panels.panels if not panel.implemented]
+
+
 def test_config_loader_validates_registries(context) -> None:
     panels = {panel.id for panel in context.registries.panels.panels}
     assert "gatekeepers" in panels
@@ -37,6 +53,52 @@ def test_config_loader_validates_registries(context) -> None:
     assert "gatekeeper_research" in {
         bundle.id for bundle in context.registries.tool_bundles.bundles
     }
+
+
+def test_scaffold_panels_materialize_in_registry_without_active_agents(context) -> None:
+    scaffold_panels = _scaffold_panels(context)
+    scaffold_panel_ids = {panel.id for panel in scaffold_panels}
+
+    assert scaffold_panel_ids == EXPECTED_SCAFFOLD_PANEL_IDS
+    for panel in scaffold_panels:
+        assert context.get_panel(panel.id).implemented is False
+        assert context.active_agents_for_panel(panel.id) == []
+
+
+def test_scaffold_panels_have_one_disabled_placeholder_lead(context) -> None:
+    scaffold_panels = _scaffold_panels(context)
+    placeholder_agents = {
+        panel.id: [
+            agent
+            for agent in context.registries.agents.agents
+            if agent.panel_id == panel.id and agent.role_type == "lead" and not agent.enabled
+        ]
+        for panel in scaffold_panels
+    }
+
+    for panel in scaffold_panels:
+        assert len(placeholder_agents[panel.id]) == 1, panel.id
+        placeholder = placeholder_agents[panel.id][0]
+        assert placeholder.prompt_path == panel.prompt_path
+        assert "placeholder" in placeholder.tags
+        assert "scaffold_only" in placeholder.tags
+
+
+def test_scaffold_panels_reference_existing_prompts_and_owned_factors(
+    context, repo_root
+) -> None:
+    scaffold_panels = _scaffold_panels(context)
+    factor_owner = {
+        factor.id: factor.panel_id for factor in context.registries.factors.factors
+    }
+
+    for panel in scaffold_panels:
+        prompt_path = repo_root / panel.prompt_path
+        assert prompt_path.is_file(), panel.prompt_path
+        assert panel.factor_ids, panel.id
+        assert all(factor_owner.get(factor_id) == panel.id for factor_id in panel.factor_ids), (
+            panel.id
+        )
 
 
 def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -> None:
