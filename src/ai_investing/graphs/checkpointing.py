@@ -4,6 +4,8 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
+from sqlalchemy.engine import make_url
+
 from ai_investing.settings import Settings
 
 _MEMORY_SAVERS: dict[tuple[str, str, str], Any] = {}
@@ -27,6 +29,7 @@ def interrupt_payloads(result: dict[str, Any]) -> list[Any]:
 def graph_checkpointer(settings: Settings) -> Iterator[Any]:
     checkpoint_url = settings.langgraph_checkpoint_url or settings.database_url
     if _should_use_postgres(checkpoint_url):
+        checkpoint_conn_string = _normalize_postgres_checkpoint_url(checkpoint_url)
         try:
             from langgraph.checkpoint.postgres import PostgresSaver
         except ImportError as exc:  # pragma: no cover - dependency contract
@@ -34,10 +37,10 @@ def graph_checkpointer(settings: Settings) -> Iterator[Any]:
                 "Install langgraph-checkpoint-postgres to enable durable checkpoint storage."
             ) from exc
 
-        with PostgresSaver.from_conn_string(checkpoint_url) as saver:
-            if checkpoint_url not in _POSTGRES_SETUP_COMPLETE:
+        with PostgresSaver.from_conn_string(checkpoint_conn_string) as saver:
+            if checkpoint_conn_string not in _POSTGRES_SETUP_COMPLETE:
                 saver.setup()
-                _POSTGRES_SETUP_COMPLETE.add(checkpoint_url)
+                _POSTGRES_SETUP_COMPLETE.add(checkpoint_conn_string)
             yield saver
         return
 
@@ -52,6 +55,14 @@ def _memory_saver_key(settings: Settings) -> tuple[str, str, str]:
 def _should_use_postgres(checkpoint_url: str) -> bool:
     normalized = checkpoint_url.lower()
     return normalized.startswith(("postgres://", "postgresql://", "postgresql+"))
+
+
+def _normalize_postgres_checkpoint_url(checkpoint_url: str) -> str:
+    normalized = checkpoint_url.lower()
+    if normalized.startswith("postgresql+"):
+        url = make_url(checkpoint_url)
+        return url.set(drivername="postgresql").render_as_string(hide_password=False)
+    return checkpoint_url
 
 
 def _build_memory_saver() -> Any:

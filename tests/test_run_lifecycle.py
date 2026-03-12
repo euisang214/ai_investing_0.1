@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from types import SimpleNamespace
 
 import pytest
@@ -24,12 +25,14 @@ from ai_investing.domain.models import (
     RunRecord,
 )
 from ai_investing.graphs.checkpointing import (
+    _POSTGRES_SETUP_COMPLETE,
     checkpoint_config,
     graph_checkpointer,
     interrupt_payloads,
 )
 from ai_investing.graphs.company_refresh import build_company_refresh_graph
 from ai_investing.persistence.repositories import Repository
+from ai_investing.settings import Settings
 
 
 def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
@@ -111,6 +114,46 @@ def test_sqlite_context_uses_reusable_memory_checkpointer(context) -> None:
     with graph_checkpointer(context.settings) as first:
         with graph_checkpointer(context.settings) as second:
             assert first is second
+
+
+def test_postgres_checkpoint_uses_psycopg_compatible_conn_string(monkeypatch) -> None:
+    setup_calls: list[str] = []
+    conn_strings: list[str] = []
+
+    class FakeSaver:
+        def setup(self) -> None:
+            setup_calls.append("setup")
+
+    class FakeSaverContext:
+        def __enter__(self) -> FakeSaver:
+            return FakeSaver()
+
+        def __exit__(self, exc_type, exc, tb) -> bool:
+            return False
+
+    class FakePostgresSaver:
+        @classmethod
+        def from_conn_string(cls, conn_string: str) -> FakeSaverContext:
+            conn_strings.append(conn_string)
+            return FakeSaverContext()
+
+    monkeypatch.setitem(
+        sys.modules,
+        "langgraph.checkpoint.postgres",
+        SimpleNamespace(PostgresSaver=FakePostgresSaver),
+    )
+    _POSTGRES_SETUP_COMPLETE.clear()
+
+    settings = Settings(
+        database_url="postgresql+psycopg://postgres:postgres@db:5432/ai_investing",
+        provider="fake",
+    )
+
+    with graph_checkpointer(settings):
+        pass
+
+    assert conn_strings == ["postgresql://postgres:postgres@db:5432/ai_investing"]
+    assert setup_calls == ["setup"]
 
 
 def test_company_refresh_graph_pauses_after_gatekeepers_and_resumes_continue(context) -> None:
