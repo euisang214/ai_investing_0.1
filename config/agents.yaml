@@ -315,12 +315,12 @@ agents:
   tags:
   - monitoring
   - vertical_slice
-- id: supply_panel_placeholder
-  name: Supply Panel Placeholder
+- id: supply_product_operations_placeholder_lead
+  name: Supply Product Operations Placeholder Lead
   panel_id: supply_product_operations
   parent_id: null
   role_type: lead
-  goal: Placeholder agent until the panel is implemented.
+  goal: Scaffold-only lead placeholder until the panel is implemented.
   enabled: false
   prompt_path: prompts/panels/supply_product_operations/placeholder.md
   input_channels:
@@ -335,12 +335,13 @@ agents:
   scope: both
   tags:
   - placeholder
-- id: market_structure_placeholder
-  name: Market Structure Placeholder
+  - scaffold_only
+- id: market_structure_growth_placeholder_lead
+  name: Market Structure Growth Placeholder Lead
   panel_id: market_structure_growth
   parent_id: null
   role_type: lead
-  goal: Placeholder agent until the panel is implemented.
+  goal: Scaffold-only lead placeholder until the panel is implemented.
   enabled: false
   prompt_path: prompts/panels/market_structure_growth/placeholder.md
   input_channels:
@@ -355,3 +356,151 @@ agents:
   scope: both
   tags:
   - placeholder
+  - scaffold_only
+- id: macro_industry_transmission_placeholder_lead
+  name: Macro Industry Transmission Placeholder Lead
+  panel_id: macro_industry_transmission
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/macro_industry_transmission/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
+- id: management_governance_capital_allocation_placeholder_lead
+  name: Management Governance Capital Allocation Placeholder Lead
+  panel_id: management_governance_capital_allocation
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/management_governance/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
+- id: financial_quality_liquidity_economic_model_placeholder_lead
+  name: Financial Quality Liquidity Economic Model Placeholder Lead
+  panel_id: financial_quality_liquidity_economic_model
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/financial_quality/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
+- id: external_regulatory_geopolitical_placeholder_lead
+  name: External Regulatory Geopolitical Placeholder Lead
+  panel_id: external_regulatory_geopolitical
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/external_regulatory/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
+- id: expectations_catalyst_realization_placeholder_lead
+  name: Expectations Catalyst Realization Placeholder Lead
+  panel_id: expectations_catalyst_realization
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/expectations_catalyst_realization/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
+- id: security_or_deal_overlay_placeholder_lead
+  name: Security Or Deal Overlay Placeholder Lead
+  panel_id: security_or_deal_overlay
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/security_overlay/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
+- id: portfolio_fit_positioning_placeholder_lead
+  name: Portfolio Fit Positioning Placeholder Lead
+  panel_id: portfolio_fit_positioning
+  parent_id: null
+  role_type: lead
+  goal: Scaffold-only lead placeholder until the panel is implemented.
+  enabled: false
+  prompt_path: prompts/panels/portfolio_fit/placeholder.md
+  input_channels:
+  - evidence
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: demand_research
+  model_profile: budget
+  scope: both
+  tags:
+  - placeholder
+  - scaffold_only
