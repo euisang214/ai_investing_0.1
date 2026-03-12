@@ -48,6 +48,8 @@ Use this high-level checklist before treating any scaffold-only panel as runnabl
 5. Add or update tests in `tests/` that prove the new panel works and that scaffold boundaries remain explicit.
 6. Change runtime code only if the abstraction truly needs expansion; config and prompt work should remain the default path.
 
+Need the full file-by-file path? See the [panel extension guide](docs/panel_extension_path.md).
+
 ## Quick Start
 
 Docker is the primary local workflow. The host workflow is supported only when Python 3.11+ is available.
@@ -111,6 +113,8 @@ ai-investing reparent-agent demand_skeptic demand_advocate
 ## Repo Layout
 
 See [docs/architecture.md](docs/architecture.md), [docs/factor_ontology.md](docs/factor_ontology.md), [docs/memory_model.md](docs/memory_model.md), and [docs/runbook.md](docs/runbook.md).
+
+For the explicit scaffold-to-production handoff, start with the [panel extension guide](docs/panel_extension_path.md).
 
 The operator workflow for paused gatekeeper runs, explicit continue actions, provisional overrides, and run inspection lives in [docs/runbook.md](docs/runbook.md).
 

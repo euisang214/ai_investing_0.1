@@ -69,3 +69,5 @@ When moving a scaffold-only factor group toward production readiness:
 3. Replace scaffold prompts in `prompts/` with panel-specific implementation prompts that still target the same contracts.
 4. Add or extend tests in `tests/` so factor coverage, prompt assets, and runtime boundaries stay consistent.
 5. Preserve the rule that runtime changes happen only when the abstraction truly needs expansion.
+
+For the full worked example and ordered file handoff, see the [panel extension guide](panel_extension_path.md).

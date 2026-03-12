@@ -268,6 +268,8 @@ Use this checklist before expanding a scaffold-only panel:
 5. Add verification in `tests/` for config loading, runtime behavior, and user-facing entrypoints.
 6. Only change orchestration abstractions when the abstraction truly needs expansion; config-first extension is the default architecture rule.
 
+For the full file-by-file sequence, see the [panel extension guide](panel_extension_path.md).
+
 ## Tradeoffs
 
 - SQLAlchemy is used instead of a lighter ad-hoc persistence layer because history-heavy typed records need explicit schemas and indexing.
