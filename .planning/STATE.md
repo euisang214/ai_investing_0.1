@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 3
 current_phase_name: Remaining Panel Scaffolds
-current_plan: 3
+current_plan: 4
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-03-12T11:22:13.520Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-03-12T11:35:53.160Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 13
-  completed_plans: 12
-  percent: 85
+  completed_plans: 13
+  percent: 100
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 3 scaffold completion for the remaining top-level panels
+**Current focus:** Phase 3 scaffold completion is finished; next planned work is Phase 4 monitoring and connector expansion
 
 ## Execution Tracking
 
 **Current Phase:** 3
 **Current Phase Name:** Remaining Panel Scaffolds
 **Total Phases:** 5
-**Current Plan:** 3
+**Current Plan:** 4
 **Total Plans in Phase:** 4
-**Status:** Ready to execute
-**Progress:** [█████████░] 85%
+**Status:** Completed current planned execution slice
+**Progress:** [██████████] 100%
 **Last Activity:** 2026-03-12
-**Last Activity Description:** Completed Phase 3 Plan 03 execution-boundary regressions with Docker-verified pytest and ruff checks
+**Last Activity Description:** Completed Phase 3 Plan 04 scaffold-extension documentation with Docker-verified doc checks and a dedicated extension guide
 
 ## Current Status
 
@@ -47,8 +47,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 3 Plan 01 completed on 2026-03-12 with normalized disabled placeholder leads, explicit scaffold panel factor mappings, and passing registry verification.
 - Phase 3 Plan 02 completed on 2026-03-12 with panel-specific factor ontology, scaffold prompt contracts, prompt-asset tests, and Docker-visible prompt strategy docs.
 - Phase 3 Plan 03 completed on 2026-03-12 with service, CLI, and API regressions that keep scaffold-only panels and `full_surface` visible in config while blocking execution before partial runs start.
+- Phase 3 Plan 04 completed on 2026-03-12 with repo docs that distinguish implemented versus scaffold-only panels and a worked extension guide for future panel productionization.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
+- Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
 
 ## Key Risks
 
@@ -58,7 +60,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 3 Plan 04 to document the scaffold extension path now that Plans `03-01`, `03-02`, and `03-03` have established the registry, prompt, and execution-boundary slices.
+- Plan the next executable work in Phase 4, using the completed Phase 3 scaffold and documentation surface as the handoff point.
 
 ## Decisions
 
@@ -81,6 +83,8 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 03]: Assert the same scaffold-only panel rejection contract across service, CLI, and API while leaving full_surface loadable in config.
 - [Phase 03]: Use one shared scaffold prompt heading contract, but bind memo sections and factor coverage directly to panel config.
 - [Phase 03]: Keep parent requirement V2-01 open because Plan 03-02 delivers prerequisite slice V2-01B rather than runnable panel implementation.
+- [Phase 03]: Keep V2-01 open because Plan 03-04 delivers documentation prerequisite slice V2-01D rather than runnable implementations for the remaining panels.
+- [Phase 03]: Document future-facing policies such as full_surface as config-visible but non-runnable until panel implementation work exists, and keep that story consistent across README, architecture, and factor ontology docs.
 
 ## Performance Metrics
 
@@ -93,9 +97,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 03 P01 | 5min | 3 tasks | 6 files |
 | Phase 03 P03 | 13min | 2 tasks | 6 files |
 | Phase 03 P02 | 12min | 3 tasks | 13 files |
+| Phase 03 P04 | 4min | 3 tasks | 7 files |
 
 ## Session
 
-**Last Date:** 2026-03-12T11:22:13.517Z
-**Stopped At:** Completed 03-03-PLAN.md
+**Last Date:** 2026-03-12T11:35:53.158Z
+**Stopped At:** Completed 03-04-PLAN.md
 **Resume File:** None
