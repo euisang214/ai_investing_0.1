@@ -14,87 +14,86 @@ factors:
   - { id: pricing_power, panel_id: demand_revenue_quality, name: Pricing Power, description: "Can the company raise price without material churn?", implemented: true }
   - { id: demand_cyclicality_purchase_deferrability, panel_id: demand_revenue_quality, name: Demand Cyclicality Purchase Deferrability, description: "How cyclical or deferrable is spend?", implemented: true }
   - { id: brand_reputation_consideration_set, panel_id: demand_revenue_quality, name: Brand Reputation Consideration Set, description: "Does brand meaningfully affect demand?", implemented: true }
-  - { id: supply_side_advantage, panel_id: supply_product_operations, name: Supply Side Advantage, description: "Placeholder factor", implemented: false }
-  - { id: barriers_to_entry, panel_id: supply_product_operations, name: Barriers To Entry, description: "Placeholder factor", implemented: false }
-  - { id: procurement_supplier_concentration, panel_id: supply_product_operations, name: Procurement Supplier Concentration, description: "Placeholder factor", implemented: false }
-  - { id: supplier_fiscal_health, panel_id: supply_product_operations, name: Supplier Fiscal Health, description: "Placeholder factor", implemented: false }
-  - { id: production_distribution_channels, panel_id: supply_product_operations, name: Production Distribution Channels, description: "Placeholder factor", implemented: false }
-  - { id: reliability, panel_id: supply_product_operations, name: Reliability, description: "Placeholder factor", implemented: false }
-  - { id: negotiating_power, panel_id: supply_product_operations, name: Negotiating Power, description: "Placeholder factor", implemented: false }
-  - { id: input_pricing_availability, panel_id: supply_product_operations, name: Input Pricing Availability, description: "Placeholder factor", implemented: false }
-  - { id: product_concentration, panel_id: supply_product_operations, name: Product Concentration, description: "Placeholder factor", implemented: false }
-  - { id: innovation, panel_id: supply_product_operations, name: Innovation, description: "Placeholder factor", implemented: false }
-  - { id: industry_market_share_trends, panel_id: market_structure_growth, name: Industry Market Share Trends, description: "Placeholder factor", implemented: false }
-  - { id: tam, panel_id: market_structure_growth, name: Total Addressable Market, description: "Placeholder factor", implemented: false }
-  - { id: per_product_market_share_history, panel_id: market_structure_growth, name: Per Product Market Share History, description: "Placeholder factor", implemented: false }
-  - { id: industry_cagr_vs_revenue_cagr, panel_id: market_structure_growth, name: Industry CAGR Vs Revenue CAGR, description: "Placeholder factor", implemented: false }
-  - { id: organic_vs_inorganic_growth, panel_id: market_structure_growth, name: Organic Vs Inorganic Growth, description: "Placeholder factor", implemented: false }
-  - { id: growth_levers, panel_id: market_structure_growth, name: Growth Levers, description: "Placeholder factor", implemented: false }
-  - { id: secular_vs_cyclical_growth, panel_id: market_structure_growth, name: Secular Vs Cyclical Growth, description: "Placeholder factor", implemented: false }
-  - { id: adjacency_expansion_runway, panel_id: market_structure_growth, name: Adjacency Expansion Runway, description: "Placeholder factor", implemented: false }
-  - { id: macro_variable_exposure, panel_id: macro_industry_transmission, name: Macro Variable Exposure, description: "Placeholder factor", implemented: false }
-  - { id: transmission_mechanisms, panel_id: macro_industry_transmission, name: Transmission Mechanisms, description: "Placeholder factor", implemented: false }
-  - { id: cycle_sensitivity, panel_id: macro_industry_transmission, name: Cycle Sensitivity, description: "Placeholder factor", implemented: false }
-  - { id: value_chain_relationships, panel_id: macro_industry_transmission, name: Value Chain Relationships, description: "Placeholder factor", implemented: false }
-  - { id: commodity_input_sensitivity, panel_id: macro_industry_transmission, name: Commodity Input Sensitivity, description: "Placeholder factor", implemented: false }
-  - { id: fx_rates_credit_exposure, panel_id: macro_industry_transmission, name: FX Rates Credit Exposure, description: "Placeholder factor", implemented: false }
-  - { id: budget_cycle_exposure, panel_id: macro_industry_transmission, name: Budget Cycle Exposure, description: "Placeholder factor", implemented: false }
-  - { id: regulation_subsidy_tax_transmission, panel_id: macro_industry_transmission, name: Regulation Subsidy Tax Transmission, description: "Placeholder factor", implemented: false }
-  - { id: management_team_per_member, panel_id: management_governance_capital_allocation, name: Management Team Per Member, description: "Placeholder factor", implemented: false }
-  - { id: tenure, panel_id: management_governance_capital_allocation, name: Tenure, description: "Placeholder factor", implemented: false }
-  - { id: prior_experience, panel_id: management_governance_capital_allocation, name: Prior Experience, description: "Placeholder factor", implemented: false }
-  - { id: priorities, panel_id: management_governance_capital_allocation, name: Priorities, description: "Placeholder factor", implemented: false }
-  - { id: ego_self_orientation, panel_id: management_governance_capital_allocation, name: Ego Self Orientation, description: "Placeholder factor", implemented: false }
-  - { id: planning_execution, panel_id: management_governance_capital_allocation, name: Planning Execution, description: "Placeholder factor", implemented: false }
-  - { id: criminal_record_reputation, panel_id: management_governance_capital_allocation, name: Criminal Record Reputation, description: "Placeholder factor", implemented: false }
-  - { id: ability_to_hit_projections, panel_id: management_governance_capital_allocation, name: Ability To Hit Projections, description: "Placeholder factor", implemented: false }
-  - { id: employees_unionization_work_culture, panel_id: management_governance_capital_allocation, name: Employees Unionization Work Culture, description: "Placeholder factor", implemented: false }
-  - { id: org_legal_structure, panel_id: management_governance_capital_allocation, name: Org Legal Structure, description: "Placeholder factor", implemented: false }
-  - { id: capital_allocation, panel_id: management_governance_capital_allocation, name: Capital Allocation, description: "Placeholder factor", implemented: false }
-  - { id: incentive_alignment, panel_id: management_governance_capital_allocation, name: Incentive Alignment, description: "Placeholder factor", implemented: false }
-  - { id: related_party_red_flags, panel_id: management_governance_capital_allocation, name: Related Party Red Flags, description: "Placeholder factor", implemented: false }
-  - { id: financial_audit, panel_id: financial_quality_liquidity_economic_model, name: Financial Audit, description: "Placeholder factor", implemented: false }
-  - { id: earnings_quality, panel_id: financial_quality_liquidity_economic_model, name: Earnings Quality, description: "Placeholder factor", implemented: false }
-  - { id: business_model_cash_timing, panel_id: financial_quality_liquidity_economic_model, name: Business Model Cash Timing, description: "Placeholder factor", implemented: false }
-  - { id: unit_economics, panel_id: financial_quality_liquidity_economic_model, name: Unit Economics, description: "Placeholder factor", implemented: false }
-  - { id: margin_profile_operating_leverage, panel_id: financial_quality_liquidity_economic_model, name: Margin Profile Operating Leverage, description: "Placeholder factor", implemented: false }
-  - { id: seasonality, panel_id: financial_quality_liquidity_economic_model, name: Seasonality, description: "Placeholder factor", implemented: false }
-  - { id: variable_vs_fixed_costs, panel_id: financial_quality_liquidity_economic_model, name: Variable Vs Fixed Costs, description: "Placeholder factor", implemented: false }
-  - { id: capital_efficiency, panel_id: financial_quality_liquidity_economic_model, name: Capital Efficiency, description: "Placeholder factor", implemented: false }
-  - { id: ltv_cac, panel_id: financial_quality_liquidity_economic_model, name: LTV CAC, description: "Placeholder factor", implemented: false }
-  - { id: off_balance_sheet_liabilities_equity, panel_id: financial_quality_liquidity_economic_model, name: Off Balance Sheet Liabilities Equity, description: "Placeholder factor", implemented: false }
-  - { id: capitalization, panel_id: financial_quality_liquidity_economic_model, name: Capitalization, description: "Placeholder factor", implemented: false }
-  - { id: fiscal_health, panel_id: financial_quality_liquidity_economic_model, name: Fiscal Health, description: "Placeholder factor", implemented: false }
-  - { id: roic_decomposition, panel_id: financial_quality_liquidity_economic_model, name: ROIC Decomposition, description: "Placeholder factor", implemented: false }
-  - { id: incremental_roic_reinvestment_runway, panel_id: financial_quality_liquidity_economic_model, name: Incremental ROIC Reinvestment Runway, description: "Placeholder factor", implemented: false }
-  - { id: government_exposure, panel_id: external_regulatory_geopolitical, name: Government Exposure, description: "Placeholder factor", implemented: false }
-  - { id: geopolitical_exposure, panel_id: external_regulatory_geopolitical, name: Geopolitical Exposure, description: "Placeholder factor", implemented: false }
-  - { id: subsidies_taxes, panel_id: external_regulatory_geopolitical, name: Subsidies Taxes, description: "Placeholder factor", implemented: false }
-  - { id: litigation_contingent_liabilities, panel_id: external_regulatory_geopolitical, name: Litigation Contingent Liabilities, description: "Placeholder factor", implemented: false }
-  - { id: regulatory_dependency, panel_id: external_regulatory_geopolitical, name: Regulatory Dependency, description: "Placeholder factor", implemented: false }
-  - { id: implied_expectations, panel_id: expectations_catalyst_realization, name: Implied Expectations, description: "Placeholder factor", implemented: false }
-  - { id: consensus_narrative_map, panel_id: expectations_catalyst_realization, name: Consensus Narrative Map, description: "Placeholder factor", implemented: false }
-  - { id: variant_view, panel_id: expectations_catalyst_realization, name: Variant View, description: "Placeholder factor", implemented: false }
-  - { id: falsification_kill_criteria, panel_id: expectations_catalyst_realization, name: Falsification Kill Criteria, description: "Placeholder factor", implemented: false }
-  - { id: catalyst_path, panel_id: expectations_catalyst_realization, name: Catalyst Path, description: "Placeholder factor", implemented: false }
-  - { id: timing_path_dependency, panel_id: expectations_catalyst_realization, name: Timing Path Dependency, description: "Placeholder factor", implemented: false }
-  - { id: milestone_checklist, panel_id: expectations_catalyst_realization, name: Milestone Checklist, description: "Placeholder factor", implemented: false }
-  - { id: valuation_multiples_vs_peers, panel_id: security_or_deal_overlay, name: Valuation Multiples Vs Peers, description: "Placeholder factor", implemented: false }
-  - { id: insider_institutional_flow, panel_id: security_or_deal_overlay, name: Insider Institutional Flow, description: "Placeholder factor", implemented: false }
-  - { id: technical_stock_movement, panel_id: security_or_deal_overlay, name: Technical Stock Movement, description: "Placeholder factor", implemented: false }
-  - { id: positioning_liquidity, panel_id: security_or_deal_overlay, name: Positioning Liquidity, description: "Placeholder factor", implemented: false }
-  - { id: borrow_short_interest_if_relevant, panel_id: security_or_deal_overlay, name: Borrow Short Interest If Relevant, description: "Placeholder factor", implemented: false }
-  - { id: cap_table, panel_id: security_or_deal_overlay, name: Cap Table, description: "Placeholder factor", implemented: false }
-  - { id: financing_dependency, panel_id: security_or_deal_overlay, name: Financing Dependency, description: "Placeholder factor", implemented: false }
-  - { id: round_terms_preferences, panel_id: security_or_deal_overlay, name: Round Terms Preferences, description: "Placeholder factor", implemented: false }
-  - { id: control_rights, panel_id: security_or_deal_overlay, name: Control Rights, description: "Placeholder factor", implemented: false }
-  - { id: exit_path, panel_id: security_or_deal_overlay, name: Exit Path, description: "Placeholder factor", implemented: false }
-  - { id: liquidity_exitability, panel_id: portfolio_fit_positioning, name: Liquidity Exitability, description: "Placeholder factor", implemented: false }
-  - { id: factor_exposures, panel_id: portfolio_fit_positioning, name: Factor Exposures, description: "Placeholder factor", implemented: false }
-  - { id: correlation_to_existing_book, panel_id: portfolio_fit_positioning, name: Correlation To Existing Book, description: "Placeholder factor", implemented: false }
-  - { id: crowding, panel_id: portfolio_fit_positioning, name: Crowding, description: "Placeholder factor", implemented: false }
-  - { id: downside_gap_risk, panel_id: portfolio_fit_positioning, name: Downside Gap Risk, description: "Placeholder factor", implemented: false }
-  - { id: event_risk_overlap, panel_id: portfolio_fit_positioning, name: Event Risk Overlap, description: "Placeholder factor", implemented: false }
-  - { id: sizing_considerations, panel_id: portfolio_fit_positioning, name: Sizing Considerations, description: "Placeholder factor", implemented: false }
-  - { id: expected_value_vs_capital_at_risk, panel_id: portfolio_fit_positioning, name: Expected Value Vs Capital At Risk, description: "Placeholder factor", implemented: false }
-
+  - { id: supply_side_advantage, panel_id: supply_product_operations, name: Supply Side Advantage, description: "Assess whether supply side advantage creates lower costs, better throughput, or preferred access versus rivals.", implemented: false }
+  - { id: barriers_to_entry, panel_id: supply_product_operations, name: Barriers To Entry, description: "Assess which barriers to entry protect the product and operations footprint from fast follower competition.", implemented: false }
+  - { id: procurement_supplier_concentration, panel_id: supply_product_operations, name: Procurement Supplier Concentration, description: "Measure procurement and supplier concentration risk across critical inputs, manufacturing partners, and logistics nodes.", implemented: false }
+  - { id: supplier_fiscal_health, panel_id: supply_product_operations, name: Supplier Fiscal Health, description: "Judge supplier fiscal health and the risk that fragile vendors disrupt cost, quality, or capacity.", implemented: false }
+  - { id: production_distribution_channels, panel_id: supply_product_operations, name: Production Distribution Channels, description: "Evaluate production and distribution channels for scale, redundancy, and channel control.", implemented: false }
+  - { id: reliability, panel_id: supply_product_operations, name: Reliability, description: "Assess operating reliability across fulfillment, uptime, quality consistency, and service delivery.", implemented: false }
+  - { id: negotiating_power, panel_id: supply_product_operations, name: Negotiating Power, description: "Assess negotiating power with suppliers, channel partners, and contract manufacturers.", implemented: false }
+  - { id: input_pricing_availability, panel_id: supply_product_operations, name: Input Pricing Availability, description: "Track input pricing and availability to see how cost inflation or shortages transmit into margins.", implemented: false }
+  - { id: product_concentration, panel_id: supply_product_operations, name: Product Concentration, description: "Measure product concentration risk when too much revenue depends on a narrow SKU or platform set.", implemented: false }
+  - { id: innovation, panel_id: supply_product_operations, name: Innovation, description: "Assess innovation velocity in product, process, and roadmap execution relative to customer needs.", implemented: false }
+  - { id: industry_market_share_trends, panel_id: market_structure_growth, name: Industry Market Share Trends, description: "Track industry market share trends to see whether the company is consolidating or losing relevance.", implemented: false }
+  - { id: tam, panel_id: market_structure_growth, name: Total Addressable Market, description: "Size the total addressable market and judge how much of that demand is truly reachable.", implemented: false }
+  - { id: per_product_market_share_history, panel_id: market_structure_growth, name: Per Product Market Share History, description: "Review per product market share history to separate durable share gains from one-off launch noise.", implemented: false }
+  - { id: industry_cagr_vs_revenue_cagr, panel_id: market_structure_growth, name: Industry CAGR Vs Revenue CAGR, description: "Compare industry CAGR versus revenue CAGR to see whether growth comes from tailwinds or share gains.", implemented: false }
+  - { id: organic_vs_inorganic_growth, panel_id: market_structure_growth, name: Organic Vs Inorganic Growth, description: "Separate organic versus inorganic growth so acquisition activity is not mistaken for core demand strength.", implemented: false }
+  - { id: growth_levers, panel_id: market_structure_growth, name: Growth Levers, description: "Identify the growth levers available through pricing, volume, mix, geography, and new products.", implemented: false }
+  - { id: secular_vs_cyclical_growth, panel_id: market_structure_growth, name: Secular Vs Cyclical Growth, description: "Distinguish secular versus cyclical growth so normalized demand can be judged through a cycle.", implemented: false }
+  - { id: adjacency_expansion_runway, panel_id: market_structure_growth, name: Adjacency Expansion Runway, description: "Assess adjacency expansion runway across adjacent customers, products, and use cases.", implemented: false }
+  - { id: macro_variable_exposure, panel_id: macro_industry_transmission, name: Macro Variable Exposure, description: "Map macro variable exposure to rates, inflation, employment, energy, and other external drivers.", implemented: false }
+  - { id: transmission_mechanisms, panel_id: macro_industry_transmission, name: Transmission Mechanisms, description: "Explain the transmission mechanisms through which macro shocks affect demand, costs, or capital access.", implemented: false }
+  - { id: cycle_sensitivity, panel_id: macro_industry_transmission, name: Cycle Sensitivity, description: "Assess cycle sensitivity by testing how earnings and cash flow move across industry and economic cycles.", implemented: false }
+  - { id: value_chain_relationships, panel_id: macro_industry_transmission, name: Value Chain Relationships, description: "Analyze value chain relationships that determine bargaining power, bottlenecks, and cost pass-through.", implemented: false }
+  - { id: commodity_input_sensitivity, panel_id: macro_industry_transmission, name: Commodity Input Sensitivity, description: "Measure commodity input sensitivity and the lag between raw material moves and reported margins.", implemented: false }
+  - { id: fx_rates_credit_exposure, panel_id: macro_industry_transmission, name: FX Rates Credit Exposure, description: "Assess FX rates and credit exposure where currency, financing, or customer solvency changes matter.", implemented: false }
+  - { id: budget_cycle_exposure, panel_id: macro_industry_transmission, name: Budget Cycle Exposure, description: "Assess budget cycle exposure to enterprise, government, or household spending calendars.", implemented: false }
+  - { id: regulation_subsidy_tax_transmission, panel_id: macro_industry_transmission, name: Regulation Subsidy Tax Transmission, description: "Trace regulation, subsidy, and tax transmission into demand, pricing, or capital intensity.", implemented: false }
+  - { id: management_team_per_member, panel_id: management_governance_capital_allocation, name: Management Team Per Member, description: "Assess management team per member quality so each key leader has credible scope, depth, and accountability.", implemented: false }
+  - { id: tenure, panel_id: management_governance_capital_allocation, name: Tenure, description: "Use tenure to judge leadership continuity, succession risk, and institutional knowledge.", implemented: false }
+  - { id: prior_experience, panel_id: management_governance_capital_allocation, name: Prior Experience, description: "Assess prior experience for evidence that management has navigated similar markets, cycles, or restructurings.", implemented: false }
+  - { id: priorities, panel_id: management_governance_capital_allocation, name: Priorities, description: "Infer management priorities from capital deployment, messaging, and incentive signals.", implemented: false }
+  - { id: ego_self_orientation, panel_id: management_governance_capital_allocation, name: Ego Self Orientation, description: "Judge ego and self orientation for signs that leadership serves the company rather than personal profile.", implemented: false }
+  - { id: planning_execution, panel_id: management_governance_capital_allocation, name: Planning Execution, description: "Compare planning and execution to see whether management turns stated goals into delivered outcomes.", implemented: false }
+  - { id: criminal_record_reputation, panel_id: management_governance_capital_allocation, name: Criminal Record Reputation, description: "Review criminal record and reputation issues that could signal trust, oversight, or counterparty risk.", implemented: false }
+  - { id: ability_to_hit_projections, panel_id: management_governance_capital_allocation, name: Ability To Hit Projections, description: "Measure ability to hit projections without repeated guide-down cycles or credibility erosion.", implemented: false }
+  - { id: employees_unionization_work_culture, panel_id: management_governance_capital_allocation, name: Employees Unionization Work Culture, description: "Assess employees, unionization, and work culture for labor stability, retention, and execution risk.", implemented: false }
+  - { id: org_legal_structure, panel_id: management_governance_capital_allocation, name: Org Legal Structure, description: "Evaluate org and legal structure for control clarity, subsidiary risk, and governance transparency.", implemented: false }
+  - { id: capital_allocation, panel_id: management_governance_capital_allocation, name: Capital Allocation, description: "Assess capital allocation discipline across reinvestment, acquisitions, buybacks, debt, and dilution.", implemented: false }
+  - { id: incentive_alignment, panel_id: management_governance_capital_allocation, name: Incentive Alignment, description: "Test incentive alignment between management, the board, and outside investors.", implemented: false }
+  - { id: related_party_red_flags, panel_id: management_governance_capital_allocation, name: Related Party Red Flags, description: "Surface related party red flags that could shift value away from outside shareholders.", implemented: false }
+  - { id: financial_audit, panel_id: financial_quality_liquidity_economic_model, name: Financial Audit, description: "Assess financial audit quality, auditor credibility, and the strength of reporting controls.", implemented: false }
+  - { id: earnings_quality, panel_id: financial_quality_liquidity_economic_model, name: Earnings Quality, description: "Judge earnings quality by comparing reported profit to cash conversion, reserves, and adjustments.", implemented: false }
+  - { id: business_model_cash_timing, panel_id: financial_quality_liquidity_economic_model, name: Business Model Cash Timing, description: "Analyze business model cash timing to see when revenue, collections, and obligations actually settle.", implemented: false }
+  - { id: unit_economics, panel_id: financial_quality_liquidity_economic_model, name: Unit Economics, description: "Assess unit economics at the customer, product, or location level to understand value creation.", implemented: false }
+  - { id: margin_profile_operating_leverage, panel_id: financial_quality_liquidity_economic_model, name: Margin Profile Operating Leverage, description: "Evaluate margin profile and operating leverage as volume scales up or down.", implemented: false }
+  - { id: seasonality, panel_id: financial_quality_liquidity_economic_model, name: Seasonality, description: "Measure seasonality across bookings, revenue, inventory, and working capital needs.", implemented: false }
+  - { id: variable_vs_fixed_costs, panel_id: financial_quality_liquidity_economic_model, name: Variable Vs Fixed Costs, description: "Separate variable versus fixed costs to understand break-even risk and margin sensitivity.", implemented: false }
+  - { id: capital_efficiency, panel_id: financial_quality_liquidity_economic_model, name: Capital Efficiency, description: "Assess capital efficiency in converting invested capital into growth, cash flow, and durable capacity.", implemented: false }
+  - { id: ltv_cac, panel_id: financial_quality_liquidity_economic_model, name: LTV CAC, description: "Test lifetime value versus customer acquisition cost where cohort economics matter.", implemented: false }
+  - { id: off_balance_sheet_liabilities_equity, panel_id: financial_quality_liquidity_economic_model, name: Off Balance Sheet Liabilities Equity, description: "Review off balance sheet liabilities and equity claims that can dilute or subordinate owners.", implemented: false }
+  - { id: capitalization, panel_id: financial_quality_liquidity_economic_model, name: Capitalization, description: "Assess capitalization mix across cash, debt, preferreds, and other claims on the enterprise.", implemented: false }
+  - { id: fiscal_health, panel_id: financial_quality_liquidity_economic_model, name: Fiscal Health, description: "Evaluate fiscal health through leverage, liquidity, covenants, and refinancing needs.", implemented: false }
+  - { id: roic_decomposition, panel_id: financial_quality_liquidity_economic_model, name: ROIC Decomposition, description: "Break down ROIC decomposition into margin, asset turns, and reinvestment quality.", implemented: false }
+  - { id: incremental_roic_reinvestment_runway, panel_id: financial_quality_liquidity_economic_model, name: Incremental ROIC Reinvestment Runway, description: "Assess incremental ROIC and reinvestment runway to judge whether future capital can earn attractive returns.", implemented: false }
+  - { id: government_exposure, panel_id: external_regulatory_geopolitical, name: Government Exposure, description: "Measure government exposure through contracts, approvals, pricing power, and public funding dependence.", implemented: false }
+  - { id: geopolitical_exposure, panel_id: external_regulatory_geopolitical, name: Geopolitical Exposure, description: "Assess geopolitical exposure across sanctions, conflict zones, supply routes, and cross-border dependencies.", implemented: false }
+  - { id: subsidies_taxes, panel_id: external_regulatory_geopolitical, name: Subsidies Taxes, description: "Evaluate subsidies and taxes that can prop up demand, distort margins, or change economics overnight.", implemented: false }
+  - { id: litigation_contingent_liabilities, panel_id: external_regulatory_geopolitical, name: Litigation Contingent Liabilities, description: "Review litigation and contingent liabilities for asymmetric downside, cash leakage, and distraction.", implemented: false }
+  - { id: regulatory_dependency, panel_id: external_regulatory_geopolitical, name: Regulatory Dependency, description: "Assess regulatory dependency where licenses, approvals, or compliance regimes gate the business model.", implemented: false }
+  - { id: implied_expectations, panel_id: expectations_catalyst_realization, name: Implied Expectations, description: "Infer implied expectations from valuation, guidance, and market positioning to identify what is already priced in.", implemented: false }
+  - { id: consensus_narrative_map, panel_id: expectations_catalyst_realization, name: Consensus Narrative Map, description: "Build a consensus narrative map showing which beliefs the market currently treats as central.", implemented: false }
+  - { id: variant_view, panel_id: expectations_catalyst_realization, name: Variant View, description: "State the variant view that differs from consensus on direction, timing, or magnitude.", implemented: false }
+  - { id: falsification_kill_criteria, panel_id: expectations_catalyst_realization, name: Falsification Kill Criteria, description: "Define falsification and kill criteria that would invalidate the thesis before capital is trapped.", implemented: false }
+  - { id: catalyst_path, panel_id: expectations_catalyst_realization, name: Catalyst Path, description: "Map the catalyst path from underlying change to recognition, rerating, or realized cash outcomes.", implemented: false }
+  - { id: timing_path_dependency, panel_id: expectations_catalyst_realization, name: Timing Path Dependency, description: "Assess timing and path dependency so the thesis reflects sequencing risk and slippage.", implemented: false }
+  - { id: milestone_checklist, panel_id: expectations_catalyst_realization, name: Milestone Checklist, description: "Create a milestone checklist for the operational and market signals that confirm progress.", implemented: false }
+  - { id: valuation_multiples_vs_peers, panel_id: security_or_deal_overlay, name: Valuation Multiples Vs Peers, description: "Compare valuation multiples versus peers to see what quality, growth, or risk premium is embedded.", implemented: false }
+  - { id: insider_institutional_flow, panel_id: security_or_deal_overlay, name: Insider Institutional Flow, description: "Track insider and institutional flow for signals about supply, sponsorship, and conviction.", implemented: false }
+  - { id: technical_stock_movement, panel_id: security_or_deal_overlay, name: Technical Stock Movement, description: "Review technical stock movement for liquidity pockets, forced flows, and momentum reflexivity.", implemented: false }
+  - { id: positioning_liquidity, panel_id: security_or_deal_overlay, name: Positioning Liquidity, description: "Assess positioning and liquidity to understand entry, sizing, and exit friction.", implemented: false }
+  - { id: borrow_short_interest_if_relevant, panel_id: security_or_deal_overlay, name: Borrow Short Interest If Relevant, description: "Assess borrow and short interest, if relevant, for squeeze risk, cost-to-borrow, and crowding.", implemented: false }
+  - { id: cap_table, panel_id: security_or_deal_overlay, name: Cap Table, description: "Review the cap table to understand ownership concentration, dilution paths, and control blocks.", implemented: false }
+  - { id: financing_dependency, panel_id: security_or_deal_overlay, name: Financing Dependency, description: "Assess financing dependency when future raises or refinance windows are required to reach the plan.", implemented: false }
+  - { id: round_terms_preferences, panel_id: security_or_deal_overlay, name: Round Terms Preferences, description: "Review round terms and preferences that can divert value in downside or exit scenarios.", implemented: false }
+  - { id: control_rights, panel_id: security_or_deal_overlay, name: Control Rights, description: "Assess control rights that determine who can block, force, or reshape strategic outcomes.", implemented: false }
+  - { id: exit_path, panel_id: security_or_deal_overlay, name: Exit Path, description: "Evaluate the exit path through IPO, sale, recap, or distributions and the frictions attached to each route.", implemented: false }
+  - { id: liquidity_exitability, panel_id: portfolio_fit_positioning, name: Liquidity Exitability, description: "Assess liquidity and exitability for expected position size, trading cadence, and time-to-exit.", implemented: false }
+  - { id: factor_exposures, panel_id: portfolio_fit_positioning, name: Factor Exposures, description: "Map factor exposures so the position's macro, style, and sector bets are explicit.", implemented: false }
+  - { id: correlation_to_existing_book, panel_id: portfolio_fit_positioning, name: Correlation To Existing Book, description: "Measure correlation to the existing book to avoid hidden concentration and duplicated risk.", implemented: false }
+  - { id: crowding, panel_id: portfolio_fit_positioning, name: Crowding, description: "Assess crowding risk where too many similar holders can worsen drawdowns or exits.", implemented: false }
+  - { id: downside_gap_risk, panel_id: portfolio_fit_positioning, name: Downside Gap Risk, description: "Measure downside gap risk from discrete events, thin liquidity, or stale marks.", implemented: false }
+  - { id: event_risk_overlap, panel_id: portfolio_fit_positioning, name: Event Risk Overlap, description: "Review event risk overlap with the current portfolio calendar so catalysts do not cluster unintentionally.", implemented: false }
+  - { id: sizing_considerations, panel_id: portfolio_fit_positioning, name: Sizing Considerations, description: "Translate volatility, liquidity, and conviction into practical sizing considerations.", implemented: false }
+  - { id: expected_value_vs_capital_at_risk, panel_id: portfolio_fit_positioning, name: Expected Value Vs Capital At Risk, description: "Compare expected value versus capital at risk to judge portfolio efficiency.", implemented: false }
