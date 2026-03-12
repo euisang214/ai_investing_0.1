@@ -33,6 +33,7 @@ services:
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
       - ./config:/app/config
+      - ./docs:/app/docs
       - ./prompts:/app/prompts
       - ./examples:/app/examples
       - ./scripts:/app/scripts
