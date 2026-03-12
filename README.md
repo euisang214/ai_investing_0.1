@@ -2,16 +2,51 @@
 
 AI Investing is a config-driven multi-agent investment research platform for public and private company analysis. It preserves structured factor-level memory, consolidates panel verdicts, maintains a living IC memo, and produces rerun deltas for covered names.
 
-## What Is Implemented
+## What Is Implemented Today
+
+The productionized vertical slice is intentionally narrow:
 
 - YAML-driven cohort, factor, tool, memo-section, connector, and run-policy registries
 - typed schemas and Postgres-backed persistence
 - file-based public/private ingestion
-- working vertical slice for `gatekeepers` and `demand_revenue_quality`
+- working panel execution for `gatekeepers`
+- working panel execution for `demand_revenue_quality`
 - section-level memo updates during the run
 - rerun delta generation
 - FastAPI and Typer interfaces
 - sample data, n8n workflow examples, and automated tests
+
+## Current Panel Status
+
+Implemented and runnable today:
+
+- `gatekeepers`
+- `demand_revenue_quality`
+
+Scaffold-only and visible in config, but not runnable yet:
+
+- `supply_product_operations`
+- `market_structure_growth`
+- `macro_industry_transmission`
+- `management_governance_capital_allocation`
+- `financial_quality_liquidity_economic_model`
+- `external_regulatory_geopolitical`
+- `expectations_catalyst_realization`
+- `security_or_deal_overlay`
+- `portfolio_fit_positioning`
+
+This distinction matters operationally. `config/panels.yaml` and `config/run_policies.yaml` intentionally keep the full planned panel topology inspectable, including future-facing policies such as `full_surface`. That future-facing surface is allowed to exist in config before it is runnable. The runtime still blocks execution when a selected policy or explicit panel list includes scaffold-only panels, so visibility in config does not mean production readiness.
+
+## Short Extension Checklist
+
+Use this high-level checklist before treating any scaffold-only panel as runnable:
+
+1. Confirm the panel contract in `config/panels.yaml`, including `implemented`, `memo_section_ids`, and `factor_ids`.
+2. Expand the panel agent tree in `config/agents.yaml` instead of hardcoding topology in orchestration.
+3. Keep factor ownership and descriptions aligned in `config/factors.yaml`.
+4. Replace scaffold prompts in `prompts/` with implementation-ready panel and agent prompts.
+5. Add or update tests in `tests/` that prove the new panel works and that scaffold boundaries remain explicit.
+6. Change runtime code only if the abstraction truly needs expansion; config and prompt work should remain the default path.
 
 ## Quick Start
 
@@ -33,11 +68,7 @@ docker compose exec api ai-investing continue-run <run_id> --stop
 docker compose exec api ai-investing generate-memo ACME
 ```
 
-`analyze-company`, `refresh-company`, and `run-due-coverage` do not silently continue past the
-mandatory `gatekeepers` checkpoint. Their JSON payloads expose structured lifecycle fields such as
-`gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, and `provisional`. Use
-`continue-run <run_id> --provisional` only when a failed gatekeeper needs exploratory downstream
-analysis.
+`analyze-company`, `refresh-company`, and `run-due-coverage` do not silently continue past the mandatory `gatekeepers` checkpoint. Their JSON payloads expose structured lifecycle fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, and `provisional`. Use `continue-run <run_id> --provisional` only when a failed gatekeeper needs exploratory downstream analysis.
 
 ## Host Workflow
 
@@ -79,10 +110,9 @@ ai-investing reparent-agent demand_skeptic demand_advocate
 
 ## Repo Layout
 
-See [docs/architecture.md](docs/architecture.md), [docs/memory_model.md](docs/memory_model.md), and [docs/runbook.md](docs/runbook.md).
+See [docs/architecture.md](docs/architecture.md), [docs/factor_ontology.md](docs/factor_ontology.md), [docs/memory_model.md](docs/memory_model.md), and [docs/runbook.md](docs/runbook.md).
 
-The operator workflow for paused gatekeeper runs, explicit continue actions, provisional overrides,
-and run inspection lives in [docs/runbook.md](docs/runbook.md).
+The operator workflow for paused gatekeeper runs, explicit continue actions, provisional overrides, and run inspection lives in [docs/runbook.md](docs/runbook.md).
 
 ## Next Backlog
 

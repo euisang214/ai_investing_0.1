@@ -13,6 +13,39 @@ The initial production scope is deliberately narrow:
 
 The rest of the panel surface area is scaffolded in configuration and prompts so it can be expanded without rewriting orchestration core code.
 
+## Current Panel Topology
+
+The current runtime intentionally separates implemented panels from scaffold-only panels.
+
+Implemented and runnable today:
+
+- `gatekeepers`
+- `demand_revenue_quality`
+
+Scaffold-only panels that already exist in registry and prompt assets:
+
+- `supply_product_operations`
+- `market_structure_growth`
+- `macro_industry_transmission`
+- `management_governance_capital_allocation`
+- `financial_quality_liquidity_economic_model`
+- `external_regulatory_geopolitical`
+- `expectations_catalyst_realization`
+- `security_or_deal_overlay`
+- `portfolio_fit_positioning`
+
+This topology is config-driven on purpose. The repository needs the eventual panel map to be editable in YAML long before every panel has a safe execution path. That is why future-facing policies can appear in config before those panels are runnable.
+
+## Runtime Boundary For Scaffold-Only Panels
+
+Three rules define the current posture:
+
+1. `config/panels.yaml` is the source of truth for the intended panel inventory, even when some entries are scaffold-only.
+2. `config/run_policies.yaml` may expose future-facing policies such as `full_surface` so operators and engineers can inspect the planned topology.
+3. Execution still rejects scaffold-only panels until the required agents, prompts, tests, and verification coverage exist.
+
+The important operational point is that "present in config" is not the same as "approved for production runs." Config visibility helps maintainability and extension planning. Runtime safety still depends on the execution guardrails that block unimplemented panels before partial work starts.
+
 ## Target Runtime
 
 - Python `3.11+`
@@ -103,6 +136,13 @@ The rest of the panel surface area is scaffolded in configuration and prompts so
 
 YAML registries define panels, factors, agents, memo sections, tool bundles, model profiles, run policies, and source connectors. Runtime services consume validated config objects, so adding a factor or agent requires config and prompt updates instead of orchestration rewrites.
 
+For scaffold-only panels, the key files are:
+
+- `config/panels.yaml` for panel-level contracts, factor coverage, and memo-section mapping
+- `config/agents.yaml` for disabled placeholder or later production agent trees
+- `config/factors.yaml` for factor ownership and descriptions
+- `prompts/` for panel and agent instructions that stay editable outside the runtime
+
 ### 2. Domain Contract Layer
 
 Pydantic models describe the canonical record types:
@@ -147,6 +187,13 @@ The first production checkpoint is mandatory:
 - downstream work resumes only after an explicit operator action
 - failed gatekeepers can continue only as provisional analysis
 - direct downstream `run-panel` execution is rejected unless the run already has the required resume context
+
+That same orchestration layer also enforces the Phase 3 scaffold boundary:
+
+- config may name scaffold-only panels
+- policies may reference scaffold-only panels
+- execution may inspect scaffold-only topology
+- runtime may not treat scaffold-only panels as runnable until implementation work is complete
 
 ### 5. Provider Layer
 
@@ -207,6 +254,19 @@ Phase 1 and Phase 2 implementation in this repo cover:
 - rerun delta generation
 - API and CLI
 - tests and sample outputs
+
+Phase 3 adds the documentation, config breadth, and prompt scaffolding for the remaining panels, but it does not change the statement above: only `gatekeepers` and `demand_revenue_quality` are implemented today.
+
+## Short Extension Checklist
+
+Use this checklist before expanding a scaffold-only panel:
+
+1. Start with `config/panels.yaml` and keep the panel id, memo sections, and factor mappings stable.
+2. Add or expand the agent tree in `config/agents.yaml` rather than branching the graph for one panel.
+3. Update factor contracts in `config/factors.yaml` so ontology and prompts do not drift.
+4. Replace placeholder prompt assets in `prompts/` with implementation-ready instructions for the new agents.
+5. Add verification in `tests/` for config loading, runtime behavior, and user-facing entrypoints.
+6. Only change orchestration abstractions when the abstraction truly needs expansion; config-first extension is the default architecture rule.
 
 ## Tradeoffs
 
