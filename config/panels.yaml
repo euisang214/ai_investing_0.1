@@ -53,6 +53,17 @@ panels:
     memo_section_ids:
       - durability_resilience
       - risk
+    factor_ids:
+      - supply_side_advantage
+      - barriers_to_entry
+      - procurement_supplier_concentration
+      - supplier_fiscal_health
+      - production_distribution_channels
+      - reliability
+      - negotiating_power
+      - input_pricing_availability
+      - product_concentration
+      - innovation
   - id: market_structure_growth
     name: Market Structure Growth
     enabled: true
@@ -64,6 +75,15 @@ panels:
     memo_section_ids:
       - growth
       - expectations_variant_view
+    factor_ids:
+      - industry_market_share_trends
+      - tam
+      - per_product_market_share_history
+      - industry_cagr_vs_revenue_cagr
+      - organic_vs_inorganic_growth
+      - growth_levers
+      - secular_vs_cyclical_growth
+      - adjacency_expansion_runway
   - id: macro_industry_transmission
     name: Macro Industry Transmission
     enabled: true
@@ -74,6 +94,15 @@ panels:
     prompt_path: prompts/panels/macro_industry_transmission/placeholder.md
     memo_section_ids:
       - risk
+    factor_ids:
+      - macro_variable_exposure
+      - transmission_mechanisms
+      - cycle_sensitivity
+      - value_chain_relationships
+      - commodity_input_sensitivity
+      - fx_rates_credit_exposure
+      - budget_cycle_exposure
+      - regulation_subsidy_tax_transmission
   - id: management_governance_capital_allocation
     name: Management Governance Capital Allocation
     enabled: true
@@ -85,6 +114,20 @@ panels:
     memo_section_ids:
       - durability_resilience
       - risk
+    factor_ids:
+      - management_team_per_member
+      - tenure
+      - prior_experience
+      - priorities
+      - ego_self_orientation
+      - planning_execution
+      - criminal_record_reputation
+      - ability_to_hit_projections
+      - employees_unionization_work_culture
+      - org_legal_structure
+      - capital_allocation
+      - incentive_alignment
+      - related_party_red_flags
   - id: financial_quality_liquidity_economic_model
     name: Financial Quality Liquidity Economic Model
     enabled: true
@@ -97,6 +140,21 @@ panels:
       - economic_spread
       - valuation_terms
       - risk
+    factor_ids:
+      - financial_audit
+      - earnings_quality
+      - business_model_cash_timing
+      - unit_economics
+      - margin_profile_operating_leverage
+      - seasonality
+      - variable_vs_fixed_costs
+      - capital_efficiency
+      - ltv_cac
+      - off_balance_sheet_liabilities_equity
+      - capitalization
+      - fiscal_health
+      - roic_decomposition
+      - incremental_roic_reinvestment_runway
   - id: external_regulatory_geopolitical
     name: External Regulatory Geopolitical
     enabled: true
@@ -107,6 +165,12 @@ panels:
     prompt_path: prompts/panels/external_regulatory/placeholder.md
     memo_section_ids:
       - risk
+    factor_ids:
+      - government_exposure
+      - geopolitical_exposure
+      - subsidies_taxes
+      - litigation_contingent_liabilities
+      - regulatory_dependency
   - id: expectations_catalyst_realization
     name: Expectations Catalyst Realization
     enabled: true
@@ -118,6 +182,14 @@ panels:
     memo_section_ids:
       - expectations_variant_view
       - realization_path_catalysts
+    factor_ids:
+      - implied_expectations
+      - consensus_narrative_map
+      - variant_view
+      - falsification_kill_criteria
+      - catalyst_path
+      - timing_path_dependency
+      - milestone_checklist
   - id: security_or_deal_overlay
     name: Security Or Deal Overlay
     enabled: true
@@ -129,6 +201,17 @@ panels:
     memo_section_ids:
       - valuation_terms
       - overall_recommendation
+    factor_ids:
+      - valuation_multiples_vs_peers
+      - insider_institutional_flow
+      - technical_stock_movement
+      - positioning_liquidity
+      - borrow_short_interest_if_relevant
+      - cap_table
+      - financing_dependency
+      - round_terms_preferences
+      - control_rights
+      - exit_path
   - id: portfolio_fit_positioning
     name: Portfolio Fit Positioning
     enabled: true
@@ -140,4 +223,12 @@ panels:
     memo_section_ids:
       - portfolio_fit_positioning
       - overall_recommendation
-
+    factor_ids:
+      - liquidity_exitability
+      - factor_exposures
+      - correlation_to_existing_book
+      - crowding
+      - downside_gap_risk
+      - event_risk_overlap
+      - sizing_considerations
+      - expected_value_vs_capital_at_risk
