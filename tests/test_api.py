@@ -4,6 +4,16 @@ from fastapi.testclient import TestClient
 
 from ai_investing.api.main import create_app
 from ai_investing.domain.enums import RunContinueAction
+from ai_investing.persistence.repositories import Repository
+
+
+def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage(company_id)
+        assert coverage is not None
+        coverage.panel_policy = panel_policy
+        repository.upsert_coverage(coverage)
 
 
 def test_create_app_defers_context_loading_until_startup(context, monkeypatch) -> None:
@@ -169,6 +179,46 @@ def test_api_run_panel_and_continue_flow(seeded_acme) -> None:
             section["section_id"]: section for section in resumed_payload["memo"]["sections"]
         }
         assert resumed_sections["economic_spread"]["status"] == "not_advanced"
+
+
+def test_api_run_panel_rejects_scaffold_only_panel(seeded_acme) -> None:
+    with TestClient(create_app(seeded_acme)) as client:
+        response = client.post("/companies/ACME/panels/supply_product_operations/run")
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "error": {
+            "code": "invalid_request",
+            "message": (
+                "Panel supply_product_operations is not implemented for policy weekly_default."
+            ),
+        }
+    }
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
+
+
+def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme) -> None:
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+
+    with TestClient(create_app(seeded_acme)) as client:
+        response = client.post("/companies/ACME/analyze")
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "error": {
+            "code": "invalid_request",
+            "message": "Panel supply_product_operations is not implemented for policy full_surface.",
+        }
+    }
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
 
 
 def test_api_run_due_returns_paused_run_payload(seeded_acme) -> None:

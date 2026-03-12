@@ -6,8 +6,18 @@ from typer.testing import CliRunner
 
 from ai_investing.cli import app
 from ai_investing.domain.enums import RunContinueAction
+from ai_investing.persistence.repositories import Repository
 
 runner = CliRunner()
+
+
+def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage(company_id)
+        assert coverage is not None
+        coverage.panel_policy = panel_policy
+        repository.upsert_coverage(coverage)
 
 
 def test_cli_coverage_lifecycle_commands(context, monkeypatch) -> None:
@@ -80,6 +90,41 @@ def test_cli_run_panel_and_continue_flow(seeded_acme, monkeypatch) -> None:
         section["section_id"]: section for section in resumed_payload["memo"]["sections"]
     }
     assert resumed_sections["economic_spread"]["status"] == "not_advanced"
+
+
+def test_cli_run_panel_rejects_scaffold_only_panel(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+
+    invalid = runner.invoke(app, ["run-panel", "ACME", "supply_product_operations"])
+
+    assert invalid.exit_code != 0
+    assert invalid.exception is not None
+    assert str(invalid.exception) == (
+        "Panel supply_product_operations is not implemented for policy weekly_default."
+    )
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
+
+
+def test_cli_analyze_company_rejects_full_surface_policy(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+
+    invalid = runner.invoke(app, ["analyze-company", "ACME"])
+
+    assert invalid.exit_code != 0
+    assert invalid.exception is not None
+    assert str(invalid.exception) == (
+        "Panel supply_product_operations is not implemented for policy full_surface."
+    )
+
+    with seeded_acme.database.session() as session:
+        runs = Repository(session).list_runs("ACME")
+
+    assert runs == []
 
 
 def test_cli_show_run_returns_persisted_checkpoint_state(seeded_acme, monkeypatch) -> None:
