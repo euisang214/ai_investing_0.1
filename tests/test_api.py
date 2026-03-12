@@ -211,7 +211,9 @@ def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme
     assert response.json() == {
         "error": {
             "code": "invalid_request",
-            "message": "Panel supply_product_operations is not implemented for policy full_surface.",
+            "message": (
+                "Panel supply_product_operations is not implemented for policy full_surface."
+            ),
         }
     }
 
