@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 3
 current_phase_name: Remaining Panel Scaffolds
-current_plan: 1
+current_plan: 2
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-12T11:02:01.611Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-12T11:17:46.485Z"
 last_activity: 2026-03-12
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 13
-  completed_plans: 10
-  percent: 77
+  completed_plans: 11
+  percent: 85
 ---
 
 # STATE
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Current Phase:** 3
 **Current Phase Name:** Remaining Panel Scaffolds
 **Total Phases:** 5
-**Current Plan:** 1
+**Current Plan:** 2
 **Total Plans in Phase:** 4
-**Status:** Phase 3 in progress — scaffold registry slice complete
-**Progress:** [████████░░] 77%
+**Status:** Ready to execute
+**Progress:** [█████████░] 85%
 **Last Activity:** 2026-03-12
-**Last Activity Description:** Completed Phase 3 Plan 01 scaffold registry coverage with Docker-verified registry tests
+**Last Activity Description:** Completed Phase 3 Plan 03 execution-boundary regressions with Docker-verified pytest and ruff checks
 
 ## Current Status
 
@@ -45,6 +45,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 2 Plan 01 completed on 2026-03-11 with passing Docker-based tests and lint for the checkpoint runtime slice.
 - Phase 2 completed on 2026-03-11 with repaired first-completion baseline semantics, deterministic ACME artifacts, and Docker-verified lint/test/example generation passes.
 - Phase 3 Plan 01 completed on 2026-03-12 with normalized disabled placeholder leads, explicit scaffold panel factor mappings, and passing registry verification.
+- Phase 3 Plan 03 completed on 2026-03-12 with service, CLI, and API regressions that keep scaffold-only panels and `full_surface` visible in config while blocking execution before partial runs start.
 - All remaining top-level panels now have config-backed scaffold topology with matching placeholder prompt paths and non-empty owned factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 
@@ -75,6 +76,8 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 03]: Make scaffold factor ownership explicit through panel.factor_ids rather than relying on implicit grouping in factors.yaml.
 - [Phase 03]: Normalize scaffold-only panels around one disabled lead placeholder instead of adding deeper agent trees in Phase 3.
 - [Phase 03]: Leave parent requirement V2-01 open because Plan 03-01 delivers only prerequisite slice V2-01A.
+- [Phase 03]: Keep scaffold execution protection in generic panel resolution and add regressions before changing runtime behavior.
+- [Phase 03]: Assert the same scaffold-only panel rejection contract across service, CLI, and API while leaving full_surface loadable in config.
 
 ## Performance Metrics
 
@@ -85,9 +88,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 02 P04 | 10min | 3 tasks | 18 files |
 | Phase 02 P05 | 11min | 4 tasks | 16 files |
 | Phase 03 P01 | 5min | 3 tasks | 6 files |
+| Phase 03 P03 | 13min | 2 tasks | 6 files |
 
 ## Session
 
-**Last Date:** 2026-03-12T11:02:01.608Z
-**Stopped At:** Completed 03-01-PLAN.md
+**Last Date:** 2026-03-12T11:17:46.483Z
+**Stopped At:** Completed 03-03-PLAN.md
 **Resume File:** None
