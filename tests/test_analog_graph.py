@@ -52,7 +52,9 @@ def test_analog_lookup_builtin_uses_shared_ranker(seeded_acme, repo_root) -> Non
     _seed_beta(seeded_acme, repo_root)
 
     agent = next(
-        agent for agent in seeded_acme.registries.agents.agents if agent.id == "gatekeeper_panel_lead"
+        agent
+        for agent in seeded_acme.registries.agents.agents
+        if agent.id == "gatekeeper_panel_lead"
     )
     with seeded_acme.database.session() as session:
         repository = Repository(session)
@@ -69,17 +71,26 @@ def test_analog_lookup_builtin_uses_shared_ranker(seeded_acme, repo_root) -> Non
             company_id="ACME",
             run_id="run_analog",
             tool_id="analog_lookup",
-            payload={"factor_ids": ["customer_concentration", "balance_sheet_survivability"]},
+            payload={
+                "factor_ids": [
+                    "customer_concentration",
+                    "balance_sheet_survivability",
+                ]
+            },
         )
 
     assert tool_result["references"] == [reference.model_dump(mode="json") for reference in direct]
 
 
 def test_contradiction_finder_builtin_uses_shared_service(seeded_acme, repo_root) -> None:
-    service = seeded_acme.registries.monitoring.monitoring.contradiction.model_dump(mode="python")
+    service = seeded_acme.registries.monitoring.monitoring.contradiction.model_dump(
+        mode="python"
+    )
     IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
     agent = next(
-        agent for agent in seeded_acme.registries.agents.agents if agent.id == "gatekeeper_panel_lead"
+        agent
+        for agent in seeded_acme.registries.agents.agents
+        if agent.id == "gatekeeper_panel_lead"
     )
 
     with seeded_acme.database.session() as session:

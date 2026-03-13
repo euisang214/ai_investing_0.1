@@ -527,7 +527,11 @@ def test_delta_surfaces_factor_contradictions_without_risk_section_movement(
                 content="Economic spread remained durable.",
                 run_id="run_prior",
             ),
-            _memo_section(section_id="risk", content="Risk stayed manageable.", run_id="run_prior"),
+            _memo_section(
+                section_id="risk",
+                content="Risk stayed manageable.",
+                run_id="run_prior",
+            ),
         ],
         current_sections=[
             _memo_section(
@@ -535,7 +539,11 @@ def test_delta_surfaces_factor_contradictions_without_risk_section_movement(
                 content="Economic spread is pressured by customer dependency.",
                 run_id="run_current",
             ),
-            _memo_section(section_id="risk", content="Risk stayed manageable.", run_id="run_current"),
+            _memo_section(
+                section_id="risk",
+                content="Risk stayed manageable.",
+                run_id="run_current",
+            ),
         ],
     )
 

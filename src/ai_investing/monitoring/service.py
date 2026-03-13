@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from ai_investing.config.models import (
-    MonitoringConfig,
     MonitoringConcentrationView,
+    MonitoringConfig,
     MonitoringDriftRule,
 )
 from ai_investing.domain.enums import AlertLevel
@@ -37,8 +37,12 @@ class ClaimContradictionService:
         minimum_confidence: float = 0.45,
         max_references: int = 2,
     ) -> None:
-        self.positive_markers = tuple(marker.lower() for marker in (positive_markers or []))
-        self.negative_markers = tuple(marker.lower() for marker in (negative_markers or []))
+        self.positive_markers = tuple(
+            marker.lower() for marker in (positive_markers or [])
+        )
+        self.negative_markers = tuple(
+            marker.lower() for marker in (negative_markers or [])
+        )
         self.minimum_confidence = minimum_confidence
         self.max_references = max_references
 
@@ -76,7 +80,10 @@ class ClaimContradictionService:
 
         factor_pool = sorted(set(evidence_by_factor).union(claims_by_factor))
         for factor_id in factor_pool:
-            evidence_stances = self._evidence_stances(evidence_by_factor.get(factor_id, []), factor_id)
+            evidence_stances = self._evidence_stances(
+                evidence_by_factor.get(factor_id, []),
+                factor_id,
+            )
             claim_stances = self._claim_stances(claims_by_factor.get(factor_id, []))
             contradiction_stances = evidence_stances
             if contradiction_stances:
@@ -172,7 +179,10 @@ class MonitoringDeltaService:
         with runtime.context.database.session() as session:
             repository = Repository(session)
             current_evidence = repository.list_evidence(runtime.company_profile.company_id)
-            analog_references = AnalogGraph.from_mapping(config.analog.model_dump(mode="python")).rank_company(
+            analog_graph = AnalogGraph.from_mapping(
+                config.analog.model_dump(mode="python")
+            )
+            analog_references = analog_graph.rank_company(
                 repository,
                 runtime.company_profile.company_id,
                 factor_ids=sorted({claim.factor_id for claim in runtime.current_claims}),
@@ -463,7 +473,8 @@ class MonitoringDeltaService:
                         category="panel_change",
                         summary=(
                             f"{panel_id} recommendation moved from "
-                            f"{prior_verdict.recommendation.value} to {verdict.recommendation.value}."
+                            f"{prior_verdict.recommendation.value} to "
+                            f"{verdict.recommendation.value}."
                         ),
                         severity="medium",
                         related_section_ids=verdict.affected_section_ids,

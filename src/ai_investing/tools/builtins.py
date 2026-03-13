@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from ai_investing.monitoring import AnalogGraph, ClaimContradictionService
 from ai_investing.domain.models import WriteMemoSectionInput
+from ai_investing.monitoring import AnalogGraph, ClaimContradictionService
 from ai_investing.tools.base import ToolContext
 
 

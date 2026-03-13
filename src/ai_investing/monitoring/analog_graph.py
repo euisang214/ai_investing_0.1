@@ -3,7 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ai_investing.domain.models import CompanyProfile, EvidenceRecord, MonitoringReference, SourceRef
+from ai_investing.domain.models import (
+    CompanyProfile,
+    EvidenceRecord,
+    MonitoringReference,
+    SourceRef,
+)
 from ai_investing.persistence.repositories import Repository
 
 
@@ -149,12 +154,13 @@ class AnalogGraph:
             else "base_rate"
         )
         shared = ", ".join(rationale_bits[:2])
+        category_label = category.replace("_", " ")
         return MonitoringReference(
             category=category,
             label=candidate_snapshot.profile.company_name,
             rationale=(
-                f"{candidate_snapshot.profile.company_name} ranks as a {category.replace('_', ' ')} "
-                f"because {shared}."
+                f"{candidate_snapshot.profile.company_name} ranks as a "
+                f"{category_label} because {shared}."
             ),
             factor_id=top_factor_id,
             company_id=candidate_snapshot.profile.company_id,
@@ -179,7 +185,11 @@ class AnalogGraph:
             reverse=True,
         )
         for record in ordered_records:
-            source_ref = record.source_refs[0] if record.source_refs else SourceRef(label=record.title)
+            source_ref = (
+                record.source_refs[0]
+                if record.source_refs
+                else SourceRef(label=record.title)
+            )
             for factor_id, signal in record.factor_signals.items():
                 if factor_id in latest_by_factor:
                     continue
