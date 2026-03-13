@@ -21,6 +21,62 @@ monitoring:
     - governance_risk_increase
     - concentration_increase
     - survivability_deterioration
+  drift_rules:
+    - factor_ids: [revenue_recurrence_contract_strength]
+      drift_flag: weakening_recurrence
+      label: Recurrence durability
+      reason: Recurrence durability moved enough to refresh the thesis.
+      related_section_ids:
+        [economic_spread, growth, valuation_terms, realization_path_catalysts]
+    - factor_ids: [governance_investability]
+      drift_flag: governance_risk_increase
+      label: Governance investability
+      reason: Governance posture shifted enough to refresh the monitoring view.
+      related_section_ids: [investment_snapshot, risk, overall_recommendation]
+    - factor_ids: [customer_concentration]
+      drift_flag: concentration_increase
+      label: Customer concentration
+      reason: Customer concentration changed enough to refresh the dependency view.
+      related_section_ids:
+        [economic_spread, expectations_variant_view, portfolio_fit_positioning]
+    - factor_ids: [balance_sheet_survivability]
+      drift_flag: survivability_deterioration
+      label: Balance sheet survivability
+      reason: Survivability support changed enough to refresh the downside view.
+      related_section_ids: [investment_snapshot, risk, overall_recommendation]
+  contradiction:
+    positive_markers: [durable, positive, stable, resilient, supportive]
+    negative_markers: [fragile, under pressure, negative, deterioration, pressured]
+    minimum_confidence: 0.45
+    max_references: 2
+  analog:
+    max_references: 2
+    min_score: 1.4
+    factor_overlap_weight: 1.0
+    stance_match_weight: 0.6
+    metric_overlap_weight: 0.25
+  concentration_views:
+    - id: customer_dependency
+      label: Customer concentration
+      factor_ids: [customer_concentration]
+      metric_keys: [largest_customer, top_five_arr_share]
+      worsening_stances: [negative, mixed]
+      stable_state: stable
+      pressured_state: pressured
+    - id: financing_dependency
+      label: Financing dependency
+      factor_ids: [balance_sheet_survivability]
+      metric_keys: [runway_months, net_cash_millions]
+      worsening_stances: [negative, mixed]
+      stable_state: stable
+      pressured_state: pressured
+    - id: governance_dependency
+      label: Governance concentration
+      factor_ids: [governance_investability]
+      metric_keys: [independent_directors]
+      worsening_stances: [negative, mixed]
+      stable_state: stable
+      pressured_state: pressured
   alert_levels:
     low: "Run log refreshed with no material thesis change"
     medium: "Meaningful factor drift or memo section movement"

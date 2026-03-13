@@ -224,10 +224,49 @@ class SourceConnectorsRegistry(ConfigModel):
     connectors: list[SourceConnectorConfig]
 
 
+class MonitoringDriftRule(ConfigModel):
+    factor_ids: list[str]
+    drift_flag: str
+    label: str
+    reason: str
+    related_section_ids: list[str] = Field(default_factory=list)
+
+
+class MonitoringContradictionConfig(ConfigModel):
+    positive_markers: list[str] = Field(default_factory=list)
+    negative_markers: list[str] = Field(default_factory=list)
+    minimum_confidence: float = 0.45
+    max_references: int = 2
+
+
+class MonitoringAnalogConfig(ConfigModel):
+    max_references: int = 2
+    min_score: float = 1.0
+    factor_overlap_weight: float = 1.0
+    stance_match_weight: float = 0.6
+    metric_overlap_weight: float = 0.25
+
+
+class MonitoringConcentrationView(ConfigModel):
+    id: str
+    label: str
+    factor_ids: list[str]
+    metric_keys: list[str] = Field(default_factory=list)
+    worsening_stances: list[str] = Field(default_factory=lambda: ["negative", "mixed"])
+    stable_state: str = "stable"
+    pressured_state: str = "pressured"
+
+
 class MonitoringConfig(ConfigModel):
     delta_thresholds: dict[str, Any]
     drift_flags: list[str]
     alert_levels: dict[str, str]
+    drift_rules: list[MonitoringDriftRule] = Field(default_factory=list)
+    contradiction: MonitoringContradictionConfig = Field(
+        default_factory=MonitoringContradictionConfig
+    )
+    analog: MonitoringAnalogConfig = Field(default_factory=MonitoringAnalogConfig)
+    concentration_views: list[MonitoringConcentrationView] = Field(default_factory=list)
 
 
 class MonitoringRegistry(ConfigModel):

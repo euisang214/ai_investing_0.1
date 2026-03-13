@@ -39,6 +39,7 @@ from ai_investing.domain.models import (
 )
 from ai_investing.ingestion.base import ConnectorIngestRequest
 from ai_investing.ingestion.registry import SourceConnectorRegistry
+from ai_investing.monitoring import MonitoringDeltaService
 from ai_investing.persistence.repositories import Repository
 
 _MISSING_BASELINE = object()
@@ -325,88 +326,10 @@ class RefreshRuntime:
         }
 
     def compute_monitoring_delta(self) -> MonitoringDelta:
-        thresholds = self._delta_thresholds()
-        confidence_materiality = float(thresholds.get("confidence_materiality", 0.05))
-        always_refresh_sections = self._threshold_string_set("always_refresh_sections")
-        if not always_refresh_sections:
-            always_refresh_sections = {"what_changed_since_last_run"}
-        high_alert_sections = self._threshold_string_set("high_alert_changed_sections")
-        medium_alert_sections = self._threshold_string_set("medium_alert_changed_sections")
-        high_alert_drift_flags = self._threshold_string_set("high_alert_drift_flags")
-        medium_alert_claim_change_count = int(
-            thresholds.get(
-                "medium_alert_claim_change_count",
-                thresholds.get("claim_change_count_for_alert", 1),
-            )
-        )
-        prior_claim_map = {
-            (claim.factor_id, claim.agent_id): claim for claim in self.prior_active_claims
-        }
-        changed_claim_ids: list[str] = []
-        drift_flags: set[str] = set()
-        materially_impacted_sections: set[str] = set()
-        for claim in self.current_claims:
-            prior_claim = prior_claim_map.get((claim.factor_id, claim.agent_id))
-            if not self._claim_change_is_material(
-                prior_claim=prior_claim,
-                claim=claim,
-                confidence_materiality=confidence_materiality,
-            ):
-                continue
-            changed_claim_ids.append(claim.claim_id)
-            materially_impacted_sections.update(
-                impact.section_id for impact in claim.section_impacts
-            )
-            drift_flags.update(self._drift_flags_for_claim_change(claim))
-
-        gate_decision_changed = self._gatekeeper_decision_changed()
-        materially_impacted_sections.update(self._verdict_changed_sections())
-        material_sections = [
-            section_id
-            for section_id, section in self.current_sections.items()
-            if section_id not in always_refresh_sections
-            if self._section_change_is_material(
-                section_id=section_id,
-                section=section,
-                materially_impacted_sections=materially_impacted_sections,
-            )
-        ]
-
-        if self.prior_memo is None:
-            summary = "Initial coverage run. No prior memo exists."
-        else:
-            summary = self._monitoring_change_summary(
-                changed_claim_ids=changed_claim_ids,
-                changed_sections=material_sections,
-                drift_flags=drift_flags,
-                gate_decision_changed=gate_decision_changed,
-            )
-        delta = MonitoringDelta(
-            company_id=self.company_profile.company_id,
-            prior_run_id=self.prior_memo.run_id if self.prior_memo is not None else None,
-            current_run_id=self.run.run_id,
-            changed_claim_ids=changed_claim_ids,
-            changed_sections=material_sections,
-            change_summary=summary,
-            thesis_drift_flags=sorted(drift_flags),
-            alert_level=self._delta_alert_level(
-                changed_claim_ids=changed_claim_ids,
-                changed_sections=material_sections,
-                drift_flags=drift_flags,
-                gate_decision_changed=gate_decision_changed,
-                high_alert_sections=high_alert_sections,
-                medium_alert_sections=medium_alert_sections,
-                high_alert_drift_flags=high_alert_drift_flags,
-                medium_alert_claim_change_count=medium_alert_claim_change_count,
-            ),
-        )
+        delta = MonitoringDeltaService.from_runtime(self).compute_delta()
         self._update_delta_section(delta)
         delta.changed_sections = sorted(
-            set(delta.changed_sections).union(
-                section_id
-                for section_id in always_refresh_sections
-                if section_id in self.current_sections
-            )
+            set(delta.changed_sections).union({"what_changed_since_last_run"})
         )
         self.current_delta = delta
         with self.context.database.session() as session:
@@ -414,15 +337,8 @@ class RefreshRuntime:
         return delta
 
     def skip_monitoring_delta(self) -> MonitoringDelta:
-        delta = MonitoringDelta(
-            company_id=self.company_profile.company_id,
-            prior_run_id=self.prior_memo.run_id if self.prior_memo is not None else None,
-            current_run_id=self.run.run_id,
-            change_summary="Monitoring disabled by run policy.",
-            alert_level=AlertLevel.LOW,
-        )
+        delta = MonitoringDeltaService.from_runtime(self).build_disabled_delta()
         self._update_delta_section(delta)
-        delta.changed_sections = ["what_changed_since_last_run"]
         self.current_delta = delta
         with self.context.database.session() as session:
             Repository(session).save_monitoring_delta(delta)

@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 from ai_investing.domain.enums import (
     AlertLevel,
@@ -210,6 +210,34 @@ class ICMemo(DomainModel):
         return {section.section_id: section for section in self.sections}
 
 
+class MonitoringReason(DomainModel):
+    category: str
+    summary: str
+    factor_id: str | None = None
+    severity: str = "info"
+    related_section_ids: list[str] = Field(default_factory=list)
+
+
+class MonitoringReference(DomainModel):
+    category: str
+    label: str
+    rationale: str
+    factor_id: str | None = None
+    company_id: str | None = None
+    company_name: str | None = None
+    source_ref: SourceRef | None = None
+    score: float | None = None
+
+
+class MonitoringCurrentState(DomainModel):
+    category: str
+    label: str
+    factor_id: str
+    state: str
+    summary: str
+    metrics: dict[str, Any] = Field(default_factory=dict)
+
+
 class MonitoringDelta(DomainModel):
     delta_id: str = Field(default_factory=lambda: new_id("dlt"))
     company_id: str
@@ -220,7 +248,26 @@ class MonitoringDelta(DomainModel):
     change_summary: str
     thesis_drift_flags: list[str] = Field(default_factory=list)
     alert_level: AlertLevel
+    trigger_reasons: list[MonitoringReason] = Field(default_factory=list)
+    contradiction_references: list[MonitoringReference] = Field(default_factory=list)
+    analog_references: list[MonitoringReference] = Field(default_factory=list)
+    concentration_signals: list[MonitoringCurrentState] = Field(default_factory=list)
+    panel_change_hints: list[MonitoringReason] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: utc_now())
+
+    @model_serializer(mode="wrap")
+    def serialize(self, serializer):
+        data = serializer(self)
+        for field_name in (
+            "trigger_reasons",
+            "contradiction_references",
+            "analog_references",
+            "concentration_signals",
+            "panel_change_hints",
+        ):
+            if not data.get(field_name):
+                data.pop(field_name, None)
+        return data
 
 
 class ToolInvocationLog(DomainModel):
