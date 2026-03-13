@@ -70,6 +70,52 @@ class AlertLevel(str, Enum):
     HIGH = "high"
 
 
+class RefreshJobTrigger(str, Enum):
+    SCHEDULED = "scheduled"
+    MANUAL = "manual"
+    BULK_WATCHLIST = "bulk_watchlist"
+    BULK_PORTFOLIO = "bulk_portfolio"
+    RETRY = "retry"
+    FORCE_RUN = "force_run"
+
+
+class RefreshJobStatus(str, Enum):
+    QUEUED = "queued"
+    CLAIMED = "claimed"
+    RUNNING = "running"
+    REVIEW_REQUIRED = "review_required"
+    COMPLETE = "complete"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+class ReviewStatus(str, Enum):
+    OPEN = "open"
+    ACKNOWLEDGED = "acknowledged"
+    RESOLVED = "resolved"
+
+
+class ReviewNextAction(str, Enum):
+    CONTINUE_PROVISIONAL = "continue_provisional"
+    RETRY_JOB = "retry_job"
+    WAIT = "wait"
+
+
+class NotificationCategory(str, Enum):
+    GATEKEEPER_FAILED = "gatekeeper_failed"
+    WORKER_FAILED = "worker_failed"
+    MATERIAL_CHANGE = "material_change"
+    DAILY_DIGEST = "daily_digest"
+
+
+class NotificationStatus(str, Enum):
+    PENDING = "pending"
+    CLAIMED = "claimed"
+    DISPATCHED = "dispatched"
+    ACKNOWLEDGED = "acknowledged"
+    FAILED = "failed"
+
+
 class MonitoringChangeType(str, Enum):
     SHARED_RISK_OVERLAP = "shared_risk_overlap"
     CONTRADICTION = "contradiction"

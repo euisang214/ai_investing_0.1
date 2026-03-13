@@ -14,7 +14,13 @@ from ai_investing.domain.enums import (
     CoverageStatus,
     GateDecision,
     MemoSectionStatus,
+    NotificationCategory,
+    NotificationStatus,
     RecordStatus,
+    RefreshJobStatus,
+    RefreshJobTrigger,
+    ReviewNextAction,
+    ReviewStatus,
     RunContinueAction,
     RunKind,
     RunStatus,
@@ -358,6 +364,95 @@ class RunRecord(DomainModel):
     checkpoint_panel_id: str | None = None
     checkpoint: RunCheckpoint | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class RefreshJobRecord(DomainModel):
+    job_id: str = Field(default_factory=lambda: new_id("job"))
+    company_id: str
+    company_name: str
+    coverage_status: CoverageStatus
+    run_kind: RunKind = RunKind.REFRESH
+    trigger: RefreshJobTrigger = RefreshJobTrigger.SCHEDULED
+    status: RefreshJobStatus = RefreshJobStatus.QUEUED
+    requested_by: str = "system"
+    priority: int = 100
+    scheduled_for: datetime | None = None
+    available_at: datetime = Field(default_factory=lambda: utc_now())
+    requested_at: datetime = Field(default_factory=lambda: utc_now())
+    claimed_at: datetime | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    run_id: str | None = None
+    review_entry_id: str | None = None
+    worker_id: str | None = None
+    claim_token: str | None = None
+    attempt_count: int = 0
+    max_attempts: int = 3
+    cancellation_reason: str | None = None
+    failure_reason: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_job_counts(self) -> RefreshJobRecord:
+        if self.priority < 0:
+            raise ValueError("priority must be non-negative")
+        if self.attempt_count < 0:
+            raise ValueError("attempt_count must be non-negative")
+        if self.max_attempts < 1:
+            raise ValueError("max_attempts must be at least 1")
+        return self
+
+
+class ReviewQueueEntry(DomainModel):
+    review_id: str = Field(default_factory=lambda: new_id("rev"))
+    company_id: str
+    company_name: str
+    coverage_status: CoverageStatus
+    run_id: str
+    job_id: str | None = None
+    gate_decision: GateDecision = GateDecision.FAIL
+    checkpoint_panel_id: str = "gatekeepers"
+    status: ReviewStatus = ReviewStatus.OPEN
+    next_action: ReviewNextAction = ReviewNextAction.CONTINUE_PROVISIONAL
+    reason_summary: str
+    notification_event_id: str | None = None
+    created_at: datetime = Field(default_factory=lambda: utc_now())
+    acknowledged_at: datetime | None = None
+    resolved_at: datetime | None = None
+    resolution_note: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class NotificationEvent(DomainModel):
+    event_id: str = Field(default_factory=lambda: new_id("ntf"))
+    category: NotificationCategory
+    status: NotificationStatus = NotificationStatus.PENDING
+    company_id: str | None = None
+    company_name: str | None = None
+    coverage_status: CoverageStatus | None = None
+    run_id: str | None = None
+    job_id: str | None = None
+    review_id: str | None = None
+    channel: str = "operator"
+    title: str
+    summary: str
+    next_action: str | None = None
+    claimed_by: str | None = None
+    claim_token: str | None = None
+    claimed_at: datetime | None = None
+    dispatched_at: datetime | None = None
+    acknowledged_at: datetime | None = None
+    delivery_attempts: int = 0
+    last_error: str | None = None
+    digest_key: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=lambda: utc_now())
+
+    @model_validator(mode="after")
+    def validate_delivery_attempts(self) -> NotificationEvent:
+        if self.delivery_attempts < 0:
+            raise ValueError("delivery_attempts must be non-negative")
+        return self
 
 
 class StructuredGenerationRequest(DomainModel):

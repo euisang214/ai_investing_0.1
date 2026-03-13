@@ -6,7 +6,15 @@ from datetime import datetime
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from ai_investing.domain.enums import CoverageStatus, RecordStatus
+from ai_investing.domain.enums import (
+    CoverageStatus,
+    NotificationCategory,
+    NotificationStatus,
+    RecordStatus,
+    RefreshJobStatus,
+    ReviewStatus,
+    RunStatus,
+)
 from ai_investing.domain.models import (
     ClaimCard,
     CompanyProfile,
@@ -16,9 +24,22 @@ from ai_investing.domain.models import (
     ICMemo,
     MemoSectionUpdate,
     MonitoringDelta,
+    NotificationEvent,
     PanelVerdict,
+    RefreshJobRecord,
+    ReviewQueueEntry,
     RunRecord,
     ToolInvocationLog,
+    new_id,
+    utc_now,
+)
+from ai_investing.domain.read_models import (
+    NotificationEventListItem,
+    QueueJobDetail,
+    QueueJobListItem,
+    QueueStatusCount,
+    QueueSummary,
+    ReviewQueueListItem,
 )
 from ai_investing.persistence.tables import (
     ClaimCardRow,
@@ -28,10 +49,27 @@ from ai_investing.persistence.tables import (
     MemoRow,
     MemoSectionUpdateRow,
     MonitoringDeltaRow,
+    NotificationEventRow,
     PanelVerdictRow,
+    RefreshJobRow,
+    ReviewQueueEntryRow,
     RunRecordRow,
     ToolInvocationLogRow,
 )
+
+_ACTIVE_JOB_STATUSES = {
+    RefreshJobStatus.QUEUED.value,
+    RefreshJobStatus.CLAIMED.value,
+    RefreshJobStatus.RUNNING.value,
+    RefreshJobStatus.REVIEW_REQUIRED.value,
+}
+_IN_FLIGHT_RUN_STATUSES = {
+    RunStatus.PENDING.value,
+    RunStatus.RUNNING.value,
+    RunStatus.AWAITING_CONTINUE.value,
+    RunStatus.GATED_OUT.value,
+    RunStatus.STOPPED.value,
+}
 
 
 class Repository:
@@ -175,6 +213,612 @@ class Repository:
             .order_by(RunRecordRow.started_at.desc())
         ).all()
         return [RunRecord.model_validate(row.payload) for row in rows]
+
+    def get_company_execution_conflict(
+        self,
+        company_id: str,
+    ) -> RefreshJobRecord | RunRecord | None:
+        active_job = self.find_active_refresh_job(company_id)
+        if active_job is not None:
+            return active_job
+        row = self.session.scalar(
+            select(RunRecordRow)
+            .where(
+                RunRecordRow.company_id == company_id,
+                RunRecordRow.status.in_(_IN_FLIGHT_RUN_STATUSES),
+            )
+            .order_by(RunRecordRow.started_at.desc())
+        )
+        if row is None:
+            return None
+        return RunRecord.model_validate(row.payload)
+
+    def save_refresh_job(self, job: RefreshJobRecord) -> RefreshJobRecord:
+        row = self.session.scalar(select(RefreshJobRow).where(RefreshJobRow.job_id == job.job_id))
+        payload = job.model_dump(mode="json")
+        if row is None:
+            row = RefreshJobRow(
+                job_id=job.job_id,
+                company_id=job.company_id,
+                company_name=job.company_name,
+                coverage_status=job.coverage_status.value,
+                run_kind=job.run_kind.value,
+                trigger=job.trigger.value,
+                status=job.status.value,
+                requested_by=job.requested_by,
+                priority=job.priority,
+                scheduled_for=job.scheduled_for,
+                available_at=job.available_at,
+                requested_at=job.requested_at,
+                claimed_at=job.claimed_at,
+                started_at=job.started_at,
+                completed_at=job.completed_at,
+                run_id=job.run_id,
+                review_entry_id=job.review_entry_id,
+                worker_id=job.worker_id,
+                claim_token=job.claim_token,
+                attempt_count=job.attempt_count,
+                max_attempts=job.max_attempts,
+                cancellation_reason=job.cancellation_reason,
+                failure_reason=job.failure_reason,
+                payload=payload,
+            )
+            self.session.add(row)
+        else:
+            row.company_name = job.company_name
+            row.coverage_status = job.coverage_status.value
+            row.run_kind = job.run_kind.value
+            row.trigger = job.trigger.value
+            row.status = job.status.value
+            row.requested_by = job.requested_by
+            row.priority = job.priority
+            row.scheduled_for = job.scheduled_for
+            row.available_at = job.available_at
+            row.requested_at = job.requested_at
+            row.claimed_at = job.claimed_at
+            row.started_at = job.started_at
+            row.completed_at = job.completed_at
+            row.run_id = job.run_id
+            row.review_entry_id = job.review_entry_id
+            row.worker_id = job.worker_id
+            row.claim_token = job.claim_token
+            row.attempt_count = job.attempt_count
+            row.max_attempts = job.max_attempts
+            row.cancellation_reason = job.cancellation_reason
+            row.failure_reason = job.failure_reason
+            row.payload = payload
+        return job
+
+    def get_refresh_job(self, job_id: str) -> RefreshJobRecord | None:
+        row = self.session.scalar(select(RefreshJobRow).where(RefreshJobRow.job_id == job_id))
+        if row is None:
+            return None
+        return RefreshJobRecord.model_validate(row.payload)
+
+    def list_refresh_jobs(
+        self,
+        *,
+        statuses: Sequence[RefreshJobStatus] | None = None,
+        company_id: str | None = None,
+    ) -> list[RefreshJobRecord]:
+        stmt = select(RefreshJobRow)
+        if company_id is not None:
+            stmt = stmt.where(RefreshJobRow.company_id == company_id)
+        if statuses:
+            stmt = stmt.where(RefreshJobRow.status.in_([status.value for status in statuses]))
+        rows = self.session.scalars(
+            stmt.order_by(RefreshJobRow.available_at.asc(), RefreshJobRow.requested_at.asc())
+        ).all()
+        return [RefreshJobRecord.model_validate(row.payload) for row in rows]
+
+    def find_active_refresh_job(self, company_id: str) -> RefreshJobRecord | None:
+        row = self.session.scalar(
+            select(RefreshJobRow)
+            .where(
+                RefreshJobRow.company_id == company_id,
+                RefreshJobRow.status.in_(_ACTIVE_JOB_STATUSES),
+            )
+            .order_by(RefreshJobRow.requested_at.desc())
+        )
+        if row is None:
+            return None
+        return RefreshJobRecord.model_validate(row.payload)
+
+    def _has_other_active_refresh_job(self, company_id: str, *, exclude_job_id: str) -> bool:
+        row = self.session.scalar(
+            select(RefreshJobRow)
+            .where(
+                RefreshJobRow.company_id == company_id,
+                RefreshJobRow.status.in_(_ACTIVE_JOB_STATUSES),
+                RefreshJobRow.job_id != exclude_job_id,
+            )
+            .limit(1)
+        )
+        return row is not None
+
+    def enqueue_refresh_job(self, job: RefreshJobRecord) -> RefreshJobRecord:
+        existing_job = self.find_active_refresh_job(job.company_id)
+        if existing_job is not None:
+            return existing_job
+        conflict = self.get_company_execution_conflict(job.company_id)
+        if isinstance(conflict, RunRecord):
+            raise ValueError(
+                f"Company {job.company_id} already has in-flight run {conflict.run_id}."
+            )
+        return self.save_refresh_job(job)
+
+    def claim_refresh_jobs(
+        self,
+        *,
+        limit: int,
+        worker_id: str,
+        now: datetime | None = None,
+    ) -> list[RefreshJobRecord]:
+        claimed_at = now or utc_now()
+        rows = self.session.scalars(
+            select(RefreshJobRow)
+            .where(
+                RefreshJobRow.status == RefreshJobStatus.QUEUED.value,
+                RefreshJobRow.available_at <= claimed_at,
+            )
+            .order_by(RefreshJobRow.priority.asc(), RefreshJobRow.available_at.asc())
+        ).all()
+        claimed: list[RefreshJobRecord] = []
+        company_ids: set[str] = set()
+        for row in rows:
+            if len(claimed) >= limit:
+                break
+            if row.company_id in company_ids:
+                continue
+            if self._has_other_active_refresh_job(row.company_id, exclude_job_id=row.job_id):
+                continue
+            job = RefreshJobRecord.model_validate(row.payload)
+            job.status = RefreshJobStatus.CLAIMED
+            job.worker_id = worker_id
+            job.claimed_at = claimed_at
+            job.claim_token = new_id("claim")
+            job.attempt_count += 1
+            self.save_refresh_job(job)
+            claimed.append(job)
+            company_ids.add(job.company_id)
+        return claimed
+
+    def start_refresh_job(
+        self,
+        job_id: str,
+        *,
+        run_id: str,
+        worker_id: str | None = None,
+        started_at: datetime | None = None,
+    ) -> RefreshJobRecord:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.status = RefreshJobStatus.RUNNING
+        job.run_id = run_id
+        job.worker_id = worker_id or job.worker_id
+        job.started_at = started_at or utc_now()
+        return self.save_refresh_job(job)
+
+    def complete_refresh_job(
+        self,
+        job_id: str,
+        *,
+        run_id: str | None = None,
+        completed_at: datetime | None = None,
+    ) -> RefreshJobRecord:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.status = RefreshJobStatus.COMPLETE
+        job.run_id = run_id or job.run_id
+        job.completed_at = completed_at or utc_now()
+        return self.save_refresh_job(job)
+
+    def mark_refresh_job_review_required(
+        self,
+        job_id: str,
+        *,
+        run_id: str,
+        review_entry_id: str,
+        completed_at: datetime | None = None,
+    ) -> RefreshJobRecord:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.status = RefreshJobStatus.REVIEW_REQUIRED
+        job.run_id = run_id
+        job.review_entry_id = review_entry_id
+        job.completed_at = completed_at or utc_now()
+        return self.save_refresh_job(job)
+
+    def fail_refresh_job(
+        self,
+        job_id: str,
+        *,
+        error_message: str,
+        run_id: str | None = None,
+        completed_at: datetime | None = None,
+    ) -> RefreshJobRecord:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.status = RefreshJobStatus.FAILED
+        job.failure_reason = error_message
+        job.run_id = run_id or job.run_id
+        job.completed_at = completed_at or utc_now()
+        return self.save_refresh_job(job)
+
+    def cancel_refresh_job(self, job_id: str, *, reason: str | None = None) -> RefreshJobRecord:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.status = RefreshJobStatus.CANCELLED
+        job.cancellation_reason = reason
+        job.completed_at = utc_now()
+        return self.save_refresh_job(job)
+
+    def retry_refresh_job(
+        self,
+        job_id: str,
+        *,
+        available_at: datetime | None = None,
+    ) -> RefreshJobRecord:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.status = RefreshJobStatus.QUEUED
+        job.available_at = available_at or utc_now()
+        job.claimed_at = None
+        job.started_at = None
+        job.completed_at = None
+        job.worker_id = None
+        job.claim_token = None
+        job.failure_reason = None
+        job.cancellation_reason = None
+        return self.save_refresh_job(job)
+
+    def force_run_refresh_job(self, job_id: str) -> RefreshJobRecord:
+        job = self.retry_refresh_job(job_id, available_at=utc_now())
+        job.trigger = job.trigger.__class__.FORCE_RUN
+        return self.save_refresh_job(job)
+
+    def save_review_queue_entry(self, entry: ReviewQueueEntry) -> ReviewQueueEntry:
+        row = self.session.scalar(
+            select(ReviewQueueEntryRow).where(ReviewQueueEntryRow.review_id == entry.review_id)
+        )
+        payload = entry.model_dump(mode="json")
+        if row is None:
+            row = ReviewQueueEntryRow(
+                review_id=entry.review_id,
+                company_id=entry.company_id,
+                company_name=entry.company_name,
+                coverage_status=entry.coverage_status.value,
+                run_id=entry.run_id,
+                job_id=entry.job_id,
+                gate_decision=entry.gate_decision.value,
+                checkpoint_panel_id=entry.checkpoint_panel_id,
+                status=entry.status.value,
+                next_action=entry.next_action.value,
+                notification_event_id=entry.notification_event_id,
+                created_at=entry.created_at,
+                acknowledged_at=entry.acknowledged_at,
+                resolved_at=entry.resolved_at,
+                payload=payload,
+            )
+            self.session.add(row)
+        else:
+            row.company_name = entry.company_name
+            row.coverage_status = entry.coverage_status.value
+            row.run_id = entry.run_id
+            row.job_id = entry.job_id
+            row.gate_decision = entry.gate_decision.value
+            row.checkpoint_panel_id = entry.checkpoint_panel_id
+            row.status = entry.status.value
+            row.next_action = entry.next_action.value
+            row.notification_event_id = entry.notification_event_id
+            row.acknowledged_at = entry.acknowledged_at
+            row.resolved_at = entry.resolved_at
+            row.payload = payload
+        return entry
+
+    def get_review_queue_entry(self, review_id: str) -> ReviewQueueEntry | None:
+        row = self.session.scalar(
+            select(ReviewQueueEntryRow).where(ReviewQueueEntryRow.review_id == review_id)
+        )
+        if row is None:
+            return None
+        return ReviewQueueEntry.model_validate(row.payload)
+
+    def list_review_queue(
+        self,
+        *,
+        statuses: Sequence[ReviewStatus] | None = None,
+    ) -> list[ReviewQueueEntry]:
+        stmt = select(ReviewQueueEntryRow)
+        if statuses:
+            stmt = stmt.where(ReviewQueueEntryRow.status.in_([status.value for status in statuses]))
+        rows = self.session.scalars(stmt.order_by(ReviewQueueEntryRow.created_at.desc())).all()
+        return [ReviewQueueEntry.model_validate(row.payload) for row in rows]
+
+    def acknowledge_review_queue_entry(
+        self,
+        review_id: str,
+        *,
+        note: str | None = None,
+    ) -> ReviewQueueEntry:
+        entry = self.get_review_queue_entry(review_id)
+        if entry is None:
+            raise KeyError(review_id)
+        entry.status = ReviewStatus.ACKNOWLEDGED
+        entry.acknowledged_at = utc_now()
+        if note is not None:
+            entry.resolution_note = note
+        return self.save_review_queue_entry(entry)
+
+    def resolve_review_queue_entry(
+        self,
+        review_id: str,
+        *,
+        note: str | None = None,
+    ) -> ReviewQueueEntry:
+        entry = self.get_review_queue_entry(review_id)
+        if entry is None:
+            raise KeyError(review_id)
+        entry.status = ReviewStatus.RESOLVED
+        entry.resolved_at = utc_now()
+        if note is not None:
+            entry.resolution_note = note
+        return self.save_review_queue_entry(entry)
+
+    def save_notification_event(self, event: NotificationEvent) -> NotificationEvent:
+        row = self.session.scalar(
+            select(NotificationEventRow).where(NotificationEventRow.event_id == event.event_id)
+        )
+        payload = event.model_dump(mode="json")
+        coverage_status = event.coverage_status.value if event.coverage_status is not None else None
+        if row is None:
+            row = NotificationEventRow(
+                event_id=event.event_id,
+                category=event.category.value,
+                status=event.status.value,
+                company_id=event.company_id,
+                company_name=event.company_name,
+                coverage_status=coverage_status,
+                run_id=event.run_id,
+                job_id=event.job_id,
+                review_id=event.review_id,
+                channel=event.channel,
+                title=event.title,
+                claimed_by=event.claimed_by,
+                claim_token=event.claim_token,
+                claimed_at=event.claimed_at,
+                dispatched_at=event.dispatched_at,
+                acknowledged_at=event.acknowledged_at,
+                delivery_attempts=event.delivery_attempts,
+                digest_key=event.digest_key,
+                created_at=event.created_at,
+                payload=payload,
+            )
+            self.session.add(row)
+        else:
+            row.category = event.category.value
+            row.status = event.status.value
+            row.company_id = event.company_id
+            row.company_name = event.company_name
+            row.coverage_status = coverage_status
+            row.run_id = event.run_id
+            row.job_id = event.job_id
+            row.review_id = event.review_id
+            row.channel = event.channel
+            row.title = event.title
+            row.claimed_by = event.claimed_by
+            row.claim_token = event.claim_token
+            row.claimed_at = event.claimed_at
+            row.dispatched_at = event.dispatched_at
+            row.acknowledged_at = event.acknowledged_at
+            row.delivery_attempts = event.delivery_attempts
+            row.digest_key = event.digest_key
+            row.payload = payload
+        return event
+
+    def get_notification_event(self, event_id: str) -> NotificationEvent | None:
+        row = self.session.scalar(
+            select(NotificationEventRow).where(NotificationEventRow.event_id == event_id)
+        )
+        if row is None:
+            return None
+        return NotificationEvent.model_validate(row.payload)
+
+    def list_notification_events(
+        self,
+        *,
+        statuses: Sequence[NotificationStatus] | None = None,
+        categories: Sequence[NotificationCategory] | None = None,
+        company_id: str | None = None,
+    ) -> list[NotificationEvent]:
+        stmt = select(NotificationEventRow)
+        if company_id is not None:
+            stmt = stmt.where(NotificationEventRow.company_id == company_id)
+        if statuses:
+            stmt = stmt.where(
+                NotificationEventRow.status.in_([status.value for status in statuses])
+            )
+        if categories:
+            stmt = stmt.where(
+                NotificationEventRow.category.in_([category.value for category in categories])
+            )
+        rows = self.session.scalars(
+            stmt.order_by(NotificationEventRow.created_at.asc())
+        ).all()
+        return [NotificationEvent.model_validate(row.payload) for row in rows]
+
+    def claim_notification_events(
+        self,
+        *,
+        limit: int,
+        consumer_id: str,
+        now: datetime | None = None,
+    ) -> list[NotificationEvent]:
+        claimed_at = now or utc_now()
+        rows = self.session.scalars(
+            select(NotificationEventRow)
+            .where(NotificationEventRow.status == NotificationStatus.PENDING.value)
+            .order_by(NotificationEventRow.created_at.asc())
+            .limit(limit)
+        ).all()
+        claimed: list[NotificationEvent] = []
+        for row in rows:
+            event = NotificationEvent.model_validate(row.payload)
+            event.status = NotificationStatus.CLAIMED
+            event.claimed_by = consumer_id
+            event.claimed_at = claimed_at
+            event.claim_token = new_id("claim")
+            self.save_notification_event(event)
+            claimed.append(event)
+        return claimed
+
+    def mark_notification_dispatched(self, event_id: str) -> NotificationEvent:
+        event = self.get_notification_event(event_id)
+        if event is None:
+            raise KeyError(event_id)
+        event.status = NotificationStatus.DISPATCHED
+        event.dispatched_at = utc_now()
+        event.delivery_attempts += 1
+        return self.save_notification_event(event)
+
+    def acknowledge_notification_event(self, event_id: str) -> NotificationEvent:
+        event = self.get_notification_event(event_id)
+        if event is None:
+            raise KeyError(event_id)
+        event.status = NotificationStatus.ACKNOWLEDGED
+        event.acknowledged_at = utc_now()
+        return self.save_notification_event(event)
+
+    def mark_notification_failed(self, event_id: str, *, error_message: str) -> NotificationEvent:
+        event = self.get_notification_event(event_id)
+        if event is None:
+            raise KeyError(event_id)
+        event.status = NotificationStatus.FAILED
+        event.last_error = error_message
+        event.delivery_attempts += 1
+        return self.save_notification_event(event)
+
+    def get_queue_summary(self) -> QueueSummary:
+        jobs = self.list_refresh_jobs()
+        by_status = [
+            QueueStatusCount(status=status, count=sum(1 for job in jobs if job.status == status))
+            for status in RefreshJobStatus
+            if any(job.status == status for job in jobs)
+        ]
+        items = [
+            QueueJobListItem(
+                job_id=job.job_id,
+                company_id=job.company_id,
+                company_name=job.company_name,
+                coverage_status=job.coverage_status,
+                run_kind=job.run_kind,
+                trigger=job.trigger,
+                status=job.status,
+                requested_at=job.requested_at,
+                available_at=job.available_at,
+                run_id=job.run_id,
+                review_entry_id=job.review_entry_id,
+                worker_id=job.worker_id,
+                attempt_count=job.attempt_count,
+            )
+            for job in jobs
+        ]
+        return QueueSummary(
+            total_jobs=len(jobs),
+            active_company_count=len(
+                {
+                    job.company_id
+                    for job in jobs
+                    if job.status
+                    in {
+                        RefreshJobStatus.QUEUED,
+                        RefreshJobStatus.CLAIMED,
+                        RefreshJobStatus.RUNNING,
+                        RefreshJobStatus.REVIEW_REQUIRED,
+                    }
+                }
+            ),
+            queued_count=sum(1 for job in jobs if job.status == RefreshJobStatus.QUEUED),
+            by_status=by_status,
+            jobs=items,
+        )
+
+    def get_queue_job_detail(self, job_id: str) -> QueueJobDetail:
+        job = self.get_refresh_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        review = (
+            self.get_review_queue_entry(job.review_entry_id)
+            if job.review_entry_id is not None
+            else None
+        )
+        notifications = self.list_notification_events(company_id=job.company_id)
+        run_status = None
+        if job.run_id is not None:
+            run = self.get_run(job.run_id)
+            run_status = run.status if run is not None else None
+        return QueueJobDetail(
+            job=job,
+            review=review,
+            notifications=[
+                event
+                for event in notifications
+                if event.job_id == job.job_id or event.run_id == job.run_id
+            ],
+            run_status=run_status,
+        )
+
+    def list_review_queue_items(
+        self,
+        *,
+        statuses: Sequence[ReviewStatus] | None = None,
+    ) -> list[ReviewQueueListItem]:
+        return [
+            ReviewQueueListItem(
+                review_id=entry.review_id,
+                company_id=entry.company_id,
+                company_name=entry.company_name,
+                coverage_status=entry.coverage_status,
+                run_id=entry.run_id,
+                job_id=entry.job_id,
+                status=entry.status,
+                next_action=entry.next_action,
+                created_at=entry.created_at,
+                notification_event_id=entry.notification_event_id,
+                reason_summary=entry.reason_summary,
+            )
+            for entry in self.list_review_queue(statuses=statuses)
+        ]
+
+    def list_notification_event_items(
+        self,
+        *,
+        statuses: Sequence[NotificationStatus] | None = None,
+        categories: Sequence[NotificationCategory] | None = None,
+    ) -> list[NotificationEventListItem]:
+        return [
+            NotificationEventListItem(
+                event_id=event.event_id,
+                category=event.category,
+                status=event.status,
+                company_id=event.company_id,
+                company_name=event.company_name,
+                run_id=event.run_id,
+                job_id=event.job_id,
+                review_id=event.review_id,
+                title=event.title,
+                next_action=event.next_action,
+                delivery_attempts=event.delivery_attempts,
+                created_at=event.created_at,
+            )
+            for event in self.list_notification_events(statuses=statuses, categories=categories)
+        ]
 
     def save_evidence_records(self, records: Sequence[EvidenceRecord]) -> list[EvidenceRecord]:
         for record in records:

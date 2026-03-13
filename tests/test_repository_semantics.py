@@ -6,6 +6,12 @@ from ai_investing.domain.enums import (
     CompanyType,
     CoverageStatus,
     MonitoringChangeType,
+    NotificationCategory,
+    NotificationStatus,
+    RefreshJobStatus,
+    RefreshJobTrigger,
+    ReviewNextAction,
+    ReviewStatus,
     RunKind,
     RunStatus,
 )
@@ -15,6 +21,9 @@ from ai_investing.domain.models import (
     MonitoringCurrentState,
     MonitoringDelta,
     MonitoringReason,
+    NotificationEvent,
+    RefreshJobRecord,
+    ReviewQueueEntry,
     RunRecord,
 )
 from ai_investing.persistence.repositories import Repository
@@ -350,3 +359,118 @@ def test_portfolio_read_service_groups_monitoring_by_change_type_and_segment(con
     thesis_drift = groups[MonitoringChangeType.THESIS_DRIFT]
     assert thesis_drift.portfolio.company_count == 1
     assert thesis_drift.watchlist.company_count == 0
+
+
+def test_repository_enqueues_refresh_jobs_without_duplicate_company_work(context) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        _save_coverage(
+            repository,
+            company_id="ACME",
+            company_name="Acme Cloud",
+            coverage_status=CoverageStatus.WATCHLIST,
+        )
+        first = repository.enqueue_refresh_job(
+            RefreshJobRecord(
+                company_id="ACME",
+                company_name="Acme Cloud",
+                coverage_status=CoverageStatus.WATCHLIST,
+                trigger=RefreshJobTrigger.SCHEDULED,
+                requested_by="scheduler",
+            )
+        )
+        second = repository.enqueue_refresh_job(
+            RefreshJobRecord(
+                company_id="ACME",
+                company_name="Acme Cloud",
+                coverage_status=CoverageStatus.WATCHLIST,
+                trigger=RefreshJobTrigger.MANUAL,
+                requested_by="operator",
+            )
+        )
+        summary = repository.get_queue_summary()
+
+    assert first.job_id == second.job_id
+    assert summary.total_jobs == 1
+    assert summary.active_company_count == 1
+    assert summary.jobs[0].status == RefreshJobStatus.QUEUED
+
+
+def test_repository_claims_marks_review_queue_and_builds_job_detail(context) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        _save_coverage(
+            repository,
+            company_id="ACME",
+            company_name="Acme Cloud",
+            coverage_status=CoverageStatus.WATCHLIST,
+        )
+        queued = repository.enqueue_refresh_job(
+            RefreshJobRecord(
+                company_id="ACME",
+                company_name="Acme Cloud",
+                coverage_status=CoverageStatus.WATCHLIST,
+            )
+        )
+        claimed = repository.claim_refresh_jobs(limit=1, worker_id="worker_a")
+        started = repository.start_refresh_job(
+            queued.job_id,
+            run_id="run_review",
+            worker_id="worker_a",
+        )
+        review = repository.save_review_queue_entry(
+            ReviewQueueEntry(
+                company_id="ACME",
+                company_name="Acme Cloud",
+                coverage_status=CoverageStatus.WATCHLIST,
+                run_id="run_review",
+                job_id=started.job_id,
+                next_action=ReviewNextAction.CONTINUE_PROVISIONAL,
+                reason_summary="Gatekeepers failed and need operator review.",
+            )
+        )
+        repository.mark_refresh_job_review_required(
+            started.job_id,
+            run_id="run_review",
+            review_entry_id=review.review_id,
+        )
+        detail = repository.get_queue_job_detail(started.job_id)
+        review_items = repository.list_review_queue_items()
+
+    assert len(claimed) == 1
+    assert claimed[0].status == RefreshJobStatus.CLAIMED
+    assert detail.job.status == RefreshJobStatus.REVIEW_REQUIRED
+    assert detail.review is not None
+    assert detail.review.review_id == review.review_id
+    assert review_items[0].next_action == ReviewNextAction.CONTINUE_PROVISIONAL
+    assert review_items[0].status == ReviewStatus.OPEN
+
+
+def test_repository_tracks_notification_delivery_lifecycle(context) -> None:
+    with context.database.session() as session:
+        repository = Repository(session)
+        event = repository.save_notification_event(
+            NotificationEvent(
+                category=NotificationCategory.GATEKEEPER_FAILED,
+                company_id="ACME",
+                company_name="Acme Cloud",
+                coverage_status=CoverageStatus.WATCHLIST,
+                run_id="run_review",
+                job_id="job_1",
+                review_id="rev_1",
+                title="Gatekeeper failed for ACME",
+                summary="Immediate operator review required.",
+                next_action="continue_provisional",
+            )
+        )
+        claimed = repository.claim_notification_events(limit=1, consumer_id="n8n")
+        dispatched = repository.mark_notification_dispatched(event.event_id)
+        acknowledged = repository.acknowledge_notification_event(event.event_id)
+        items = repository.list_notification_event_items()
+
+    assert len(claimed) == 1
+    assert claimed[0].status == NotificationStatus.CLAIMED
+    assert dispatched.delivery_attempts == 1
+    assert acknowledged.status == NotificationStatus.ACKNOWLEDGED
+    assert items[0].category == NotificationCategory.GATEKEEPER_FAILED
+    assert items[0].status == NotificationStatus.ACKNOWLEDGED

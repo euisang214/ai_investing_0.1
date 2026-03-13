@@ -147,3 +147,80 @@ class ToolInvocationLogRow(Base):
     tool_id: Mapped[str] = mapped_column(String(64), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON)
+
+
+class RefreshJobRow(Base):
+    __tablename__ = "refresh_jobs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    company_id: Mapped[str] = mapped_column(String(64), index=True)
+    company_name: Mapped[str] = mapped_column(String(255))
+    coverage_status: Mapped[str] = mapped_column(String(32), index=True)
+    run_kind: Mapped[str] = mapped_column(String(32), index=True)
+    trigger: Mapped[str] = mapped_column(String(32), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    requested_by: Mapped[str] = mapped_column(String(64), index=True)
+    priority: Mapped[int] = mapped_column(Integer, default=100, index=True)
+    scheduled_for: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    run_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    review_entry_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    worker_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    claim_token: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    max_attempts: Mapped[int] = mapped_column(Integer, default=3)
+    cancellation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    failure_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)
+
+
+class ReviewQueueEntryRow(Base):
+    __tablename__ = "review_queue_entries"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    review_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    company_id: Mapped[str] = mapped_column(String(64), index=True)
+    company_name: Mapped[str] = mapped_column(String(255))
+    coverage_status: Mapped[str] = mapped_column(String(32), index=True)
+    run_id: Mapped[str] = mapped_column(String(64), index=True)
+    job_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    gate_decision: Mapped[str] = mapped_column(String(32), index=True)
+    checkpoint_panel_id: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    next_action: Mapped[str] = mapped_column(String(64))
+    notification_event_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)
+
+
+class NotificationEventRow(Base):
+    __tablename__ = "notification_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    event_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    category: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    company_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    company_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    coverage_status: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
+    run_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    job_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    review_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    channel: Mapped[str] = mapped_column(String(64), index=True)
+    title: Mapped[str] = mapped_column(String(255))
+    claimed_by: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    claim_token: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    dispatched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    delivery_attempts: Mapped[int] = mapped_column(Integer, default=0)
+    digest_key: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON)

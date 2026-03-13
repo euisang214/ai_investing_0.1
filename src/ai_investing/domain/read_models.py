@@ -8,10 +8,23 @@ from ai_investing.domain.enums import (
     AlertLevel,
     CoverageStatus,
     MonitoringChangeType,
+    NotificationCategory,
+    NotificationStatus,
+    RefreshJobStatus,
+    RefreshJobTrigger,
+    ReviewNextAction,
+    ReviewStatus,
     RunKind,
     RunStatus,
 )
-from ai_investing.domain.models import DomainModel, MonitoringDelta, MonitoringReference
+from ai_investing.domain.models import (
+    DomainModel,
+    MonitoringDelta,
+    MonitoringReference,
+    NotificationEvent,
+    RefreshJobRecord,
+    ReviewQueueEntry,
+)
 
 
 class MonitoringSectionChange(DomainModel):
@@ -86,3 +99,68 @@ class PortfolioMonitoringSummary(DomainModel):
     shared_risk_clusters: list[PortfolioSharedRiskCluster] = Field(default_factory=list)
     change_groups: list[PortfolioMonitoringChangeGroup] = Field(default_factory=list)
     exploratory_analog_drilldown: list[PortfolioAnalogDrilldown] = Field(default_factory=list)
+
+
+class QueueStatusCount(DomainModel):
+    status: RefreshJobStatus
+    count: int = 0
+
+
+class QueueJobListItem(DomainModel):
+    job_id: str
+    company_id: str
+    company_name: str
+    coverage_status: CoverageStatus
+    run_kind: RunKind
+    trigger: RefreshJobTrigger
+    status: RefreshJobStatus
+    requested_at: datetime
+    available_at: datetime
+    run_id: str | None = None
+    review_entry_id: str | None = None
+    worker_id: str | None = None
+    attempt_count: int = 0
+
+
+class QueueSummary(DomainModel):
+    total_jobs: int = 0
+    active_company_count: int = 0
+    queued_count: int = 0
+    by_status: list[QueueStatusCount] = Field(default_factory=list)
+    jobs: list[QueueJobListItem] = Field(default_factory=list)
+
+
+class QueueJobDetail(DomainModel):
+    job: RefreshJobRecord
+    review: ReviewQueueEntry | None = None
+    notifications: list[NotificationEvent] = Field(default_factory=list)
+    run_status: RunStatus | None = None
+
+
+class ReviewQueueListItem(DomainModel):
+    review_id: str
+    company_id: str
+    company_name: str
+    coverage_status: CoverageStatus
+    run_id: str
+    job_id: str | None = None
+    status: ReviewStatus
+    next_action: ReviewNextAction
+    created_at: datetime
+    notification_event_id: str | None = None
+    reason_summary: str
+
+
+class NotificationEventListItem(DomainModel):
+    event_id: str
+    category: NotificationCategory
+    status: NotificationStatus
+    company_id: str | None = None
+    company_name: str | None = None
+    run_id: str | None = None
+    job_id: str | None = None
+    review_id: str | None = None
+    title: str
+    next_action: str | None = None
+    delivery_attempts: int = 0
+    created_at: datetime
