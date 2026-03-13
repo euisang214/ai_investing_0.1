@@ -6,8 +6,8 @@
     "status": "complete",
     "triggered_by": "system",
     "panel_id": null,
-    "started_at": "2026-03-11T12:09:00Z",
-    "completed_at": "2026-03-11T14:54:00Z",
+    "started_at": "2026-03-11T12:21:00Z",
+    "completed_at": "2026-03-11T15:05:00Z",
     "gate_decision": "review",
     "awaiting_continue": false,
     "gated_out": false,
@@ -21,9 +21,9 @@
         "continue"
       ],
       "provisional_required": false,
-      "note": "Gatekeepers passed. Continue explicitly to run downstream panels.",
-      "requested_at": "2026-03-11T13:14:00Z",
-      "resolved_at": "2026-03-11T13:15:00Z",
+      "note": "Gatekeepers flagged review and downstream panels continue automatically.",
+      "requested_at": "2026-03-11T13:26:00Z",
+      "resolved_at": "2026-03-11T13:25:00Z",
       "resolution_action": "continue"
     },
     "metadata": {
@@ -82,7 +82,7 @@
               "vrd_000000000004"
             ],
             "updated_by_run_id": "run_000000000001",
-            "updated_at": "2026-03-11T11:48:00Z"
+            "updated_at": "2026-03-11T11:47:00Z"
           },
           {
             "section_id": "what_changed_since_last_run",
@@ -92,7 +92,7 @@
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": "run_000000000001",
-            "updated_at": "2026-03-11T12:00:00Z"
+            "updated_at": "2026-03-11T12:05:00Z"
           },
           {
             "section_id": "risk",
@@ -132,7 +132,7 @@
               "vrd_000000000004"
             ],
             "updated_by_run_id": "run_000000000001",
-            "updated_at": "2026-03-11T11:54:00Z"
+            "updated_at": "2026-03-11T11:53:00Z"
           },
           {
             "section_id": "durability_resilience",
@@ -172,7 +172,7 @@
               "vrd_000000000004"
             ],
             "updated_by_run_id": "run_000000000001",
-            "updated_at": "2026-03-11T11:52:00Z"
+            "updated_at": "2026-03-11T11:51:00Z"
           },
           {
             "section_id": "growth",
@@ -212,57 +212,57 @@
               "vrd_000000000004"
             ],
             "updated_by_run_id": "run_000000000001",
-            "updated_at": "2026-03-11T11:50:00Z"
+            "updated_at": "2026-03-11T11:49:00Z"
           },
           {
             "section_id": "economic_spread",
             "label": "Economic Spread",
-            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "content": "This section has not been advanced yet.",
             "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
-            "updated_at": "2026-03-11T10:15:00Z"
+            "updated_at": "2026-03-11T12:06:00Z"
           },
           {
             "section_id": "valuation_terms",
             "label": "Valuation Terms",
-            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "content": "This section has not been advanced yet.",
             "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
-            "updated_at": "2026-03-11T10:16:00Z"
+            "updated_at": "2026-03-11T12:07:00Z"
           },
           {
             "section_id": "expectations_variant_view",
             "label": "Expectations And Variant View",
-            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "content": "This section has not been advanced yet.",
             "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
-            "updated_at": "2026-03-11T10:17:00Z"
+            "updated_at": "2026-03-11T12:08:00Z"
           },
           {
             "section_id": "realization_path_catalysts",
             "label": "Realization Path And Catalysts",
-            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "content": "This section has not been advanced yet.",
             "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
-            "updated_at": "2026-03-11T10:18:00Z"
+            "updated_at": "2026-03-11T12:09:00Z"
           },
           {
             "section_id": "portfolio_fit_positioning",
             "label": "Portfolio Fit And Positioning",
-            "content": "Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+            "content": "This section has not been advanced yet.",
             "status": "not_advanced",
             "supporting_claim_ids": [],
             "supporting_verdict_ids": [],
             "updated_by_run_id": null,
-            "updated_at": "2026-03-11T10:19:00Z"
+            "updated_at": "2026-03-11T12:10:00Z"
           },
           {
             "section_id": "overall_recommendation",
@@ -302,13 +302,13 @@
               "vrd_000000000004"
             ],
             "updated_by_run_id": "run_000000000001",
-            "updated_at": "2026-03-11T11:56:00Z"
+            "updated_at": "2026-03-11T11:55:00Z"
           }
         ],
         "recommendation_summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
         "namespace": "company/ACME/memos/current",
-        "created_at": "2026-03-11T12:01:00Z",
-        "updated_at": "2026-03-11T12:02:00Z"
+        "created_at": "2026-03-11T12:11:00Z",
+        "updated_at": "2026-03-11T12:12:00Z"
       },
       "baseline_active_claims": [
         {
@@ -381,7 +381,7 @@
           ],
           "namespace": "company/ACME/claims/brand_reputation_consideration_set",
           "status": "active",
-          "created_at": "2026-03-11T11:45:00Z",
+          "created_at": "2026-03-11T11:44:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -454,7 +454,7 @@
           ],
           "namespace": "company/ACME/claims/brand_reputation_consideration_set",
           "status": "active",
-          "created_at": "2026-03-11T11:42:00Z",
+          "created_at": "2026-03-11T11:41:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -527,7 +527,7 @@
           ],
           "namespace": "company/ACME/claims/brand_reputation_consideration_set",
           "status": "active",
-          "created_at": "2026-03-11T11:39:00Z",
+          "created_at": "2026-03-11T11:38:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -610,7 +610,7 @@
           ],
           "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
           "status": "active",
-          "created_at": "2026-03-11T11:36:00Z",
+          "created_at": "2026-03-11T11:35:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -693,7 +693,7 @@
           ],
           "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
           "status": "active",
-          "created_at": "2026-03-11T11:33:00Z",
+          "created_at": "2026-03-11T11:32:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -776,7 +776,7 @@
           ],
           "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
           "status": "active",
-          "created_at": "2026-03-11T11:30:00Z",
+          "created_at": "2026-03-11T11:29:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -849,7 +849,7 @@
           ],
           "namespace": "company/ACME/claims/pricing_power",
           "status": "active",
-          "created_at": "2026-03-11T11:27:00Z",
+          "created_at": "2026-03-11T11:26:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -922,7 +922,7 @@
           ],
           "namespace": "company/ACME/claims/pricing_power",
           "status": "active",
-          "created_at": "2026-03-11T11:24:00Z",
+          "created_at": "2026-03-11T11:23:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -995,7 +995,7 @@
           ],
           "namespace": "company/ACME/claims/pricing_power",
           "status": "active",
-          "created_at": "2026-03-11T11:21:00Z",
+          "created_at": "2026-03-11T11:20:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1068,7 +1068,7 @@
           ],
           "namespace": "company/ACME/claims/customer_concentration",
           "status": "active",
-          "created_at": "2026-03-11T11:18:00Z",
+          "created_at": "2026-03-11T11:17:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1141,7 +1141,7 @@
           ],
           "namespace": "company/ACME/claims/customer_concentration",
           "status": "active",
-          "created_at": "2026-03-11T11:15:00Z",
+          "created_at": "2026-03-11T11:14:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1214,7 +1214,7 @@
           ],
           "namespace": "company/ACME/claims/customer_concentration",
           "status": "active",
-          "created_at": "2026-03-11T11:12:00Z",
+          "created_at": "2026-03-11T11:11:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1270,7 +1270,7 @@
           ],
           "namespace": "company/ACME/claims/fad_fashion_risk",
           "status": "active",
-          "created_at": "2026-03-11T11:09:00Z",
+          "created_at": "2026-03-11T11:08:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1326,7 +1326,7 @@
           ],
           "namespace": "company/ACME/claims/fad_fashion_risk",
           "status": "active",
-          "created_at": "2026-03-11T11:06:00Z",
+          "created_at": "2026-03-11T11:05:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1382,7 +1382,7 @@
           ],
           "namespace": "company/ACME/claims/fad_fashion_risk",
           "status": "active",
-          "created_at": "2026-03-11T11:03:00Z",
+          "created_at": "2026-03-11T11:02:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1455,7 +1455,7 @@
           ],
           "namespace": "company/ACME/claims/customer_habit",
           "status": "active",
-          "created_at": "2026-03-11T11:00:00Z",
+          "created_at": "2026-03-11T10:59:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1528,7 +1528,7 @@
           ],
           "namespace": "company/ACME/claims/customer_habit",
           "status": "active",
-          "created_at": "2026-03-11T10:57:00Z",
+          "created_at": "2026-03-11T10:56:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1601,7 +1601,7 @@
           ],
           "namespace": "company/ACME/claims/customer_habit",
           "status": "active",
-          "created_at": "2026-03-11T10:54:00Z",
+          "created_at": "2026-03-11T10:53:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1657,7 +1657,7 @@
           ],
           "namespace": "company/ACME/claims/search_costs",
           "status": "active",
-          "created_at": "2026-03-11T10:51:00Z",
+          "created_at": "2026-03-11T10:50:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1713,7 +1713,7 @@
           ],
           "namespace": "company/ACME/claims/search_costs",
           "status": "active",
-          "created_at": "2026-03-11T10:48:00Z",
+          "created_at": "2026-03-11T10:47:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1769,7 +1769,7 @@
           ],
           "namespace": "company/ACME/claims/search_costs",
           "status": "active",
-          "created_at": "2026-03-11T10:45:00Z",
+          "created_at": "2026-03-11T10:44:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1842,7 +1842,7 @@
           ],
           "namespace": "company/ACME/claims/switching_costs",
           "status": "active",
-          "created_at": "2026-03-11T10:42:00Z",
+          "created_at": "2026-03-11T10:41:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1915,7 +1915,7 @@
           ],
           "namespace": "company/ACME/claims/switching_costs",
           "status": "active",
-          "created_at": "2026-03-11T10:39:00Z",
+          "created_at": "2026-03-11T10:38:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -1988,7 +1988,7 @@
           ],
           "namespace": "company/ACME/claims/switching_costs",
           "status": "active",
-          "created_at": "2026-03-11T10:36:00Z",
+          "created_at": "2026-03-11T10:35:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -2061,7 +2061,7 @@
           ],
           "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
           "status": "active",
-          "created_at": "2026-03-11T10:33:00Z",
+          "created_at": "2026-03-11T10:32:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -2134,7 +2134,7 @@
           ],
           "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
           "status": "active",
-          "created_at": "2026-03-11T10:30:00Z",
+          "created_at": "2026-03-11T10:29:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -2207,7 +2207,7 @@
           ],
           "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
           "status": "active",
-          "created_at": "2026-03-11T10:27:00Z",
+          "created_at": "2026-03-11T10:26:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3448,7 +3448,7 @@
           ],
           "namespace": "company/ACME/verdicts/demand_revenue_quality",
           "status": "active",
-          "created_at": "2026-03-11T11:46:00Z",
+          "created_at": "2026-03-11T11:45:00Z",
           "supersedes_verdict_id": "vrd_000000000003"
         },
         {
@@ -3516,7 +3516,8 @@
             "few direct negatives surfaced for need to exist"
           ]
         }
-      ]
+      ],
+      "job_id": null
     }
   },
   "panels": {
@@ -3584,7 +3585,7 @@
           ],
           "namespace": "company/ACME/claims/need_to_exist",
           "status": "active",
-          "created_at": "2026-03-11T12:12:00Z",
+          "created_at": "2026-03-11T12:24:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3649,7 +3650,7 @@
           ],
           "namespace": "company/ACME/claims/need_to_exist",
           "status": "active",
-          "created_at": "2026-03-11T12:15:00Z",
+          "created_at": "2026-03-11T12:27:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3714,7 +3715,7 @@
           ],
           "namespace": "company/ACME/claims/need_to_exist",
           "status": "active",
-          "created_at": "2026-03-11T12:18:00Z",
+          "created_at": "2026-03-11T12:30:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3779,7 +3780,7 @@
           ],
           "namespace": "company/ACME/claims/non_fad_durability",
           "status": "active",
-          "created_at": "2026-03-11T12:21:00Z",
+          "created_at": "2026-03-11T12:33:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3844,7 +3845,7 @@
           ],
           "namespace": "company/ACME/claims/non_fad_durability",
           "status": "active",
-          "created_at": "2026-03-11T12:24:00Z",
+          "created_at": "2026-03-11T12:36:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3909,7 +3910,7 @@
           ],
           "namespace": "company/ACME/claims/non_fad_durability",
           "status": "active",
-          "created_at": "2026-03-11T12:27:00Z",
+          "created_at": "2026-03-11T12:39:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -3974,7 +3975,7 @@
           ],
           "namespace": "company/ACME/claims/accounting_trustworthiness",
           "status": "active",
-          "created_at": "2026-03-11T12:30:00Z",
+          "created_at": "2026-03-11T12:42:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4039,7 +4040,7 @@
           ],
           "namespace": "company/ACME/claims/accounting_trustworthiness",
           "status": "active",
-          "created_at": "2026-03-11T12:33:00Z",
+          "created_at": "2026-03-11T12:45:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4104,7 +4105,7 @@
           ],
           "namespace": "company/ACME/claims/accounting_trustworthiness",
           "status": "active",
-          "created_at": "2026-03-11T12:36:00Z",
+          "created_at": "2026-03-11T12:48:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4184,7 +4185,7 @@
           ],
           "namespace": "company/ACME/claims/balance_sheet_survivability",
           "status": "active",
-          "created_at": "2026-03-11T12:39:00Z",
+          "created_at": "2026-03-11T12:51:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4264,7 +4265,7 @@
           ],
           "namespace": "company/ACME/claims/balance_sheet_survivability",
           "status": "active",
-          "created_at": "2026-03-11T12:42:00Z",
+          "created_at": "2026-03-11T12:54:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4344,7 +4345,7 @@
           ],
           "namespace": "company/ACME/claims/balance_sheet_survivability",
           "status": "active",
-          "created_at": "2026-03-11T12:45:00Z",
+          "created_at": "2026-03-11T12:57:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4409,7 +4410,7 @@
           ],
           "namespace": "company/ACME/claims/governance_investability",
           "status": "active",
-          "created_at": "2026-03-11T12:48:00Z",
+          "created_at": "2026-03-11T13:00:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4474,7 +4475,7 @@
           ],
           "namespace": "company/ACME/claims/governance_investability",
           "status": "active",
-          "created_at": "2026-03-11T12:51:00Z",
+          "created_at": "2026-03-11T13:03:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4539,7 +4540,7 @@
           ],
           "namespace": "company/ACME/claims/governance_investability",
           "status": "active",
-          "created_at": "2026-03-11T12:54:00Z",
+          "created_at": "2026-03-11T13:06:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4604,7 +4605,7 @@
           ],
           "namespace": "company/ACME/claims/legal_regulatory_existential_risk",
           "status": "active",
-          "created_at": "2026-03-11T12:57:00Z",
+          "created_at": "2026-03-11T13:09:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4669,7 +4670,7 @@
           ],
           "namespace": "company/ACME/claims/legal_regulatory_existential_risk",
           "status": "active",
-          "created_at": "2026-03-11T13:00:00Z",
+          "created_at": "2026-03-11T13:12:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4734,7 +4735,7 @@
           ],
           "namespace": "company/ACME/claims/legal_regulatory_existential_risk",
           "status": "active",
-          "created_at": "2026-03-11T13:03:00Z",
+          "created_at": "2026-03-11T13:15:00Z",
           "supersedes_claim_id": null
         }
       ],
@@ -4793,7 +4794,7 @@
         ],
         "namespace": "company/ACME/verdicts/gatekeepers",
         "status": "active",
-        "created_at": "2026-03-11T13:04:00Z",
+        "created_at": "2026-03-11T13:16:00Z",
         "supersedes_verdict_id": "vrd_000000000005",
         "gate_decision": "review",
         "gate_reasons": [
@@ -4901,7 +4902,7 @@
           ],
           "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
           "status": "active",
-          "created_at": "2026-03-11T13:18:00Z",
+          "created_at": "2026-03-11T13:29:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -4999,7 +5000,7 @@
           ],
           "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
           "status": "active",
-          "created_at": "2026-03-11T13:21:00Z",
+          "created_at": "2026-03-11T13:32:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5097,7 +5098,7 @@
           ],
           "namespace": "company/ACME/claims/revenue_recurrence_contract_strength",
           "status": "active",
-          "created_at": "2026-03-11T13:24:00Z",
+          "created_at": "2026-03-11T13:35:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5170,7 +5171,7 @@
           ],
           "namespace": "company/ACME/claims/switching_costs",
           "status": "active",
-          "created_at": "2026-03-11T13:27:00Z",
+          "created_at": "2026-03-11T13:38:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5243,7 +5244,7 @@
           ],
           "namespace": "company/ACME/claims/switching_costs",
           "status": "active",
-          "created_at": "2026-03-11T13:30:00Z",
+          "created_at": "2026-03-11T13:41:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5316,7 +5317,7 @@
           ],
           "namespace": "company/ACME/claims/switching_costs",
           "status": "active",
-          "created_at": "2026-03-11T13:33:00Z",
+          "created_at": "2026-03-11T13:44:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5372,7 +5373,7 @@
           ],
           "namespace": "company/ACME/claims/search_costs",
           "status": "active",
-          "created_at": "2026-03-11T13:36:00Z",
+          "created_at": "2026-03-11T13:47:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5428,7 +5429,7 @@
           ],
           "namespace": "company/ACME/claims/search_costs",
           "status": "active",
-          "created_at": "2026-03-11T13:39:00Z",
+          "created_at": "2026-03-11T13:50:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5484,7 +5485,7 @@
           ],
           "namespace": "company/ACME/claims/search_costs",
           "status": "active",
-          "created_at": "2026-03-11T13:42:00Z",
+          "created_at": "2026-03-11T13:53:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5557,7 +5558,7 @@
           ],
           "namespace": "company/ACME/claims/customer_habit",
           "status": "active",
-          "created_at": "2026-03-11T13:45:00Z",
+          "created_at": "2026-03-11T13:56:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5630,7 +5631,7 @@
           ],
           "namespace": "company/ACME/claims/customer_habit",
           "status": "active",
-          "created_at": "2026-03-11T13:48:00Z",
+          "created_at": "2026-03-11T13:59:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5703,7 +5704,7 @@
           ],
           "namespace": "company/ACME/claims/customer_habit",
           "status": "active",
-          "created_at": "2026-03-11T13:51:00Z",
+          "created_at": "2026-03-11T14:02:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5759,7 +5760,7 @@
           ],
           "namespace": "company/ACME/claims/fad_fashion_risk",
           "status": "active",
-          "created_at": "2026-03-11T13:54:00Z",
+          "created_at": "2026-03-11T14:05:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5815,7 +5816,7 @@
           ],
           "namespace": "company/ACME/claims/fad_fashion_risk",
           "status": "active",
-          "created_at": "2026-03-11T13:57:00Z",
+          "created_at": "2026-03-11T14:08:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5871,7 +5872,7 @@
           ],
           "namespace": "company/ACME/claims/fad_fashion_risk",
           "status": "active",
-          "created_at": "2026-03-11T14:00:00Z",
+          "created_at": "2026-03-11T14:11:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -5960,7 +5961,7 @@
           ],
           "namespace": "company/ACME/claims/customer_concentration",
           "status": "active",
-          "created_at": "2026-03-11T14:03:00Z",
+          "created_at": "2026-03-11T14:14:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6049,7 +6050,7 @@
           ],
           "namespace": "company/ACME/claims/customer_concentration",
           "status": "active",
-          "created_at": "2026-03-11T14:06:00Z",
+          "created_at": "2026-03-11T14:17:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6138,7 +6139,7 @@
           ],
           "namespace": "company/ACME/claims/customer_concentration",
           "status": "active",
-          "created_at": "2026-03-11T14:09:00Z",
+          "created_at": "2026-03-11T14:20:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6226,7 +6227,7 @@
           ],
           "namespace": "company/ACME/claims/pricing_power",
           "status": "active",
-          "created_at": "2026-03-11T14:12:00Z",
+          "created_at": "2026-03-11T14:23:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6314,7 +6315,7 @@
           ],
           "namespace": "company/ACME/claims/pricing_power",
           "status": "active",
-          "created_at": "2026-03-11T14:15:00Z",
+          "created_at": "2026-03-11T14:26:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6402,7 +6403,7 @@
           ],
           "namespace": "company/ACME/claims/pricing_power",
           "status": "active",
-          "created_at": "2026-03-11T14:18:00Z",
+          "created_at": "2026-03-11T14:29:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6500,7 +6501,7 @@
           ],
           "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
           "status": "active",
-          "created_at": "2026-03-11T14:21:00Z",
+          "created_at": "2026-03-11T14:32:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6598,7 +6599,7 @@
           ],
           "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
           "status": "active",
-          "created_at": "2026-03-11T14:24:00Z",
+          "created_at": "2026-03-11T14:35:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6696,7 +6697,7 @@
           ],
           "namespace": "company/ACME/claims/demand_cyclicality_purchase_deferrability",
           "status": "active",
-          "created_at": "2026-03-11T14:27:00Z",
+          "created_at": "2026-03-11T14:38:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6769,7 +6770,7 @@
           ],
           "namespace": "company/ACME/claims/brand_reputation_consideration_set",
           "status": "active",
-          "created_at": "2026-03-11T14:30:00Z",
+          "created_at": "2026-03-11T14:41:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6842,7 +6843,7 @@
           ],
           "namespace": "company/ACME/claims/brand_reputation_consideration_set",
           "status": "active",
-          "created_at": "2026-03-11T14:33:00Z",
+          "created_at": "2026-03-11T14:44:00Z",
           "supersedes_claim_id": null
         },
         {
@@ -6915,7 +6916,7 @@
           ],
           "namespace": "company/ACME/claims/brand_reputation_consideration_set",
           "status": "active",
-          "created_at": "2026-03-11T14:36:00Z",
+          "created_at": "2026-03-11T14:47:00Z",
           "supersedes_claim_id": null
         }
       ],
@@ -6985,7 +6986,7 @@
         ],
         "namespace": "company/ACME/verdicts/demand_revenue_quality",
         "status": "active",
-        "created_at": "2026-03-11T14:37:00Z",
+        "created_at": "2026-03-11T14:48:00Z",
         "supersedes_verdict_id": "vrd_000000000007"
       }
     }
@@ -7035,17 +7036,17 @@
           "vrd_000000000008"
         ],
         "updated_by_run_id": "run_000000000002",
-        "updated_at": "2026-03-11T14:39:00Z"
+        "updated_at": "2026-03-11T14:50:00Z"
       },
       {
         "section_id": "what_changed_since_last_run",
         "label": "What Changed Since Last Run",
-        "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability. Changed sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms, what_changed_since_last_run.",
+        "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability. Changed sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk, what_changed_since_last_run.",
         "status": "refreshed",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": "run_000000000002",
-        "updated_at": "2026-03-11T14:51:00Z"
+        "updated_at": "2026-03-11T15:02:00Z"
       },
       {
         "section_id": "risk",
@@ -7085,7 +7086,7 @@
           "vrd_000000000008"
         ],
         "updated_by_run_id": "run_000000000002",
-        "updated_at": "2026-03-11T14:45:00Z"
+        "updated_at": "2026-03-11T14:56:00Z"
       },
       {
         "section_id": "durability_resilience",
@@ -7125,7 +7126,7 @@
           "vrd_000000000008"
         ],
         "updated_by_run_id": "run_000000000002",
-        "updated_at": "2026-03-11T14:43:00Z"
+        "updated_at": "2026-03-11T14:54:00Z"
       },
       {
         "section_id": "growth",
@@ -7165,57 +7166,57 @@
           "vrd_000000000008"
         ],
         "updated_by_run_id": "run_000000000002",
-        "updated_at": "2026-03-11T14:41:00Z"
+        "updated_at": "2026-03-11T14:52:00Z"
       },
       {
         "section_id": "economic_spread",
         "label": "Economic Spread",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. This section has not been advanced yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-11T10:15:00Z"
+        "updated_at": "2026-03-11T12:06:00Z"
       },
       {
         "section_id": "valuation_terms",
         "label": "Valuation Terms",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. This section has not been advanced yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-11T10:16:00Z"
+        "updated_at": "2026-03-11T12:07:00Z"
       },
       {
         "section_id": "expectations_variant_view",
         "label": "Expectations And Variant View",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. This section has not been advanced yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-11T10:17:00Z"
+        "updated_at": "2026-03-11T12:08:00Z"
       },
       {
         "section_id": "realization_path_catalysts",
         "label": "Realization Path And Catalysts",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. This section has not been advanced yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-11T10:18:00Z"
+        "updated_at": "2026-03-11T12:09:00Z"
       },
       {
         "section_id": "portfolio_fit_positioning",
         "label": "Portfolio Fit And Positioning",
-        "content": "Stale from the prior active memo. Carried forward from the prior memo because deeper panel work has not refreshed this section yet. Gatekeepers completed this run, but deeper panel work has not advanced this section yet.",
+        "content": "Stale from the prior active memo. This section has not been advanced yet.",
         "status": "stale",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
         "updated_by_run_id": null,
-        "updated_at": "2026-03-11T10:19:00Z"
+        "updated_at": "2026-03-11T12:10:00Z"
       },
       {
         "section_id": "overall_recommendation",
@@ -7255,13 +7256,13 @@
           "vrd_000000000008"
         ],
         "updated_by_run_id": "run_000000000002",
-        "updated_at": "2026-03-11T14:47:00Z"
+        "updated_at": "2026-03-11T14:58:00Z"
       }
     ],
     "recommendation_summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
     "namespace": "company/ACME/memos/current",
-    "created_at": "2026-03-11T14:52:00Z",
-    "updated_at": "2026-03-11T14:53:00Z"
+    "created_at": "2026-03-11T15:03:00Z",
+    "updated_at": "2026-03-11T15:04:00Z"
   },
   "delta": {
     "delta_id": "dlt_000000000002",
@@ -7269,9 +7270,9 @@
     "prior_run_id": "run_000000000001",
     "current_run_id": "run_000000000002",
     "changed_claim_ids": [
-      "clm_000000000057",
-      "clm_000000000056",
       "clm_000000000055",
+      "clm_000000000056",
+      "clm_000000000057",
       "clm_000000000064",
       "clm_000000000065",
       "clm_000000000066",
@@ -7287,18 +7288,13 @@
     ],
     "changed_sections": [
       "durability_resilience",
-      "economic_spread",
-      "expectations_variant_view",
       "growth",
       "investment_snapshot",
       "overall_recommendation",
-      "portfolio_fit_positioning",
-      "realization_path_catalysts",
       "risk",
-      "valuation_terms",
       "what_changed_since_last_run"
     ],
-    "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability.",
+    "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability.",
     "thesis_drift_flags": [
       "concentration_increase",
       "survivability_deterioration",
@@ -7444,6 +7440,6 @@
         }
       }
     ],
-    "created_at": "2026-03-11T14:50:00Z"
+    "created_at": "2026-03-11T15:01:00Z"
   }
 }

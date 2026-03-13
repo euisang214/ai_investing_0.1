@@ -225,15 +225,18 @@ def test_memo_projects_full_contract_for_gatekeeper_pause(seeded_acme) -> None:
 
     assert len(sections) == 11
     assert sections["investment_snapshot"]["status"] == "refreshed"
-    assert sections["growth"]["status"] == "not_advanced"
-    assert "deeper panel work has not advanced this section yet" in sections["growth"]["content"]
+    assert sections["growth"]["status"] == "refreshed"
+    assert (
+        "deeper panel work has not advanced this section yet"
+        not in sections["growth"]["content"]
+    )
+    assert sections["economic_spread"]["status"] == "not_advanced"
 
 
 def test_memo_keeps_same_run_placeholders_not_advanced_on_first_completion(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
-    paused = service.analyze_company("ACME")
-    completed = service.continue_run(paused["run"]["run_id"])
+    completed = service.analyze_company("ACME")
     sections = _section_map(completed)
 
     assert completed["memo"]["is_initial_coverage"] is True
@@ -249,15 +252,17 @@ def test_memo_keeps_same_run_placeholders_not_advanced_on_first_completion(seede
 def test_memo_marks_carried_forward_sections_stale_on_rerun_pause(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
-    first = service.analyze_company("ACME")
-    service.continue_run(first["run"]["run_id"])
+    service.analyze_company("ACME")
     rerun = service.refresh_company("ACME")
 
     sections = _section_map(rerun)
 
     assert rerun["memo"]["is_initial_coverage"] is False
-    assert sections["growth"]["status"] == "stale"
-    assert "Carried forward from the prior memo" in sections["growth"]["content"]
+    assert sections["growth"]["status"] == "refreshed"
+    assert sections["economic_spread"]["status"] == "stale"
+    assert sections["economic_spread"]["content"].startswith(
+        "Stale from the prior active memo."
+    )
 
 
 def test_memo_keeps_provisional_language_after_failed_gatekeeper_override(
@@ -296,8 +301,7 @@ def test_delta_refreshes_run_log_for_low_material_fake_provider_rerun(
 ) -> None:
     service = AnalysisService(seeded_acme)
 
-    first = service.analyze_company("ACME")
-    service.continue_run(first["run"]["run_id"])
+    service.analyze_company("ACME")
 
     original_claim_payload = FakeModelProvider._claim_card_payload
 
@@ -312,20 +316,12 @@ def test_delta_refreshes_run_log_for_low_material_fake_provider_rerun(
         low_material_confidence_shift,
     )
 
-    rerun = service.refresh_company("ACME")
-    completed = service.continue_run(rerun["run"]["run_id"])
+    completed = service.refresh_company("ACME")
     sections = _section_map(completed)
 
-    assert completed["delta"]["alert_level"] == "medium"
-    assert completed["delta"]["changed_sections"] == [
-        "economic_spread",
-        "expectations_variant_view",
-        "portfolio_fit_positioning",
-        "realization_path_catalysts",
-        "valuation_terms",
-        "what_changed_since_last_run",
-    ]
-    assert "Material sections: economic_spread" in completed["delta"]["change_summary"]
+    assert completed["delta"]["alert_level"] == "low"
+    assert completed["delta"]["changed_sections"] == ["what_changed_since_last_run"]
+    assert "Contradictions: search_costs." in completed["delta"]["change_summary"]
     assert sections["what_changed_since_last_run"]["status"] == "refreshed"
 
 
@@ -483,8 +479,7 @@ def test_stale_memo_updates_call_out_tempered_conviction() -> None:
 def test_tool_logs_capture_record_level_output_refs(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
-    first = service.analyze_company("ACME")
-    service.continue_run(first["run"]["run_id"])
+    service.analyze_company("ACME")
     rerun = service.refresh_company("ACME")
 
     with seeded_acme.database.session() as session:
@@ -559,12 +554,10 @@ def test_delta_surfaces_factor_contradictions_without_risk_section_movement(
 def test_delta_reports_current_state_concentration_signals(seeded_acme, repo_root) -> None:
     service = AnalysisService(seeded_acme)
 
-    initial_pause = service.analyze_company("ACME")
-    service.continue_run(initial_pause["run"]["run_id"])
+    service.analyze_company("ACME")
     IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
 
-    rerun_pause = service.refresh_company("ACME")
-    rerun = service.continue_run(rerun_pause["run"]["run_id"])
+    rerun = service.refresh_company("ACME")
     delta = rerun["delta"]
 
     assert delta is not None

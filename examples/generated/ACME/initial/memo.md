@@ -1,34 +1,34 @@
 # IC Memo: ACME
 
 ## Investment Snapshot
-Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.
+Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## What Changed Since Last Run
-No prior active run exists yet, so the run-log delta section is not advanced.
+Initial coverage run. No prior memo exists.
 
 ## Risk
-Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.
+Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## Durability And Resilience
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## Growth
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## Economic Spread
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+This section has not been advanced yet.
 
 ## Valuation Terms
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+This section has not been advanced yet.
 
 ## Expectations And Variant View
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+This section has not been advanced yet.
 
 ## Realization Path And Catalysts
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+This section has not been advanced yet.
 
 ## Portfolio Fit And Positioning
-Gatekeepers completed this run, but deeper panel work has not advanced this section yet.
+This section has not been advanced yet.
 
 ## Overall Recommendation
-Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers. Key claims: Acme Cloud appears durable on need to exist.; Acme Cloud appears more fragile than the base case implies on need to exist.
+Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.

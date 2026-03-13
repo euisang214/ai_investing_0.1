@@ -39,9 +39,9 @@ def test_generation_script_writes_phase2_checkpoint_examples(
     continued = _load_json(output_root / "continued" / "result.json")
     rerun = _load_json(output_root / "rerun" / "result.json")
 
-    assert initial["run"]["status"] == "awaiting_continue"
-    assert initial["run"]["checkpoint_panel_id"] == "gatekeepers"
-    assert initial["delta"] is None
+    assert initial["run"]["status"] == "complete"
+    assert initial["run"]["awaiting_continue"] is False
+    assert initial["delta"]["prior_run_id"] is None
     assert continued["run"]["run_id"] == initial["run"]["run_id"]
     assert continued["run"]["status"] == "complete"
     assert continued["memo"]["is_initial_coverage"] is True
@@ -87,8 +87,8 @@ def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> N
     assert "initial/" in readme
     assert "continued/" in readme
     assert "rerun/" in readme
-    assert initial["run"]["status"] == "awaiting_continue"
-    assert initial_delta is None
+    assert initial["run"]["status"] == "complete"
+    assert initial_delta["prior_run_id"] is None
     assert continued["run"]["run_id"] == initial["run"]["run_id"]
     assert continued["run"]["metadata"]["baseline_memo"] is None
     assert continued["run"]["metadata"]["baseline_active_claims"] == []
@@ -106,8 +106,5 @@ def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> N
 
     assert initial_memo
     assert "Stale from the prior active memo." not in continued_memo
-    assert (
-        "Gatekeepers completed this run, but deeper panel work has not advanced this section yet."
-        in continued_memo
-    )
+    assert "This section has not been advanced yet." in continued_memo
     assert "Stale from the prior active memo." in rerun_memo

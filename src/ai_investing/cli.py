@@ -259,7 +259,7 @@ def show_job(job_id: str) -> None:
 
 @app.command("enqueue-companies")
 def enqueue_companies(
-    company_ids: list[str] = typer.Argument(...),
+    company_ids: Annotated[list[str], typer.Argument()],
     requested_by: Annotated[str, typer.Option("--requested-by")] = "operator",
 ) -> None:
     jobs = QueueService(_context()).enqueue_companies(company_ids, requested_by=requested_by)

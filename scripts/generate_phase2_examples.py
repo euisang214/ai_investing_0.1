@@ -29,6 +29,7 @@ from ai_investing.application.services import (  # noqa: E402
 )
 from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus  # noqa: E402
 from ai_investing.domain.models import CoverageEntry, ICMemo, MonitoringDelta  # noqa: E402
+from ai_investing.persistence.repositories import Repository  # noqa: E402
 from ai_investing.settings import Settings  # noqa: E402
 
 OUTPUT_ROOT = ROOT / "examples" / "generated" / "ACME"
@@ -135,12 +136,15 @@ def generate_examples(output_root: Path = OUTPUT_ROOT) -> None:
             initial = service.analyze_company("ACME")
             write_artifacts(output_root, "initial", initial)
 
-            continued = service.continue_run(str(initial["run"]["run_id"]))
+            with context.database.session() as session:
+                repository = Repository(session)
+                run = repository.get_run(str(initial["run"]["run_id"]))
+                assert run is not None
+                continued = service._build_persisted_result(repository, run)
             write_artifacts(output_root, "continued", continued)
 
             IngestionService(context).ingest_public_data(RERUN_INPUT)
-            rerun_pause = service.refresh_company("ACME")
-            rerun = service.continue_run(str(rerun_pause["run"]["run_id"]))
+            rerun = service.refresh_company("ACME")
             write_artifacts(output_root, "rerun", rerun)
 
 
