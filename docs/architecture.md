@@ -221,6 +221,20 @@ The operator-facing contract is checkpoint-aware:
 - stable fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`, and `checkpoint` make automation clients parse state without scraping prose
 - paused runs persist gatekeeper verdicts and partial memo artifacts immediately; terminal runs add final memo reconciliation and monitoring delta output
 
+Phase 4 extends that interface layer with additive monitoring inspection routes:
+
+- `GET /companies/{company_id}/monitoring-history`
+- `GET /portfolio/monitoring-summary`
+- `ai-investing show-monitoring-history`
+- `ai-investing show-portfolio-summary`
+
+These surfaces expose read-only projections over persisted structured records. They improve
+operator visibility into monitoring history and portfolio monitoring without introducing a new
+frontend, changing the company-refresh runtime, or making `portfolio_fit_positioning` runnable.
+The portfolio summary is organized by change type first, then by clearly separated portfolio and
+watchlist segments. Shared-risk or overlap clusters are primary output when present, while broader
+analog exploration remains a secondary drill-down.
+
 ## Data Model And Memory Strategy
 
 Each company uses stable namespace conventions:
@@ -256,6 +270,10 @@ Phase 1 and Phase 2 implementation in this repo cover:
 - tests and sample outputs
 
 Phase 3 adds the documentation, config breadth, and prompt scaffolding for the remaining panels, but it does not change the statement above: only `gatekeepers` and `demand_revenue_quality` are implemented today.
+
+Phase 4 adds portfolio monitoring visibility, not portfolio reasoning runtime expansion. The
+`portfolio_fit_positioning` panel remains scaffold-only even if operators now see that memo section
+appear in monitoring history or portfolio monitoring summaries as a read-only projection.
 
 ## Short Extension Checklist
 

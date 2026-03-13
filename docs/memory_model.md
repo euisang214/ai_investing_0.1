@@ -62,6 +62,8 @@ These are operator-facing inspection models, not new reasoning runtimes.
 - Portfolio and watchlist names stay structurally separate in every group.
 - Shared-risk or overlap clusters lead the summary when multiple covered names point at the same
   factor pressure.
+- The primary portfolio monitoring view is grouped by change type first so operators can scan the
+  current change pattern before drilling into individual names.
 - `portfolio_fit_positioning` may still appear as a changed memo section in history or summary
   output, but that remains a read-only memo projection signal. The `portfolio_fit_positioning`
   panel is still scaffold-only and not runnable in this phase.
@@ -276,3 +278,14 @@ Representative payload from `GET /portfolio/monitoring-summary` or
 The example is intentionally read-only. It shows how operators can inspect monitoring history and
 coverage-segmented change patterns without implying that a new portfolio panel, frontend, or
 portfolio-fit reasoning runtime exists.
+
+## How To Read The Portfolio Monitoring Summary
+
+- Treat `shared_risk_clusters` as the main portfolio monitoring signal when it is populated. Those
+  clusters highlight factor overlap that spans multiple covered names.
+- Treat `change_groups` as the default scan order for the rest of the summary. The response is
+  organized by change type first, not as one blended company leaderboard.
+- Compare the `portfolio` and `watchlist` subsections inside each group instead of merging them in
+  your head. The separation is intentional so current holdings never blur with watchlist coverage.
+- Treat `exploratory_analog_drilldown` as secondary context. It can support follow-up research, but
+  it is not meant to outrank the main read-only summary.

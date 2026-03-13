@@ -110,6 +110,32 @@ ai-investing disable-agent demand_skeptic
 ai-investing reparent-agent demand_skeptic demand_advocate
 ```
 
+## Monitoring Read Surfaces
+
+Phase 4 adds additive operator-facing inspection surfaces for monitoring history and portfolio
+monitoring. They are read-only projections over persisted coverage, run, and monitoring records.
+They do not create a frontend, they do not widen orchestration, and they do not make
+`portfolio_fit_positioning` runnable.
+
+Operator CLI examples:
+
+```bash
+ai-investing show-monitoring-history ACME --limit 5
+ai-investing show-portfolio-summary
+ai-investing show-portfolio-summary --segment portfolio
+```
+
+Matching API routes:
+
+- `GET /companies/{company_id}/monitoring-history`
+- `GET /portfolio/monitoring-summary`
+
+The portfolio monitoring summary includes both portfolio and watchlist names by default, but it
+keeps those segments separate in every response. Operators should read the summary by change type
+first, then by segment. Shared-risk or overlap clusters appear ahead of exploratory analog
+drill-down so the main portfolio monitoring view stays actionable instead of becoming a blended
+company list.
+
 ## Repo Layout
 
 See [docs/architecture.md](docs/architecture.md), [docs/factor_ontology.md](docs/factor_ontology.md), [docs/memory_model.md](docs/memory_model.md), and [docs/runbook.md](docs/runbook.md).
