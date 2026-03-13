@@ -34,13 +34,29 @@ def get_panel_subgraph_builder(subgraph_id: str):
 
 def build_panel_lead_subgraph(runtime: RefreshRuntime, panel_id: str):
     def finalize(state: RefreshState) -> RefreshState:
+        skip_payload = state.get("skip")
+        if skip_payload is not None:
+            panel_results = dict(state.get("panel_results", {}))
+            panel_results[panel_id] = {
+                "claims": state.get("claims", []),
+                "skip": skip_payload,
+            }
+            return {
+                "panel_results": panel_results,
+                "skip": skip_payload,
+            }
         verdict_payload = state["verdict"]
         verdict = (
             GatekeeperVerdict.model_validate(verdict_payload)
             if "gate_decision" in verdict_payload
             else PanelVerdict.model_validate(verdict_payload)
         )
-        final_verdict = runtime.finalize_panel_verdict(panel_id=panel_id, verdict=verdict)
+        support_payload = state.get("support")
+        final_verdict = runtime.finalize_panel_verdict(
+            panel_id=panel_id,
+            verdict=verdict,
+            support_payload=support_payload,
+        )
         panel_results = dict(state.get("panel_results", {}))
         panel_results[panel_id] = {
             "claims": state.get("claims", []),
@@ -50,25 +66,28 @@ def build_panel_lead_subgraph(runtime: RefreshRuntime, panel_id: str):
             "panel_results": panel_results,
             "verdict": final_verdict.model_dump(mode="json"),
         }
-
-    graph = StateGraph(RefreshState)
-    graph.add_node("finalize", finalize)
-    graph.set_entry_point("finalize")
-    graph.add_edge("finalize", END)
-    return graph.compile()
+    return finalize
 
 
 def build_debate_subgraph(runtime: RefreshRuntime, panel_id: str):
     panel = runtime.context.get_panel(panel_id)
-    lead_graph = build_panel_lead_subgraph(runtime, panel_id)
+    lead_node = build_panel_lead_subgraph(runtime, panel_id)
 
     def specialist_node(_state: RefreshState) -> RefreshState:
         result = runtime.execute_panel(panel.id)
-        return {"claims": result["claims"], "verdict": result["verdict"]}
+        state: RefreshState = {
+            "claims": result.get("claims", []),
+            "support": result.get("support"),
+        }
+        if "verdict" in result:
+            state["verdict"] = result["verdict"]
+        if "skip" in result:
+            state["skip"] = result["skip"]
+        return state
 
     graph = StateGraph(RefreshState)
     graph.add_node("specialists_and_judge", specialist_node)
-    graph.add_node("lead", lead_graph)
+    graph.add_node("lead", lead_node)
     graph.set_entry_point("specialists_and_judge")
     graph.add_edge("specialists_and_judge", "lead")
     graph.add_edge("lead", END)
@@ -86,7 +105,7 @@ def build_gatekeeper_checkpoint(
     stop_to: str,
 ):
     def checkpoint(state: RefreshState) -> Command[str]:
-        gatekeeper_verdict = _gatekeeper_verdict_from_state(state)
+        gatekeeper_verdict = _gatekeeper_verdict_from_state(state, runtime=runtime)
         has_downstream_panels = continue_to != stop_to
         if gatekeeper_verdict.gate_decision in {GateDecision.PASS, GateDecision.REVIEW}:
             update = runtime.auto_continue_gatekeeper(
@@ -159,10 +178,35 @@ def build_ic_synthesis_graph(runtime: RefreshRuntime):
     return graph.compile()
 
 
-def _gatekeeper_verdict_from_state(state: RefreshState) -> GatekeeperVerdict:
+def _gatekeeper_verdict_from_state(
+    state: RefreshState,
+    *,
+    runtime: RefreshRuntime | None = None,
+) -> GatekeeperVerdict:
     panel_results = state.get("panel_results", {})
     gatekeeper_result = panel_results.get("gatekeepers", {})
     verdict_payload = gatekeeper_result.get("verdict") or state.get("verdict")
+    if verdict_payload is None and runtime is not None:
+        verdict = runtime.current_verdicts.get("gatekeepers")
+        if verdict is not None:
+            return GatekeeperVerdict.model_validate(verdict.model_dump(mode="json"))
+        with runtime.context.database.session() as session:
+            from ai_investing.persistence.repositories import Repository
+
+            repository = Repository(session)
+            persisted = next(
+                (
+                    item
+                    for item in repository.list_panel_verdicts(
+                        runtime.company_profile.company_id,
+                        run_id=runtime.run.run_id,
+                    )
+                    if item.panel_id == "gatekeepers"
+                ),
+                None,
+            )
+        if persisted is not None:
+            return GatekeeperVerdict.model_validate(persisted.model_dump(mode="json"))
     if verdict_payload is None:
         raise ValueError("Gatekeeper checkpoint requires a gatekeeper verdict in graph state.")
     return GatekeeperVerdict.model_validate(verdict_payload)

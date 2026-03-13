@@ -90,10 +90,18 @@ class FakeModelProvider(ModelProvider):
                 self._claim_card_payload(request)
             )
         if response_model is PanelVerdict:
+            if request.task_type == "panel_lead":
+                return response_model.model_validate(  # type: ignore[return-value]
+                    self._panel_lead_payload(request)
+                )
             return response_model.model_validate(  # type: ignore[return-value]
                 self._panel_verdict_payload(request)
             )
         if response_model is GatekeeperVerdict:
+            if request.task_type == "panel_lead":
+                return response_model.model_validate(  # type: ignore[return-value]
+                    self._panel_lead_payload(request)
+                )
             return response_model.model_validate(  # type: ignore[return-value]
                 self._gatekeeper_payload(request)
             )
@@ -284,6 +292,17 @@ class FakeModelProvider(ModelProvider):
                 "gate_decision": gate_decision,
                 "gate_reasons": base["strengths"][:2] + base["concerns"][:2],
             }
+        )
+        return base
+
+    def _panel_lead_payload(self, request: StructuredGenerationRequest) -> dict[str, Any]:
+        panel_verdict = request.input_data.get("panel_verdict")
+        if panel_verdict is None:
+            raise ValueError("panel_lead requests require panel_verdict input")
+        base = dict(panel_verdict)
+        base["summary"] = (
+            f"Lead synthesis: {base['summary']} "
+            "The panel lead reconciled the judge output for memo use."
         )
         return base
 

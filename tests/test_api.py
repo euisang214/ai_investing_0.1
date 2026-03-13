@@ -32,6 +32,11 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         repository.upsert_coverage(coverage)
 
 
+def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
+    panel = context.get_panel(panel_id)
+    panel.readiness.required_context = required_context
+
+
 def _force_failed_gatekeeper(monkeypatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -407,6 +412,23 @@ def test_api_run_panel_and_run_flow(seeded_acme) -> None:
             section["section_id"]: section for section in shown_payload["memo"]["sections"]
         }
         assert shown_sections["economic_spread"]["status"] == "not_advanced"
+
+
+def test_api_show_run_includes_structured_skipped_panels(seeded_acme) -> None:
+    _require_panel_context(seeded_acme, "demand_revenue_quality", ["portfolio_context"])
+
+    with TestClient(create_app(seeded_acme)) as client:
+        completed = client.post("/companies/ACME/analyze")
+        assert completed.status_code == 200
+        run_id = completed.json()["data"]["run"]["run_id"]
+
+        shown = client.get(f"/runs/{run_id}")
+
+    assert shown.status_code == 200
+    demand = shown.json()["data"]["panels"]["demand_revenue_quality"]
+    assert demand["claims"] == []
+    assert demand["skip"]["reason_code"] == "missing_context"
+    assert demand["skip"]["missing_context"] == ["portfolio_context"]
 
 
 def test_api_exposes_monitoring_history_and_portfolio_summary(context) -> None:

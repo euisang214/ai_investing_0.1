@@ -10,6 +10,8 @@ class RefreshState(TypedDict, total=False):
     panel_results: dict[str, dict[str, Any]]
     claims: list[dict[str, Any]]
     verdict: dict[str, Any]
+    skip: dict[str, Any]
+    support: dict[str, Any]
     memo: dict[str, Any]
     delta: dict[str, Any]
     gate_decision: str

@@ -36,6 +36,11 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         repository.upsert_coverage(coverage)
 
 
+def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
+    panel = context.get_panel(panel_id)
+    panel.readiness.required_context = required_context
+
+
 def _force_failed_gatekeeper(monkeypatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -306,6 +311,23 @@ def test_cli_run_panel_and_run_flow(seeded_acme, monkeypatch) -> None:
         section["section_id"]: section for section in shown_payload["memo"]["sections"]
     }
     assert shown_sections["economic_spread"]["status"] == "not_advanced"
+
+
+def test_cli_show_run_includes_structured_skipped_panels(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+    _require_panel_context(seeded_acme, "demand_revenue_quality", ["portfolio_context"])
+
+    completed = runner.invoke(app, ["analyze-company", "ACME"])
+    assert completed.exit_code == 0
+    run_id = json.loads(completed.stdout)["run"]["run_id"]
+
+    shown = runner.invoke(app, ["show-run", run_id])
+
+    assert shown.exit_code == 0
+    demand = json.loads(shown.stdout)["panels"]["demand_revenue_quality"]
+    assert demand["claims"] == []
+    assert demand["skip"]["reason_code"] == "missing_context"
+    assert demand["skip"]["missing_context"] == ["portfolio_context"]
 
 
 def test_cli_run_panel_rejects_scaffold_only_panel(seeded_acme, monkeypatch) -> None:

@@ -49,6 +49,11 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         repository.upsert_coverage(coverage)
 
 
+def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
+    panel = context.get_panel(panel_id)
+    panel.readiness.required_context = required_context
+
+
 def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -105,6 +110,9 @@ def test_end_to_end_fake_provider_run_auto_continues_passed_gatekeepers(seeded_a
     assert result["delta"]["prior_run_id"] is None
     assert result["delta"]["change_summary"] == "Initial coverage run. No prior memo exists."
     assert result["memo"]["is_initial_coverage"] is True
+    assert result["panels"]["demand_revenue_quality"]["verdict"]["summary"].startswith(
+        "Lead synthesis:"
+    )
     sections = _memo_section_map(result)
     assert sections["economic_spread"]["status"] == "not_advanced"
     assert "Stale from the prior active memo." not in sections["economic_spread"]["content"]
@@ -145,6 +153,25 @@ def test_analyze_company_rejects_explicit_scaffold_panel_selection(seeded_acme) 
         runs = Repository(session).list_runs("ACME")
 
     assert runs == []
+
+
+def test_unsupported_implemented_panel_surfaces_structured_skip(seeded_acme) -> None:
+    _require_panel_context(seeded_acme, "demand_revenue_quality", ["portfolio_context"])
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+
+    demand = result["panels"]["demand_revenue_quality"]
+    assert result["run"]["status"] == "complete"
+    assert demand["claims"] == []
+    assert demand["skip"]["status"] == "skipped"
+    assert demand["skip"]["reason_code"] == "missing_context"
+    assert demand["skip"]["missing_context"] == ["portfolio_context"]
+
+    with seeded_acme.database.session() as session:
+        run = Repository(session).get_run(result["run"]["run_id"])
+
+    assert run is not None
+    assert run.metadata["skipped_panels"][0]["panel_id"] == "demand_revenue_quality"
 
 
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:

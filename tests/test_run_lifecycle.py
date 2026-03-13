@@ -258,6 +258,32 @@ def test_company_refresh_graph_routes_failed_gate_to_provisional_continue(contex
     assert "demand_revenue_quality" in resumed["panel_results"]
 
 
+def test_company_refresh_graph_keeps_structured_skips_visible(context) -> None:
+    runtime = StubRuntime(gate_decision=GateDecision.PASS, skipped_panels={"demand_revenue_quality"})
+
+    with graph_checkpointer(context.settings) as checkpointer:
+        graph = build_company_refresh_graph(
+            runtime=runtime,
+            panel_ids=["gatekeepers", "demand_revenue_quality"],
+            memo_reconciliation=True,
+            monitoring_enabled=True,
+            checkpointer=checkpointer,
+        )
+        result = graph.invoke(
+            {
+                "company_id": "ACME",
+                "run_id": "run_skip_visible",
+                "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+            },
+            config=checkpoint_config("run_skip_visible"),
+        )
+
+    demand = result["panel_results"]["demand_revenue_quality"]
+    assert demand["claims"] == []
+    assert demand["skip"]["status"] == "skipped"
+    assert demand["skip"]["reason_code"] == "missing_context"
+
+
 def test_analysis_service_auto_continues_passed_gatekeepers(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
@@ -399,11 +425,51 @@ class StubContext:
 
 
 class StubRuntime:
-    def __init__(self, *, gate_decision: GateDecision) -> None:
+    def __init__(
+        self,
+        *,
+        gate_decision: GateDecision,
+        skipped_panels: set[str] | None = None,
+    ) -> None:
         self.context = StubContext()
         self.gate_decision = gate_decision
+        self.skipped_panels = skipped_panels or set()
 
     def execute_panel(self, panel_id: str) -> dict[str, object]:
+        if panel_id in self.skipped_panels:
+            return {
+                "claims": [],
+                "skip": {
+                    "panel_id": panel_id,
+                    "panel_name": "Demand And Revenue Quality",
+                    "company_type": "public",
+                    "status": "skipped",
+                    "reason_code": "missing_context",
+                    "reason": "Demand And Revenue Quality requires run context that is missing: portfolio_context.",
+                    "evidence_summary": "0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+                    "evidence_count": 0,
+                    "factor_coverage_ratio": 0.0,
+                    "available_evidence_families": [],
+                    "missing_evidence_families": [],
+                    "required_context": ["portfolio_context"],
+                    "missing_context": ["portfolio_context"],
+                },
+                "support": {
+                    "panel_id": panel_id,
+                    "panel_name": "Demand And Revenue Quality",
+                    "company_type": "public",
+                    "status": "unsupported",
+                    "reason": "Demand And Revenue Quality requires run context that is missing: portfolio_context.",
+                    "evidence_count": 0,
+                    "factor_coverage_ratio": 0.0,
+                    "evidence_summary": "0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+                    "available_evidence_families": [],
+                    "missing_evidence_families": [],
+                    "required_context": ["portfolio_context"],
+                    "missing_context": ["portfolio_context"],
+                    "weak_confidence_allowed": False,
+                },
+            }
         if panel_id == "gatekeepers":
             verdict = GatekeeperVerdict(
                 company_id="ACME",
@@ -436,9 +502,27 @@ class StubRuntime:
                 confidence=0.8,
                 namespace=f"company/ACME/verdicts/{panel_id}",
             )
-        return {"claims": [], "verdict": verdict.model_dump(mode="json")}
+        return {
+            "claims": [],
+            "verdict": verdict.model_dump(mode="json"),
+            "support": {
+                "panel_id": panel_id,
+                "panel_name": verdict.panel_name,
+                "company_type": "public",
+                "status": "supported",
+                "reason": "Panel support requirements are satisfied for this run.",
+                "evidence_count": 2,
+                "factor_coverage_ratio": 1.0,
+                "evidence_summary": "2 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 1.00.",
+                "available_evidence_families": ["regulatory", "transcript"],
+                "missing_evidence_families": [],
+                "required_context": [],
+                "missing_context": [],
+                "weak_confidence_allowed": True,
+            },
+        }
 
-    def finalize_panel_verdict(self, *, panel_id: str, verdict):
+    def finalize_panel_verdict(self, *, panel_id: str, verdict, support_payload=None):
         return verdict
 
     def update_memo_for_panel(self, panel_id: str) -> dict[str, object]:

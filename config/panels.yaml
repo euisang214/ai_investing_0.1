@@ -27,8 +27,8 @@ panels:
         private:
           - core_company_documents
           - dataroom
-      minimum_factor_coverage_ratio: 0.6
-      minimum_evidence_count: 4
+      minimum_factor_coverage_ratio: 0.45
+      minimum_evidence_count: 2
       required_context: []
     support:
       required_company_types:
@@ -72,7 +72,7 @@ panels:
           - dataroom
           - kpi_reporting
       minimum_factor_coverage_ratio: 0.55
-      minimum_evidence_count: 5
+      minimum_evidence_count: 3
       required_context: []
     support:
       required_company_types:

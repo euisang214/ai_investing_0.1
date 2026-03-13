@@ -24,15 +24,16 @@ from ai_investing.application.services import (
 from ai_investing.application.worker import WorkerService
 from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
 from ai_investing.domain.models import (
-    ClaimCard,
     CoverageEntry,
-    GatekeeperVerdict,
     ICMemo,
     MonitoringDelta,
-    PanelVerdict,
     RunRecord,
 )
-from ai_investing.domain.read_models import CompanyMonitoringHistory, PortfolioMonitoringSummary
+from ai_investing.domain.read_models import (
+    CompanyMonitoringHistory,
+    PanelRunRead,
+    PortfolioMonitoringSummary,
+)
 from ai_investing.persistence.repositories import Repository
 
 
@@ -118,18 +119,11 @@ class ContinueRunRequest(BaseModel):
     action: RunContinueAction = RunContinueAction.CONTINUE
 
 
-class PanelResultResponse(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    claims: list[ClaimCard] = Field(default_factory=list)
-    verdict: GatekeeperVerdict | PanelVerdict
-
-
 class RunResultResponseData(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     run: RunRecord
-    panels: dict[str, PanelResultResponse] = Field(default_factory=dict)
+    panels: dict[str, PanelRunRead] = Field(default_factory=dict)
     memo: ICMemo | None = None
     delta: MonitoringDelta | None = None
 
@@ -522,11 +516,14 @@ def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
             claims_by_panel[claim.panel_id].append(claim.model_dump(mode="json"))
 
         panels: dict[str, dict[str, Any]] = {}
+        for item in run.metadata.get("skipped_panels", []):
+            skip = PanelRunRead(skip=item)
+            panels[str(skip.skip.panel_id)] = skip.model_dump(mode="json")
         for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
-            panels[verdict.panel_id] = {
-                "claims": claims_by_panel.get(verdict.panel_id, []),
-                "verdict": verdict.model_dump(mode="json"),
-            }
+            panels[verdict.panel_id] = PanelRunRead(
+                claims=claims_by_panel.get(verdict.panel_id, []),
+                verdict=verdict.model_dump(mode="json"),
+            ).model_dump(mode="json")
 
         memo = repository.get_memo_for_run(run.company_id, run.run_id)
         delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)

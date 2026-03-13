@@ -32,14 +32,17 @@ from ai_investing.domain.models import (
     MemoSection,
     MemoSectionUpdate,
     MonitoringDelta,
+    PanelSupportAssessment,
     PanelVerdict,
     ReviewQueueEntry,
     RunCheckpoint,
     RunRecord,
+    SkippedPanelResult,
     StructuredGenerationRequest,
     new_id,
     utc_now,
 )
+from ai_investing.domain.read_models import PanelRunRead
 from ai_investing.ingestion.base import ConnectorIngestRequest
 from ai_investing.ingestion.registry import SourceConnectorRegistry
 from ai_investing.monitoring import MonitoringDeltaService
@@ -50,6 +53,38 @@ _UNSET = object()
 DEFAULT_CONNECTOR_IDS = {
     CompanyType.PUBLIC: "public_file_connector",
     CompanyType.PRIVATE: "private_file_connector",
+}
+EVIDENCE_FAMILY_ALIASES = {
+    "core_company_documents": {"regulatory", "transcript", "dataroom"},
+    "filings": {"regulatory"},
+    "transcripts": {"transcript"},
+    "dataroom": {"dataroom"},
+    "kpi_reporting": {"kpi_packet"},
+    "management_materials": {"dataroom"},
+    "financial_statements": {"regulatory", "kpi_packet", "dataroom"},
+    "market_data": {"market", "news", "ownership"},
+    "regulatory_intelligence": {"regulatory", "news"},
+    "consensus_views": {"consensus"},
+    "milestone_tracking": {"events"},
+    "security_context": {"ownership", "market"},
+    "deal_context": {"dataroom"},
+    "portfolio_context": {"portfolio_context"},
+}
+SOURCE_TYPE_EVIDENCE_FAMILIES = {
+    "regulatory_filing": {"regulatory"},
+    "earnings_call": {"transcript"},
+    "public_news": {"news"},
+    "board_deck": {"dataroom"},
+    "diligence_note": {"dataroom"},
+    "kpi_workbook": {"kpi_packet"},
+    "market_snapshot": {"market"},
+    "market_commentary": {"market"},
+    "consensus_snapshot": {"consensus"},
+    "ownership_report": {"ownership"},
+    "ownership_flow": {"ownership"},
+    "event_page": {"events"},
+    "event_image": {"events"},
+    "live_market_snapshot": {"market"},
 }
 
 
@@ -250,6 +285,7 @@ class RefreshRuntime:
     current_sections: dict[str, MemoSection]
     current_claims: list[ClaimCard]
     current_verdicts: dict[str, PanelVerdict]
+    current_skipped_panels: dict[str, SkippedPanelResult]
     current_delta: MonitoringDelta | None = None
 
     @classmethod
@@ -299,6 +335,7 @@ class RefreshRuntime:
             current_sections=current_sections,
             current_claims=current_claims,
             current_verdicts=current_verdicts,
+            current_skipped_panels=cls._skipped_panels_from_run(run),
             current_delta=repository.get_latest_monitoring_delta(
                 company_profile.company_id,
                 run_id=run.run_id,
@@ -310,6 +347,29 @@ class RefreshRuntime:
             repository = Repository(session)
             panel = self.context.get_panel(panel_id)
             evidence = repository.list_evidence(self.company_profile.company_id, panel_id=panel_id)
+            support = self._evaluate_panel_support(panel=panel, evidence=evidence)
+            self._record_panel_support_assessment(support)
+            if support.status == "unsupported":
+                skip = SkippedPanelResult(
+                    panel_id=panel.id,
+                    panel_name=panel.name,
+                    company_type=self.company_profile.company_type,
+                    reason_code=self._unsupported_reason_code(support),
+                    reason=support.reason,
+                    evidence_summary=support.evidence_summary,
+                    evidence_count=support.evidence_count,
+                    factor_coverage_ratio=support.factor_coverage_ratio,
+                    available_evidence_families=support.available_evidence_families,
+                    missing_evidence_families=support.missing_evidence_families,
+                    required_context=support.required_context,
+                    missing_context=support.missing_context,
+                )
+                self._record_skipped_panel(skip)
+                return {
+                    "claims": [],
+                    "skip": skip.model_dump(mode="json"),
+                    "support": support.model_dump(mode="json"),
+                }
             specialist_claims = self._run_specialists(
                 repository=repository,
                 panel=panel,
@@ -319,14 +379,24 @@ class RefreshRuntime:
                 repository=repository,
                 panel=panel,
                 claims=specialist_claims,
+                evidence=evidence,
             )
         self.current_claims.extend(specialist_claims)
         return {
             "claims": [claim.model_dump(mode="json") for claim in specialist_claims],
             "verdict": verdict.model_dump(mode="json"),
+            "support": support.model_dump(mode="json"),
         }
 
     def update_memo_for_panel(self, panel_id: str) -> dict[str, Any]:
+        if panel_id in self.current_skipped_panels:
+            partial_memo = self._build_memo(is_partial=True)
+            with self.context.database.session() as session:
+                Repository(session).save_memo(partial_memo)
+            return {
+                "updates": [],
+                "memo": partial_memo.model_dump(mode="json"),
+            }
         verdict = self.current_verdicts[panel_id]
         panel_claims = [claim for claim in self.current_claims if claim.panel_id == panel_id]
         updates: list[MemoSectionUpdate] = []
@@ -545,29 +615,19 @@ class RefreshRuntime:
                 )["claims"]
                 prompt = self.context.prompt_loader.load(agent.prompt_path)
                 provider = self.context.get_provider(agent.model_profile)
-                prior_claim_text = prior_claims[0]["claim"] if prior_claims else ""
                 claim = provider.generate_structured(
                     StructuredGenerationRequest(
                         task_type="claim_card",
                         prompt=prompt,
-                        input_data={
-                            "company_id": self.company_profile.company_id,
-                            "company_name": self.company_profile.company_name,
-                            "company_type": self.company_profile.company_type.value,
-                            "run_id": self.run.run_id,
-                            "panel_id": panel.id,
-                            "factor_id": factor_id,
-                            "factor_name": factor_name,
-                            "agent_id": agent.id,
-                            "role_type": agent.role_type,
-                            "evidence": tool_evidence,
-                            "prior_claim": prior_claim_text,
-                            "section_ids": panel.memo_section_ids,
-                            "namespace": (
-                                f"company/{self.company_profile.company_id}/"
-                                f"claims/{factor_id}"
-                            ),
-                        },
+                        input_data=self._build_agent_input_data(
+                            agent=agent,
+                            panel=panel,
+                            namespace=f"company/{self.company_profile.company_id}/claims/{factor_id}",
+                            factor_id=factor_id,
+                            factor_name=factor_name,
+                            evidence=tool_evidence,
+                            prior_claims=prior_claims,
+                        ),
                     ),
                     ClaimCard,
                 )
@@ -581,6 +641,7 @@ class RefreshRuntime:
         repository: Repository,
         panel: PanelConfig,
         claims: list[ClaimCard],
+        evidence: list[Any],
     ) -> PanelVerdict:
         judge = next(
             agent
@@ -594,45 +655,346 @@ class RefreshRuntime:
             StructuredGenerationRequest(
                 task_type="panel_verdict",
                 prompt=prompt,
-                input_data={
-                    "company_id": self.company_profile.company_id,
-                    "company_name": self.company_profile.company_name,
-                    "company_type": self.company_profile.company_type.value,
-                    "run_id": self.run.run_id,
-                    "panel_id": panel.id,
-                    "panel_name": panel.name,
-                    "claims": [claim.model_dump(mode="json") for claim in claims],
-                    "affected_section_ids": panel.memo_section_ids,
-                    "namespace": f"company/{self.company_profile.company_id}/verdicts/{panel.id}",
-                },
+                input_data=self._build_agent_input_data(
+                    agent=judge,
+                    panel=panel,
+                    namespace=f"company/{self.company_profile.company_id}/verdicts/{panel.id}",
+                    evidence=evidence,
+                    claims=claims,
+                ),
             ),
             response_model,
         )
         repository.save_panel_verdict(verdict)
         return verdict
 
-    def finalize_panel_verdict(self, *, panel_id: str, verdict: PanelVerdict) -> PanelVerdict:
+    def finalize_panel_verdict(
+        self,
+        *,
+        panel_id: str,
+        verdict: PanelVerdict,
+        support_payload: dict[str, Any] | None = None,
+    ) -> PanelVerdict:
         panel = self.context.get_panel(panel_id)
+        support = (
+            PanelSupportAssessment.model_validate(support_payload)
+            if support_payload is not None
+            else None
+        )
         lead_agents = [
             agent
             for agent in self.context.active_agents_for_panel(panel.id)
             if agent.role_type == "lead"
         ]
-        if not lead_agents:
-            self.current_verdicts[panel_id] = verdict
-            return verdict
-        summary_prefix = "Gatekeeper lead:" if panel.id == "gatekeepers" else "Panel lead:"
-        updated = verdict.model_copy(
-            update={
-                "verdict_id": new_id("vrd"),
-                "summary": f"{summary_prefix} {verdict.summary}",
-                "supersedes_verdict_id": verdict.verdict_id,
-            }
-        )
+        updated = verdict
+        if lead_agents:
+            lead = lead_agents[0]
+            provider = self.context.get_provider(lead.model_profile)
+            prompt = self.context.prompt_loader.load(lead.prompt_path)
+            panel_claims = [claim for claim in self.current_claims if claim.panel_id == panel_id]
+            response_model = GatekeeperVerdict if panel.id == "gatekeepers" else PanelVerdict
+            updated = provider.generate_structured(
+                StructuredGenerationRequest(
+                    task_type="panel_lead",
+                    prompt=prompt,
+                    input_data=self._build_agent_input_data(
+                        agent=lead,
+                        panel=panel,
+                        namespace=f"company/{self.company_profile.company_id}/verdicts/{panel.id}",
+                        claims=panel_claims,
+                        verdict=verdict,
+                        support=support,
+                    )
+                    | {"supersedes_verdict_id": verdict.verdict_id},
+                ),
+                response_model,
+            )
+            updated = updated.model_copy(
+                update={
+                    "verdict_id": new_id("vrd"),
+                    "supersedes_verdict_id": verdict.verdict_id,
+                }
+            )
+        if support is not None and support.status == "weak_confidence":
+            updated = self._apply_weak_confidence_posture(updated, support)
         with self.context.database.session() as session:
             Repository(session).save_panel_verdict(updated)
         self.current_verdicts[panel_id] = updated
         return updated
+
+    def _build_agent_input_data(
+        self,
+        *,
+        agent: AgentConfig,
+        panel: PanelConfig,
+        namespace: str,
+        factor_id: str | None = None,
+        factor_name: str | None = None,
+        evidence: list[Any] | None = None,
+        prior_claims: list[dict[str, Any]] | None = None,
+        claims: list[ClaimCard] | None = None,
+        verdict: PanelVerdict | None = None,
+        support: PanelSupportAssessment | None = None,
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "company_id": self.company_profile.company_id,
+            "company_name": self.company_profile.company_name,
+            "company_type": self.company_profile.company_type.value,
+            "run_id": self.run.run_id,
+            "panel_id": panel.id,
+            "panel_name": panel.name,
+            "agent_id": agent.id,
+            "role_type": agent.role_type,
+            "section_ids": panel.memo_section_ids,
+            "affected_section_ids": panel.memo_section_ids,
+            "namespace": namespace,
+        }
+        if factor_id is not None:
+            payload["factor_id"] = factor_id
+        if factor_name is not None:
+            payload["factor_name"] = factor_name
+
+        channel_set = set(agent.input_channels)
+        if "evidence" in channel_set:
+            payload["evidence"] = list(evidence or [])
+        if "prior_claims" in channel_set:
+            prior_claims = list(prior_claims or [])
+            payload["prior_claims"] = prior_claims
+            payload["prior_claim"] = prior_claims[0]["claim"] if prior_claims else ""
+        if "prior_memo" in channel_set:
+            payload["prior_memo"] = (
+                self.prior_memo.model_dump(mode="json") if self.prior_memo is not None else None
+            )
+        if "claims" in channel_set:
+            payload["claims"] = [
+                claim.model_dump(mode="json") if isinstance(claim, ClaimCard) else claim
+                for claim in (claims or [])
+            ]
+        if "panel_verdict" in channel_set and verdict is not None:
+            payload["panel_verdict"] = verdict.model_dump(mode="json")
+        if "panel_verdicts" in channel_set:
+            payload["panel_verdicts"] = [
+                item.model_dump(mode="json") for item in self.current_verdicts.values()
+            ]
+        if "memo_sections" in channel_set:
+            payload["memo_sections"] = [
+                section.model_dump(mode="json") for section in self.current_sections.values()
+            ]
+        if "prior_run" in channel_set:
+            payload["prior_run"] = self._prior_run_payload()
+        if support is not None:
+            payload["support_assessment"] = support.model_dump(mode="json")
+        return payload
+
+    def _evaluate_panel_support(
+        self,
+        *,
+        panel: PanelConfig,
+        evidence: list[Any],
+    ) -> PanelSupportAssessment:
+        company_type = self.company_profile.company_type.value
+        evidence_families = self._evidence_families(evidence)
+        factor_coverage_ratio = self._factor_coverage_ratio(panel=panel, evidence=evidence)
+        evidence_count = len(evidence)
+        readiness = panel.readiness
+        support = panel.support
+        required_families = readiness.required_evidence_families.get(company_type, [])
+        missing_families = [
+            family
+            for family in required_families
+            if not (EVIDENCE_FAMILY_ALIASES.get(family, {family}) & evidence_families)
+        ]
+        required_context = list(readiness.required_context)
+        available_context = self._available_context_keys()
+        missing_context = [item for item in required_context if item not in available_context]
+
+        weak_confidence = support.weak_confidence
+        weak_threshold_met = (
+            weak_confidence.enabled
+            and weak_confidence.minimum_factor_coverage_ratio is not None
+            and weak_confidence.minimum_evidence_count is not None
+            and factor_coverage_ratio >= weak_confidence.minimum_factor_coverage_ratio
+            and evidence_count >= weak_confidence.minimum_evidence_count
+        )
+        fully_supported = (
+            company_type in support.required_company_types
+            and not missing_context
+            and not missing_families
+            and factor_coverage_ratio >= readiness.minimum_factor_coverage_ratio
+            and evidence_count >= readiness.minimum_evidence_count
+        )
+
+        status = "supported"
+        reason = "Panel support requirements are satisfied for this run."
+        if not fully_supported:
+            if missing_context or missing_families or company_type not in support.required_company_types:
+                status = "unsupported"
+            elif weak_threshold_met:
+                status = "weak_confidence"
+            else:
+                status = "unsupported"
+            reason = self._support_reason(
+                panel=panel,
+                company_type=company_type,
+                missing_context=missing_context,
+                missing_families=missing_families,
+                factor_coverage_ratio=factor_coverage_ratio,
+                evidence_count=evidence_count,
+            )
+
+        return PanelSupportAssessment(
+            panel_id=panel.id,
+            panel_name=panel.name,
+            company_type=self.company_profile.company_type,
+            status=status,
+            reason=reason,
+            evidence_count=evidence_count,
+            factor_coverage_ratio=round(factor_coverage_ratio, 2),
+            evidence_summary=self._evidence_summary(evidence_count, evidence_families, factor_coverage_ratio),
+            available_evidence_families=sorted(evidence_families),
+            missing_evidence_families=missing_families,
+            required_context=required_context,
+            missing_context=missing_context,
+            weak_confidence_allowed=weak_confidence.enabled,
+        )
+
+    def _apply_weak_confidence_posture(
+        self,
+        verdict: PanelVerdict,
+        support: PanelSupportAssessment,
+    ) -> PanelVerdict:
+        concerns = list(dict.fromkeys([*verdict.concerns, support.reason]))
+        return verdict.model_copy(
+            update={
+                "verdict_id": new_id("vrd"),
+                "summary": self._prefix_content(
+                    verdict.summary,
+                    "Weak-confidence read due to thin evidence.",
+                ),
+                "confidence": round(min(verdict.confidence, 0.45), 2),
+                "concerns": concerns,
+                "supersedes_verdict_id": verdict.verdict_id,
+            }
+        )
+
+    def _record_panel_support_assessment(self, support: PanelSupportAssessment) -> None:
+        assessments = [
+            PanelSupportAssessment.model_validate(item)
+            for item in self.run.metadata.get("panel_support_assessments", [])
+        ]
+        assessments = [item for item in assessments if item.panel_id != support.panel_id]
+        assessments.append(support)
+        self.run.metadata = {
+            **self.run.metadata,
+            "panel_support_assessments": [
+                item.model_dump(mode="json") for item in assessments
+            ],
+        }
+
+    def _record_skipped_panel(self, skip: SkippedPanelResult) -> None:
+        self.current_skipped_panels[skip.panel_id] = skip
+        skipped_panels = [
+            item for item in self.current_skipped_panels.values()
+        ]
+        self.run.metadata = {
+            **self.run.metadata,
+            "skipped_panels": [item.model_dump(mode="json") for item in skipped_panels],
+        }
+
+    def _available_context_keys(self) -> set[str]:
+        raw_context = self.run.metadata.get("available_context", [])
+        available = {str(item) for item in raw_context if isinstance(item, str)}
+        if self.prior_memo is not None:
+            available.add("prior_memo")
+        if self.prior_active_verdicts:
+            available.add("prior_run")
+        if self.current_verdicts:
+            available.add("panel_verdicts")
+        return available
+
+    @staticmethod
+    def _evidence_families(evidence: list[Any]) -> set[str]:
+        families: set[str] = set()
+        for record in evidence:
+            metadata = getattr(record, "metadata", {}) or {}
+            family = metadata.get("evidence_family")
+            if isinstance(family, str) and family.strip():
+                families.add(family.strip())
+                continue
+            source_type = getattr(record, "source_type", None)
+            if isinstance(source_type, str):
+                families.update(SOURCE_TYPE_EVIDENCE_FAMILIES.get(source_type, set()))
+        return families
+
+    @staticmethod
+    def _factor_coverage_ratio(*, panel: PanelConfig, evidence: list[Any]) -> float:
+        if not panel.factor_ids:
+            return 1.0
+        covered_factors: set[str] = set()
+        for record in evidence:
+            covered_factors.update(
+                factor_id for factor_id in getattr(record, "factor_ids", []) if factor_id in panel.factor_ids
+            )
+        return len(covered_factors) / len(panel.factor_ids)
+
+    @staticmethod
+    def _evidence_summary(
+        evidence_count: int,
+        evidence_families: set[str],
+        factor_coverage_ratio: float,
+    ) -> str:
+        families = ", ".join(sorted(evidence_families)) if evidence_families else "none"
+        return (
+            f"{evidence_count} records matched this panel; evidence families: {families}; "
+            f"factor coverage ratio: {factor_coverage_ratio:.2f}."
+        )
+
+    def _support_reason(
+        self,
+        *,
+        panel: PanelConfig,
+        company_type: str,
+        missing_context: list[str],
+        missing_families: list[str],
+        factor_coverage_ratio: float,
+        evidence_count: int,
+    ) -> str:
+        if company_type not in panel.support.required_company_types:
+            return (
+                f"{panel.name} is not configured for {company_type} runs."
+            )
+        if missing_context:
+            return (
+                f"{panel.name} requires run context that is missing: "
+                f"{', '.join(missing_context)}."
+            )
+        if missing_families:
+            return (
+                f"{panel.name} is missing required evidence families for this run: "
+                f"{', '.join(missing_families)}."
+            )
+        return (
+            f"{panel.name} has only {evidence_count} supporting records with "
+            f"{factor_coverage_ratio:.2f} factor coverage against a "
+            f"{panel.readiness.minimum_factor_coverage_ratio:.2f} readiness bar."
+        )
+
+    @staticmethod
+    def _unsupported_reason_code(support: PanelSupportAssessment) -> str:
+        if support.missing_context:
+            return "missing_context"
+        if support.missing_evidence_families:
+            return "missing_evidence_families"
+        return "insufficient_evidence"
+
+    def _prior_run_payload(self) -> dict[str, Any] | None:
+        if self.prior_memo is None and not self.prior_active_verdicts:
+            return None
+        return {
+            "memo_id": self.prior_memo.memo_id if self.prior_memo is not None else None,
+            "run_id": self.prior_memo.run_id if self.prior_memo is not None else None,
+            "panel_ids": sorted(self.prior_active_verdicts),
+        }
 
     def _build_memo(self, *, is_partial: bool) -> ICMemo:
         labels = self.context.memo_section_labels(self.coverage.memo_label_profile)
@@ -892,6 +1254,14 @@ class RefreshRuntime:
                 run_id=run.run_id,
             )
         }
+
+    @staticmethod
+    def _skipped_panels_from_run(run: RunRecord) -> dict[str, SkippedPanelResult]:
+        raw_items = run.metadata.get("skipped_panels", [])
+        if not isinstance(raw_items, list):
+            return {}
+        skipped = [SkippedPanelResult.model_validate(item) for item in raw_items]
+        return {item.panel_id: item for item in skipped}
 
     def _delta_thresholds(self) -> dict[str, Any]:
         return dict(self.context.registries.monitoring.monitoring.delta_thresholds)
@@ -1208,6 +1578,8 @@ class AnalysisService:
                     verdict.model_dump(mode="json")
                     for verdict in repository.list_panel_verdicts(company_id, active_only=True)
                 ],
+                "panel_support_assessments": [],
+                "skipped_panels": [],
                 "job_id": job_id,
             }
             repository.save_run(run)
@@ -1493,9 +1865,15 @@ class AnalysisService:
         return [str(panel_id) for panel_id in panel_ids]
 
     def _build_graph_result(self, run: RunRecord, graph_result: dict[str, Any]) -> dict[str, Any]:
+        panels = dict(graph_result.get("panel_results", {}))
+        for panel_id, skip in RefreshRuntime._skipped_panels_from_run(run).items():
+            panels.setdefault(
+                panel_id,
+                PanelRunRead(skip=skip).model_dump(mode="json"),
+            )
         return {
             "run": run.model_dump(mode="json"),
-            "panels": graph_result.get("panel_results", {}),
+            "panels": panels,
             "memo": graph_result.get("memo"),
             "delta": graph_result.get("delta"),
         }
@@ -1504,12 +1882,18 @@ class AnalysisService:
         claims_by_panel: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for claim in repository.list_claim_cards(run.company_id, run_id=run.run_id):
             claims_by_panel[claim.panel_id].append(claim.model_dump(mode="json"))
-        panels: dict[str, dict[str, Any]] = {}
+        panels: dict[str, dict[str, Any]] = {
+            panel_id: PanelRunRead(skip=skip).model_dump(mode="json")
+            for panel_id, skip in RefreshRuntime._skipped_panels_from_run(run).items()
+        }
         for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
-            panels[verdict.panel_id] = {
-                "claims": claims_by_panel.get(verdict.panel_id, []),
-                "verdict": verdict.model_dump(mode="json"),
-            }
+            panels[verdict.panel_id] = PanelRunRead(
+                claims=[
+                    ClaimCard.model_validate(claim)
+                    for claim in claims_by_panel.get(verdict.panel_id, [])
+                ],
+                verdict=verdict,
+            ).model_dump(mode="json")
         memo = repository.get_memo_for_run(run.company_id, run.run_id)
         delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)
         return {

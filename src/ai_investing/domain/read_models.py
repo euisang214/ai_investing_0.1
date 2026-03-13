@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from ai_investing.domain.enums import (
     AlertLevel,
@@ -18,12 +18,16 @@ from ai_investing.domain.enums import (
     RunStatus,
 )
 from ai_investing.domain.models import (
+    ClaimCard,
     DomainModel,
+    GatekeeperVerdict,
     MonitoringDelta,
     MonitoringReference,
     NotificationEvent,
+    PanelVerdict,
     RefreshJobRecord,
     ReviewQueueEntry,
+    SkippedPanelResult,
 )
 
 
@@ -164,3 +168,17 @@ class NotificationEventListItem(DomainModel):
     next_action: str | None = None
     delivery_attempts: int = 0
     created_at: datetime
+
+
+class PanelRunRead(DomainModel):
+    claims: list[ClaimCard] = Field(default_factory=list)
+    verdict: GatekeeperVerdict | PanelVerdict | None = None
+    skip: SkippedPanelResult | None = None
+
+    @model_validator(mode="after")
+    def validate_shape(self) -> PanelRunRead:
+        if self.verdict is None and self.skip is None:
+            raise ValueError("PanelRunRead requires either verdict or skip")
+        if self.verdict is not None and self.skip is not None:
+            raise ValueError("PanelRunRead cannot contain both verdict and skip")
+        return self

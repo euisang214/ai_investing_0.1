@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
@@ -225,6 +225,38 @@ class PanelVerdict(DomainModel):
 class GatekeeperVerdict(PanelVerdict):
     gate_decision: GateDecision
     gate_reasons: list[str] = Field(default_factory=list)
+
+
+class PanelSupportAssessment(DomainModel):
+    panel_id: str
+    panel_name: str
+    company_type: CompanyType
+    status: Literal["supported", "weak_confidence", "unsupported"]
+    reason: str
+    evidence_count: int = 0
+    factor_coverage_ratio: float = 0.0
+    evidence_summary: str
+    available_evidence_families: list[str] = Field(default_factory=list)
+    missing_evidence_families: list[str] = Field(default_factory=list)
+    required_context: list[str] = Field(default_factory=list)
+    missing_context: list[str] = Field(default_factory=list)
+    weak_confidence_allowed: bool = False
+
+
+class SkippedPanelResult(DomainModel):
+    panel_id: str
+    panel_name: str
+    company_type: CompanyType
+    status: Literal["skipped"] = "skipped"
+    reason_code: str
+    reason: str
+    evidence_summary: str
+    evidence_count: int = 0
+    factor_coverage_ratio: float = 0.0
+    available_evidence_families: list[str] = Field(default_factory=list)
+    missing_evidence_families: list[str] = Field(default_factory=list)
+    required_context: list[str] = Field(default_factory=list)
+    missing_context: list[str] = Field(default_factory=list)
 
 
 class MemoSection(DomainModel):
