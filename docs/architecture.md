@@ -180,13 +180,14 @@ LangGraph composes reusable subgraphs:
 
 The `CompanyRefreshGraph` loads due panels from config and run policy, executes the active subgraphs, persists outputs, and updates memo sections incrementally.
 
-The first production checkpoint is mandatory:
+The first production checkpoint remains mandatory, but the project-wide continuation policy changed on 2026-03-13:
 
 - `gatekeepers` always runs before downstream panels
-- the graph pauses after `gatekeepers` even when the company passes
-- downstream work resumes only after an explicit operator action
-- failed gatekeepers can continue only as provisional analysis
-- direct downstream `run-panel` execution is rejected unless the run already has the required resume context
+- the old universal pause rule is superseded
+- `pass` and `review` should auto-continue into downstream work for both initial and scheduled runs
+- `fail` should stop after `gatekeepers`, enter a review queue, and notify immediately
+- failed gatekeepers can continue only as provisional analysis after an explicit operator action
+- direct downstream `run-panel` execution is rejected unless the run already has the required gatekeeper context
 
 That same orchestration layer also enforces the Phase 3 scaffold boundary:
 
@@ -216,10 +217,11 @@ Typer CLI and FastAPI endpoints both call the same application services. n8n sta
 The operator-facing contract is checkpoint-aware:
 
 - `analyze-company`, `refresh-company`, and due-coverage entrypoints return a structured run payload
-- `show-run` and `GET /runs/{run_id}` expose persisted paused or completed runs by `run_id`
-- `continue-run` and `POST /runs/{run_id}/continue` require an explicit action instead of silently chaining past the gatekeeper
+- `show-run` and `GET /runs/{run_id}` expose persisted failed, review-queued, paused, or completed runs by `run_id`
+- `continue-run` and `POST /runs/{run_id}/continue` remain available for explicit follow-up actions, especially provisional overrides after failed gatekeepers
 - stable fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`, and `checkpoint` make automation clients parse state without scraping prose
-- paused runs persist gatekeeper verdicts and partial memo artifacts immediately; terminal runs add final memo reconciliation and monitoring delta output
+- pass and review checkpoints resolve automatically, so the persisted run still shows the gatekeeper boundary without requiring a manual resume step
+- failed gatekeepers stay blocked at the checkpoint, create review-queue records, and require explicit operator-only provisional continuation
 
 Phase 4 extends that interface layer with additive monitoring inspection routes:
 
@@ -234,6 +236,48 @@ frontend, changing the company-refresh runtime, or making `portfolio_fit_positio
 The portfolio summary is organized by change type first, then by clearly separated portfolio and
 watchlist segments. Shared-risk or overlap clusters are primary output when present, while broader
 analog exploration remains a secondary drill-down.
+
+## Phase 5 Operations Boundary
+
+Phase 5 adds queue, worker, review, and notification seams without changing the core reasoning owner.
+
+### Cadence And Scheduling
+
+- coverage entries still store compatibility fields such as `cadence`, `next_run_at`, and `last_run_at`
+- `schedule_policy_id`, `schedule_enabled`, and `preferred_run_time` now carry the real cadence policy contract
+- schedule computation remains service-owned and config-driven rather than embedded in n8n or hardcoded in orchestration graphs
+- bulk submission surfaces enqueue work for selected companies, the watchlist, the portfolio, or the due set
+
+### Queue Execution
+
+- `QueueService` owns job submission, duplicate suppression, queue summaries, per-job inspection, retry, cancel, and force-run controls
+- `WorkerService` claims queued jobs and runs bounded parallel execution against the same `AnalysisService` runtime used by manual refreshes
+- queue records are typed operational data, not log lines or memo prose
+- a job can resolve as complete, failed, cancelled, or review-required without teaching n8n any panel sequencing details
+
+### Review Queue Semantics
+
+- every run still starts with `gatekeepers`
+- `pass` and `review` auto-continue into downstream work for both initial and scheduled runs
+- `fail` stops after `gatekeepers`, persists `awaiting_continue`, creates a review-queue entry, and emits an immediate notification
+- downstream work after `fail` remains explicitly provisional and operator-only through `continue-run`
+- n8n, workers, and scheduled automation may not invoke provisional continuation automatically
+
+### Notification Delivery Surface
+
+- notification events are typed records with category, summary, next action, and optional review or job linkage
+- immediate notifications cover failed gatekeepers, worker failures, and materially changed successful runs
+- successful runs also write a daily digest candidate even when the company had no key changes, so operators can confirm it was processed
+- the service owns notification event creation; external automation claims, dispatches, and acknowledges events through stable endpoints
+
+### n8n Boundary
+
+n8n remains an external automation shell:
+
+- schedule triggers should call `/queue/enqueue-watchlist`, `/queue/enqueue-portfolio`, or `/queue/enqueue-due`
+- evidence webhooks should call ingest endpoints such as `/companies/{company_id}/ingest-public`
+- notification workflows should use `/notifications/claim`, `/notifications/{event_id}/dispatch`, and `/notifications/{event_id}/acknowledge`
+- n8n must not read the database directly, invoke worker-internal callbacks, coordinate panel sequencing, or auto-resume failed gatekeeper runs
 
 ## Data Model And Memory Strategy
 

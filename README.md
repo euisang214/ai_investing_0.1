@@ -59,18 +59,17 @@ docker compose up --build -d
 docker compose exec api ai-investing init-db
 docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
 docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
-docker compose exec api ai-investing set-next-run-at ACME 2026-03-10T09:30:00+00:00
+docker compose exec api ai-investing list-cadence-policies
+docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekday_morning
 docker compose exec api ai-investing analyze-company ACME
-# inspect the returned run_id while the run is paused after gatekeepers
+# pass and review now auto-continue; inspect the persisted run after completion
 docker compose exec api ai-investing show-run <run_id>
-# continue after a passed or review gatekeeper
-docker compose exec api ai-investing continue-run <run_id>
-# or finalize at the checkpoint without downstream analysis
-docker compose exec api ai-investing continue-run <run_id> --stop
+docker compose exec api ai-investing enqueue-watchlist
+docker compose exec api ai-investing run-worker --worker-id local --max-concurrency 2
 docker compose exec api ai-investing generate-memo ACME
 ```
 
-`analyze-company`, `refresh-company`, and `run-due-coverage` do not silently continue past the mandatory `gatekeepers` checkpoint. Their JSON payloads expose structured lifecycle fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, and `provisional`. Use `continue-run <run_id> --provisional` only when a failed gatekeeper needs exploratory downstream analysis.
+The Phase 5 runtime keeps `gatekeepers` as the first checkpoint, but the checkpoint is no longer a universal human pause. `pass` and `review` auto-continue into downstream work for both initial and scheduled runs. `fail` stops after `gatekeepers`, creates a review-queue record, and emits an immediate operator notification. `continue-run <run_id> --provisional` remains the explicit operator-only path for exploratory downstream work after a failed gatekeeper. Structured lifecycle fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`, and `checkpoint` remain available so operators and automation clients can inspect run state without scraping prose.
 
 ## Host Workflow
 
@@ -90,18 +89,33 @@ ai-investing init-db
 ai-investing ingest-public-data examples/acme_public
 ai-investing ingest-private-data examples/beta_private
 ai-investing add-coverage ACME "Acme Cloud" public watchlist
+ai-investing list-cadence-policies
+ai-investing set-coverage-schedule ACME --schedule-policy-id weekday_morning
 ai-investing list-coverage
 ai-investing disable-coverage ACME
 ai-investing set-next-run-at ACME 2026-03-10T09:30:00+00:00
 ai-investing remove-coverage ACME
 ai-investing analyze-company ACME
 ai-investing show-run run_123
-ai-investing continue-run run_123
-ai-investing continue-run run_123 --stop
 ai-investing continue-run run_123 --provisional
 ai-investing run-panel ACME gatekeepers
 ai-investing refresh-company ACME
 ai-investing run-due-coverage
+ai-investing queue-summary
+ai-investing enqueue-companies ACME
+ai-investing enqueue-watchlist
+ai-investing enqueue-portfolio
+ai-investing enqueue-due-coverage
+ai-investing show-job job_123
+ai-investing retry-job job_123
+ai-investing cancel-job job_123 --reason "coverage disabled"
+ai-investing force-run-job job_123
+ai-investing list-review-queue
+ai-investing run-worker --worker-id worker_a --max-concurrency 2
+ai-investing list-notifications
+ai-investing claim-notifications --consumer-id n8n
+ai-investing dispatch-notification notif_123
+ai-investing acknowledge-notification notif_123
 ai-investing generate-memo ACME
 ai-investing show-delta ACME
 ai-investing list-agents
@@ -109,6 +123,27 @@ ai-investing enable-agent demand_skeptic
 ai-investing disable-agent demand_skeptic
 ai-investing reparent-agent demand_skeptic demand_advocate
 ```
+
+## Scheduled Operations
+
+Phase 5 adds a queue-backed operating model around the existing analysis service:
+
+- cadence policy selection remains config-driven through `list-cadence-policies` and `set-coverage-schedule`
+- bulk watchlist, portfolio, selected-company, and due-coverage refreshes enqueue jobs instead of running all reasoning inline
+- workers claim queued jobs and execute the same service-owned graph runtime used by manual refreshes
+- failed gatekeepers become review-queue items instead of generic worker failures
+- provisional downstream analysis stays operator-only through `continue-run <run_id> --provisional`
+
+The queue and worker surfaces are additive. `analyze-company` and `refresh-company` still work for targeted runs, while scheduled and bulk operations use `enqueue-*`, `queue-summary`, `show-job`, `run-worker`, `retry-job`, `cancel-job`, and `force-run-job`.
+
+## Notifications
+
+Notification delivery is also additive and stays outside the reasoning runtime:
+
+- immediate alerts fire for failed gatekeepers, worker failures, and materially changed successful runs
+- daily digest candidates are created for successful runs even when a company has no key changes
+- one shared operator channel is the current target, with n8n or another external system claiming and dispatching events through stable notification endpoints
+- no workflow is allowed to auto-trigger provisional continuation after a failed gatekeeper
 
 ## Monitoring Read Surfaces
 
@@ -142,11 +177,11 @@ See [docs/architecture.md](docs/architecture.md), [docs/factor_ontology.md](docs
 
 For the explicit scaffold-to-production handoff, start with the [panel extension guide](docs/panel_extension_path.md).
 
-The operator workflow for paused gatekeeper runs, explicit continue actions, provisional overrides, and run inspection lives in [docs/runbook.md](docs/runbook.md).
+The operator workflow for cadence policies, queue-backed refresh submission, review handling, notification delivery, provisional overrides, and run inspection lives in [docs/runbook.md](docs/runbook.md).
 
 ## Next Backlog
 
 - productionize the remaining panels
 - deepen contradiction and analog services
 - add more realistic public/private connector adapters
-- add worker infrastructure for larger scheduled coverage sets
+- add more notification destinations and operator-facing review tooling

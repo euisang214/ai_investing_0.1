@@ -35,6 +35,7 @@ from ai_investing.settings import Settings  # noqa: E402
 OUTPUT_ROOT = ROOT / "examples" / "generated" / "ACME"
 INITIAL_INPUT = ROOT / "examples" / "acme_public"
 RERUN_INPUT = ROOT / "examples" / "acme_public_rerun"
+STAGES = ("initial", "continued", "rerun")
 
 
 @dataclass
@@ -124,9 +125,11 @@ def write_artifacts(output_root: Path, name: str, result: dict[str, object]) -> 
 
 
 def generate_examples(output_root: Path = OUTPUT_ROOT) -> None:
+    # The script name is kept for backward compatibility, but the artifacts document
+    # the Phase 5 lifecycle: pass/review auto-continue, fail stops for operator review.
     deterministic_runtime = DeterministicRuntime()
     output_root.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="phase2-examples-") as workspace_str:
+    with tempfile.TemporaryDirectory(prefix="generated-examples-") as workspace_str:
         workspace = Path(workspace_str)
         with deterministic_runtime.install():
             context = build_context(workspace)
@@ -150,13 +153,13 @@ def generate_examples(output_root: Path = OUTPUT_ROOT) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate deterministic Phase 2 sample artifacts.",
+        description="Generate deterministic checked artifacts for the post-Phase-5 lifecycle.",
     )
     parser.add_argument(
         "--output-root",
         type=Path,
         default=OUTPUT_ROOT,
-        help="Directory that will receive initial, continued, and rerun artifacts.",
+        help="Directory that will receive the initial, continued, and rerun ACME artifacts.",
     )
     return parser.parse_args()
 

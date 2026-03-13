@@ -21,7 +21,7 @@ def _load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_generation_script_writes_phase2_checkpoint_examples(
+def test_generation_script_writes_phase5_lifecycle_examples(
     repo_root: Path, tmp_path: Path
 ) -> None:
     output_root = tmp_path / "generated" / "ACME"
@@ -40,13 +40,18 @@ def test_generation_script_writes_phase2_checkpoint_examples(
     rerun = _load_json(output_root / "rerun" / "result.json")
 
     assert initial["run"]["status"] == "complete"
+    assert initial["run"]["gate_decision"] in {"pass", "review"}
     assert initial["run"]["awaiting_continue"] is False
+    assert initial["run"]["checkpoint"]["resolution_action"] == "continue"
+    assert "continue automatically" in initial["run"]["checkpoint"]["note"]
     assert initial["delta"]["prior_run_id"] is None
     assert continued["run"]["run_id"] == initial["run"]["run_id"]
     assert continued["run"]["status"] == "complete"
+    assert continued["run"]["checkpoint"]["resolution_action"] == "continue"
     assert continued["memo"]["is_initial_coverage"] is True
     assert continued["delta"]["prior_run_id"] is None
     assert rerun["run"]["run_kind"] == "refresh"
+    assert rerun["run"]["awaiting_continue"] is False
     assert rerun["delta"]["prior_run_id"] == continued["run"]["run_id"]
     assert "what_changed_since_last_run" in rerun["delta"]["changed_sections"]
 
@@ -73,7 +78,7 @@ def test_checked_in_examples_match_generator_output(repo_root: Path, tmp_path: P
         ).read_text(encoding="utf-8")
 
 
-def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> None:
+def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> None:
     generated_root = repo_root / "examples" / "generated"
     readme = (generated_root / "README.md").read_text(encoding="utf-8")
     initial = _load_json(generated_root / "ACME" / "initial" / "result.json")
@@ -84,10 +89,15 @@ def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> N
     rerun_delta = _load_json(generated_root / "ACME" / "rerun" / "delta.json")
 
     assert "python scripts/generate_phase2_examples.py" in readme
+    assert "post-Phase-5 contract" in readme
+    assert "auto-continue into downstream work" in readme
+    assert "operator-only provisional override" in readme
     assert "initial/" in readme
     assert "continued/" in readme
     assert "rerun/" in readme
     assert initial["run"]["status"] == "complete"
+    assert initial["run"]["awaiting_continue"] is False
+    assert initial["run"]["checkpoint"]["resolution_action"] == "continue"
     assert initial_delta["prior_run_id"] is None
     assert continued["run"]["run_id"] == initial["run"]["run_id"]
     assert continued["run"]["metadata"]["baseline_memo"] is None
@@ -97,6 +107,7 @@ def test_checked_in_examples_describe_the_checkpoint_story(repo_root: Path) -> N
     assert continued_delta["current_run_id"] == continued["run"]["run_id"]
     assert continued_delta["prior_run_id"] is None
     assert rerun["run"]["run_kind"] == "refresh"
+    assert rerun["run"]["checkpoint"]["resolution_action"] == "continue"
     assert rerun_delta["prior_run_id"] == continued["run"]["run_id"]
     initial_memo = (generated_root / "ACME" / "initial" / "memo.md").read_text(encoding="utf-8")
     continued_memo = (generated_root / "ACME" / "continued" / "memo.md").read_text(
