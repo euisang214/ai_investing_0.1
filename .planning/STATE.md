@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 4
 current_phase_name: monitoring and connectors
-current_plan: 2
-status: in_progress
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-13T00:51:10Z"
+current_plan: 3
+status: executing
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-03-13T01:24:54.812Z"
 last_activity: 2026-03-13
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 17
-  completed_plans: 14
-  percent: 82
+  completed_plans: 15
+  percent: 88
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 4 monitoring and connector expansion is underway, with the reusable connector runtime seam now complete
+**Current focus:** Phase 4 monitoring and connector expansion is underway, with richer monitoring services now complete alongside the connector runtime seam
 
 ## Execution Tracking
 
 **Current Phase:** 4
 **Current Phase Name:** monitoring and connectors
 **Total Phases:** 5
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 4
-**Status:** In Progress
-**Progress:** [████████░░] 82%
+**Status:** Ready to execute
+**Progress:** [█████████░] 88%
 **Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 04 Plan 01 completed with registry-backed connector dispatch and config validation
+**Last Activity Description:** Phase 04 Plan 03 completed with reusable monitoring enrichment, deterministic analog ranking, and additive delta detail fields
 
 ## Current Status
 
@@ -49,10 +49,12 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 3 Plan 03 completed on 2026-03-12 with service, CLI, and API regressions that keep scaffold-only panels and `full_surface` visible in config while blocking execution before partial runs start.
 - Phase 3 Plan 04 completed on 2026-03-12 with repo docs that distinguish implemented versus scaffold-only panels and a worked extension guide for future panel productionization.
 - Phase 4 Plan 01 completed on 2026-03-13 with backward-compatible connector config expansion, registry-backed ingestion dispatch, explicit connector-id selection, and Docker-verified tests plus lint.
+- Phase 4 Plan 03 completed on 2026-03-13 with config-backed monitoring enrichment, shared contradiction and analog services, richer additive delta details, regenerated examples, and Docker-verified lint plus tests.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 - Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
 - Parent requirement `V2-02` remains open because Plan 04-01 delivers only the reusable connector runtime slice (`V2-02A`), not the representative adapter expansion itself.
+- Parent requirement `V2-04` remains open because Plan 04-03 delivers the richer monitoring slice (`V2-04A`), while portfolio-level monitoring history and summary surfaces remain deferred to Plan 04-04.
 
 ## Key Risks
 
@@ -62,7 +64,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 4 Plan 02 to add representative public and private adapters, connector docs, and media-handling policy on top of the new registry seam.
+- Execute Phase 4 Plan 02 to add representative public and private adapters, connector docs, and media-handling policy on top of the new registry seam so Plan 04-04 can consume both completed Phase 4 slices.
 
 ## Decisions
 
@@ -90,6 +92,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 04]: Keep legacy manifest_file and raw_landing_zone fields valid while normalizing them into connector settings for future adapter growth.
 - [Phase 04]: Resolve connector ids through a dedicated registry and optional wrapper parameters instead of branching inside IngestionService.
 - [Phase 04]: Keep V2-02 open because Plan 04-01 delivers connector-runtime slice V2-02A rather than the full connector expansion requirement.
+- [Phase 04]: Delegate refresh-time monitoring through MonitoringDeltaService and keep RefreshRuntime focused on memo projection and persistence.
+- [Phase 04]: Drive drift, contradiction, analog, and concentration behavior from config so monitoring semantics stay editable without runtime rewrites.
+- [Phase 04]: Require evidence-backed contradictions before surfacing factor conflicts so skeptical-agent phrasing does not create false positives.
 
 ## Performance Metrics
 
@@ -104,9 +109,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 03 P02 | 12min | 3 tasks | 13 files |
 | Phase 03 P04 | 4min | 3 tasks | 7 files |
 | Phase 04 P01 | 10min | 3 tasks | 7 files |
+| Phase 04 P03 | 12min | 3 tasks | 19 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T00:52:43.502Z
-**Stopped At:** Completed 04-01-PLAN.md
+**Last Date:** 2026-03-13T01:24:54.808Z
+**Stopped At:** Completed 04-03-PLAN.md
 **Resume File:** None
