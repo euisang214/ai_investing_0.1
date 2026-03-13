@@ -60,7 +60,7 @@ docker compose exec api ai-investing init-db
 docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
 docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
 docker compose exec api ai-investing list-cadence-policies
-docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekday_morning
+docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
 docker compose exec api ai-investing analyze-company ACME
 # pass and review now auto-continue; inspect the persisted run after completion
 docker compose exec api ai-investing show-run <run_id>
@@ -90,7 +90,7 @@ ai-investing ingest-public-data examples/acme_public
 ai-investing ingest-private-data examples/beta_private
 ai-investing add-coverage ACME "Acme Cloud" public watchlist
 ai-investing list-cadence-policies
-ai-investing set-coverage-schedule ACME --schedule-policy-id weekday_morning
+ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
 ai-investing list-coverage
 ai-investing disable-coverage ACME
 ai-investing set-next-run-at ACME 2026-03-10T09:30:00+00:00

@@ -18,7 +18,7 @@ docker compose exec api ai-investing init-db
 docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
 docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
 docker compose exec api ai-investing list-cadence-policies
-docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekday_morning
+docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
 docker compose exec api ai-investing analyze-company ACME
 docker compose exec api ai-investing enqueue-watchlist
 docker compose exec api ai-investing run-worker --worker-id local --max-concurrency 2
@@ -55,7 +55,7 @@ Use cadence policies for recurring operations instead of hardcoding weekly behav
 
 ```bash
 docker compose exec api ai-investing list-cadence-policies
-docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekday_morning
+docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
 docker compose exec api ai-investing set-coverage-schedule ACME --schedule-disabled
 docker compose exec api ai-investing set-next-run-at ACME 2026-03-17T09:30:00+00:00
 ```
