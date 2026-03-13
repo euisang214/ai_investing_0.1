@@ -420,6 +420,11 @@ class RefreshRuntime:
                         "prior_text": prior_text,
                         "verdicts": [verdict.model_dump(mode="json")],
                         "claims": [claim.model_dump(mode="json") for claim in panel_claims],
+                        "support_assessment": (
+                            self._support_assessment_by_panel()[panel_id].model_dump(mode="json")
+                            if panel_id in self._support_assessment_by_panel()
+                            else None
+                        ),
                     },
                 ),
                 MemoSectionUpdate,
@@ -996,6 +1001,77 @@ class RefreshRuntime:
             "panel_ids": sorted(self.prior_active_verdicts),
         }
 
+    def _support_assessment_by_panel(self) -> dict[str, PanelSupportAssessment]:
+        raw_items = self.run.metadata.get("panel_support_assessments", [])
+        if not isinstance(raw_items, list):
+            return {}
+        assessments = [PanelSupportAssessment.model_validate(item) for item in raw_items]
+        return {item.panel_id: item for item in assessments}
+
+    def _apply_section_truthfulness_notes(
+        self,
+        *,
+        section_id: str,
+        content: str,
+        status: MemoSectionStatus,
+    ) -> str:
+        weak_panels = [
+            assessment.panel_name
+            for panel_id, assessment in self._support_assessment_by_panel().items()
+            if assessment.status == "weak_confidence"
+            and panel_id in self.current_verdicts
+            and section_id in self.context.get_panel(panel_id).memo_section_ids
+        ]
+        if weak_panels and status == MemoSectionStatus.REFRESHED:
+            content = self._prefix_content(
+                content,
+                f"Weak-confidence support this run: {', '.join(sorted(weak_panels))}.",
+            )
+
+        skipped_panels = [
+            skip
+            for skip in self.current_skipped_panels.values()
+            if section_id in self.context.get_panel(skip.panel_id).memo_section_ids
+        ]
+        if skipped_panels and status != MemoSectionStatus.REFRESHED:
+            panel_text = "; ".join(
+                f"{skip.panel_name} ({skip.reason_code.replace('_', ' ')})"
+                for skip in skipped_panels
+            )
+            content = self._prefix_content(content, f"Skipped this run: {panel_text}.")
+
+        if section_id == "overall_recommendation":
+            note = self._overall_recommendation_truthfulness_note()
+            if note:
+                content = self._prefix_content(content, note)
+        return content
+
+    def _overall_recommendation_truthfulness_note(self) -> str | None:
+        selected_panel_ids = self._selected_panel_ids()
+        notes: list[str] = []
+        overlay_labels = {
+            "security_or_deal_overlay": "security or deal overlay",
+            "portfolio_fit_positioning": "portfolio fit positioning",
+        }
+        for panel_id, label in overlay_labels.items():
+            if panel_id not in selected_panel_ids:
+                notes.append(f"{label} pending for this rollout")
+            elif panel_id in self.current_skipped_panels:
+                notes.append(f"{label} unsupported for this run")
+        if not notes:
+            return None
+        return (
+            "Overall recommendation reflects company-quality panels only; "
+            + "; ".join(notes)
+            + "."
+        )
+
+    def _selected_panel_ids(self) -> set[str]:
+        panel_ids = self.run.metadata.get("panel_ids", [])
+        if not isinstance(panel_ids, list):
+            return set()
+        return {str(panel_id) for panel_id in panel_ids}
+
     def _build_memo(self, *, is_partial: bool) -> ICMemo:
         labels = self.context.memo_section_labels(self.coverage.memo_label_profile)
         gatekeeper_section_ids = self._gatekeeper_section_ids()
@@ -1078,6 +1154,11 @@ class RefreshRuntime:
                 gatekeeper_section_ids=gatekeeper_section_ids,
                 is_partial=is_partial,
             )
+        content = self._apply_section_truthfulness_notes(
+            section_id=section_id,
+            content=content,
+            status=status,
+        )
         if self.run.provisional and status == MemoSectionStatus.REFRESHED:
             content = self._prefix_content(
                 content,

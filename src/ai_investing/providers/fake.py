@@ -309,6 +309,7 @@ class FakeModelProvider(ModelProvider):
     def _memo_section_update_payload(self, request: StructuredGenerationRequest) -> dict[str, Any]:
         section_id = str(request.input_data["section_id"])
         prior_text = str(request.input_data.get("prior_text", ""))
+        support_assessment = request.input_data.get("support_assessment") or {}
         verdicts = [
             GatekeeperVerdict.model_validate(verdict)
             if "gate_decision" in verdict
@@ -326,7 +327,10 @@ class FakeModelProvider(ModelProvider):
         stale_note = ""
         if stale_claims:
             stale_note = " Stale evidence tempers conviction in this section."
-        updated_text = f"{panel_summaries} Key claims: {notable_claims}{stale_note}".strip()
+        weak_note = ""
+        if support_assessment.get("status") == "weak_confidence":
+            weak_note = " Weak-confidence support remains in effect for this section."
+        updated_text = f"{panel_summaries} Key claims: {notable_claims}{stale_note}{weak_note}".strip()
         if not prior_text:
             change = ChangeClassification.INITIAL
         elif prior_text == updated_text:

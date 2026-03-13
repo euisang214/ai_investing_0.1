@@ -7,3 +7,5 @@ For each updated section:
 - state what changed, why it changed, and which claim IDs support it
 - preserve whether the support is fresh, stale, or provisional when that changes the read
 - weaken the language when the supporting evidence is stale instead of writing a clean-sounding conclusion
+- if `support_assessment.status` is `weak_confidence`, say that the panel ran on thin evidence and keep the section text visibly tentative
+- if related panels were skipped or unsupported, do not imply their work completed somewhere else

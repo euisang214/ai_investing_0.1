@@ -23,6 +23,7 @@ from ai_investing.domain.models import (
     MemoSectionUpdate,
     MonitoringDelta,
     RunRecord,
+    SkippedPanelResult,
     SourceRef,
     StructuredGenerationRequest,
 )
@@ -169,6 +170,7 @@ def _runtime_for_delta(
         current_sections={section.section_id: section for section in current_sections},
         current_claims=current_claims,
         current_verdicts=current_verdicts,
+        current_skipped_panels={},
     )
 
 
@@ -294,6 +296,71 @@ def test_memo_keeps_provisional_language_after_failed_gatekeeper_override(
     assert sections["overall_recommendation"]["content"].startswith(
         "Provisional after failed gatekeeper override."
     )
+
+
+def test_overall_recommendation_calls_out_overlay_pending_until_full_surface(
+    seeded_acme,
+) -> None:
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+
+    sections = _section_map(result)
+    content = sections["overall_recommendation"]["content"].lower()
+
+    assert "company-quality panels only" in content
+    assert "security or deal overlay pending for this rollout" in content
+    assert "portfolio fit positioning pending for this rollout" in content
+
+
+def test_overall_recommendation_calls_out_unsupported_overlay_runs(seeded_acme) -> None:
+    runtime = _runtime_for_delta(
+        seeded_acme,
+        prior_claims=[],
+        current_claims=[],
+        prior_sections=[],
+        current_sections=[
+            _memo_section(
+                section_id="overall_recommendation",
+                content="Recommendation remains constructive on company quality.",
+                run_id="run_current",
+            )
+        ],
+        current_gate_decision=GateDecision.PASS,
+    )
+    runtime.run.metadata["panel_ids"] = [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "security_or_deal_overlay",
+        "portfolio_fit_positioning",
+    ]
+    runtime.current_skipped_panels = {
+        "security_or_deal_overlay": SkippedPanelResult(
+            panel_id="security_or_deal_overlay",
+            panel_name="Security Or Deal Overlay",
+            company_type=CompanyType.PUBLIC,
+            reason_code="missing_context",
+            reason="Security Or Deal Overlay requires run context that is missing: overlay_context.",
+            evidence_summary="0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+            required_context=["overlay_context"],
+            missing_context=["overlay_context"],
+        ),
+        "portfolio_fit_positioning": SkippedPanelResult(
+            panel_id="portfolio_fit_positioning",
+            panel_name="Portfolio Fit Positioning",
+            company_type=CompanyType.PUBLIC,
+            reason_code="missing_context",
+            reason="Portfolio Fit Positioning requires run context that is missing: portfolio_context.",
+            evidence_summary="0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+            required_context=["portfolio_context"],
+            missing_context=["portfolio_context"],
+        ),
+    }
+
+    memo = runtime.reconcile_ic_memo()
+    section_map = memo.section_map()
+    content = section_map["overall_recommendation"].content.lower()
+
+    assert "security or deal overlay unsupported for this run" in content
+    assert "portfolio fit positioning unsupported for this run" in content
 
 
 def test_delta_refreshes_run_log_for_low_material_fake_provider_rerun(
@@ -474,6 +541,57 @@ def test_stale_memo_updates_call_out_tempered_conviction() -> None:
     )
 
     assert "tempers conviction" in update.updated_text.lower()
+
+
+def test_memo_updates_call_out_weak_confidence_support() -> None:
+    provider = FakeModelProvider()
+    update = provider.generate_structured(
+        StructuredGenerationRequest(
+            task_type="memo_section_update",
+            prompt="",
+            input_data={
+                "company_id": "ACME",
+                "run_id": "run_weak",
+                "section_id": "growth",
+                "prior_text": "",
+                "verdicts": [
+                    {
+                        "company_id": "ACME",
+                        "company_type": "public",
+                        "run_id": "run_weak",
+                        "panel_id": "demand_revenue_quality",
+                        "panel_name": "Demand And Revenue Quality",
+                        "summary": "Lead synthesis: demand remains solid.",
+                        "recommendation": "positive",
+                        "score": 0.8,
+                        "confidence": 0.42,
+                        "affected_section_ids": ["growth", "overall_recommendation"],
+                        "claim_ids": [],
+                        "namespace": "company/ACME/verdicts/demand_revenue_quality",
+                    }
+                ],
+                "claims": [],
+                "support_assessment": {
+                    "panel_id": "demand_revenue_quality",
+                    "panel_name": "Demand And Revenue Quality",
+                    "company_type": "public",
+                    "status": "weak_confidence",
+                    "reason": "Demand And Revenue Quality has only 3 supporting records with 0.44 factor coverage against a 0.55 readiness bar.",
+                    "evidence_count": 3,
+                    "factor_coverage_ratio": 0.44,
+                    "evidence_summary": "3 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 0.44.",
+                    "available_evidence_families": ["regulatory", "transcript"],
+                    "missing_evidence_families": [],
+                    "required_context": [],
+                    "missing_context": [],
+                    "weak_confidence_allowed": True,
+                },
+            },
+        ),
+        MemoSectionUpdate,
+    )
+
+    assert "weak-confidence support" in update.updated_text.lower()
 
 
 def test_tool_logs_capture_record_level_output_refs(seeded_acme) -> None:
