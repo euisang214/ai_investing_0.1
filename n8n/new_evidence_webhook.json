@@ -14,16 +14,29 @@
       "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "http://api:8000/companies/{{ $json.company_id }}/ingest-public",
+        "url": "=http://api:8000/companies/{{$json.body.company_id}}/ingest-public",
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "input_dir",
-              "value": "{{$json.input_dir}}"
-            }
-          ]
-        }
+        "specifyBody": "json",
+        "jsonBody": "={\"input_dir\": \"{{$json.body.input_dir}}\"}"
+      }
+    },
+    {
+      "name": "Build Selected Queue Payload",
+      "type": "n8n-nodes-base.set",
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"company_ids\": [\"{{$json.body.company_id}}\"],\n  \"requested_by\": \"n8n:new_evidence_webhook\"\n}"
+      }
+    },
+    {
+      "name": "Enqueue Selected Refresh",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:8000/queue/enqueue-selected",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
       }
     }
   ],
@@ -38,7 +51,28 @@
           }
         ]
       ]
+    },
+    "Call Ingest Endpoint": {
+      "main": [
+        [
+          {
+            "node": "Build Selected Queue Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Selected Queue Payload": {
+      "main": [
+        [
+          {
+            "node": "Enqueue Selected Refresh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   }
 }
-

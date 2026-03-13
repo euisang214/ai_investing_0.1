@@ -34,6 +34,7 @@ services:
       - ./alembic.ini:/app/alembic.ini
       - ./config:/app/config
       - ./docs:/app/docs
+      - ./n8n:/app/n8n
       - ./prompts:/app/prompts
       - ./examples:/app/examples
       - ./scripts:/app/scripts

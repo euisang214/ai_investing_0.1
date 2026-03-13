@@ -1,29 +1,232 @@
 {
-  "name": "refresh_notification",
+  "name": "refresh_notification_delivery",
   "nodes": [
     {
-      "name": "Run Due Coverage",
-      "type": "n8n-nodes-base.httpRequest",
+      "name": "Immediate Notification Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
       "parameters": {
-        "method": "POST",
-        "url": "http://api:8000/coverage/run-due"
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "value": 5
+            }
+          ]
+        }
       }
     },
     {
-      "name": "Notify",
+      "name": "Claim Immediate Notifications",
       "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "https://example.com/notify"
+        "url": "http://api:8000/notifications/claim",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"consumer_id\": \"n8n-immediate\",\n  \"limit\": 25\n}"
+      }
+    },
+    {
+      "name": "Format Immediate Alert",
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "return items.map(({ json }) => ({ json: { event_id: json.event_id, message: `${json.title}: ${json.summary} Next action: ${json.next_action}.` } }));"
+      }
+    },
+    {
+      "name": "Send Immediate Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://example.com/operator-channel",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
+      }
+    },
+    {
+      "name": "Mark Immediate Dispatched",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "=http://api:8000/notifications/{{$json.event_id}}/dispatch"
+      }
+    },
+    {
+      "name": "Daily Digest Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "value": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claim Daily Digest Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:8000/notifications/claim",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"consumer_id\": \"n8n-daily-digest\",\n  \"limit\": 100\n}"
+      }
+    },
+    {
+      "name": "Build Daily Digest Message",
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const lines = items.map(({ json }) => { const summary = json.summary.includes('no material changes') ? `${json.company_name}: no key changes.` : `${json.company_name}: ${json.summary}`; return `- ${summary}`; }); return [{ json: { event_ids: items.map(({ json }) => json.event_id), message: `Daily digest\\n${lines.join('\\n')}` } }];"
+      }
+    },
+    {
+      "name": "Send Daily Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://example.com/operator-channel",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
+      }
+    },
+    {
+      "name": "Expand Digest Event IDs",
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const eventIds = $json.event_ids || []; return eventIds.map((eventId) => ({ json: { event_id: eventId } }));"
+      }
+    },
+    {
+      "name": "Mark Digest Dispatched",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "=http://api:8000/notifications/{{$json.event_id}}/dispatch"
+      }
+    },
+    {
+      "name": "Acknowledge Digest Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "=http://api:8000/notifications/{{$json.event_id}}/acknowledge"
       }
     }
   ],
   "connections": {
-    "Run Due Coverage": {
+    "Immediate Notification Trigger": {
       "main": [
         [
           {
-            "node": "Notify",
+            "node": "Claim Immediate Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim Immediate Notifications": {
+      "main": [
+        [
+          {
+            "node": "Format Immediate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Immediate Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Immediate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Immediate Alert": {
+      "main": [
+        [
+          {
+            "node": "Mark Immediate Dispatched",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Digest Trigger": {
+      "main": [
+        [
+          {
+            "node": "Claim Daily Digest Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim Daily Digest Events": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Digest Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Daily Digest Message": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Daily Digest": {
+      "main": [
+        [
+          {
+            "node": "Expand Digest Event IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Digest Event IDs": {
+      "main": [
+        [
+          {
+            "node": "Mark Digest Dispatched",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Digest Dispatched": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge Digest Event",
             "type": "main",
             "index": 0
           }
@@ -32,4 +235,3 @@
     }
   }
 }
-

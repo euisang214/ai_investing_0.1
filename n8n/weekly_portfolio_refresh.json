@@ -2,7 +2,7 @@
   "name": "weekly_portfolio_refresh",
   "nodes": [
     {
-      "name": "Weekly Trigger",
+      "name": "Weekly Portfolio Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "parameters": {
         "rule": {
@@ -16,20 +16,61 @@
       }
     },
     {
-      "name": "Run Due Coverage",
+      "name": "Build Portfolio Enqueue Payload",
+      "type": "n8n-nodes-base.set",
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"requested_by\": \"n8n:weekly_portfolio_refresh\"\n}"
+      }
+    },
+    {
+      "name": "Enqueue Portfolio Refresh",
       "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "http://api:8000/coverage/run-due"
+        "url": "http://api:8000/queue/enqueue-portfolio",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
+      }
+    },
+    {
+      "name": "Fetch Queue Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "GET",
+        "url": "http://api:8000/queue"
       }
     }
   ],
   "connections": {
-    "Weekly Trigger": {
+    "Weekly Portfolio Trigger": {
       "main": [
         [
           {
-            "node": "Run Due Coverage",
+            "node": "Build Portfolio Enqueue Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Portfolio Enqueue Payload": {
+      "main": [
+        [
+          {
+            "node": "Enqueue Portfolio Refresh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enqueue Portfolio Refresh": {
+      "main": [
+        [
+          {
+            "node": "Fetch Queue Summary",
             "type": "main",
             "index": 0
           }
@@ -38,4 +79,3 @@
     }
   }
 }
-

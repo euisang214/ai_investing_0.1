@@ -18,6 +18,7 @@ COPY config /app/config
 COPY prompts /app/prompts
 COPY examples /app/examples
 COPY docs /app/docs
+COPY n8n /app/n8n
 COPY scripts /app/scripts
 COPY tests /app/tests
 

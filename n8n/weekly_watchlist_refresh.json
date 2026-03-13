@@ -2,7 +2,7 @@
   "name": "weekly_watchlist_refresh",
   "nodes": [
     {
-      "name": "Weekly Trigger",
+      "name": "Weekly Watchlist Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "parameters": {
         "rule": {
@@ -16,20 +16,61 @@
       }
     },
     {
-      "name": "Run Due Coverage",
+      "name": "Build Watchlist Enqueue Payload",
+      "type": "n8n-nodes-base.set",
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"requested_by\": \"n8n:weekly_watchlist_refresh\"\n}"
+      }
+    },
+    {
+      "name": "Enqueue Watchlist Refresh",
       "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "http://api:8000/coverage/run-due"
+        "url": "http://api:8000/queue/enqueue-watchlist",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
+      }
+    },
+    {
+      "name": "Fetch Queue Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "GET",
+        "url": "http://api:8000/queue"
       }
     }
   ],
   "connections": {
-    "Weekly Trigger": {
+    "Weekly Watchlist Trigger": {
       "main": [
         [
           {
-            "node": "Run Due Coverage",
+            "node": "Build Watchlist Enqueue Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Watchlist Enqueue Payload": {
+      "main": [
+        [
+          {
+            "node": "Enqueue Watchlist Refresh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enqueue Watchlist Refresh": {
+      "main": [
+        [
+          {
+            "node": "Fetch Queue Summary",
             "type": "main",
             "index": 0
           }
@@ -38,4 +79,3 @@
     }
   }
 }
-
