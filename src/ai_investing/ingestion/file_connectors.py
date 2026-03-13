@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import shutil
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -16,7 +20,26 @@ from ai_investing.domain.models import (
     SourceRef,
     utc_now,
 )
-from ai_investing.ingestion.base import SourceConnector
+from ai_investing.ingestion.base import ConnectorIngestRequest, SourceConnector
+
+_MEDIA_TYPE_BY_SUFFIX = {
+    ".csv": "spreadsheet",
+    ".gif": "image",
+    ".htm": "html",
+    ".html": "html",
+    ".jpeg": "image",
+    ".jpg": "image",
+    ".json": "text",
+    ".md": "text",
+    ".pdf": "pdf",
+    ".png": "image",
+    ".svg": "image",
+    ".tsv": "spreadsheet",
+    ".txt": "text",
+    ".xls": "spreadsheet",
+    ".xlsx": "spreadsheet",
+}
+_XLSX_NS = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
 
 class ManifestDocument(BaseModel):
@@ -52,20 +75,31 @@ class FileBundleConnector(SourceConnector):
         self._manifest_file = manifest_file
         self._raw_landing_zone = raw_landing_zone
 
-    def ingest(self, input_dir: Path) -> tuple[CompanyProfile, list[EvidenceRecord]]:
-        manifest = self._load_manifest(input_dir / self._manifest_file)
+    def ingest(
+        self,
+        request: ConnectorIngestRequest,
+    ) -> tuple[CompanyProfile, list[EvidenceRecord]]:
+        manifest = self._load_manifest(request.input_dir / self._manifest_file)
         landing_dir = self._landing_dir(manifest.company_id)
         landing_dir.mkdir(parents=True, exist_ok=True)
+        raw_filenames = self._stable_raw_filenames(manifest.documents)
 
         records: list[EvidenceRecord] = []
         for document in manifest.documents:
-            source_path = input_dir / document.path
+            source_path = request.input_dir / document.path
             if not source_path.exists():
                 raise FileNotFoundError(source_path)
-            raw_copy_path = landing_dir / Path(document.path).name
+
+            raw_copy_path = landing_dir / raw_filenames[document.path]
             shutil.copy2(source_path, raw_copy_path)
-            body = source_path.read_text(encoding="utf-8")
-            quality = self._evidence_quality(document.source_type)
+            body, extraction_metadata = self._extract_body(source_path, document.metadata)
+            metadata = {
+                **document.metadata,
+                **extraction_metadata,
+                "raw_basename": raw_copy_path.name,
+                "source_artifact_path": document.path,
+            }
+
             records.append(
                 EvidenceRecord(
                     company_id=manifest.company_id,
@@ -79,11 +113,11 @@ class FileBundleConnector(SourceConnector):
                     factor_ids=document.factor_ids,
                     factor_signals=document.factor_signals,
                     source_refs=document.source_refs,
-                    evidence_quality=quality,
+                    evidence_quality=self._evidence_quality(document.source_type),
                     staleness_days=self._staleness_days(document.as_of_date),
                     as_of_date=document.as_of_date,
                     period=document.period,
-                    metadata=document.metadata,
+                    metadata=metadata,
                 )
             )
 
@@ -108,14 +142,163 @@ class FileBundleConnector(SourceConnector):
         timestamp = utc_now().strftime("%Y%m%dT%H%M%SZ")
         return self._raw_landing_zone / company_id / timestamp
 
+    def _stable_raw_filenames(self, documents: list[ManifestDocument]) -> dict[str, str]:
+        basename_counts: dict[str, int] = {}
+        for document in documents:
+            basename = Path(document.path).name
+            basename_counts[basename] = basename_counts.get(basename, 0) + 1
+
+        filenames: dict[str, str] = {}
+        used: set[str] = set()
+        for document in documents:
+            relative_path = Path(document.path)
+            basename = relative_path.name
+            if basename_counts[basename] == 1 and len(relative_path.parts) == 1:
+                candidate = basename
+            else:
+                candidate = "__".join(relative_path.parts)
+            if candidate in used:
+                suffix = relative_path.suffix
+                digest = hashlib.sha1(relative_path.as_posix().encode("utf-8")).hexdigest()[:8]
+                stem = candidate[: -len(suffix)] if suffix else candidate
+                candidate = f"{stem}__{digest}{suffix}"
+            filenames[document.path] = candidate
+            used.add(candidate)
+        return filenames
+
+    def _extract_body(
+        self,
+        source_path: Path,
+        metadata: dict[str, Any],
+    ) -> tuple[str, dict[str, Any]]:
+        media_type = self._media_type(source_path, metadata)
+        if self._is_attachment_only(media_type, metadata):
+            return (
+                self._attachment_only_body(source_path.name, media_type),
+                {
+                    "attachment_only": True,
+                    "extracted_text": False,
+                    "media_type": media_type,
+                },
+            )
+
+        if media_type == "spreadsheet":
+            body = self._extract_spreadsheet_text(source_path)
+        elif media_type == "pdf":
+            body = self._extract_pdf_text(source_path)
+        else:
+            body = self._read_text_file(source_path)
+
+        return (
+            body,
+            {
+                "attachment_only": False,
+                "extracted_text": True,
+                "media_type": media_type,
+            },
+        )
+
+    def _media_type(self, source_path: Path, metadata: dict[str, Any]) -> str:
+        declared = metadata.get("media_type")
+        if isinstance(declared, str) and declared.strip():
+            return declared.strip().lower()
+        return _MEDIA_TYPE_BY_SUFFIX.get(source_path.suffix.lower(), "text")
+
+    def _is_attachment_only(self, media_type: str, metadata: dict[str, Any]) -> bool:
+        handling = metadata.get("handling")
+        if isinstance(handling, str) and handling.strip().lower() == "attachment_only":
+            return True
+        return media_type in {"html", "image"}
+
+    def _attachment_only_body(self, filename: str, media_type: str) -> str:
+        return (
+            f"Attachment-only {media_type} artifact stored as {filename}. "
+            f"Phase 4 preserves the raw file for provenance without extracting full text."
+        )
+
+    def _read_text_file(self, source_path: Path) -> str:
+        return source_path.read_text(encoding="utf-8").strip()
+
+    def _extract_pdf_text(self, source_path: Path) -> str:
+        content = source_path.read_bytes().decode("latin-1", errors="ignore")
+        matches = re.findall(r"\(([^()]*)\)", content)
+        if matches:
+            return "\n".join(match.strip() for match in matches if match.strip())
+        return self._normalize_whitespace(content)
+
+    def _extract_spreadsheet_text(self, source_path: Path) -> str:
+        if source_path.suffix.lower() in {".csv", ".tsv"}:
+            return self._read_text_file(source_path)
+
+        try:
+            with zipfile.ZipFile(source_path) as workbook:
+                shared_strings = self._load_shared_strings(workbook)
+                rows: list[str] = []
+                worksheet_names = sorted(
+                    name
+                    for name in workbook.namelist()
+                    if name.startswith("xl/worksheets/sheet") and name.endswith(".xml")
+                )
+                for worksheet_name in worksheet_names:
+                    root = ElementTree.fromstring(workbook.read(worksheet_name))
+                    for row in root.findall(".//main:row", _XLSX_NS):
+                        values: list[str] = []
+                        for cell in row.findall("main:c", _XLSX_NS):
+                            cell_type = cell.attrib.get("t")
+                            raw_value = cell.findtext("main:v", default="", namespaces=_XLSX_NS)
+                            if cell_type == "s" and raw_value.isdigit():
+                                shared_index = int(raw_value)
+                                value = (
+                                    shared_strings[shared_index]
+                                    if shared_index < len(shared_strings)
+                                    else raw_value
+                                )
+                            else:
+                                value = raw_value
+                            if value:
+                                values.append(value)
+                        if values:
+                            rows.append(", ".join(values))
+                if rows:
+                    return "\n".join(rows)
+        except zipfile.BadZipFile:
+            pass
+
+        return self._normalize_whitespace(
+            source_path.read_bytes().decode("utf-8", errors="ignore")
+        )
+
+    def _load_shared_strings(self, workbook: zipfile.ZipFile) -> list[str]:
+        if "xl/sharedStrings.xml" not in workbook.namelist():
+            return []
+        root = ElementTree.fromstring(workbook.read("xl/sharedStrings.xml"))
+        return [
+            "".join(text for text in item.itertext()).strip()
+            for item in root.findall(".//main:si", _XLSX_NS)
+        ]
+
+    def _normalize_whitespace(self, content: str) -> str:
+        lines = [" ".join(line.split()) for line in content.splitlines()]
+        normalized = "\n".join(line for line in lines if line)
+        return normalized.strip()
+
     def _evidence_quality(self, source_type: str) -> float:
         return {
-            "regulatory_filing": 0.92,
-            "earnings_call": 0.82,
-            "investor_presentation": 0.75,
             "board_deck": 0.78,
+            "consensus_snapshot": 0.72,
             "dataroom_financial": 0.85,
             "diligence_note": 0.68,
+            "earnings_call": 0.82,
+            "event_image": 0.4,
+            "event_page": 0.55,
+            "investor_presentation": 0.75,
+            "kpi_workbook": 0.8,
+            "market_commentary": 0.7,
+            "market_snapshot": 0.76,
+            "ownership_flow": 0.67,
+            "ownership_report": 0.74,
+            "public_news": 0.62,
+            "regulatory_filing": 0.92,
         }.get(source_type, 0.6)
 
     def _staleness_days(self, as_of_date: datetime) -> int:

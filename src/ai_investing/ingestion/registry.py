@@ -7,6 +7,7 @@ from pathlib import Path
 from ai_investing.config.models import SourceConnectorConfig
 from ai_investing.ingestion.base import ResolvedSourceConnector, SourceConnector
 from ai_investing.ingestion.file_connectors import FileBundleConnector
+from ai_investing.ingestion.http_connectors import PublicMarketLiveConnector
 
 ConnectorBuilder = Callable[[SourceConnectorConfig], SourceConnector]
 
@@ -18,11 +19,22 @@ def _build_file_bundle_connector(config: SourceConnectorConfig) -> SourceConnect
     )
 
 
+def _build_mcp_stub_connector(config: SourceConnectorConfig) -> SourceConnector:
+    return PublicMarketLiveConnector(
+        raw_landing_zone=Path(config.require_setting("raw_landing_zone")),
+        request_file=str(config.setting("request_file") or "request.json"),
+        max_staleness_hours=config.live_refresh.max_staleness_hours or 72,
+    )
+
+
 @dataclass(frozen=True)
 class SourceConnectorRegistry:
     connector_configs: dict[str, SourceConnectorConfig]
     builders: dict[str, ConnectorBuilder] = field(
-        default_factory=lambda: {"file_bundle": _build_file_bundle_connector}
+        default_factory=lambda: {
+            "file_bundle": _build_file_bundle_connector,
+            "mcp_stub": _build_mcp_stub_connector,
+        }
     )
 
     @classmethod

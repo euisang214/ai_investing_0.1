@@ -18,7 +18,10 @@ class ConnectorIngestRequest:
 
 class SourceConnector(ABC):
     @abstractmethod
-    def ingest(self, input_dir: Path) -> tuple[CompanyProfile, list[EvidenceRecord]]:
+    def ingest(
+        self,
+        request: ConnectorIngestRequest,
+    ) -> tuple[CompanyProfile, list[EvidenceRecord]]:
         raise NotImplementedError
 
 
@@ -38,4 +41,4 @@ class ResolvedSourceConnector:
         self,
         request: ConnectorIngestRequest,
     ) -> tuple[CompanyProfile, list[EvidenceRecord]]:
-        return self.implementation.ingest(request.input_dir)
+        return self.implementation.ingest(request)

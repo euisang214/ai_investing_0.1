@@ -40,6 +40,7 @@ class DeterministicRuntime:
             "ai_investing.domain.models.utc_now",
             "ai_investing.application.services.utc_now",
             "ai_investing.ingestion.file_connectors.utc_now",
+            "ai_investing.ingestion.http_connectors.utc_now",
         ):
             stack.enter_context(patch(target, side_effect=self.utc_now))
         for target in (
