@@ -40,7 +40,11 @@ def resolve_schedule_context(
             f"Unsupported workspace timezone: {registry.workspace_timezone}"
         ) from exc
 
-    preferred_run_time = _resolve_preferred_run_time(coverage, timezone, fallback_time=fallback_time)
+    preferred_run_time = _resolve_preferred_run_time(
+        coverage,
+        timezone,
+        fallback_time=fallback_time,
+    )
     if not coverage.schedule_enabled:
         return ScheduleContext(
             timezone=timezone,
@@ -249,7 +253,11 @@ def _next_monthly_slot(
     raise ValueError("Unable to compute next monthly slot")
 
 
-def _combine_local(candidate_date: date, preferred_run_time: time, timezone: ZoneInfo | None) -> datetime:
+def _combine_local(
+    candidate_date: date,
+    preferred_run_time: time,
+    timezone: ZoneInfo | None,
+) -> datetime:
     assert timezone is not None
     return datetime.combine(candidate_date, preferred_run_time, tzinfo=timezone)
 

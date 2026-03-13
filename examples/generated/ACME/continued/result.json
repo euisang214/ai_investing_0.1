@@ -32,6 +32,9 @@
         "demand_revenue_quality"
       ],
       "panel_policy": "weekly_default",
+      "schedule_policy_id": "weekly",
+      "schedule_enabled": true,
+      "preferred_run_time": null,
       "memo_reconciliation": true,
       "monitoring_enabled": true,
       "baseline_memo": null,

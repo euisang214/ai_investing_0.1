@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -261,7 +261,7 @@ def test_schedule_policy_adds_future_next_run_at_for_non_legacy_coverage(context
     assert entry.schedule_enabled is True
     assert entry.schedule_policy_id == "biweekly"
     assert entry.preferred_run_time == "09:30"
-    assert entry.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=timezone.utc)
+    assert entry.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=UTC)
 
 
 def test_schedule_disabled_manual_run_clears_next_run_at_after_completion(seeded_acme) -> None:
@@ -270,7 +270,7 @@ def test_schedule_disabled_manual_run_clears_next_run_at_after_completion(seeded
         coverage = repository.get_coverage("ACME")
         assert coverage is not None
         coverage.schedule_enabled = False
-        coverage.next_run_at = datetime(2026, 3, 11, 9, 0, tzinfo=timezone.utc)
+        coverage.next_run_at = datetime(2026, 3, 11, 9, 0, tzinfo=UTC)
         repository.upsert_coverage(coverage)
 
     paused = AnalysisService(seeded_acme).analyze_company("ACME")

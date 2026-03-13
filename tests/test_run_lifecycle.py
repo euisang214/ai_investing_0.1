@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
@@ -302,7 +302,7 @@ def test_completed_scheduled_run_rolls_forward_from_next_future_slot(seeded_acme
         coverage = repository.get_coverage("ACME")
         assert coverage is not None
         coverage.preferred_run_time = "09:30"
-        coverage.next_run_at = datetime(2026, 3, 2, 14, 30, tzinfo=timezone.utc)
+        coverage.next_run_at = datetime(2026, 3, 2, 14, 30, tzinfo=UTC)
         repository.upsert_coverage(coverage)
 
     paused = AnalysisService(seeded_acme).analyze_company("ACME")
@@ -315,7 +315,7 @@ def test_completed_scheduled_run_rolls_forward_from_next_future_slot(seeded_acme
 
     assert coverage is not None
     assert coverage.last_run_at is not None
-    assert coverage.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=timezone.utc)
+    assert coverage.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=UTC)
 
 
 def test_stopped_run_does_not_advance_coverage_schedule(seeded_acme) -> None:
