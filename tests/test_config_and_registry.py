@@ -15,13 +15,15 @@ from ai_investing.settings import Settings
 EXPECTED_SCAFFOLD_PANEL_IDS = {
     "expectations_catalyst_realization",
     "external_regulatory_geopolitical",
-    "financial_quality_liquidity_economic_model",
     "macro_industry_transmission",
-    "management_governance_capital_allocation",
     "market_structure_growth",
     "portfolio_fit_positioning",
     "security_or_deal_overlay",
+}
+EXPECTED_WAVE1_PANEL_IDS = {
     "supply_product_operations",
+    "management_governance_capital_allocation",
+    "financial_quality_liquidity_economic_model",
 }
 
 
@@ -95,6 +97,19 @@ def test_scaffold_panels_materialize_in_registry_without_active_agents(context) 
         assert context.active_agents_for_panel(panel.id) == []
 
 
+def test_supply_management_financial_panels_are_implemented_with_active_agents(context) -> None:
+    expected_roles = {"specialist", "skeptic", "durability", "judge", "lead"}
+
+    for panel_id in EXPECTED_WAVE1_PANEL_IDS:
+        panel = context.get_panel(panel_id)
+        active_agents = context.active_agents_for_panel(panel_id)
+
+        assert panel.implemented is True
+        assert panel.prompt_path.endswith("panel_lead.md")
+        assert {agent.role_type for agent in active_agents} == expected_roles
+        assert all(agent.enabled for agent in active_agents)
+
+
 def test_scaffold_panels_have_one_disabled_placeholder_lead(context) -> None:
     scaffold_panels = _scaffold_panels(context)
     placeholder_agents = {
@@ -152,6 +167,19 @@ def test_panels_expose_readiness_and_support_contracts(context) -> None:
     assert overlay_panel.readiness.wave == 4
     assert overlay_panel.readiness.required_context == ["portfolio_context"]
     assert overlay_panel.support.weak_confidence.enabled is False
+
+    supply_panel = panels["supply_product_operations"]
+    assert supply_panel.implemented is True
+    assert supply_panel.readiness.wave == 1
+    assert supply_panel.readiness.minimum_evidence_count == 3
+
+    management_panel = panels["management_governance_capital_allocation"]
+    assert management_panel.implemented is True
+    assert management_panel.readiness.minimum_evidence_count == 3
+
+    financial_panel = panels["financial_quality_liquidity_economic_model"]
+    assert financial_panel.implemented is True
+    assert financial_panel.readiness.minimum_evidence_count == 3
 
 
 def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -> None:
@@ -261,6 +289,36 @@ def test_connector_registry_keeps_legacy_shape_backward_compatible(context) -> N
     assert public_connector.settings.raw_landing_zone.endswith("public_file_connector")
     assert public_connector.live_refresh.posture == "static"
     assert public_connector.evidence_policy.attachment_handling == "copy_to_raw"
+
+
+def test_supply_management_financial_tool_bundles_are_least_privilege(context) -> None:
+    bundles = {
+        bundle.id: set(bundle.tool_ids) for bundle in context.registries.tool_bundles.bundles
+    }
+
+    assert bundles["supply_ops_research"] == {
+        "evidence_search",
+        "claim_search",
+        "filing_fetch",
+        "transcript_fetch",
+        "private_doc_fetch",
+    }
+    assert bundles["management_research"] == {
+        "evidence_search",
+        "claim_search",
+        "filing_fetch",
+        "transcript_fetch",
+        "public_news_fetch",
+        "private_doc_fetch",
+    }
+    assert bundles["financial_quality_research"] == {
+        "evidence_search",
+        "claim_search",
+        "filing_fetch",
+        "private_doc_fetch",
+        "financial_query",
+        "spreadsheet_runner",
+    }
 
 
 def test_connector_registry_accepts_explicit_settings_and_policy_fields(

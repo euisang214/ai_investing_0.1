@@ -5,7 +5,36 @@ from pathlib import Path
 
 import yaml
 
-IMPLEMENTED_PANEL_IDS = {"gatekeepers", "demand_revenue_quality"}
+IMPLEMENTED_PANEL_IDS = {
+    "gatekeepers",
+    "demand_revenue_quality",
+    "supply_product_operations",
+    "management_governance_capital_allocation",
+    "financial_quality_liquidity_economic_model",
+}
+WAVE1_PRODUCTION_PROMPT_FILES = {
+    "supply_product_operations": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+    "management_governance_capital_allocation": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+    "financial_quality_liquidity_economic_model": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+}
 REQUIRED_HEADINGS = (
     "Panel Purpose",
     "Scaffold Status",
@@ -87,6 +116,21 @@ def test_scaffold_prompt_inventory_is_complete() -> None:
         assert prompt_path.is_file(), panel["prompt_path"]
 
 
+def test_supply_management_financial_prompt_inventory_is_complete() -> None:
+    repo_root = _repo_root()
+
+    for panel_id, filenames in WAVE1_PRODUCTION_PROMPT_FILES.items():
+        if panel_id == "management_governance_capital_allocation":
+            panel_dir = repo_root / "prompts" / "panels" / "management_governance"
+        elif panel_id == "financial_quality_liquidity_economic_model":
+            panel_dir = repo_root / "prompts" / "panels" / "financial_quality"
+        else:
+            panel_dir = repo_root / "prompts" / "panels" / panel_id
+
+        for filename in filenames:
+            assert (panel_dir / filename).is_file(), f"{panel_id}:{filename}"
+
+
 def test_scaffold_prompts_follow_required_structure() -> None:
     for panel in _scaffold_panels():
         prompt_text = (_repo_root() / panel["prompt_path"]).read_text(encoding="utf-8")
@@ -97,6 +141,24 @@ def test_scaffold_prompts_follow_required_structure() -> None:
 
         assert "scaffold-only" in lower_text, panel["id"]
         assert "panelverdict" in lower_text, panel["id"]
+
+
+def test_supply_management_financial_prompts_avoid_scaffold_language() -> None:
+    repo_root = _repo_root()
+
+    for panel_id, filenames in WAVE1_PRODUCTION_PROMPT_FILES.items():
+        if panel_id == "management_governance_capital_allocation":
+            panel_dir = repo_root / "prompts" / "panels" / "management_governance"
+        elif panel_id == "financial_quality_liquidity_economic_model":
+            panel_dir = repo_root / "prompts" / "panels" / "financial_quality"
+        else:
+            panel_dir = repo_root / "prompts" / "panels" / panel_id
+
+        for filename in filenames:
+            text = (panel_dir / filename).read_text(encoding="utf-8").lower()
+            assert "scaffold-only" not in text, f"{panel_id}:{filename}"
+            assert "placeholder" not in text, f"{panel_id}:{filename}"
+            assert "weak-confidence" in text or "thin evidence" in text, f"{panel_id}:{filename}"
 
 
 def test_scaffold_prompt_sections_match_panel_config() -> None:

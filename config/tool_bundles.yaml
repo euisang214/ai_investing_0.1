@@ -3,12 +3,17 @@ bundles:
     tool_ids: [evidence_search, claim_search, public_news_fetch, filing_fetch, private_doc_fetch]
   - id: demand_research
     tool_ids: [evidence_search, claim_search, filing_fetch, transcript_fetch, private_doc_fetch]
+  - id: supply_ops_research
+    tool_ids: [evidence_search, claim_search, filing_fetch, transcript_fetch, private_doc_fetch]
+  - id: management_research
+    tool_ids: [evidence_search, claim_search, filing_fetch, transcript_fetch, public_news_fetch, private_doc_fetch]
   - id: financial_workbench
     tool_ids: [evidence_search, claim_search, financial_query, spreadsheet_runner, scenario_runner]
+  - id: financial_quality_research
+    tool_ids: [evidence_search, claim_search, filing_fetch, private_doc_fetch, financial_query, spreadsheet_runner]
   - id: expectations_security
     tool_ids: [evidence_search, claim_search, price_volume_query, estimate_revision_query, ownership_flow_query, event_calendar_query]
   - id: ic_judge
     tool_ids: [claim_search, contradiction_finder, memo_section_writer, analog_lookup]
   - id: memo_updater
     tool_ids: [memo_section_writer, claim_search, evidence_search]
-

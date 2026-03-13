@@ -315,27 +315,126 @@ agents:
   tags:
   - monitoring
   - vertical_slice
-- id: supply_product_operations_placeholder_lead
-  name: Supply Product Operations Placeholder Lead
+- id: supply_advocate
+  name: Supply Product Operations Advocate
   panel_id: supply_product_operations
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/supply_product_operations/placeholder.md
+  role_type: specialist
+  goal: Build the base-case supply, product, and operating resilience thesis from evidence.
+  enabled: true
+  prompt_path: prompts/panels/supply_product_operations/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: supply_ops_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - supply
+  - advocate
+- id: supply_skeptic
+  name: Supply Product Operations Skeptic
+  panel_id: supply_product_operations
+  parent_id: supply_advocate
+  role_type: skeptic
+  goal: Pressure-test supply-side claims and surface fragility in vendors, throughput, and product execution.
+  enabled: true
+  prompt_path: prompts/panels/supply_product_operations/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: supply_ops_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - supply
+  - skeptic
+- id: supply_durability
+  name: Supply Product Operations Durability
+  panel_id: supply_product_operations
+  parent_id: supply_advocate
+  role_type: durability
+  goal: Test whether supply, product, and execution advantages persist through stress and scale changes.
+  enabled: true
+  prompt_path: prompts/panels/supply_product_operations/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: supply_ops_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - supply
+  - durability
+- id: supply_judge
+  name: Supply Product Operations Judge
+  panel_id: supply_product_operations
+  parent_id: supply_advocate
+  role_type: judge
+  goal: Consolidate supply, product, and operations claims into one panel verdict.
+  enabled: true
+  prompt_path: prompts/panels/supply_product_operations/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: supply_ops_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
+  - wave_1
+  - supply
+  - judge
+- id: supply_panel_lead
+  name: Supply Product Operations Panel Lead
+  panel_id: supply_product_operations
+  parent_id: supply_judge
+  role_type: lead
+  goal: Translate the supply-side verdict into memo-ready durability and risk judgment.
+  enabled: true
+  prompt_path: prompts/panels/supply_product_operations/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_1
+  - supply
+  - lead
 - id: market_structure_growth_placeholder_lead
   name: Market Structure Growth Placeholder Lead
   panel_id: market_structure_growth
@@ -378,48 +477,246 @@ agents:
   tags:
   - placeholder
   - scaffold_only
-- id: management_governance_capital_allocation_placeholder_lead
-  name: Management Governance Capital Allocation Placeholder Lead
+- id: management_advocate
+  name: Management Governance Capital Allocation Advocate
   panel_id: management_governance_capital_allocation
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/management_governance/placeholder.md
+  role_type: specialist
+  goal: Build the base-case management, governance, and capital allocation thesis from evidence.
+  enabled: true
+  prompt_path: prompts/panels/management_governance/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: management_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - management
+  - advocate
+- id: management_skeptic
+  name: Management Governance Capital Allocation Skeptic
+  panel_id: management_governance_capital_allocation
+  parent_id: management_advocate
+  role_type: skeptic
+  goal: Stress-test leadership credibility, governance quality, and capital allocation discipline.
+  enabled: true
+  prompt_path: prompts/panels/management_governance/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: management_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - management
+  - skeptic
+- id: management_durability
+  name: Management Governance Capital Allocation Durability
+  panel_id: management_governance_capital_allocation
+  parent_id: management_advocate
+  role_type: durability
+  goal: Evaluate whether stewardship quality and governance protections persist through pressure and time.
+  enabled: true
+  prompt_path: prompts/panels/management_governance/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: management_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - management
+  - durability
+- id: management_judge
+  name: Management Governance Capital Allocation Judge
+  panel_id: management_governance_capital_allocation
+  parent_id: management_advocate
+  role_type: judge
+  goal: Consolidate management, governance, and capital allocation claims into one panel verdict.
+  enabled: true
+  prompt_path: prompts/panels/management_governance/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: management_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
-- id: financial_quality_liquidity_economic_model_placeholder_lead
-  name: Financial Quality Liquidity Economic Model Placeholder Lead
+  - wave_1
+  - management
+  - judge
+- id: management_panel_lead
+  name: Management Governance Capital Allocation Panel Lead
+  panel_id: management_governance_capital_allocation
+  parent_id: management_judge
+  role_type: lead
+  goal: Translate the stewardship verdict into memo-ready durability and risk judgment.
+  enabled: true
+  prompt_path: prompts/panels/management_governance/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_1
+  - management
+  - lead
+- id: financial_advocate
+  name: Financial Quality Liquidity Economic Model Advocate
   panel_id: financial_quality_liquidity_economic_model
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/financial_quality/placeholder.md
+  role_type: specialist
+  goal: Build the base-case financial quality, liquidity, and economic model thesis from evidence.
+  enabled: true
+  prompt_path: prompts/panels/financial_quality/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: financial_quality_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - financial
+  - advocate
+- id: financial_skeptic
+  name: Financial Quality Liquidity Economic Model Skeptic
+  panel_id: financial_quality_liquidity_economic_model
+  parent_id: financial_advocate
+  role_type: skeptic
+  goal: Stress-test accounting quality, liquidity resilience, and reinvestment claims.
+  enabled: true
+  prompt_path: prompts/panels/financial_quality/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: financial_quality_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - financial
+  - skeptic
+- id: financial_durability
+  name: Financial Quality Liquidity Economic Model Durability
+  panel_id: financial_quality_liquidity_economic_model
+  parent_id: financial_advocate
+  role_type: durability
+  goal: Test whether cash generation, liquidity, and reinvestment quality persist through stress.
+  enabled: true
+  prompt_path: prompts/panels/financial_quality/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: financial_quality_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_1
+  - financial
+  - durability
+- id: financial_judge
+  name: Financial Quality Liquidity Economic Model Judge
+  panel_id: financial_quality_liquidity_economic_model
+  parent_id: financial_advocate
+  role_type: judge
+  goal: Consolidate financial quality, liquidity, and economic model claims into one panel verdict.
+  enabled: true
+  prompt_path: prompts/panels/financial_quality/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: financial_quality_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
+  - wave_1
+  - financial
+  - judge
+- id: financial_panel_lead
+  name: Financial Quality Liquidity Economic Model Panel Lead
+  panel_id: financial_quality_liquidity_economic_model
+  parent_id: financial_judge
+  role_type: lead
+  goal: Translate the financial quality verdict into memo-ready economic spread, valuation, and risk judgment.
+  enabled: true
+  prompt_path: prompts/panels/financial_quality/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_1
+  - financial
+  - lead
 - id: external_regulatory_geopolitical_placeholder_lead
   name: External Regulatory Geopolitical Placeholder Lead
   panel_id: external_regulatory_geopolitical
