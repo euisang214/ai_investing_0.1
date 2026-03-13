@@ -381,10 +381,7 @@ def test_run_panel_rejects_direct_downstream_execution(seeded_acme) -> None:
 
 
 def test_run_panel_rejects_unimplemented_scaffold_panel(seeded_acme) -> None:
-    with pytest.raises(
-        ValueError,
-        match=r"Panel supply_product_operations is not implemented for policy weekly_default\.",
-    ):
+    with pytest.raises(ValueError, match=r"Runs must begin at gatekeepers\."):
         AnalysisService(seeded_acme).run_panel("ACME", "supply_product_operations")
 
     with seeded_acme.database.session() as session:
@@ -398,7 +395,7 @@ def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_
 
     with pytest.raises(
         ValueError,
-        match=r"Panel supply_product_operations is not implemented for policy full_surface\.",
+        match=r"Panel market_structure_growth is not implemented for policy full_surface\.",
     ):
         AnalysisService(seeded_acme).refresh_company("ACME")
 

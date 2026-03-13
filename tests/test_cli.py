@@ -330,6 +330,39 @@ def test_cli_show_run_includes_structured_skipped_panels(seeded_acme, monkeypatc
     assert demand["skip"]["missing_context"] == ["portfolio_context"]
 
 
+def test_cli_internal_policy_surfaces_panel_support_and_scoped_memo(
+    seeded_acme,
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+    _set_panel_policy(seeded_acme, "ACME", "internal_company_quality")
+
+    completed = runner.invoke(app, ["analyze-company", "ACME"])
+    assert completed.exit_code == 0
+    run_id = json.loads(completed.stdout)["run"]["run_id"]
+
+    shown = runner.invoke(app, ["show-run", run_id])
+
+    assert shown.exit_code == 0
+    payload = json.loads(shown.stdout)
+    assert payload["panels"]["supply_product_operations"]["support"]["status"] == "supported"
+    assert (
+        payload["panels"]["management_governance_capital_allocation"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        payload["panels"]["financial_quality_liquidity_economic_model"]["support"]["status"]
+        == "supported"
+    )
+    sections = {section["section_id"]: section for section in payload["memo"]["sections"]}
+    assert sections["durability_resilience"]["status"] == "refreshed"
+    assert sections["economic_spread"]["status"] == "refreshed"
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert sections["risk"]["status"] == "refreshed"
+    assert sections["expectations_variant_view"]["status"] == "not_advanced"
+    assert sections["portfolio_fit_positioning"]["status"] == "not_advanced"
+
+
 def test_cli_run_panel_rejects_scaffold_only_panel(seeded_acme, monkeypatch) -> None:
     monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
 
@@ -338,7 +371,7 @@ def test_cli_run_panel_rejects_scaffold_only_panel(seeded_acme, monkeypatch) -> 
     assert invalid.exit_code != 0
     assert invalid.exception is not None
     assert str(invalid.exception) == (
-        "Panel supply_product_operations is not implemented for policy weekly_default."
+        "Runs must begin at gatekeepers. Resume an existing paused run for downstream panels."
     )
 
     with seeded_acme.database.session() as session:
@@ -356,7 +389,7 @@ def test_cli_analyze_company_rejects_full_surface_policy(seeded_acme, monkeypatc
     assert invalid.exit_code != 0
     assert invalid.exception is not None
     assert str(invalid.exception) == (
-        "Panel supply_product_operations is not implemented for policy full_surface."
+        "Panel market_structure_growth is not implemented for policy full_surface."
     )
 
     with seeded_acme.database.session() as session:

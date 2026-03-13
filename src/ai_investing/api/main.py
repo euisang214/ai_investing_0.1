@@ -510,6 +510,11 @@ def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
         run = repository.get_run(run_id)
         if run is None:
             raise KeyError(run_id)
+        support_by_panel = {
+            item["panel_id"]: item
+            for item in run.metadata.get("panel_support_assessments", [])
+            if isinstance(item, dict) and isinstance(item.get("panel_id"), str)
+        }
 
         claims_by_panel: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for claim in repository.list_claim_cards(run.company_id, run_id=run.run_id):
@@ -517,12 +522,14 @@ def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
 
         panels: dict[str, dict[str, Any]] = {}
         for item in run.metadata.get("skipped_panels", []):
-            skip = PanelRunRead(skip=item)
+            panel_id = str(item.get("panel_id"))
+            skip = PanelRunRead(skip=item, support=support_by_panel.get(panel_id))
             panels[str(skip.skip.panel_id)] = skip.model_dump(mode="json")
         for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
             panels[verdict.panel_id] = PanelRunRead(
                 claims=claims_by_panel.get(verdict.panel_id, []),
                 verdict=verdict.model_dump(mode="json"),
+                support=support_by_panel.get(verdict.panel_id),
             ).model_dump(mode="json")
 
         memo = repository.get_memo_for_run(run.company_id, run.run_id)

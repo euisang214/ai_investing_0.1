@@ -142,7 +142,7 @@ def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seed
 
     with pytest.raises(
         ValueError,
-        match=r"Panel supply_product_operations is not implemented for policy full_surface\.",
+        match=r"Panel market_structure_growth is not implemented for policy full_surface\.",
     ):
         AnalysisService(seeded_acme).analyze_company("ACME")
 
@@ -154,8 +154,7 @@ def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seed
 
 def test_analyze_company_rejects_explicit_scaffold_panel_selection(seeded_acme) -> None:
     with pytest.raises(
-        ValueError,
-        match=r"Panel supply_product_operations is not implemented for policy weekly_default\.",
+        ValueError, match=r"Runs must begin at gatekeepers\."
     ):
         AnalysisService(seeded_acme).analyze_company(
             "ACME",

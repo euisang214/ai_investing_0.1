@@ -431,6 +431,38 @@ def test_api_show_run_includes_structured_skipped_panels(seeded_acme) -> None:
     assert demand["skip"]["missing_context"] == ["portfolio_context"]
 
 
+def test_api_internal_policy_surfaces_panel_support_and_scoped_memo(seeded_acme) -> None:
+    _set_panel_policy(seeded_acme, "ACME", "internal_company_quality")
+
+    with TestClient(create_app(seeded_acme)) as client:
+        completed = client.post("/companies/ACME/analyze")
+        assert completed.status_code == 200
+        run_id = completed.json()["data"]["run"]["run_id"]
+
+        shown = client.get(f"/runs/{run_id}")
+
+    assert shown.status_code == 200
+    payload = shown.json()["data"]
+    assert (
+        payload["panels"]["supply_product_operations"]["support"]["status"] == "supported"
+    )
+    assert (
+        payload["panels"]["management_governance_capital_allocation"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        payload["panels"]["financial_quality_liquidity_economic_model"]["support"]["status"]
+        == "supported"
+    )
+    sections = {section["section_id"]: section for section in payload["memo"]["sections"]}
+    assert sections["durability_resilience"]["status"] == "refreshed"
+    assert sections["economic_spread"]["status"] == "refreshed"
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert sections["risk"]["status"] == "refreshed"
+    assert sections["expectations_variant_view"]["status"] == "not_advanced"
+    assert sections["portfolio_fit_positioning"]["status"] == "not_advanced"
+
+
 def test_api_exposes_monitoring_history_and_portfolio_summary(context) -> None:
     acme_delta = _seed_monitoring_views(context)
 
@@ -482,7 +514,8 @@ def test_api_run_panel_rejects_scaffold_only_panel(seeded_acme) -> None:
         "error": {
             "code": "invalid_request",
             "message": (
-                "Panel supply_product_operations is not implemented for policy weekly_default."
+                "Runs must begin at gatekeepers. Resume an existing paused run for downstream "
+                "panels."
             ),
         }
     }
@@ -503,9 +536,7 @@ def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme
     assert response.json() == {
         "error": {
             "code": "invalid_request",
-            "message": (
-                "Panel supply_product_operations is not implemented for policy full_surface."
-            ),
+            "message": "Panel market_structure_growth is not implemented for policy full_surface.",
         }
     }
 
