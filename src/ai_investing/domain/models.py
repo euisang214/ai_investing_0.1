@@ -64,11 +64,62 @@ class CoverageEntry(DomainModel):
     coverage_status: CoverageStatus
     cadence: Cadence = Cadence.WEEKLY
     enabled: bool = True
+    schedule_policy_id: str | None = None
+    schedule_enabled: bool | None = None
+    preferred_run_time: str | None = None
     next_run_at: datetime | None = None
     last_run_at: datetime | None = None
     panel_policy: str = "weekly_default"
     memo_label_profile: str = "default"
     notes: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_schedule_fields(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        payload = dict(data)
+        raw_preferred_run_time = payload.get("preferred_run_time")
+        if raw_preferred_run_time in ("", None):
+            payload["preferred_run_time"] = None
+        elif isinstance(raw_preferred_run_time, str):
+            normalized_time = raw_preferred_run_time.strip()
+            pieces = normalized_time.split(":")
+            if len(pieces) not in {2, 3}:
+                raise ValueError("preferred_run_time must use HH:MM or HH:MM:SS format")
+            try:
+                hour = int(pieces[0])
+                minute = int(pieces[1])
+                second = int(pieces[2]) if len(pieces) == 3 else 0
+            except ValueError as exc:
+                raise ValueError("preferred_run_time must be a valid time") from exc
+            if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
+                raise ValueError("preferred_run_time must be a valid time")
+            payload["preferred_run_time"] = f"{hour:02d}:{minute:02d}"
+        else:
+            raise ValueError("preferred_run_time must be a string")
+
+        cadence = payload.get("cadence", Cadence.WEEKLY)
+        if isinstance(cadence, Cadence):
+            cadence_value = cadence.value
+        else:
+            cadence_value = str(cadence)
+
+        schedule_policy_id = payload.get("schedule_policy_id")
+        schedule_enabled = payload.get("schedule_enabled")
+        if schedule_enabled is None:
+            schedule_enabled = cadence_value != Cadence.MANUAL.value
+
+        if schedule_policy_id is None and cadence_value == Cadence.WEEKLY.value:
+            schedule_policy_id = "weekly"
+
+        payload["schedule_enabled"] = bool(schedule_enabled)
+        payload["schedule_policy_id"] = schedule_policy_id
+        payload["cadence"] = (
+            Cadence.WEEKLY.value if payload["schedule_enabled"] else Cadence.MANUAL.value
+        )
+        return payload
 
 
 class CompanyProfile(DomainModel):

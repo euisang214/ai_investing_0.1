@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -242,6 +243,48 @@ def test_run_due_coverage_skips_disabled_entries(seeded_acme) -> None:
     results = AnalysisService(seeded_acme).run_due_coverage()
 
     assert results == []
+
+
+def test_schedule_policy_adds_future_next_run_at_for_non_legacy_coverage(context) -> None:
+    entry = CoverageService(context).add_coverage(
+        CoverageEntry(
+            company_id="SCHED",
+            company_name="Schedule Test Co",
+            company_type=CompanyType.PUBLIC,
+            coverage_status=CoverageStatus.WATCHLIST,
+            schedule_policy_id="biweekly",
+            preferred_run_time="09:30",
+        )
+    )
+
+    assert entry.cadence == Cadence.WEEKLY
+    assert entry.schedule_enabled is True
+    assert entry.schedule_policy_id == "biweekly"
+    assert entry.preferred_run_time == "09:30"
+    assert entry.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=timezone.utc)
+
+
+def test_schedule_disabled_manual_run_clears_next_run_at_after_completion(seeded_acme) -> None:
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        assert coverage is not None
+        coverage.schedule_enabled = False
+        coverage.next_run_at = datetime(2026, 3, 11, 9, 0, tzinfo=timezone.utc)
+        repository.upsert_coverage(coverage)
+
+    paused = AnalysisService(seeded_acme).analyze_company("ACME")
+    resumed = AnalysisService(seeded_acme).continue_run(paused["run"]["run_id"])
+
+    assert resumed["run"]["status"] == "complete"
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+
+    assert coverage is not None
+    assert coverage.schedule_enabled is False
+    assert coverage.last_run_at is not None
+    assert coverage.next_run_at is None
 
 
 def test_rerun_persists_useful_tool_log_refs(seeded_acme, repo_root: Path) -> None:

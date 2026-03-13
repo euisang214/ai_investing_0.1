@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
@@ -293,6 +294,51 @@ def test_run_due_coverage_keeps_paused_runs_due_and_queryable(seeded_acme) -> No
 
     assert second[0]["run"]["run_id"] == first_run_id
     assert len(runs) == 1
+
+
+def test_completed_scheduled_run_rolls_forward_from_next_future_slot(seeded_acme) -> None:
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        assert coverage is not None
+        coverage.preferred_run_time = "09:30"
+        coverage.next_run_at = datetime(2026, 3, 2, 14, 30, tzinfo=timezone.utc)
+        repository.upsert_coverage(coverage)
+
+    paused = AnalysisService(seeded_acme).analyze_company("ACME")
+    resumed = AnalysisService(seeded_acme).continue_run(paused["run"]["run_id"])
+
+    assert resumed["run"]["status"] == "complete"
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+
+    assert coverage is not None
+    assert coverage.last_run_at is not None
+    assert coverage.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=timezone.utc)
+
+
+def test_stopped_run_does_not_advance_coverage_schedule(seeded_acme) -> None:
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        assert coverage is not None
+        original_next_run_at = coverage.next_run_at
+
+    paused = AnalysisService(seeded_acme).analyze_company("ACME")
+    stopped = AnalysisService(seeded_acme).continue_run(
+        paused["run"]["run_id"],
+        action=RunContinueAction.STOP,
+    )
+
+    assert stopped["run"]["status"] == "stopped"
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+
+    assert coverage is not None
+    assert coverage.last_run_at is None
+    assert coverage.next_run_at == original_next_run_at
 
 
 def test_run_panel_rejects_direct_downstream_execution(seeded_acme) -> None:

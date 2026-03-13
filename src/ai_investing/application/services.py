@@ -3,17 +3,17 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import yaml
 
 from ai_investing.application.context import AppContext
+from ai_investing.application.scheduling import compute_initial_next_run_at, compute_next_run_at
 from ai_investing.config.models import AgentConfig, PanelConfig
 from ai_investing.domain.enums import (
     AlertLevel,
-    Cadence,
     CompanyType,
     GateDecision,
     MemoSectionStatus,
@@ -88,8 +88,17 @@ class CoverageService:
     context: AppContext
 
     def add_coverage(self, entry: CoverageEntry) -> CoverageEntry:
-        if entry.next_run_at is None and entry.cadence == Cadence.WEEKLY:
-            entry.next_run_at = utc_now()
+        if entry.next_run_at is None:
+            entry.next_run_at = compute_initial_next_run_at(
+                self.context.registries.cadence_policies,
+                entry,
+                now=utc_now(),
+                preserve_legacy_weekly_due_now=(
+                    entry.schedule_enabled
+                    and entry.schedule_policy_id in {None, "weekly"}
+                    and entry.preferred_run_time is None
+                ),
+            )
         with self.context.database.session() as session:
             repository = Repository(session)
             return repository.upsert_coverage(entry)
@@ -1061,6 +1070,9 @@ class AnalysisService:
                 **run.metadata,
                 "panel_ids": selected_panels,
                 "panel_policy": coverage.panel_policy,
+                "schedule_policy_id": coverage.schedule_policy_id,
+                "schedule_enabled": coverage.schedule_enabled,
+                "preferred_run_time": coverage.preferred_run_time,
                 "memo_reconciliation": policy.memo_reconciliation,
                 "monitoring_enabled": policy.monitoring_enabled,
                 "baseline_memo": (
@@ -1159,12 +1171,11 @@ class AnalysisService:
                     repository.save_run(runtime.run)
                     if self._should_advance_coverage(runtime.run):
                         runtime.coverage.last_run_at = runtime.run.completed_at
-                        if (
-                            runtime.coverage.cadence == Cadence.WEEKLY
-                            and runtime.run.completed_at is not None
-                        ):
-                            runtime.coverage.next_run_at = (
-                                runtime.run.completed_at + timedelta(days=7)
+                        if runtime.run.completed_at is not None:
+                            runtime.coverage.next_run_at = compute_next_run_at(
+                                self.context.registries.cadence_policies,
+                                runtime.coverage,
+                                completed_at=runtime.run.completed_at,
                             )
                         repository.upsert_coverage(runtime.coverage)
             result = self._build_graph_result(runtime.run, graph_result)
@@ -1251,12 +1262,7 @@ class AnalysisService:
 
     @staticmethod
     def _should_advance_coverage(run: RunRecord) -> bool:
-        return run.status in {
-            RunStatus.COMPLETE,
-            RunStatus.PROVISIONAL,
-            RunStatus.GATED_OUT,
-            RunStatus.STOPPED,
-        }
+        return run.status in {RunStatus.COMPLETE, RunStatus.PROVISIONAL}
 
 
 def render_memo_markdown(memo: ICMemo) -> str:
