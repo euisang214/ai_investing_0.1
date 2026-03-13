@@ -1358,6 +1358,14 @@ class RefreshRuntime:
         skipped = [SkippedPanelResult.model_validate(item) for item in raw_items]
         return {item.panel_id: item for item in skipped}
 
+    @staticmethod
+    def _panel_supports_from_run(run: RunRecord) -> dict[str, PanelSupportAssessment]:
+        raw_items = run.metadata.get("panel_support_assessments", [])
+        if not isinstance(raw_items, list):
+            return {}
+        assessments = [PanelSupportAssessment.model_validate(item) for item in raw_items]
+        return {item.panel_id: item for item in assessments}
+
     def _delta_thresholds(self) -> dict[str, Any]:
         return dict(self.context.registries.monitoring.monitoring.delta_thresholds)
 
@@ -1961,10 +1969,14 @@ class AnalysisService:
 
     def _build_graph_result(self, run: RunRecord, graph_result: dict[str, Any]) -> dict[str, Any]:
         panels = dict(graph_result.get("panel_results", {}))
+        support_by_panel = RefreshRuntime._panel_supports_from_run(run)
         for panel_id, skip in RefreshRuntime._skipped_panels_from_run(run).items():
             panels.setdefault(
                 panel_id,
-                PanelRunRead(skip=skip).model_dump(mode="json"),
+                PanelRunRead(
+                    skip=skip,
+                    support=support_by_panel.get(panel_id),
+                ).model_dump(mode="json"),
             )
         return {
             "run": run.model_dump(mode="json"),
@@ -1975,10 +1987,14 @@ class AnalysisService:
 
     def _build_persisted_result(self, repository: Repository, run: RunRecord) -> dict[str, Any]:
         claims_by_panel: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        support_by_panel = RefreshRuntime._panel_supports_from_run(run)
         for claim in repository.list_claim_cards(run.company_id, run_id=run.run_id):
             claims_by_panel[claim.panel_id].append(claim.model_dump(mode="json"))
         panels: dict[str, dict[str, Any]] = {
-            panel_id: PanelRunRead(skip=skip).model_dump(mode="json")
+            panel_id: PanelRunRead(
+                skip=skip,
+                support=support_by_panel.get(panel_id),
+            ).model_dump(mode="json")
             for panel_id, skip in RefreshRuntime._skipped_panels_from_run(run).items()
         }
         for verdict in repository.list_panel_verdicts(run.company_id, run_id=run.run_id):
@@ -1988,6 +2004,7 @@ class AnalysisService:
                     for claim in claims_by_panel.get(verdict.panel_id, [])
                 ],
                 verdict=verdict,
+                support=support_by_panel.get(verdict.panel_id),
             ).model_dump(mode="json")
         memo = repository.get_memo_for_run(run.company_id, run.run_id)
         delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)

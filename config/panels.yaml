@@ -296,7 +296,7 @@ panels:
           - financial_statements
           - kpi_reporting
       minimum_factor_coverage_ratio: 0.6
-      minimum_evidence_count: 5
+      minimum_evidence_count: 3
       required_context: []
     support:
       required_company_types:

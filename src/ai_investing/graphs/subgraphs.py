@@ -40,10 +40,12 @@ def build_panel_lead_subgraph(runtime: RefreshRuntime, panel_id: str):
             panel_results[panel_id] = {
                 "claims": state.get("claims", []),
                 "skip": skip_payload,
+                "support": state.get("support"),
             }
             return {
                 "panel_results": panel_results,
                 "skip": skip_payload,
+                "support": state.get("support"),
             }
         verdict_payload = state["verdict"]
         verdict = (
@@ -61,10 +63,12 @@ def build_panel_lead_subgraph(runtime: RefreshRuntime, panel_id: str):
         panel_results[panel_id] = {
             "claims": state.get("claims", []),
             "verdict": final_verdict.model_dump(mode="json"),
+            "support": support_payload,
         }
         return {
             "panel_results": panel_results,
             "verdict": final_verdict.model_dump(mode="json"),
+            "support": support_payload,
         }
     return finalize
 
@@ -78,11 +82,9 @@ def build_debate_subgraph(runtime: RefreshRuntime, panel_id: str):
         state: RefreshState = {
             "claims": result.get("claims", []),
             "support": result.get("support"),
+            "verdict": result.get("verdict"),
+            "skip": result.get("skip"),
         }
-        if "verdict" in result:
-            state["verdict"] = result["verdict"]
-        if "skip" in result:
-            state["skip"] = result["skip"]
         return state
 
     graph = StateGraph(RefreshState)

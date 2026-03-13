@@ -13,7 +13,13 @@
       "title": "FY2025 10-K Summary",
       "as_of_date": "2026-02-15T00:00:00Z",
       "period": "FY2025",
-      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "panel_ids": [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model"
+      ],
       "factor_ids": [
         "need_to_exist",
         "non_fad_durability",
@@ -21,7 +27,20 @@
         "balance_sheet_survivability",
         "revenue_recurrence_contract_strength",
         "switching_costs",
-        "pricing_power"
+        "pricing_power",
+        "supply_side_advantage",
+        "production_distribution_channels",
+        "reliability",
+        "input_pricing_availability",
+        "priorities",
+        "capital_allocation",
+        "ability_to_hit_projections",
+        "financial_audit",
+        "earnings_quality",
+        "business_model_cash_timing",
+        "margin_profile_operating_leverage",
+        "fiscal_health",
+        "capitalization"
       ],
       "factor_signals": {
         "need_to_exist": { "stance": "positive", "summary": "The platform sits in billing and procurement workflows and customers describe it as operationally mandatory.", "metrics": { "gross_retention": "95%" } },
@@ -30,7 +49,20 @@
         "balance_sheet_survivability": { "stance": "positive", "summary": "Net cash remains positive and the company is free cash flow positive.", "metrics": { "net_cash_millions": 220 } },
         "revenue_recurrence_contract_strength": { "stance": "positive", "summary": "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.", "metrics": { "subscription_mix": "92%", "contract_term": "2-3 years" } },
         "switching_costs": { "stance": "positive", "summary": "The product integrates into ERP and procurement workflows, making replacement costly.", "metrics": { "integrations": 28 } },
-        "pricing_power": { "stance": "positive", "summary": "The company raised prices 6% with limited churn impact.", "metrics": { "price_increase": "6%" } }
+        "pricing_power": { "stance": "positive", "summary": "The company raised prices 6% with limited churn impact.", "metrics": { "price_increase": "6%" } },
+        "supply_side_advantage": { "stance": "positive", "summary": "Acme runs the product through a common workflow engine and shared billing stack that lowers delivery friction.", "metrics": { "shared_platform": true } },
+        "production_distribution_channels": { "stance": "positive", "summary": "Deployment and support run through a standardized direct-sales and channel-enabled distribution model.", "metrics": { "channel_mix": "direct plus partners" } },
+        "reliability": { "stance": "positive", "summary": "Management described high uptime and stable fulfillment of implementation commitments.", "metrics": { "uptime": "99.9%" } },
+        "input_pricing_availability": { "stance": "positive", "summary": "Cloud infrastructure costs stayed stable enough for margin guidance to hold.", "metrics": { "infra_cost_growth": "low single digits" } },
+        "priorities": { "stance": "positive", "summary": "Capital deployment stayed focused on core workflow automation and implementation capacity.", "metrics": { "r_and_d_mix": "disciplined" } },
+        "capital_allocation": { "stance": "positive", "summary": "The company reinvested into product and distribution without stretching the balance sheet.", "metrics": { "free_cash_flow_positive": true } },
+        "ability_to_hit_projections": { "stance": "positive", "summary": "Reported revenue and cash flow landed within the company's guided range.", "metrics": { "guidance_hit": true } },
+        "financial_audit": { "stance": "positive", "summary": "The auditor stayed unchanged and the opinion remained clean.", "metrics": { "audit_opinion": "clean" } },
+        "earnings_quality": { "stance": "positive", "summary": "Reported earnings reconciled cleanly to cash generation and deferred revenue trends.", "metrics": { "cash_conversion": "healthy" } },
+        "business_model_cash_timing": { "stance": "positive", "summary": "Annual contracts and upfront billings support favorable cash timing.", "metrics": { "deferred_revenue_trend": "up" } },
+        "margin_profile_operating_leverage": { "stance": "positive", "summary": "Gross margins and free cash flow improved as revenue scaled.", "metrics": { "gross_margin": "78%" } },
+        "fiscal_health": { "stance": "positive", "summary": "Net cash and positive free cash flow leave liquidity comfortable.", "metrics": { "net_cash_millions": 220 } },
+        "capitalization": { "stance": "positive", "summary": "The company remains lightly levered with a clean common-equity-centered capital structure.", "metrics": { "net_debt": "none" } }
       },
       "source_refs": [
         { "label": "FY2025 10-K", "url": "https://example.com/acme-10k" }
@@ -45,20 +77,50 @@
       "title": "Q4 2025 Earnings Call Excerpt",
       "as_of_date": "2026-02-20T00:00:00Z",
       "period": "Q4 2025",
-      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "panel_ids": [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model"
+      ],
       "factor_ids": [
         "customer_habit",
         "customer_concentration",
         "demand_cyclicality_purchase_deferrability",
         "brand_reputation_consideration_set",
-        "governance_investability"
+        "governance_investability",
+        "innovation",
+        "barriers_to_entry",
+        "negotiating_power",
+        "product_concentration",
+        "management_team_per_member",
+        "tenure",
+        "planning_execution",
+        "incentive_alignment",
+        "unit_economics",
+        "capital_efficiency",
+        "roic_decomposition",
+        "incremental_roic_reinvestment_runway"
       ],
       "factor_signals": {
         "customer_habit": { "stance": "positive", "summary": "Customers log in daily and rely on approvals running through Acme's workflow engine.", "metrics": { "daily_active_admins": 0.82 } },
         "customer_concentration": { "stance": "positive", "summary": "No customer accounts for more than 4% of revenue.", "metrics": { "largest_customer": "4%" } },
         "demand_cyclicality_purchase_deferrability": { "stance": "mixed", "summary": "SMB seat growth slowed, but enterprise expansions remained stable.", "metrics": { "smb_growth": "8%", "enterprise_growth": "19%" } },
         "brand_reputation_consideration_set": { "stance": "positive", "summary": "Acme remains a top-three vendor in competitive evaluations.", "metrics": { "win_rate": "61%" } },
-        "governance_investability": { "stance": "positive", "summary": "The board added an independent audit chair and refreshed compensation disclosures.", "metrics": { "independent_directors": 5 } }
+        "governance_investability": { "stance": "positive", "summary": "The board added an independent audit chair and refreshed compensation disclosures.", "metrics": { "independent_directors": 5 } },
+        "innovation": { "stance": "positive", "summary": "Enterprise customers continued to expand module count, signaling a shipping roadmap that is landing in the field.", "metrics": { "module_expansion": "broad" } },
+        "barriers_to_entry": { "stance": "positive", "summary": "The workflow engine is deeply embedded in approval chains, which slows fast-follower replacement.", "metrics": { "implementation_months": 6 } },
+        "negotiating_power": { "stance": "positive", "summary": "Acme retained price discipline without seeing meaningful churn in larger accounts.", "metrics": { "price_realization": "strong" } },
+        "product_concentration": { "stance": "mixed", "summary": "The automation suite still leans on a core workflow module, even as adjacent modules are expanding.", "metrics": { "core_module_mix": "material" } },
+        "management_team_per_member": { "stance": "positive", "summary": "The finance and product leaders each described clear operating ownership areas.", "metrics": { "executive_depth": 4 } },
+        "tenure": { "stance": "positive", "summary": "The senior operating team has worked together through multiple planning cycles.", "metrics": { "leadership_tenure_years": 5 } },
+        "planning_execution": { "stance": "positive", "summary": "Product launches and enterprise expansion plans tracked to the milestones management laid out earlier in the year.", "metrics": { "launches_on_time": 3 } },
+        "incentive_alignment": { "stance": "positive", "summary": "Updated compensation disclosures tied incentives to retention, free cash flow, and product delivery.", "metrics": { "fcf_metric_weight": "meaningful" } },
+        "unit_economics": { "stance": "positive", "summary": "Enterprise expansion economics remained attractive as module count increased.", "metrics": { "gross_margin_incremental": "high" } },
+        "capital_efficiency": { "stance": "positive", "summary": "The company scaled revenue faster than operating expense growth.", "metrics": { "opex_growth_vs_revenue": "favorable" } },
+        "roic_decomposition": { "stance": "positive", "summary": "Margin expansion and efficient asset turns are both contributing to returns.", "metrics": { "roic_trend": "up" } },
+        "incremental_roic_reinvestment_runway": { "stance": "positive", "summary": "Management continues to find reinvestment opportunities in product and go-to-market with attractive payback.", "metrics": { "payback_months": 18 } }
       },
       "source_refs": [
         { "label": "Q4 2025 Call", "url": "https://example.com/acme-call" }
@@ -73,11 +135,29 @@
       "title": "Regulatory Note",
       "as_of_date": "2026-02-25T00:00:00Z",
       "period": "Current",
-      "panel_ids": ["gatekeepers"],
-      "factor_ids": ["legal_regulatory_existential_risk", "fad_fashion_risk"],
+      "panel_ids": [
+        "gatekeepers",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model"
+      ],
+      "factor_ids": [
+        "legal_regulatory_existential_risk",
+        "fad_fashion_risk",
+        "procurement_supplier_concentration",
+        "supplier_fiscal_health",
+        "org_legal_structure",
+        "related_party_red_flags",
+        "off_balance_sheet_liabilities_equity"
+      ],
       "factor_signals": {
         "legal_regulatory_existential_risk": { "stance": "positive", "summary": "No material regulatory enforcement actions were disclosed; privacy updates appear manageable.", "metrics": { "open_actions": 0 } },
-        "fad_fashion_risk": { "stance": "negative", "summary": "AI workflow positioning is trendy, so messaging discipline still matters.", "metrics": { "new_ai_modules": 2 } }
+        "fad_fashion_risk": { "stance": "negative", "summary": "AI workflow positioning is trendy, so messaging discipline still matters.", "metrics": { "new_ai_modules": 2 } },
+        "procurement_supplier_concentration": { "stance": "mixed", "summary": "Cloud-hosting concentration remains manageable but still ties uptime to a small set of vendors.", "metrics": { "primary_cloud_vendors": 2 } },
+        "supplier_fiscal_health": { "stance": "positive", "summary": "The company's critical infrastructure vendors remain large, well-capitalized counterparties.", "metrics": { "critical_vendor_failures": 0 } },
+        "org_legal_structure": { "stance": "positive", "summary": "The disclosed legal structure remained straightforward with no new complexity around subsidiaries.", "metrics": { "material_subsidiaries": 2 } },
+        "related_party_red_flags": { "stance": "positive", "summary": "No new related-party transactions or governance red flags were disclosed.", "metrics": { "related_party_transactions": 0 } },
+        "off_balance_sheet_liabilities_equity": { "stance": "positive", "summary": "No new contingent liabilities or unusual equity claims were highlighted in the review.", "metrics": { "material_contingencies": 0 } }
       },
       "source_refs": [
         { "label": "Regulatory Note", "url": "https://example.com/acme-regulatory" }
@@ -88,4 +168,3 @@
     }
   ]
 }
-

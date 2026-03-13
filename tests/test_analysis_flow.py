@@ -49,6 +49,19 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         repository.upsert_coverage(coverage)
 
 
+def _seed_private_beta(context, repo_root: Path) -> None:
+    IngestionService(context).ingest_private_data(repo_root / "examples" / "beta_private")
+    CoverageService(context).add_coverage(
+        CoverageEntry(
+            company_id="BETA",
+            company_name="Beta Logistics Software",
+            company_type=CompanyType.PRIVATE,
+            coverage_status=CoverageStatus.WATCHLIST,
+            cadence=Cadence.WEEKLY,
+        )
+    )
+
+
 def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
     panel = context.get_panel(panel_id)
     panel.readiness.required_context = required_context
@@ -172,6 +185,88 @@ def test_unsupported_implemented_panel_surfaces_structured_skip(seeded_acme) -> 
 
     assert run is not None
     assert run.metadata["skipped_panels"][0]["panel_id"] == "demand_revenue_quality"
+
+
+def test_supply_management_financial_internal_policy_runs_public_with_supported_results(
+    seeded_acme,
+) -> None:
+    _set_panel_policy(seeded_acme, "ACME", "internal_company_quality")
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    assert set(result["panels"]) == {
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model",
+    }
+    assert result["panels"]["supply_product_operations"]["support"]["status"] == "supported"
+    assert (
+        result["panels"]["management_governance_capital_allocation"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        result["panels"]["financial_quality_liquidity_economic_model"]["support"]["status"]
+        == "supported"
+    )
+    assert sections["durability_resilience"]["status"] == "refreshed"
+    assert sections["economic_spread"]["status"] == "refreshed"
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert sections["risk"]["status"] == "refreshed"
+    assert sections["expectations_variant_view"]["status"] == "not_advanced"
+    assert sections["portfolio_fit_positioning"]["status"] == "not_advanced"
+
+
+def test_supply_management_financial_internal_policy_runs_private_with_weak_confidence(
+    context,
+    repo_root: Path,
+) -> None:
+    _seed_private_beta(context, repo_root)
+    _set_panel_policy(context, "BETA", "internal_company_quality")
+
+    result = AnalysisService(context).analyze_company("BETA")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    for panel_id in (
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model",
+    ):
+        panel = result["panels"][panel_id]
+        assert panel["support"]["status"] == "weak_confidence"
+        assert panel["verdict"]["summary"].endswith("Weak-confidence read due to thin evidence.")
+        assert panel["verdict"]["confidence"] <= 0.45
+
+    assert sections["durability_resilience"]["status"] == "refreshed"
+    assert sections["economic_spread"]["status"] == "refreshed"
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert "Weak-confidence support this run" in sections["durability_resilience"]["content"]
+
+
+def test_supply_management_financial_persisted_result_keeps_support_status(seeded_acme) -> None:
+    _set_panel_policy(seeded_acme, "ACME", "internal_company_quality")
+    service = AnalysisService(seeded_acme)
+    result = service.analyze_company("ACME")
+
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        run = repository.get_run(result["run"]["run_id"])
+        assert run is not None
+        persisted = service._build_persisted_result(repository, run)
+
+    assert persisted["panels"]["supply_product_operations"]["support"]["status"] == "supported"
+    assert (
+        persisted["panels"]["management_governance_capital_allocation"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        persisted["panels"]["financial_quality_liquidity_economic_model"]["support"]["status"]
+        == "supported"
+    )
 
 
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:

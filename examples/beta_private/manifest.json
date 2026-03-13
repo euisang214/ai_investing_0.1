@@ -13,18 +13,42 @@
       "title": "December 2025 Board Deck Summary",
       "as_of_date": "2025-12-31T00:00:00Z",
       "period": "December 2025",
-      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "panel_ids": [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model"
+      ],
       "factor_ids": [
         "need_to_exist",
         "balance_sheet_survivability",
         "revenue_recurrence_contract_strength",
-        "switching_costs"
+        "switching_costs",
+        "supply_side_advantage",
+        "production_distribution_channels",
+        "priorities",
+        "capital_allocation",
+        "ability_to_hit_projections",
+        "business_model_cash_timing",
+        "margin_profile_operating_leverage",
+        "fiscal_health",
+        "capitalization"
       ],
       "factor_signals": {
         "need_to_exist": { "stance": "positive", "summary": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.", "metrics": { "core_workflow": true } },
         "balance_sheet_survivability": { "stance": "mixed", "summary": "Cash runway is adequate for 18 months but growth plans assume another financing event.", "metrics": { "runway_months": 18 } },
         "revenue_recurrence_contract_strength": { "stance": "positive", "summary": "Recurring software revenue is 84% of total with annual auto-renew contracts.", "metrics": { "recurring_mix": "84%" } },
-        "switching_costs": { "stance": "positive", "summary": "Integrations into carrier workflows and training costs create meaningful switching friction.", "metrics": { "integrations": 14 } }
+        "switching_costs": { "stance": "positive", "summary": "Integrations into carrier workflows and training costs create meaningful switching friction.", "metrics": { "integrations": 14 } },
+        "supply_side_advantage": { "stance": "positive", "summary": "Beta's embedded carrier and shipper workflows create a useful operating position in its niche.", "metrics": { "embedded_workflows": true } },
+        "production_distribution_channels": { "stance": "mixed", "summary": "Implementation delivery is repeatable, but channel reach is still concentrated in a narrow distributor set.", "metrics": { "implementation_partners": 3 } },
+        "priorities": { "stance": "positive", "summary": "Management is prioritizing core logistics workflow depth ahead of broader adjacency expansion.", "metrics": { "product_focus": "core TMS" } },
+        "capital_allocation": { "stance": "mixed", "summary": "The board continues to fund product investment, but another financing round is likely.", "metrics": { "runway_months": 18 } },
+        "ability_to_hit_projections": { "stance": "mixed", "summary": "The company is tracking to plan operationally, though profitability timing still depends on execution.", "metrics": { "plan_confidence": "moderate" } },
+        "business_model_cash_timing": { "stance": "mixed", "summary": "Recurring revenue supports collections, but implementation services still create working-capital swings.", "metrics": { "annual_contract_share": "high" } },
+        "margin_profile_operating_leverage": { "stance": "mixed", "summary": "Gross margin is solid, but fixed operating costs still matter for the path to profitability.", "metrics": { "gross_margin": "healthy" } },
+        "fiscal_health": { "stance": "mixed", "summary": "Liquidity is serviceable for now, but the runway is not yet self-funding.", "metrics": { "runway_months": 18 } },
+        "capitalization": { "stance": "mixed", "summary": "The current capital structure is workable, though another financing event remains likely.", "metrics": { "next_raise_expected": true } }
       },
       "source_refs": [
         { "label": "Board Deck", "url": "https://example.com/beta-board" }
@@ -39,16 +63,32 @@
       "title": "Customer Diligence Notes",
       "as_of_date": "2026-01-15T00:00:00Z",
       "period": "Current",
-      "panel_ids": ["demand_revenue_quality", "gatekeepers"],
+      "panel_ids": [
+        "demand_revenue_quality",
+        "gatekeepers",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model"
+      ],
       "factor_ids": [
         "customer_habit",
         "customer_concentration",
-        "governance_investability"
+        "governance_investability",
+        "procurement_supplier_concentration",
+        "management_team_per_member",
+        "incentive_alignment",
+        "unit_economics",
+        "off_balance_sheet_liabilities_equity"
       ],
       "factor_signals": {
         "customer_habit": { "stance": "positive", "summary": "Operations managers use Beta throughout the day to monitor loads and exceptions.", "metrics": { "daily_usage": "high" } },
         "customer_concentration": { "stance": "negative", "summary": "The top five customers represent 46% of ARR.", "metrics": { "top_five_arr_share": "46%" } },
-        "governance_investability": { "stance": "mixed", "summary": "Founders retain strong control but board materials have become more transparent in the last year.", "metrics": { "independent_directors": 1 } }
+        "governance_investability": { "stance": "mixed", "summary": "Founders retain strong control but board materials have become more transparent in the last year.", "metrics": { "independent_directors": 1 } },
+        "procurement_supplier_concentration": { "stance": "negative", "summary": "Carrier and integration dependencies still concentrate operating risk in a small partner base.", "metrics": { "top_partner_share": "high" } },
+        "management_team_per_member": { "stance": "mixed", "summary": "The founders remain deeply involved, but management bench depth below them is still developing.", "metrics": { "independent_ops_leaders": 1 } },
+        "incentive_alignment": { "stance": "mixed", "summary": "Founder control is still heavy, though equity refreshes now include more operating leaders.", "metrics": { "founder_control": "high" } },
+        "unit_economics": { "stance": "mixed", "summary": "Customers stay sticky, but services-heavy onboarding still pressures early-period margins.", "metrics": { "implementation_margin": "low" } },
+        "off_balance_sheet_liabilities_equity": { "stance": "mixed", "summary": "Preferred and option overhang are manageable, but still matter to the common-equity outcome.", "metrics": { "preferred_stack": "present" } }
       },
       "source_refs": [
         { "label": "Diligence Notes", "url": "https://example.com/beta-diligence" }
@@ -56,7 +96,34 @@
       "metadata": {
         "connector": "private_file_connector"
       }
+    },
+    {
+      "path": "beta_kpi_packet.md",
+      "source_type": "kpi_workbook",
+      "title": "January 2026 KPI Packet",
+      "as_of_date": "2026-01-31T00:00:00Z",
+      "period": "January 2026",
+      "panel_ids": [
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model"
+      ],
+      "factor_ids": [
+        "reliability",
+        "planning_execution",
+        "capital_efficiency"
+      ],
+      "factor_signals": {
+        "reliability": { "stance": "mixed", "summary": "Service levels remain acceptable, but implementation cycle times still move around quarter to quarter.", "metrics": { "on_time_implementation_rate": "89%" } },
+        "planning_execution": { "stance": "mixed", "summary": "Management is delivering most operating targets, though timing remains uneven across customer cohorts.", "metrics": { "operating_plan_hit_rate": "mostly on track" } },
+        "capital_efficiency": { "stance": "mixed", "summary": "Gross profit per implementation dollar is improving, but efficiency is not yet at scaled-software levels.", "metrics": { "payback_trend": "improving" } }
+      },
+      "source_refs": [
+        { "label": "KPI Packet", "url": "https://example.com/beta-kpi" }
+      ],
+      "metadata": {
+        "connector": "private_file_connector"
+      }
     }
   ]
 }
-

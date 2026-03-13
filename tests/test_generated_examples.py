@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 
@@ -119,3 +120,73 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert "Stale from the prior active memo." not in continued_memo
     assert "This section has not been advanced yet." in continued_memo
     assert "Stale from the prior active memo." in rerun_memo
+
+
+def test_supply_management_financial_manifests_cover_wave1_public_and_private_samples(
+    repo_root: Path,
+) -> None:
+    panel_ids = {
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model",
+    }
+    allowed_wave1_factors = {
+        "supply_side_advantage",
+        "production_distribution_channels",
+        "reliability",
+        "input_pricing_availability",
+        "innovation",
+        "barriers_to_entry",
+        "negotiating_power",
+        "product_concentration",
+        "procurement_supplier_concentration",
+        "supplier_fiscal_health",
+        "priorities",
+        "capital_allocation",
+        "ability_to_hit_projections",
+        "management_team_per_member",
+        "tenure",
+        "planning_execution",
+        "incentive_alignment",
+        "org_legal_structure",
+        "related_party_red_flags",
+        "financial_audit",
+        "earnings_quality",
+        "business_model_cash_timing",
+        "margin_profile_operating_leverage",
+        "fiscal_health",
+        "capitalization",
+        "unit_economics",
+        "capital_efficiency",
+        "roic_decomposition",
+        "incremental_roic_reinvestment_runway",
+        "off_balance_sheet_liabilities_equity",
+    }
+    factor_counts: dict[str, set[str]] = defaultdict(set)
+
+    for manifest_path in (
+        repo_root / "examples" / "acme_public" / "manifest.json",
+        repo_root / "examples" / "beta_private" / "manifest.json",
+    ):
+        manifest = _load_json(manifest_path)
+        seen_panels = {
+            panel_id
+            for document in manifest["documents"]
+            for panel_id in document["panel_ids"]
+            if panel_id in panel_ids
+        }
+        assert seen_panels == panel_ids
+        for document in manifest["documents"]:
+            for panel_id in panel_ids.intersection(document["panel_ids"]):
+                factor_counts[f"{manifest['company_id']}:{panel_id}"].update(
+                    factor_id
+                    for factor_id in document["factor_ids"]
+                    if factor_id in allowed_wave1_factors
+                )
+
+    assert len(factor_counts["ACME:supply_product_operations"]) >= 5
+    assert len(factor_counts["ACME:management_governance_capital_allocation"]) >= 8
+    assert len(factor_counts["ACME:financial_quality_liquidity_economic_model"]) >= 8
+    assert len(factor_counts["BETA:supply_product_operations"]) >= 4
+    assert len(factor_counts["BETA:management_governance_capital_allocation"]) >= 5
+    assert len(factor_counts["BETA:financial_quality_liquidity_economic_model"]) >= 6

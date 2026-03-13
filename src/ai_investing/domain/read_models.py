@@ -24,6 +24,7 @@ from ai_investing.domain.models import (
     MonitoringDelta,
     MonitoringReference,
     NotificationEvent,
+    PanelSupportAssessment,
     PanelVerdict,
     RefreshJobRecord,
     ReviewQueueEntry,
@@ -174,6 +175,7 @@ class PanelRunRead(DomainModel):
     claims: list[ClaimCard] = Field(default_factory=list)
     verdict: GatekeeperVerdict | PanelVerdict | None = None
     skip: SkippedPanelResult | None = None
+    support: PanelSupportAssessment | None = None
 
     @model_validator(mode="after")
     def validate_shape(self) -> PanelRunRead:
