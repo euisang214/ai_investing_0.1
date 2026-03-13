@@ -71,7 +71,10 @@ def test_connector_runtime_uses_default_public_and_private_connectors(
     assert private_profile.company_type.value == "private"
     assert public_records
     assert private_records
-    assert all(record.source_path.startswith(public_connector.raw_landing_zone) for record in public_records)
+    assert all(
+        record.source_path.startswith(public_connector.raw_landing_zone)
+        for record in public_records
+    )
     assert all(
         record.source_path.startswith(private_connector.raw_landing_zone)
         for record in private_records

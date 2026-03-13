@@ -34,5 +34,8 @@ class ResolvedSourceConnector:
     def supports_company_type(self, company_type: CompanyType) -> bool:
         return self.config.supports_company_type(company_type.value)
 
-    def ingest(self, request: ConnectorIngestRequest) -> tuple[CompanyProfile, list[EvidenceRecord]]:
+    def ingest(
+        self,
+        request: ConnectorIngestRequest,
+    ) -> tuple[CompanyProfile, list[EvidenceRecord]]:
         return self.implementation.ingest(request.input_dir)
