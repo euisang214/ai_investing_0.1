@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
-current_phase_name: monitoring and connectors
-current_plan: 4
-status: verifying
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-03-13T12:54:36.427Z"
+current_phase: 5
+current_phase_name: scheduling and notifications
+current_plan: 2
+status: in_progress
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-13T15:14:41.479Z"
 last_activity: 2026-03-13
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
+  total_plans: 20
+  completed_plans: 18
+  percent: 90
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 4 is complete with the connector-runtime seam, representative adapter slice, richer monitoring services, and portfolio-level monitoring read surfaces in place; the next step is Phase 5 scheduling and notification work.
+**Current focus:** Phase 5 is underway after Plan 01 established config-driven cadence policies, deterministic schedule semantics, and additive operator schedule controls for later worker and notification work.
 
 ## Execution Tracking
 
-**Current Phase:** 4
-**Current Phase Name:** monitoring and connectors
+**Current Phase:** 5
+**Current Phase Name:** scheduling and notifications
 **Total Phases:** 5
-**Current Plan:** 4
-**Total Plans in Phase:** 4
-**Status:** Phase complete — ready for verification
-**Progress:** [██████████] 100%
+**Current Plan:** 2
+**Total Plans in Phase:** 3
+**Status:** Phase in progress
+**Progress:** [█████████░] 90%
 **Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 04 Plan 04 completed with typed monitoring history and portfolio summary read surfaces, additive CLI/API inspection, and read-only boundary docs
+**Last Activity Description:** Phase 05 Plan 01 completed with config-driven cadence policies, deterministic schedule advancement, additive CLI/API schedule controls, and a green Docker verification gate
 
 ## Current Status
 
@@ -52,11 +52,13 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 4 Plan 02 completed on 2026-03-13 with representative regulatory, market, consensus, ownership, dataroom, and KPI packets, one lightweight live market connector, truthful docs, and Docker-verified tests plus lint.
 - Phase 4 Plan 03 completed on 2026-03-13 with config-backed monitoring enrichment, shared contradiction and analog services, richer additive delta details, regenerated examples, and Docker-verified lint plus tests.
 - Phase 4 Plan 04 completed on 2026-03-13 with typed monitoring history and portfolio summary read models, additive CLI/API operator surfaces, read-only boundary documentation, and a full Docker-verified regression pass.
+- Phase 5 Plan 01 completed on 2026-03-13 with a typed cadence-policy registry, workspace-timezone schedule computation, additive coverage schedule fields, additive CLI/API controls, regenerated example artifacts, and Docker-verified tests plus lint.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 - Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
 - Parent requirement `V2-02` is now satisfied by Plans 04-01 and 04-02, which together deliver the connector runtime seam plus the representative adapter expansion.
 - Parent requirement `V2-04` is now satisfied by Plans 04-03 and 04-04, which together deliver the richer monitoring slice plus portfolio-level monitoring history and summary read surfaces.
+- Parent requirement `V2-03` is now satisfied by Phase 05 Plan 01, which upgrades coverage scheduling from weekly-only branches to config-driven cadence policies.
 
 ## Key Risks
 
@@ -66,7 +68,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Begin Phase 5 work for scheduling and notifications now that Phase 4 monitoring and connector scope is complete.
+- Execute Phase 05 Plan 02 to add the background refresh queue and notification outbox while preserving the schedule contract established in Plan 01.
 
 ## Decisions
 
@@ -103,6 +105,11 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 04]: Keep monitoring history and portfolio monitoring as read-only projections instead of widening orchestration or memo-writing behavior.
 - [Phase 04]: Organize portfolio monitoring by change type first while keeping portfolio and watchlist names separate in every group.
 - [Phase 04]: Allow portfolio_fit_positioning to appear in monitoring output only as memo projection metadata while keeping the panel scaffold-only.
+- [Project-wide override 2026-03-13]: Supersede the Phase 02 universal gatekeeper pause rule. Every run still enters `gatekeepers` first, but `pass` and `review` should continue automatically for both initial and scheduled runs; `fail` should stop after `gatekeepers`, enter a review queue, and notify immediately.
+- [Project-wide override 2026-03-13]: Keep provisional downstream analysis explicit and operator-only. Automation may never trigger provisional continuation by default.
+- [Phase 05]: Keep legacy cadence as a scheduled-vs-manual compatibility field while schedule_policy_id owns real cadence semantics.
+- [Phase 05]: Drive first-run and next-run math through one workspace timezone plus per-coverage preferred run time, with legacy weekly entries staying immediately due unless operators choose a richer policy.
+- [Phase 05]: Advance next_run_at only for completed or provisional terminal runs, and clear it for schedule-disabled/manual one-offs so due coverage does not repeat forever.
 
 ## Performance Metrics
 
@@ -120,9 +127,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 04 P03 | 12min | 3 tasks | 19 files |
 | Phase 04 P02 | 7min | 3 tasks | 32 files |
 | Phase 04 P04 | 16min | 3 tasks | 13 files |
+| Phase 05 P01 | 12min | 3 tasks | 16 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T12:54:36.424Z
-**Stopped At:** Completed 04-04-PLAN.md
+**Last Date:** 2026-03-13T15:14:41.476Z
+**Stopped At:** Completed 05-01-PLAN.md
 **Resume File:** None

@@ -81,8 +81,11 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 5: Scheduling And Notifications
 
 **Goal:** Move from local repeatability to reliable recurring operations.
+**Status:** In progress as of 2026-03-13. Plan `05-01` established the cadence-policy registry, workspace-timezone schedule computation, and additive schedule controls. `V2-05` remains open for later worker and notification plans.
 
 **Requirements:** `V2-03`, `V2-05`
+
+**Plan progress:** `1 / 3` completed (`05-01` done)
 
 **Success criteria:**
 1. Cadence policies expand beyond weekly.
@@ -90,4 +93,4 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 3. Background execution and notification boundaries are documented cleanly.
 
 ---
-*Last updated: 2026-03-13 after Phase 04 Plan 04 completion*
+*Last updated: 2026-03-13 after Phase 05 Plan 01 completion*

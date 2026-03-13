@@ -64,7 +64,7 @@
 
 - [ ] **V2-01**: Productionize all remaining top-level panels beyond the initial vertical slice.
 - [x] **V2-02**: Add richer live connectors for regulatory, market, consensus, ownership, and dataroom systems.
-- [ ] **V2-03**: Add configurable cadence schedules beyond weekly defaults.
+- [x] **V2-03**: Add configurable cadence schedules beyond weekly defaults.
 
 ### Platform Expansion
 
@@ -112,7 +112,9 @@
 | TEST-02 | Phase 2 | Complete |
 | V2-01 | Phase 3 | Incomplete |
 | V2-02 | Phase 4 | Complete |
+| V2-03 | Phase 5 | Complete |
 | V2-04 | Phase 4 | Complete |
+| V2-05 | Phase 5 | Incomplete |
 
 **Coverage:**
 - v1 requirements: 26 total
@@ -121,4 +123,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-13 after Phase 04 Plan 04 completion*
+*Last updated: 2026-03-13 after Phase 05 Plan 01 completion*
