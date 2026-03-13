@@ -12,13 +12,16 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from ai_investing.application.context import AppContext
+from ai_investing.application.notifications import NotificationService
 from ai_investing.application.portfolio import PortfolioReadService, resolve_summary_segments
+from ai_investing.application.queue import QueueService
 from ai_investing.application.services import (
     AgentConfigService,
     AnalysisService,
     CoverageService,
     IngestionService,
 )
+from ai_investing.application.worker import WorkerService
 from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
 from ai_investing.domain.models import (
     ClaimCard,
@@ -73,6 +76,40 @@ class ReparentAgentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     parent_id: str | None = None
+
+
+class EnqueueCompaniesRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    company_ids: list[str] = Field(default_factory=list)
+    requested_by: str = "operator"
+
+
+class RequestedByRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    requested_by: str = "operator"
+
+
+class JobCancelRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reason: str | None = None
+
+
+class WorkerRunRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    limit: int = 10
+    worker_id: str = "worker"
+    max_concurrency: int = 1
+
+
+class NotificationClaimRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    limit: int = 10
+    consumer_id: str = "n8n"
 
 
 class ContinueRunRequest(BaseModel):
@@ -237,6 +274,99 @@ def create_app(context: AppContext | None = None) -> FastAPI:
     @app.post("/coverage/run-due", response_model=RunResultListEnvelope)
     def run_due(request: Request) -> RunResultListEnvelope:
         return _run_result_list_response(AnalysisService(_context(request)).run_due_coverage())
+
+    @app.get("/queue")
+    def get_queue_summary(request: Request) -> JSONResponse:
+        summary = QueueService(_context(request)).get_queue_summary()
+        return _success_response(summary.model_dump(mode="json"))
+
+    @app.get("/queue/{job_id}")
+    def get_queue_job(job_id: str, request: Request) -> JSONResponse:
+        detail = QueueService(_context(request)).get_job_detail(job_id)
+        return _success_response(detail.model_dump(mode="json"))
+
+    @app.post("/queue/enqueue-selected")
+    def enqueue_selected(
+        payload: EnqueueCompaniesRequest,
+        request: Request,
+    ) -> JSONResponse:
+        jobs = QueueService(_context(request)).enqueue_companies(
+            payload.company_ids,
+            requested_by=payload.requested_by,
+        )
+        return _success_response([job.model_dump(mode="json") for job in jobs])
+
+    @app.post("/queue/enqueue-watchlist")
+    def enqueue_watchlist(payload: RequestedByRequest, request: Request) -> JSONResponse:
+        jobs = QueueService(_context(request)).enqueue_watchlist(requested_by=payload.requested_by)
+        return _success_response([job.model_dump(mode="json") for job in jobs])
+
+    @app.post("/queue/enqueue-portfolio")
+    def enqueue_portfolio(payload: RequestedByRequest, request: Request) -> JSONResponse:
+        jobs = QueueService(_context(request)).enqueue_portfolio(requested_by=payload.requested_by)
+        return _success_response([job.model_dump(mode="json") for job in jobs])
+
+    @app.post("/queue/enqueue-due")
+    def enqueue_due(payload: RequestedByRequest, request: Request) -> JSONResponse:
+        jobs = QueueService(_context(request)).enqueue_due_coverage(
+            requested_by=payload.requested_by
+        )
+        return _success_response([job.model_dump(mode="json") for job in jobs])
+
+    @app.post("/queue/{job_id}/retry")
+    def retry_job(job_id: str, request: Request) -> JSONResponse:
+        job = QueueService(_context(request)).retry_job(job_id)
+        return _success_response(job.model_dump(mode="json"))
+
+    @app.post("/queue/{job_id}/cancel")
+    def cancel_job(job_id: str, payload: JobCancelRequest, request: Request) -> JSONResponse:
+        job = QueueService(_context(request)).cancel_job(job_id, reason=payload.reason)
+        return _success_response(job.model_dump(mode="json"))
+
+    @app.post("/queue/{job_id}/force-run")
+    def force_run_job(job_id: str, request: Request) -> JSONResponse:
+        job = QueueService(_context(request)).force_run_job(job_id)
+        return _success_response(job.model_dump(mode="json"))
+
+    @app.get("/review-queue")
+    def get_review_queue(request: Request) -> JSONResponse:
+        items = QueueService(_context(request)).list_review_queue()
+        return _success_response([item.model_dump(mode="json") for item in items])
+
+    @app.post("/workers/run")
+    def run_worker(payload: WorkerRunRequest, request: Request) -> JSONResponse:
+        results = WorkerService(_context(request)).run_available_jobs(
+            limit=payload.limit,
+            worker_id=payload.worker_id,
+            max_concurrency=payload.max_concurrency,
+        )
+        return _success_response(results)
+
+    @app.get("/notifications")
+    def get_notifications(request: Request) -> JSONResponse:
+        events = NotificationService(_context(request)).list_events()
+        return _success_response([event.model_dump(mode="json") for event in events])
+
+    @app.post("/notifications/claim")
+    def claim_notifications(
+        payload: NotificationClaimRequest,
+        request: Request,
+    ) -> JSONResponse:
+        events = NotificationService(_context(request)).claim_pending_events(
+            limit=payload.limit,
+            consumer_id=payload.consumer_id,
+        )
+        return _success_response([event.model_dump(mode="json") for event in events])
+
+    @app.post("/notifications/{event_id}/dispatch")
+    def dispatch_notification(event_id: str, request: Request) -> JSONResponse:
+        event = NotificationService(_context(request)).mark_dispatched(event_id)
+        return _success_response(event.model_dump(mode="json"))
+
+    @app.post("/notifications/{event_id}/acknowledge")
+    def acknowledge_notification(event_id: str, request: Request) -> JSONResponse:
+        event = NotificationService(_context(request)).acknowledge(event_id)
+        return _success_response(event.model_dump(mode="json"))
 
     @app.post("/companies/{company_id}/ingest-public")
     def ingest_public(company_id: str, payload: IngestRequest, request: Request) -> JSONResponse:

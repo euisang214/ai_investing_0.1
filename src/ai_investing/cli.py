@@ -9,7 +9,9 @@ from typing import Annotated, Any
 import typer
 
 from ai_investing.application.context import AppContext
+from ai_investing.application.notifications import NotificationService
 from ai_investing.application.portfolio import PortfolioReadService, resolve_summary_segments
+from ai_investing.application.queue import QueueService
 from ai_investing.application.services import (
     AgentConfigService,
     AnalysisService,
@@ -18,6 +20,7 @@ from ai_investing.application.services import (
     render_delta_json,
     render_memo_markdown,
 )
+from ai_investing.application.worker import WorkerService
 from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, RunContinueAction
 from ai_investing.domain.models import CoverageEntry
 from ai_investing.persistence.repositories import Repository
@@ -242,6 +245,115 @@ def continue_run(
 def run_due_coverage() -> None:
     result = AnalysisService(_context()).run_due_coverage()
     _emit_json(result)
+
+
+@app.command("queue-summary")
+def queue_summary() -> None:
+    _emit_json(QueueService(_context()).get_queue_summary().model_dump(mode="json"))
+
+
+@app.command("show-job")
+def show_job(job_id: str) -> None:
+    _emit_json(QueueService(_context()).get_job_detail(job_id).model_dump(mode="json"))
+
+
+@app.command("enqueue-companies")
+def enqueue_companies(
+    company_ids: list[str] = typer.Argument(...),
+    requested_by: Annotated[str, typer.Option("--requested-by")] = "operator",
+) -> None:
+    jobs = QueueService(_context()).enqueue_companies(company_ids, requested_by=requested_by)
+    _emit_json([job.model_dump(mode="json") for job in jobs])
+
+
+@app.command("enqueue-watchlist")
+def enqueue_watchlist(
+    requested_by: Annotated[str, typer.Option("--requested-by")] = "operator",
+) -> None:
+    jobs = QueueService(_context()).enqueue_watchlist(requested_by=requested_by)
+    _emit_json([job.model_dump(mode="json") for job in jobs])
+
+
+@app.command("enqueue-portfolio")
+def enqueue_portfolio(
+    requested_by: Annotated[str, typer.Option("--requested-by")] = "operator",
+) -> None:
+    jobs = QueueService(_context()).enqueue_portfolio(requested_by=requested_by)
+    _emit_json([job.model_dump(mode="json") for job in jobs])
+
+
+@app.command("enqueue-due-coverage")
+def enqueue_due_coverage(
+    requested_by: Annotated[str, typer.Option("--requested-by")] = "scheduler",
+) -> None:
+    jobs = QueueService(_context()).enqueue_due_coverage(requested_by=requested_by)
+    _emit_json([job.model_dump(mode="json") for job in jobs])
+
+
+@app.command("retry-job")
+def retry_job(job_id: str) -> None:
+    _emit_json(QueueService(_context()).retry_job(job_id).model_dump(mode="json"))
+
+
+@app.command("cancel-job")
+def cancel_job(
+    job_id: str,
+    reason: Annotated[str | None, typer.Option("--reason")] = None,
+) -> None:
+    _emit_json(QueueService(_context()).cancel_job(job_id, reason=reason).model_dump(mode="json"))
+
+
+@app.command("force-run-job")
+def force_run_job(job_id: str) -> None:
+    _emit_json(QueueService(_context()).force_run_job(job_id).model_dump(mode="json"))
+
+
+@app.command("list-review-queue")
+def list_review_queue() -> None:
+    items = QueueService(_context()).list_review_queue()
+    _emit_json([item.model_dump(mode="json") for item in items])
+
+
+@app.command("run-worker")
+def run_worker(
+    limit: Annotated[int, typer.Option("--limit", min=1)] = 10,
+    worker_id: Annotated[str, typer.Option("--worker-id")] = "worker",
+    max_concurrency: Annotated[int, typer.Option("--max-concurrency", min=1)] = 1,
+) -> None:
+    results = WorkerService(_context()).run_available_jobs(
+        limit=limit,
+        worker_id=worker_id,
+        max_concurrency=max_concurrency,
+    )
+    _emit_json(results)
+
+
+@app.command("list-notifications")
+def list_notifications() -> None:
+    events = NotificationService(_context()).list_events()
+    _emit_json([event.model_dump(mode="json") for event in events])
+
+
+@app.command("claim-notifications")
+def claim_notifications(
+    consumer_id: Annotated[str, typer.Option("--consumer-id")] = "n8n",
+    limit: Annotated[int, typer.Option("--limit", min=1)] = 10,
+) -> None:
+    events = NotificationService(_context()).claim_pending_events(
+        limit=limit,
+        consumer_id=consumer_id,
+    )
+    _emit_json([event.model_dump(mode="json") for event in events])
+
+
+@app.command("dispatch-notification")
+def dispatch_notification(event_id: str) -> None:
+    _emit_json(NotificationService(_context()).mark_dispatched(event_id).model_dump(mode="json"))
+
+
+@app.command("acknowledge-notification")
+def acknowledge_notification(event_id: str) -> None:
+    _emit_json(NotificationService(_context()).acknowledge(event_id).model_dump(mode="json"))
 
 
 @app.command("generate-memo")

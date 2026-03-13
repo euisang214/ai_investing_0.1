@@ -7,6 +7,7 @@ from ai_investing.domain.enums import (
     AlertLevel,
     CompanyType,
     CoverageStatus,
+    NotificationCategory,
     RunContinueAction,
     RunKind,
     RunStatus,
@@ -19,6 +20,7 @@ from ai_investing.domain.models import (
     RunRecord,
 )
 from ai_investing.persistence.repositories import Repository
+from ai_investing.providers.fake import FakeModelProvider
 
 
 def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
@@ -28,6 +30,20 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         assert coverage is not None
         coverage.panel_policy = panel_policy
         repository.upsert_coverage(coverage)
+
+
+def _force_failed_gatekeeper(monkeypatch) -> None:
+    original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
+
+    def forced_fail(self, request):
+        payload = original_gatekeeper_payload(self, request)
+        payload["recommendation"] = "negative"
+        payload["gate_decision"] = "fail"
+        payload["summary"] = "Gatekeepers failed the company."
+        payload["gate_reasons"] = ["Customer concentration remains too high."]
+        return payload
+
+    monkeypatch.setattr(FakeModelProvider, "_gatekeeper_payload", forced_fail)
 
 
 def _save_coverage(
@@ -237,6 +253,27 @@ def test_api_preserves_phase_one_operator_routes(context) -> None:
     assert "/agents/{agent_id}/reparent" in route_paths
 
 
+def test_api_exposes_queue_worker_and_notification_routes(context) -> None:
+    app = create_app(context)
+    route_paths = {route.path for route in app.routes}
+
+    assert "/queue" in route_paths
+    assert "/queue/{job_id}" in route_paths
+    assert "/queue/enqueue-selected" in route_paths
+    assert "/queue/enqueue-watchlist" in route_paths
+    assert "/queue/enqueue-portfolio" in route_paths
+    assert "/queue/enqueue-due" in route_paths
+    assert "/queue/{job_id}/retry" in route_paths
+    assert "/queue/{job_id}/cancel" in route_paths
+    assert "/queue/{job_id}/force-run" in route_paths
+    assert "/review-queue" in route_paths
+    assert "/workers/run" in route_paths
+    assert "/notifications" in route_paths
+    assert "/notifications/claim" in route_paths
+    assert "/notifications/{event_id}/dispatch" in route_paths
+    assert "/notifications/{event_id}/acknowledge" in route_paths
+
+
 def test_api_returns_stable_not_found_error_shape(context) -> None:
     with TestClient(create_app(context)) as client:
         response = client.get("/companies/UNKNOWN/memo")
@@ -339,44 +376,37 @@ def test_api_rejects_company_id_mismatch_on_ingest(context, repo_root) -> None:
     }
 
 
-def test_api_run_panel_and_continue_flow(seeded_acme) -> None:
+def test_api_run_panel_and_run_flow(seeded_acme) -> None:
     with TestClient(create_app(seeded_acme)) as client:
         invalid = client.post("/companies/ACME/panels/demand_revenue_quality/run")
 
         assert invalid.status_code == 400
         assert "gatekeepers" in invalid.json()["error"]["message"]
 
-        paused = client.post("/companies/ACME/analyze")
+        completed = client.post("/companies/ACME/analyze")
 
-        assert paused.status_code == 200
-        paused_payload = paused.json()["data"]
-        run_id = paused_payload["run"]["run_id"]
-        assert paused_payload["run"]["status"] == "awaiting_continue"
-        assert paused_payload["run"]["awaiting_continue"] is True
-        assert paused_payload["run"]["checkpoint_panel_id"] == "gatekeepers"
-        assert paused_payload["run"]["checkpoint"]["allowed_actions"] == ["stop", "continue"]
+        assert completed.status_code == 200
+        completed_payload = completed.json()["data"]
+        run_id = completed_payload["run"]["run_id"]
+        assert completed_payload["run"]["status"] == "complete"
+        assert completed_payload["run"]["awaiting_continue"] is False
+        assert completed_payload["run"]["checkpoint_panel_id"] == "gatekeepers"
+        assert completed_payload["run"]["checkpoint"]["resolution_action"] == "continue"
 
         shown = client.get(f"/runs/{run_id}")
 
         assert shown.status_code == 200
         shown_payload = shown.json()["data"]
         assert shown_payload["run"]["run_id"] == run_id
-        assert shown_payload["run"]["status"] == "awaiting_continue"
+        assert shown_payload["run"]["status"] == "complete"
         assert "gatekeepers" in shown_payload["panels"]
-        assert shown_payload["delta"] is None
-
-        resumed = client.post(f"/runs/{run_id}/continue", json={"action": "continue"})
-
-        assert resumed.status_code == 200
-        resumed_payload = resumed.json()["data"]
-        assert resumed_payload["run"]["run_id"] == run_id
-        assert resumed_payload["run"]["status"] == "complete"
-        assert resumed_payload["memo"]["is_initial_coverage"] is True
-        assert resumed_payload["delta"]["prior_run_id"] is None
-        resumed_sections = {
-            section["section_id"]: section for section in resumed_payload["memo"]["sections"]
+        assert "demand_revenue_quality" in shown_payload["panels"]
+        assert shown_payload["memo"]["is_initial_coverage"] is True
+        assert shown_payload["delta"]["prior_run_id"] is None
+        shown_sections = {
+            section["section_id"]: section for section in shown_payload["memo"]["sections"]
         }
-        assert resumed_sections["economic_spread"]["status"] == "not_advanced"
+        assert shown_sections["economic_spread"]["status"] == "not_advanced"
 
 
 def test_api_exposes_monitoring_history_and_portfolio_summary(context) -> None:
@@ -463,7 +493,8 @@ def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme
     assert runs == []
 
 
-def test_api_run_due_returns_paused_run_payload(seeded_acme) -> None:
+def test_api_run_due_returns_paused_run_payload(seeded_acme, monkeypatch) -> None:
+    _force_failed_gatekeeper(monkeypatch)
     with TestClient(create_app(seeded_acme)) as client:
         first = client.post("/coverage/run-due")
 
@@ -480,8 +511,87 @@ def test_api_run_due_returns_paused_run_payload(seeded_acme) -> None:
         assert second_payload[0]["run"]["run_id"] == first_run_id
         assert second_payload[0]["run"]["checkpoint"]["allowed_actions"] == [
             "stop",
-            "continue",
+            "continue_provisional",
         ]
+
+
+def test_api_enqueue_worker_and_notification_flow(seeded_acme) -> None:
+    with TestClient(create_app(seeded_acme)) as client:
+        enqueued = client.post(
+            "/queue/enqueue-selected",
+            json={"company_ids": ["ACME"], "requested_by": "operator"},
+        )
+        assert enqueued.status_code == 200
+        jobs = enqueued.json()["data"]
+        assert len(jobs) == 1
+        job_id = jobs[0]["job_id"]
+
+        summary = client.get("/queue")
+        assert summary.status_code == 200
+        assert summary.json()["data"]["total_jobs"] == 1
+
+        detail = client.get(f"/queue/{job_id}")
+        assert detail.status_code == 200
+        assert detail.json()["data"]["job"]["company_id"] == "ACME"
+
+        worked = client.post(
+            "/workers/run",
+            json={"limit": 1, "worker_id": "worker_a", "max_concurrency": 1},
+        )
+        assert worked.status_code == 200
+        assert worked.json()["data"][0]["run"]["status"] == "complete"
+
+        notifications = client.get("/notifications")
+        assert notifications.status_code == 200
+        categories = {
+            item["category"] for item in notifications.json()["data"]
+        }
+        assert categories == {"material_change", "daily_digest"}
+
+        claimed = client.post(
+            "/notifications/claim",
+            json={"limit": 1, "consumer_id": "n8n"},
+        )
+        assert claimed.status_code == 200
+        event_id = claimed.json()["data"][0]["event_id"]
+
+        dispatched = client.post(f"/notifications/{event_id}/dispatch")
+        assert dispatched.status_code == 200
+
+        acknowledged = client.post(f"/notifications/{event_id}/acknowledge")
+        assert acknowledged.status_code == 200
+        assert acknowledged.json()["data"]["status"] == "acknowledged"
+
+
+def test_api_worker_failed_gatekeeper_surfaces_review_queue(seeded_acme, monkeypatch) -> None:
+    _force_failed_gatekeeper(monkeypatch)
+
+    with TestClient(create_app(seeded_acme)) as client:
+        enqueued = client.post(
+            "/queue/enqueue-selected",
+            json={"company_ids": ["ACME"], "requested_by": "operator"},
+        )
+        job_id = enqueued.json()["data"][0]["job_id"]
+
+        worked = client.post(
+            "/workers/run",
+            json={"limit": 1, "worker_id": "worker_b", "max_concurrency": 1},
+        )
+        assert worked.status_code == 200
+        assert worked.json()["data"][0]["run"]["status"] == "awaiting_continue"
+
+        review = client.get("/review-queue")
+        assert review.status_code == 200
+        assert review.json()["data"][0]["company_id"] == "ACME"
+
+        detail = client.get(f"/queue/{job_id}")
+        assert detail.status_code == 200
+        assert detail.json()["data"]["job"]["status"] == "review_required"
+
+        notifications = client.get("/notifications")
+        assert NotificationCategory.GATEKEEPER_FAILED.value in {
+            item["category"] for item in notifications.json()["data"]
+        }
 
 
 def test_api_continue_run_accepts_provisional_action(context, monkeypatch) -> None:

@@ -9,6 +9,7 @@ from ai_investing.domain.enums import (
     AlertLevel,
     CompanyType,
     CoverageStatus,
+    NotificationCategory,
     RunContinueAction,
     RunKind,
     RunStatus,
@@ -21,6 +22,7 @@ from ai_investing.domain.models import (
     RunRecord,
 )
 from ai_investing.persistence.repositories import Repository
+from ai_investing.providers.fake import FakeModelProvider
 
 runner = CliRunner()
 
@@ -32,6 +34,20 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         assert coverage is not None
         coverage.panel_policy = panel_policy
         repository.upsert_coverage(coverage)
+
+
+def _force_failed_gatekeeper(monkeypatch) -> None:
+    original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
+
+    def forced_fail(self, request):
+        payload = original_gatekeeper_payload(self, request)
+        payload["recommendation"] = "negative"
+        payload["gate_decision"] = "fail"
+        payload["summary"] = "Gatekeepers failed the company."
+        payload["gate_reasons"] = ["Customer concentration remains too high."]
+        return payload
+
+    monkeypatch.setattr(FakeModelProvider, "_gatekeeper_payload", forced_fail)
 
 
 def _save_coverage(
@@ -261,7 +277,7 @@ def test_cli_reparent_agent_command(context, monkeypatch) -> None:
     assert json.loads(result.stdout)["parent_id"] == "gatekeeper_advocate"
 
 
-def test_cli_run_panel_and_continue_flow(seeded_acme, monkeypatch) -> None:
+def test_cli_run_panel_and_run_flow(seeded_acme, monkeypatch) -> None:
     monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
 
     invalid = runner.invoke(app, ["run-panel", "ACME", "demand_revenue_quality"])
@@ -270,25 +286,26 @@ def test_cli_run_panel_and_continue_flow(seeded_acme, monkeypatch) -> None:
     assert invalid.exception is not None
     assert "gatekeepers" in str(invalid.exception)
 
-    paused = runner.invoke(app, ["analyze-company", "ACME"])
+    completed = runner.invoke(app, ["analyze-company", "ACME"])
 
-    assert paused.exit_code == 0
-    paused_payload = json.loads(paused.stdout)
-    run_id = paused_payload["run"]["run_id"]
-    assert paused_payload["run"]["status"] == "awaiting_continue"
+    assert completed.exit_code == 0
+    completed_payload = json.loads(completed.stdout)
+    run_id = completed_payload["run"]["run_id"]
+    assert completed_payload["run"]["status"] == "complete"
+    assert completed_payload["run"]["checkpoint"]["resolution_action"] == "continue"
 
-    resumed = runner.invoke(app, ["continue-run", run_id, "--action", "continue"])
+    shown = runner.invoke(app, ["show-run", run_id])
 
-    assert resumed.exit_code == 0
-    resumed_payload = json.loads(resumed.stdout)
-    assert resumed_payload["run"]["run_id"] == run_id
-    assert resumed_payload["run"]["status"] == "complete"
-    assert resumed_payload["memo"]["is_initial_coverage"] is True
-    assert resumed_payload["delta"]["prior_run_id"] is None
-    resumed_sections = {
-        section["section_id"]: section for section in resumed_payload["memo"]["sections"]
+    assert shown.exit_code == 0
+    shown_payload = json.loads(shown.stdout)
+    assert shown_payload["run"]["run_id"] == run_id
+    assert shown_payload["run"]["status"] == "complete"
+    assert shown_payload["memo"]["is_initial_coverage"] is True
+    assert shown_payload["delta"]["prior_run_id"] is None
+    shown_sections = {
+        section["section_id"]: section for section in shown_payload["memo"]["sections"]
     }
-    assert resumed_sections["economic_spread"]["status"] == "not_advanced"
+    assert shown_sections["economic_spread"]["status"] == "not_advanced"
 
 
 def test_cli_run_panel_rejects_scaffold_only_panel(seeded_acme, monkeypatch) -> None:
@@ -329,20 +346,21 @@ def test_cli_analyze_company_rejects_full_surface_policy(seeded_acme, monkeypatc
 def test_cli_show_run_returns_persisted_checkpoint_state(seeded_acme, monkeypatch) -> None:
     monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
 
-    paused = runner.invoke(app, ["analyze-company", "ACME"])
-    run_id = json.loads(paused.stdout)["run"]["run_id"]
+    completed = runner.invoke(app, ["analyze-company", "ACME"])
+    run_id = json.loads(completed.stdout)["run"]["run_id"]
 
     shown = runner.invoke(app, ["show-run", run_id])
 
     assert shown.exit_code == 0
     shown_payload = json.loads(shown.stdout)
     assert shown_payload["run"]["run_id"] == run_id
-    assert shown_payload["run"]["status"] == "awaiting_continue"
-    assert shown_payload["run"]["awaiting_continue"] is True
+    assert shown_payload["run"]["status"] == "complete"
+    assert shown_payload["run"]["awaiting_continue"] is False
     assert shown_payload["run"]["checkpoint_panel_id"] == "gatekeepers"
-    assert shown_payload["run"]["checkpoint"]["allowed_actions"] == ["stop", "continue"]
+    assert shown_payload["run"]["checkpoint"]["resolution_action"] == "continue"
     assert "gatekeepers" in shown_payload["panels"]
-    assert shown_payload["delta"] is None
+    assert "demand_revenue_quality" in shown_payload["panels"]
+    assert shown_payload["delta"] is not None
 
 
 def test_cli_shows_monitoring_history_and_portfolio_summary(context, monkeypatch) -> None:
@@ -409,3 +427,77 @@ def test_cli_continue_run_supports_provisional_flag(context, monkeypatch) -> Non
         "action": RunContinueAction.CONTINUE_PROVISIONAL,
     }
     assert json.loads(result.stdout)["run"]["provisional"] is True
+
+
+def test_cli_enqueue_worker_and_notification_commands(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+
+    enqueued = runner.invoke(app, ["enqueue-companies", "ACME"])
+    assert enqueued.exit_code == 0
+    jobs = json.loads(enqueued.stdout)
+    assert len(jobs) == 1
+    job_id = jobs[0]["job_id"]
+
+    summary = runner.invoke(app, ["queue-summary"])
+    assert summary.exit_code == 0
+    assert json.loads(summary.stdout)["total_jobs"] == 1
+
+    detail = runner.invoke(app, ["show-job", job_id])
+    assert detail.exit_code == 0
+    assert json.loads(detail.stdout)["job"]["company_id"] == "ACME"
+
+    worked = runner.invoke(
+        app,
+        ["run-worker", "--limit", "1", "--worker-id", "worker_a", "--max-concurrency", "1"],
+    )
+    assert worked.exit_code == 0
+    assert json.loads(worked.stdout)[0]["run"]["status"] == "complete"
+
+    notifications = runner.invoke(app, ["list-notifications"])
+    assert notifications.exit_code == 0
+    categories = {item["category"] for item in json.loads(notifications.stdout)}
+    assert categories == {"material_change", "daily_digest"}
+
+    claimed = runner.invoke(app, ["claim-notifications", "--consumer-id", "n8n", "--limit", "1"])
+    assert claimed.exit_code == 0
+    event_id = json.loads(claimed.stdout)[0]["event_id"]
+
+    dispatched = runner.invoke(app, ["dispatch-notification", event_id])
+    assert dispatched.exit_code == 0
+
+    acknowledged = runner.invoke(app, ["acknowledge-notification", event_id])
+    assert acknowledged.exit_code == 0
+    assert json.loads(acknowledged.stdout)["status"] == "acknowledged"
+
+
+def test_cli_enqueue_worker_failed_gatekeeper_lists_review_queue(
+    seeded_acme,
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+    _force_failed_gatekeeper(monkeypatch)
+
+    enqueued = runner.invoke(app, ["enqueue-companies", "ACME"])
+    assert enqueued.exit_code == 0
+    job_id = json.loads(enqueued.stdout)[0]["job_id"]
+
+    worked = runner.invoke(
+        app,
+        ["run-worker", "--limit", "1", "--worker-id", "worker_b", "--max-concurrency", "1"],
+    )
+    assert worked.exit_code == 0
+    assert json.loads(worked.stdout)[0]["run"]["status"] == "awaiting_continue"
+
+    review = runner.invoke(app, ["list-review-queue"])
+    assert review.exit_code == 0
+    assert json.loads(review.stdout)[0]["company_id"] == "ACME"
+
+    detail = runner.invoke(app, ["show-job", job_id])
+    assert detail.exit_code == 0
+    assert json.loads(detail.stdout)["job"]["status"] == "review_required"
+
+    notifications = runner.invoke(app, ["list-notifications"])
+    assert notifications.exit_code == 0
+    assert NotificationCategory.GATEKEEPER_FAILED.value in {
+        item["category"] for item in json.loads(notifications.stdout)
+    }
