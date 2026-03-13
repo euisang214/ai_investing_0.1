@@ -81,11 +81,11 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 5: Scheduling And Notifications
 
 **Goal:** Move from local repeatability to reliable recurring operations.
-**Status:** In progress as of 2026-03-13. Plans `05-01` and `05-02` established the cadence-policy registry, queue-backed worker execution, review handling, and additive notification delivery surfaces. Parent requirements `V2-03` and `V2-05` are now satisfied; Plan `05-03` remains for the final workflow and documentation slice.
+**Status:** Completed on 2026-03-13. Plans `05-01`, `05-02`, and `05-03` delivered config-driven cadence policies, queue-backed worker execution, review handling, notification delivery surfaces, and truthful external-automation docs plus checked examples. Parent requirements `V2-03` and `V2-05` are satisfied.
 
 **Requirements:** `V2-03`, `V2-05`
 
-**Plan progress:** `2 / 3` completed (`05-01` and `05-02` done)
+**Plan progress:** `3 / 3` completed (`05-01`, `05-02`, and `05-03` done)
 
 **Success criteria:**
 1. Cadence policies expand beyond weekly.
@@ -93,4 +93,4 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 3. Background execution and notification boundaries are documented cleanly.
 
 ---
-*Last updated: 2026-03-13 after Phase 05 Plan 02 completion*
+*Last updated: 2026-03-13 after Phase 05 Plan 03 completion*

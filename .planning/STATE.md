@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 5
 current_phase_name: scheduling and notifications
 current_plan: 3
-status: executing
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-13T16:09:24.698Z"
+status: completed
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-03-13T16:31:45.809Z"
 last_activity: 2026-03-13
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 20
-  completed_plans: 19
-  percent: 95
+  completed_plans: 20
+  percent: 100
 ---
 
 # STATE
@@ -24,7 +24,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 5 is in its final plan after Plan 02 added queue-backed worker execution, failed-gatekeeper review handling, and additive notification delivery surfaces.
+**Current focus:** Phase 5 is complete, including the final documentation and external-automation boundary slice from Plan 03.
 
 ## Execution Tracking
 
@@ -33,10 +33,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Total Phases:** 5
 **Current Plan:** 3
 **Total Plans in Phase:** 3
-**Status:** Ready to execute
-**Progress:** [██████████] 95%
+**Status:** Phase complete
+**Progress:** [██████████] 100%
 **Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 05 Plan 02 completed with structured refresh jobs, bounded worker execution, failed-gatekeeper review stops, additive CLI/API queue surfaces, and a green Docker verification gate
+**Last Activity Description:** Phase 05 Plan 03 completed with truthful operator docs, boundary-safe n8n examples, regenerated lifecycle artifacts, and a green Docker verification gate
 
 ## Current Status
 
@@ -54,6 +54,8 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 4 Plan 04 completed on 2026-03-13 with typed monitoring history and portfolio summary read models, additive CLI/API operator surfaces, read-only boundary documentation, and a full Docker-verified regression pass.
 - Phase 5 Plan 01 completed on 2026-03-13 with a typed cadence-policy registry, workspace-timezone schedule computation, additive coverage schedule fields, additive CLI/API controls, regenerated example artifacts, and Docker-verified tests plus lint.
 - Phase 5 Plan 02 completed on 2026-03-13 with structured refresh jobs, review queue and notification persistence, bounded worker execution, additive operator queue surfaces, regenerated ACME lifecycle artifacts, and Docker-verified tests plus lint.
+- Phase 5 Plan 03 completed on 2026-03-13 with truthful operator and architecture docs, boundary-safe n8n workflow examples, regenerated lifecycle artifacts, and Docker-verified docs/example regressions plus full-suite verification.
+- Phase 5 is complete as of 2026-03-13; cadence policies, queue-backed refresh operations, review handling, notification delivery, and the external-automation documentation layer now align to one shipped contract.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 - Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
@@ -70,7 +72,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 05 Plan 03 to finish the remaining scheduling-and-notifications workflow slice and close Phase 5.
+- Phase 5 is complete. Start milestone closeout or plan the next milestone while keeping `V2-01` as the remaining open top-level product requirement.
 
 ## Decisions
 
@@ -116,6 +118,8 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 05]: Apply one shared gatekeeper policy across all entrypoints: pass and review auto-continue, fail stops into review, and provisional continuation stays operator-only.
 - [Phase 05]: Expose queue and notification controls through additive application, API, and CLI seams so external automation never needs direct database access.
 - [Phase 05]: Treat generated ACME examples as part of the runtime contract and regenerate them from the shipped service behavior when lifecycle rules change.
+- [Phase 05]: Treat operator docs, n8n examples, and checked generated artifacts as part of the Phase 5 runtime contract.
+- [Phase 05]: Keep n8n limited to stable enqueue, webhook, and notification-delivery boundaries so reasoning and provisional overrides remain service-owned.
 
 ## Performance Metrics
 
@@ -135,9 +139,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 04 P04 | 16min | 3 tasks | 13 files |
 | Phase 05 P01 | 12min | 3 tasks | 16 files |
 | Phase 05 P02 | 34min | 3 tasks | 32 files |
+| Phase 05 P03 | 2 min | 3 tasks | 20 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T16:09:24.696Z
-**Stopped At:** Completed 05-02-PLAN.md
+**Last Date:** 2026-03-13T16:31:45.806Z
+**Stopped At:** Completed 05-03-PLAN.md
 **Resume File:** None
