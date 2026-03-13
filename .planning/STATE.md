@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 5
 current_phase_name: scheduling and notifications
-current_plan: 2
-status: in_progress
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-13T15:14:41.479Z"
+current_plan: 3
+status: executing
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-13T16:09:24.698Z"
 last_activity: 2026-03-13
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 20
-  completed_plans: 18
-  percent: 90
+  completed_plans: 19
+  percent: 95
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 5 is underway after Plan 01 established config-driven cadence policies, deterministic schedule semantics, and additive operator schedule controls for later worker and notification work.
+**Current focus:** Phase 5 is in its final plan after Plan 02 added queue-backed worker execution, failed-gatekeeper review handling, and additive notification delivery surfaces.
 
 ## Execution Tracking
 
 **Current Phase:** 5
 **Current Phase Name:** scheduling and notifications
 **Total Phases:** 5
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 3
-**Status:** Phase in progress
-**Progress:** [█████████░] 90%
+**Status:** Ready to execute
+**Progress:** [██████████] 95%
 **Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 05 Plan 01 completed with config-driven cadence policies, deterministic schedule advancement, additive CLI/API schedule controls, and a green Docker verification gate
+**Last Activity Description:** Phase 05 Plan 02 completed with structured refresh jobs, bounded worker execution, failed-gatekeeper review stops, additive CLI/API queue surfaces, and a green Docker verification gate
 
 ## Current Status
 
@@ -53,12 +53,14 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 4 Plan 03 completed on 2026-03-13 with config-backed monitoring enrichment, shared contradiction and analog services, richer additive delta details, regenerated examples, and Docker-verified lint plus tests.
 - Phase 4 Plan 04 completed on 2026-03-13 with typed monitoring history and portfolio summary read models, additive CLI/API operator surfaces, read-only boundary documentation, and a full Docker-verified regression pass.
 - Phase 5 Plan 01 completed on 2026-03-13 with a typed cadence-policy registry, workspace-timezone schedule computation, additive coverage schedule fields, additive CLI/API controls, regenerated example artifacts, and Docker-verified tests plus lint.
+- Phase 5 Plan 02 completed on 2026-03-13 with structured refresh jobs, review queue and notification persistence, bounded worker execution, additive operator queue surfaces, regenerated ACME lifecycle artifacts, and Docker-verified tests plus lint.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 - Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
 - Parent requirement `V2-02` is now satisfied by Plans 04-01 and 04-02, which together deliver the connector runtime seam plus the representative adapter expansion.
 - Parent requirement `V2-04` is now satisfied by Plans 04-03 and 04-04, which together deliver the richer monitoring slice plus portfolio-level monitoring history and summary read surfaces.
 - Parent requirement `V2-03` is now satisfied by Phase 05 Plan 01, which upgrades coverage scheduling from weekly-only branches to config-driven cadence policies.
+- Parent requirement `V2-05` is now satisfied by Phase 05 Plan 02, which adds queue-backed concurrent refresh execution plus structured review and notification boundaries.
 
 ## Key Risks
 
@@ -68,7 +70,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 05 Plan 02 to add the background refresh queue and notification outbox while preserving the schedule contract established in Plan 01.
+- Execute Phase 05 Plan 03 to finish the remaining scheduling-and-notifications workflow slice and close Phase 5.
 
 ## Decisions
 
@@ -110,6 +112,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 05]: Keep legacy cadence as a scheduled-vs-manual compatibility field while schedule_policy_id owns real cadence semantics.
 - [Phase 05]: Drive first-run and next-run math through one workspace timezone plus per-coverage preferred run time, with legacy weekly entries staying immediately due unless operators choose a richer policy.
 - [Phase 05]: Advance next_run_at only for completed or provisional terminal runs, and clear it for schedule-disabled/manual one-offs so due coverage does not repeat forever.
+- [Phase 05]: Persist refresh jobs, review stops, and notification events as typed operational records instead of metadata blobs.
+- [Phase 05]: Apply one shared gatekeeper policy across all entrypoints: pass and review auto-continue, fail stops into review, and provisional continuation stays operator-only.
+- [Phase 05]: Expose queue and notification controls through additive application, API, and CLI seams so external automation never needs direct database access.
+- [Phase 05]: Treat generated ACME examples as part of the runtime contract and regenerate them from the shipped service behavior when lifecycle rules change.
 
 ## Performance Metrics
 
@@ -128,9 +134,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 04 P02 | 7min | 3 tasks | 32 files |
 | Phase 04 P04 | 16min | 3 tasks | 13 files |
 | Phase 05 P01 | 12min | 3 tasks | 16 files |
+| Phase 05 P02 | 34min | 3 tasks | 32 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T15:14:41.476Z
-**Stopped At:** Completed 05-01-PLAN.md
+**Last Date:** 2026-03-13T16:09:24.696Z
+**Stopped At:** Completed 05-02-PLAN.md
 **Resume File:** None

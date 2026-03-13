@@ -69,7 +69,7 @@
 ### Platform Expansion
 
 - [x] **V2-04**: Add richer contradiction resolution, analog graph search, and portfolio-level analytics views.
-- [ ] **V2-05**: Add background worker infrastructure for large-scale concurrent coverage refreshes.
+- [x] **V2-05**: Add background worker infrastructure for large-scale concurrent coverage refreshes.
 
 ## Out of Scope
 
@@ -114,7 +114,7 @@
 | V2-02 | Phase 4 | Complete |
 | V2-03 | Phase 5 | Complete |
 | V2-04 | Phase 4 | Complete |
-| V2-05 | Phase 5 | Incomplete |
+| V2-05 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total
@@ -123,4 +123,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-13 after Phase 05 Plan 01 completion*
+*Last updated: 2026-03-13 after Phase 05 Plan 02 completion*
