@@ -1,0 +1,61 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "connector", "events", "supplemental"],
+  "documents": [
+    {
+      "path": "acme_investor_day_landing.html",
+      "source_type": "event_page",
+      "title": "Investor Day Landing Page",
+      "as_of_date": "2026-03-02T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["brand_reputation_consideration_set"],
+      "factor_signals": {
+        "brand_reputation_consideration_set": {
+          "stance": "positive",
+          "summary": "Acme scheduled a customer-heavy investor day to reinforce enterprise relevance.",
+          "metrics": { "event_days_until_start": 14 }
+        }
+      },
+      "source_refs": [
+        { "label": "Investor Day", "url": "https://example.com/acme/investor-day" }
+      ],
+      "metadata": {
+        "connector": "acme_events_packet",
+        "evidence_family": "events",
+        "media_type": "html",
+        "handling": "attachment_only"
+      }
+    },
+    {
+      "path": "acme_event_teaser.png",
+      "source_type": "event_image",
+      "title": "Investor Day Teaser Image",
+      "as_of_date": "2026-03-02T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["brand_reputation_consideration_set"],
+      "factor_signals": {
+        "brand_reputation_consideration_set": {
+          "stance": "mixed",
+          "summary": "The teaser highlights AI messaging that still requires context from richer public evidence.",
+          "metrics": { "ai_sessions": 2 }
+        }
+      },
+      "source_refs": [
+        { "label": "Event Image", "url": "https://example.com/acme/investor-day-image" }
+      ],
+      "metadata": {
+        "connector": "acme_events_packet",
+        "evidence_family": "events",
+        "media_type": "image",
+        "handling": "attachment_only"
+      }
+    }
+  ]
+}

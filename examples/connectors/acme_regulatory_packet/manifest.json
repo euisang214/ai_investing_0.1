@@ -1,0 +1,40 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "connector", "regulatory"],
+  "documents": [
+    {
+      "path": "acme_privacy_8k.md",
+      "source_type": "regulatory_filing",
+      "title": "Privacy Program 8-K Summary",
+      "as_of_date": "2026-03-01T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["legal_regulatory_existential_risk", "governance_investability"],
+      "factor_signals": {
+        "legal_regulatory_existential_risk": {
+          "stance": "positive",
+          "summary": "Management disclosed privacy remediation milestones without any open enforcement action.",
+          "metrics": { "open_actions": 0 }
+        },
+        "governance_investability": {
+          "stance": "mixed",
+          "summary": "Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
+          "metrics": { "committee_created": true }
+        }
+      },
+      "source_refs": [
+        { "label": "Acme 8-K", "url": "https://example.com/acme/privacy-8k" }
+      ],
+      "metadata": {
+        "connector": "acme_regulatory_packet",
+        "evidence_family": "regulatory",
+        "fixture_depth": "thin_required_slice"
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "connector", "market"],
+  "documents": [
+    {
+      "path": "acme_price_volume_snapshot.csv",
+      "source_type": "market_snapshot",
+      "title": "Price And Volume Snapshot",
+      "as_of_date": "2026-03-05T00:00:00Z",
+      "period": "Trailing 30 Days",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": ["fad_fashion_risk", "brand_reputation_consideration_set"],
+      "factor_signals": {
+        "fad_fashion_risk": {
+          "stance": "mixed",
+          "summary": "The stock rallied on AI narrative momentum faster than reported fundamental changes.",
+          "metrics": { "relative_volume": 1.8 }
+        },
+        "brand_reputation_consideration_set": {
+          "stance": "positive",
+          "summary": "Trading strength followed broad channel checks that kept Acme in the enterprise shortlist.",
+          "metrics": { "share_price_change_pct": 12.4 }
+        }
+      },
+      "source_refs": [
+        { "label": "Market Tape", "url": "https://example.com/acme/market-tape" }
+      ],
+      "metadata": {
+        "connector": "acme_market_packet",
+        "evidence_family": "market",
+        "media_type": "spreadsheet"
+      }
+    },
+    {
+      "path": "acme_guidance_bridge.md",
+      "source_type": "market_commentary",
+      "title": "Guidance Bridge Note",
+      "as_of_date": "2026-03-05T00:00:00Z",
+      "period": "FY2026 Outlook",
+      "panel_ids": ["demand_revenue_quality"],
+      "factor_ids": [
+        "demand_cyclicality_purchase_deferrability",
+        "pricing_power"
+      ],
+      "factor_signals": {
+        "demand_cyclicality_purchase_deferrability": {
+          "stance": "mixed",
+          "summary": "Management offset slower SMB bookings with steadier enterprise expansions.",
+          "metrics": { "enterprise_growth_pct": 19.0 }
+        },
+        "pricing_power": {
+          "stance": "positive",
+          "summary": "Renewal pricing remained firm despite a wider macro valuation reset.",
+          "metrics": { "renewal_uplift_pct": 6.0 }
+        }
+      },
+      "source_refs": [
+        { "label": "Guidance Bridge", "url": "https://example.com/acme/guidance-bridge" }
+      ],
+      "metadata": {
+        "connector": "acme_market_packet",
+        "evidence_family": "market",
+        "fixture_depth": "representative_public_slice"
+      }
+    }
+  ]
+}

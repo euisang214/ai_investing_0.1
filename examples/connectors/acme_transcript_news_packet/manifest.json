@@ -1,0 +1,70 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "connector", "transcript", "news", "supplemental"],
+  "documents": [
+    {
+      "path": "acme_q1_transcript.md",
+      "source_type": "earnings_call",
+      "title": "Q1 2026 Earnings Transcript Excerpt",
+      "as_of_date": "2026-03-06T00:00:00Z",
+      "period": "Q1 2026",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": [
+        "customer_habit",
+        "demand_cyclicality_purchase_deferrability"
+      ],
+      "factor_signals": {
+        "customer_habit": {
+          "stance": "positive",
+          "summary": "Workflow usage stayed steady across customer cohorts despite slower seat adds.",
+          "metrics": { "weekly_active_admin_pct": 83.0 }
+        },
+        "demand_cyclicality_purchase_deferrability": {
+          "stance": "mixed",
+          "summary": "SMB expansions slipped while enterprise modules held up.",
+          "metrics": { "smb_pipeline_growth_pct": 7.0 }
+        }
+      },
+      "source_refs": [
+        { "label": "Q1 2026 Transcript", "url": "https://example.com/acme/q1-transcript" }
+      ],
+      "metadata": {
+        "connector": "acme_transcript_news_packet",
+        "evidence_family": "transcript"
+      }
+    },
+    {
+      "path": "acme_vertical_news_roundup.md",
+      "source_type": "public_news",
+      "title": "Vertical News Roundup",
+      "as_of_date": "2026-03-07T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["brand_reputation_consideration_set", "fad_fashion_risk"],
+      "factor_signals": {
+        "brand_reputation_consideration_set": {
+          "stance": "positive",
+          "summary": "Trade press still places Acme in shortlist coverage for procurement automation.",
+          "metrics": { "top_three_mentions": 4 }
+        },
+        "fad_fashion_risk": {
+          "stance": "negative",
+          "summary": "Coverage still overweights AI branding relative to the underlying workflow depth.",
+          "metrics": { "ai_headline_share_pct": 62.0 }
+        }
+      },
+      "source_refs": [
+        { "label": "Trade Press Roundup", "url": "https://example.com/acme/news-roundup" }
+      ],
+      "metadata": {
+        "connector": "acme_transcript_news_packet",
+        "evidence_family": "news"
+      }
+    }
+  ]
+}

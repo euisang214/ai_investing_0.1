@@ -1,0 +1,71 @@
+{
+  "company_id": "BETA",
+  "company_name": "Beta Logistics Software",
+  "company_type": "private",
+  "description": "Beta provides transportation management software and embedded logistics workflows to mid-sized distributors.",
+  "sector": "Vertical Software",
+  "headquarters": "Chicago, IL",
+  "tags": ["sample", "private", "connector", "dataroom"],
+  "documents": [
+    {
+      "path": "beta_board_packet.pdf",
+      "source_type": "board_deck",
+      "title": "Board Packet PDF",
+      "as_of_date": "2026-02-28T00:00:00Z",
+      "period": "February 2026",
+      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "factor_ids": [
+        "balance_sheet_survivability",
+        "revenue_recurrence_contract_strength"
+      ],
+      "factor_signals": {
+        "balance_sheet_survivability": {
+          "stance": "mixed",
+          "summary": "Cash runway remains adequate but assumes operating discipline through the next financing window.",
+          "metrics": { "runway_months": 17 }
+        },
+        "revenue_recurrence_contract_strength": {
+          "stance": "positive",
+          "summary": "Annual renewals remained resilient across the top cohort.",
+          "metrics": { "recurring_mix_pct": 84.0 }
+        }
+      },
+      "source_refs": [
+        { "label": "Board Packet", "url": "https://example.com/beta/board-packet" }
+      ],
+      "metadata": {
+        "connector": "beta_dataroom",
+        "evidence_family": "dataroom",
+        "media_type": "pdf"
+      }
+    },
+    {
+      "path": "beta_customer_diligence.md",
+      "source_type": "diligence_note",
+      "title": "Customer Diligence Summary",
+      "as_of_date": "2026-02-25T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["demand_revenue_quality"],
+      "factor_ids": ["customer_habit", "customer_concentration"],
+      "factor_signals": {
+        "customer_habit": {
+          "stance": "positive",
+          "summary": "Operators monitor loads and invoicing exceptions throughout the workday.",
+          "metrics": { "daily_use": "high" }
+        },
+        "customer_concentration": {
+          "stance": "negative",
+          "summary": "Top accounts still represent an outsized share of ARR.",
+          "metrics": { "top_five_arr_share_pct": 46.0 }
+        }
+      },
+      "source_refs": [
+        { "label": "Customer Diligence", "url": "https://example.com/beta/customer-diligence" }
+      ],
+      "metadata": {
+        "connector": "beta_dataroom",
+        "evidence_family": "dataroom"
+      }
+    }
+  ]
+}

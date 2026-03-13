@@ -1,0 +1,41 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "connector", "consensus"],
+  "documents": [
+    {
+      "path": "acme_consensus_snapshot.csv",
+      "source_type": "consensus_snapshot",
+      "title": "Street Consensus Snapshot",
+      "as_of_date": "2026-03-04T00:00:00Z",
+      "period": "FY2026",
+      "panel_ids": ["demand_revenue_quality"],
+      "factor_ids": ["pricing_power", "demand_cyclicality_purchase_deferrability"],
+      "factor_signals": {
+        "pricing_power": {
+          "stance": "positive",
+          "summary": "Consensus assumes modest price-led expansion rather than unit growth alone.",
+          "metrics": { "consensus_gross_margin_pct": 78.0 }
+        },
+        "demand_cyclicality_purchase_deferrability": {
+          "stance": "mixed",
+          "summary": "Analysts trimmed SMB demand expectations while leaving enterprise retention assumptions stable.",
+          "metrics": { "estimate_revision_pct": -1.5 }
+        }
+      },
+      "source_refs": [
+        { "label": "Consensus Table", "url": "https://example.com/acme/consensus" }
+      ],
+      "metadata": {
+        "connector": "acme_consensus_packet",
+        "evidence_family": "consensus",
+        "fixture_depth": "thin_required_slice",
+        "media_type": "spreadsheet"
+      }
+    }
+  ]
+}

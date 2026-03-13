@@ -3,15 +3,127 @@ connectors:
     company_type: public
     kind: file_bundle
     manifest_file: manifest.json
-    raw_landing_zone: data/raw/public
+    raw_landing_zone: data/raw/public_file_connector
+    capabilities:
+      - public
+      - fixture_bundle
+      - baseline_public_ingestion
+    evidence_policy:
+      extraction_mode: full_text
+      attachment_handling: copy_to_raw
   - id: private_file_connector
     company_type: private
     kind: file_bundle
     manifest_file: manifest.json
-    raw_landing_zone: data/raw/private
-  - id: mcp_stub
-    company_type: both
+    raw_landing_zone: data/raw/private_file_connector
+    capabilities:
+      - private
+      - fixture_bundle
+      - baseline_private_ingestion
+    evidence_policy:
+      extraction_mode: full_text
+      attachment_handling: copy_to_raw
+
+  # Required public V2-02 fixture families.
+  - id: acme_regulatory_packet
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/acme_regulatory_packet
+    capabilities:
+      - regulatory
+      - fixture_bundle
+      - required_family
+      - thin_slice
+  - id: acme_market_packet
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/acme_market_packet
+    capabilities:
+      - market
+      - fixture_bundle
+      - required_family
+      - representative_depth
+  - id: acme_consensus_packet
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/acme_consensus_packet
+    capabilities:
+      - consensus
+      - fixture_bundle
+      - required_family
+      - thin_slice
+  - id: acme_ownership_packet
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/acme_ownership_packet
+    capabilities:
+      - ownership
+      - fixture_bundle
+      - required_family
+      - representative_depth
+
+  # Supplemental public examples that do not substitute for the required families.
+  - id: acme_events_packet
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/acme_events_packet
+    capabilities:
+      - events
+      - fixture_bundle
+      - supplemental_public
+    evidence_policy:
+      extraction_mode: attachment_only
+      attachment_handling: copy_to_raw
+  - id: acme_transcript_news_packet
+    company_type: public
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/acme_transcript_news_packet
+    capabilities:
+      - transcript_news
+      - fixture_bundle
+      - supplemental_public
+
+  # Private diligence coverage stays centered on dataroom plus KPI packets.
+  - id: beta_dataroom
+    company_type: private
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/beta_dataroom
+    capabilities:
+      - dataroom
+      - fixture_bundle
+      - required_family
+  - id: beta_kpi_packet
+    company_type: private
+    kind: file_bundle
+    manifest_file: manifest.json
+    raw_landing_zone: data/raw/beta_kpi_packet
+    capabilities:
+      - kpi_packet
+      - fixture_bundle
+      - diligence_support
+
+  # Exactly one lightweight live public connector path is planned for Phase 4.
+  - id: public_market_live_connector
+    company_type: public
     kind: mcp_stub
     manifest_file: ""
-    raw_landing_zone: data/raw/mcp
-
+    raw_landing_zone: data/raw/public_market_live_connector
+    live_refresh:
+      posture: scheduled
+      cadence: "0 13 * * 1-5"
+      max_staleness_hours: 72
+    evidence_policy:
+      extraction_mode: metadata_only
+      attachment_handling: copy_to_raw
+    capabilities:
+      - live_public
+      - market
+      - lightweight_example
+      - staleness_tagged

@@ -1,0 +1,64 @@
+{
+  "company_id": "ACME",
+  "company_name": "Acme Cloud",
+  "company_type": "public",
+  "description": "Acme Cloud sells workflow automation software to mid-market and enterprise customers.",
+  "sector": "Enterprise Software",
+  "headquarters": "New York, NY",
+  "tags": ["sample", "public", "connector", "ownership"],
+  "documents": [
+    {
+      "path": "acme_institutional_ownership.csv",
+      "source_type": "ownership_report",
+      "title": "Institutional Ownership Snapshot",
+      "as_of_date": "2026-03-03T00:00:00Z",
+      "period": "Q1 2026",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["governance_investability", "brand_reputation_consideration_set"],
+      "factor_signals": {
+        "governance_investability": {
+          "stance": "positive",
+          "summary": "Long-only ownership broadened and reduced dependence on short-duration holders.",
+          "metrics": { "top_20_long_only_pct": 41.0 }
+        },
+        "brand_reputation_consideration_set": {
+          "stance": "positive",
+          "summary": "Specialist software investors increased positions after product checks improved.",
+          "metrics": { "new_institutional_holders": 6 }
+        }
+      },
+      "source_refs": [
+        { "label": "13F Digest", "url": "https://example.com/acme/ownership" }
+      ],
+      "metadata": {
+        "connector": "acme_ownership_packet",
+        "evidence_family": "ownership",
+        "media_type": "spreadsheet"
+      }
+    },
+    {
+      "path": "acme_insider_activity.md",
+      "source_type": "ownership_flow",
+      "title": "Insider Activity Digest",
+      "as_of_date": "2026-03-03T00:00:00Z",
+      "period": "Trailing 90 Days",
+      "panel_ids": ["gatekeepers"],
+      "factor_ids": ["governance_investability"],
+      "factor_signals": {
+        "governance_investability": {
+          "stance": "mixed",
+          "summary": "Net insider selling remained modest and mostly tied to planned liquidity windows.",
+          "metrics": { "insider_sales_millions": 1.2 }
+        }
+      },
+      "source_refs": [
+        { "label": "Insider Digest", "url": "https://example.com/acme/insider" }
+      ],
+      "metadata": {
+        "connector": "acme_ownership_packet",
+        "evidence_family": "ownership",
+        "fixture_depth": "representative_public_slice"
+      }
+    }
+  ]
+}
