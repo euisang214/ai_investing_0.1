@@ -154,11 +154,12 @@ def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seed
 
 def test_analyze_company_rejects_explicit_scaffold_panel_selection(seeded_acme) -> None:
     with pytest.raises(
-        ValueError, match=r"Runs must begin at gatekeepers\."
+        ValueError,
+        match=r"Panel market_structure_growth is not implemented for policy weekly_default\.",
     ):
         AnalysisService(seeded_acme).analyze_company(
             "ACME",
-            panel_ids=["gatekeepers", "supply_product_operations"],
+            panel_ids=["gatekeepers", "market_structure_growth"],
         )
 
     with seeded_acme.database.session() as session:

@@ -64,7 +64,7 @@ def test_private_ingestion_supported(context, repo_root) -> None:
         repo_root / "examples" / "beta_private"
     )
     assert profile.company_type.value == "private"
-    assert len(evidence_ids) == 2
+    assert len(evidence_ids) == 3
 
 
 def test_ingestion_uses_configured_manifest_file(repo_root, tmp_path) -> None:
