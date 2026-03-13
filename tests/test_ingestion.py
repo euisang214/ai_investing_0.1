@@ -189,7 +189,7 @@ def test_pdf_and_spreadsheet_packets_become_first_class_evidence(repo_root, tmp_
 
     assert xlsx_record.metadata["media_type"] == "spreadsheet"
     assert xlsx_record.metadata["attachment_only"] is False
-    assert "metric, week_9_2026" in xlsx_record.body.lower()
+    assert "metric,week_9_2026" in xlsx_record.body.lower()
     assert "net_revenue_retention_pct" in xlsx_record.body.lower()
 
 

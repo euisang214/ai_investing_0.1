@@ -5,7 +5,8 @@ from pathlib import Path
 import pytest
 
 from ai_investing.application.services import AnalysisService, CoverageService, IngestionService
-from ai_investing.domain.enums import GateDecision, RunContinueAction
+from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, GateDecision, RunContinueAction
+from ai_investing.domain.models import CoverageEntry
 from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
 
@@ -258,3 +259,82 @@ def test_rerun_persists_useful_tool_log_refs(seeded_acme, repo_root: Path) -> No
     assert any(ref.startswith("evidence:") for log in evidence_logs for ref in log.output_refs)
     assert any(ref.startswith("claim:") for log in claim_logs for ref in log.output_refs)
     assert all(log.output_refs != [log.tool_id] for log in evidence_logs + claim_logs)
+
+
+def test_required_public_connector_evidence_is_compatible_with_analysis_flow(
+    context,
+    repo_root: Path,
+) -> None:
+    service = IngestionService(context)
+    for connector_id in (
+        "acme_regulatory_packet",
+        "acme_market_packet",
+        "acme_consensus_packet",
+        "acme_ownership_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+    CoverageService(context).add_coverage(
+        CoverageEntry(
+            company_id="ACME",
+            company_name="Acme Cloud",
+            company_type=CompanyType.PUBLIC,
+            coverage_status=CoverageStatus.WATCHLIST,
+            cadence=Cadence.WEEKLY,
+        )
+    )
+
+    paused = AnalysisService(context).analyze_company("ACME")
+    resumed = AnalysisService(context).continue_run(paused["run"]["run_id"])
+
+    assert paused["run"]["status"] == "awaiting_continue"
+    assert resumed["run"]["status"] == "complete"
+    with context.database.session() as session:
+        repository = Repository(session)
+        evidence = repository.list_evidence("ACME")
+        claims = repository.list_claim_cards("ACME", run_id=resumed["run"]["run_id"])
+        verdicts = repository.list_panel_verdicts("ACME", run_id=resumed["run"]["run_id"])
+
+    assert any(record.metadata.get("evidence_family") == "regulatory" for record in evidence)
+    assert any(record.metadata.get("evidence_family") == "consensus" for record in evidence)
+    assert claims
+    assert verdicts
+
+
+def test_dataroom_evidence_is_compatible_with_private_analysis_flow(
+    context,
+    repo_root: Path,
+) -> None:
+    service = IngestionService(context)
+    for connector_id in ("beta_dataroom", "beta_kpi_packet"):
+        service.ingest_private_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+    CoverageService(context).add_coverage(
+        CoverageEntry(
+            company_id="BETA",
+            company_name="Beta Logistics Software",
+            company_type=CompanyType.PRIVATE,
+            coverage_status=CoverageStatus.WATCHLIST,
+            cadence=Cadence.WEEKLY,
+        )
+    )
+
+    paused = AnalysisService(context).analyze_company("BETA")
+    resumed = AnalysisService(context).continue_run(paused["run"]["run_id"])
+
+    assert paused["run"]["status"] == "awaiting_continue"
+    assert resumed["run"]["status"] == "complete"
+    with context.database.session() as session:
+        repository = Repository(session)
+        evidence = repository.list_evidence("BETA")
+        claims = repository.list_claim_cards("BETA", run_id=resumed["run"]["run_id"])
+
+    assert any(record.metadata.get("evidence_family") == "dataroom" for record in evidence)
+    assert any(record.metadata.get("evidence_family") == "kpi_packet" for record in evidence)
+    assert claims
