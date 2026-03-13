@@ -15,6 +15,7 @@ class ToolRegistryService:
         self._tool_definitions = {tool.id: tool for tool in registries.tool_registry.tools}
         self._bundles = {bundle.id: bundle.tool_ids for bundle in registries.tool_bundles.bundles}
         self._mcp = MCPAdapter(server_name="stub")
+        self._monitoring_config = registries.monitoring.monitoring.model_dump(mode="python")
         self._builtin_handlers: dict[str, ToolHandler] = {
             "evidence_search": builtins.evidence_search,
             "claim_search": builtins.claim_search,
@@ -58,6 +59,7 @@ class ToolRegistryService:
                 run_id=run_id,
                 agent_id=agent.id,
                 repository=repository,
+                settings={"monitoring": self._monitoring_config},
             ),
             payload=payload,
         )

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from ai_investing.persistence.repositories import Repository
@@ -13,6 +13,7 @@ class ToolContext:
     run_id: str
     agent_id: str
     repository: Repository
+    settings: dict[str, Any] = field(default_factory=dict)
 
 
 ToolHandler = Callable[[ToolContext, dict[str, Any]], dict[str, Any]]

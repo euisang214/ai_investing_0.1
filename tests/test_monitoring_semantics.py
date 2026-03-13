@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from ai_investing.application.services import AnalysisService, RefreshRuntime
+from ai_investing.application.services import AnalysisService, IngestionService, RefreshRuntime
 from ai_investing.domain.enums import (
     AlertLevel,
     CompanyType,
@@ -21,6 +21,7 @@ from ai_investing.domain.models import (
     ICMemo,
     MemoSection,
     MemoSectionUpdate,
+    MonitoringDelta,
     RunRecord,
     SourceRef,
     StructuredGenerationRequest,
@@ -498,3 +499,89 @@ def test_tool_logs_capture_record_level_output_refs(seeded_acme) -> None:
     assert any(ref.startswith("claim:") for log in claim_logs for ref in log.output_refs)
     assert all(log.output_refs != ["evidence_search"] for log in evidence_logs)
     assert all(log.output_refs != ["claim_search"] for log in claim_logs)
+
+
+def test_delta_surfaces_factor_contradictions_without_risk_section_movement(
+    seeded_acme, repo_root
+) -> None:
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    prior_claim = _claim(
+        run_id="run_prior",
+        claim_text="ACME appears stable on customer concentration.",
+        confidence=0.72,
+        section_ids=["economic_spread"],
+    )
+    current_claim = _claim(
+        run_id="run_current",
+        claim_text="ACME appears under pressure on customer concentration.",
+        confidence=0.78,
+        section_ids=["economic_spread"],
+    )
+    runtime = _runtime_for_delta(
+        seeded_acme,
+        prior_claims=[prior_claim],
+        current_claims=[current_claim],
+        prior_sections=[
+            _memo_section(
+                section_id="economic_spread",
+                content="Economic spread remained durable.",
+                run_id="run_prior",
+            ),
+            _memo_section(section_id="risk", content="Risk stayed manageable.", run_id="run_prior"),
+        ],
+        current_sections=[
+            _memo_section(
+                section_id="economic_spread",
+                content="Economic spread is pressured by customer dependency.",
+                run_id="run_current",
+            ),
+            _memo_section(section_id="risk", content="Risk stayed manageable.", run_id="run_current"),
+        ],
+    )
+
+    delta = runtime.compute_monitoring_delta()
+
+    assert "risk" not in delta.changed_sections
+    assert "economic_spread" in delta.changed_sections
+    assert delta.contradiction_references
+    assert delta.contradiction_references[0].factor_id == "customer_concentration"
+    assert "Contradictions: customer_concentration." in delta.change_summary
+
+
+def test_delta_reports_current_state_concentration_signals(seeded_acme, repo_root) -> None:
+    service = AnalysisService(seeded_acme)
+
+    initial_pause = service.analyze_company("ACME")
+    service.continue_run(initial_pause["run"]["run_id"])
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+
+    rerun_pause = service.refresh_company("ACME")
+    rerun = service.continue_run(rerun_pause["run"]["run_id"])
+    delta = rerun["delta"]
+
+    assert delta is not None
+    signals = {signal["category"]: signal for signal in delta["concentration_signals"]}
+    assert signals["customer_dependency"]["state"] == "pressured"
+    assert signals["customer_dependency"]["metrics"] == {"largest_customer": "12%"}
+    assert signals["financing_dependency"]["state"] == "stable"
+
+
+def test_monitoring_delta_model_accepts_legacy_payload_without_new_detail_fields() -> None:
+    delta = MonitoringDelta.model_validate(
+        {
+            "delta_id": "dlt_legacy",
+            "company_id": "ACME",
+            "prior_run_id": "run_prior",
+            "current_run_id": "run_current",
+            "changed_claim_ids": ["clm_1"],
+            "changed_sections": ["what_changed_since_last_run"],
+            "change_summary": "Legacy payload.",
+            "thesis_drift_flags": ["concentration_increase"],
+            "alert_level": "medium",
+            "created_at": "2026-03-01T00:00:00Z",
+        }
+    )
+
+    assert delta.trigger_reasons == []
+    assert delta.contradiction_references == []
+    assert delta.analog_references == []

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ai_investing.monitoring import AnalogGraph, ClaimContradictionService
 from ai_investing.domain.models import WriteMemoSectionInput
 from ai_investing.tools.base import ToolContext
 
@@ -32,39 +33,61 @@ def claim_search(context: ToolContext, payload: dict[str, Any]) -> dict[str, Any
 
 
 def contradiction_finder(context: ToolContext, payload: dict[str, Any]) -> dict[str, Any]:
+    monitoring_config = context.settings.get("monitoring", {})
+    service = ClaimContradictionService.from_mapping(monitoring_config.get("contradiction", {}))
     claims = context.repository.list_claim_cards(
         context.company_id,
         panel_id=payload.get("panel_id"),
         active_only=True,
     )
-    contradictions: list[str] = []
-    grouped: dict[str, list[str]] = {}
-    for claim in claims:
-        grouped.setdefault(claim.factor_id, []).append(claim.claim.lower())
-    for factor_id, statements in grouped.items():
-        has_positive = any(
-            "durable" in statement or "positive" in statement for statement in statements
+    evidence_records = context.repository.list_evidence(
+        context.company_id,
+        panel_id=payload.get("panel_id"),
+    )
+    references = service.find_references(
+        claims=claims,
+        evidence_records=evidence_records,
+        factor_ids=payload.get("factor_ids"),
+    )
+    contradiction_factors = {reference.factor_id for reference in references if reference.factor_id}
+    output_refs = sorted(
+        {
+            f"claim:{claim.claim_id}"
+            for claim in claims
+            if claim.factor_id in contradiction_factors
+        }.union(
+            {
+                f"evidence:{record.evidence_id}"
+                for record in evidence_records
+                if contradiction_factors.intersection(record.factor_ids)
+            }
         )
-        has_negative = any(
-            "fragile" in statement or "under pressure" in statement for statement in statements
-        )
-        if has_positive and has_negative:
-            contradictions.append(f"Conflicting stance detected for {factor_id}.")
-    return {"contradictions": contradictions}
+    )
+    return {
+        "contradictions": [reference.rationale for reference in references],
+        "references": [reference.model_dump(mode="json") for reference in references],
+        "output_refs": output_refs,
+    }
 
 
 def analog_lookup(context: ToolContext, payload: dict[str, Any]) -> dict[str, Any]:
-    company_type = str(payload.get("company_type", "both"))
-    notes = [
-        "Mission-critical workflow software tends to hold pricing better than cyclical tools.",
-        "Concentration risk is often the first place thesis drift appears on reruns.",
-    ]
-    if company_type == "private":
-        notes.append(
-            "Financing dependency can dominate an otherwise solid "
-            "operating thesis in private deals."
-        )
-    return {"notes": notes}
+    monitoring_config = context.settings.get("monitoring", {})
+    graph = AnalogGraph.from_mapping(monitoring_config.get("analog", {}))
+    references = graph.rank_company(
+        context.repository,
+        context.company_id,
+        factor_ids=payload.get("factor_ids"),
+        limit=payload.get("limit"),
+    )
+    return {
+        "notes": [reference.rationale for reference in references],
+        "references": [reference.model_dump(mode="json") for reference in references],
+        "output_refs": [
+            f"company:{reference.company_id}"
+            for reference in references
+            if reference.company_id is not None
+        ],
+    }
 
 
 def memo_section_writer(context: ToolContext, payload: dict[str, Any]) -> dict[str, Any]:
