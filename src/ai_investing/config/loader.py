@@ -7,10 +7,12 @@ import yaml
 
 from ai_investing.config.models import (
     INTERNAL_AGENT_PANEL_IDS,
+    SUPPORTED_CADENCE_POLICY_KINDS,
     SUPPORTED_OUTPUT_SCHEMAS,
     SUPPORTED_PANEL_SUBGRAPHS,
     SUPPORTED_SOURCE_CONNECTOR_KINDS,
     AgentsRegistry,
+    CadencePoliciesRegistry,
     FactorsRegistry,
     MemoSectionsRegistry,
     ModelProfilesRegistry,
@@ -65,6 +67,9 @@ class RegistryLoader:
             source_connectors=load_typed_yaml(
                 self._config_dir / "source_connectors.yaml", SourceConnectorsRegistry
             ),
+            cadence_policies=load_typed_yaml(
+                self._config_dir / "cadence_policies.yaml", CadencePoliciesRegistry
+            ),
             monitoring=load_typed_yaml(self._config_dir / "monitoring.yaml", MonitoringRegistry),
             run_policies=load_typed_yaml(
                 self._config_dir / "run_policies.yaml", RunPoliciesRegistry
@@ -80,6 +85,18 @@ class RegistryLoader:
         agent_map = self._index_by_id("agent", bundle.agents.agents)
         tool_map = self._index_by_id("tool", bundle.tool_registry.tools)
         tool_bundle_map = self._index_by_id("tool bundle", bundle.tool_bundles.bundles)
+        cadence_policy_map = self._index_by_id(
+            "cadence policy", bundle.cadence_policies.cadence_policies
+        )
+
+        default_policy_id = bundle.cadence_policies.default_policy_id
+        if default_policy_id not in cadence_policy_map:
+            raise ValueError(
+                "Cadence policy registry default references unknown policy: "
+                f"{default_policy_id}"
+            )
+        for policy in bundle.cadence_policies.cadence_policies:
+            self._validate_cadence_policy(policy)
 
         allowed_agent_panels = set(panel_map) | set(INTERNAL_AGENT_PANEL_IDS)
         for panel in bundle.panels.panels:
@@ -156,6 +173,10 @@ class RegistryLoader:
             if missing_panels:
                 joined = ", ".join(sorted(missing_panels))
                 raise ValueError(f"Run policy {policy_name} references unknown panels: {joined}")
+            if policy.cadence not in cadence_policy_map:
+                raise ValueError(
+                    f"Run policy {policy_name} references unknown cadence policy: {policy.cadence}"
+                )
 
     def _index_by_id(self, label: str, entries: list[object]) -> dict[str, object]:
         indexed: dict[str, object] = {}
@@ -185,6 +206,10 @@ class RegistryLoader:
                 f"Connector {connector.id} is missing required settings for {connector.kind}: "
                 f"{joined}"
             )
+
+    def _validate_cadence_policy(self, policy) -> None:
+        if policy.kind not in SUPPORTED_CADENCE_POLICY_KINDS:
+            raise ValueError(f"Unsupported cadence policy kind for {policy.id}: {policy.kind}")
 
     def _validate_prompt_path(self, prompt_path: str) -> None:
         if self._prompts_dir is None:

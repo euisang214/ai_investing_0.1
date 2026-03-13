@@ -53,6 +53,19 @@ def test_config_loader_validates_registries(context) -> None:
     assert "gatekeeper_research" in {
         bundle.id for bundle in context.registries.tool_bundles.bundles
     }
+    assert context.registries.cadence_policies.workspace_timezone == "America/New_York"
+    assert context.registries.cadence_policies.default_policy_id == "weekly"
+    cadence_policies = {
+        policy.id: policy for policy in context.registries.cadence_policies.cadence_policies
+    }
+    assert set(cadence_policies) == {
+        "weekly",
+        "biweekly",
+        "weekdays",
+        "monthly",
+        "custom_weekdays",
+    }
+    assert cadence_policies["custom_weekdays"].weekdays == ["tuesday", "thursday"]
 
 
 def test_scaffold_panels_materialize_in_registry_without_active_agents(context) -> None:
@@ -109,6 +122,51 @@ def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -
     panels_path.write_text(yaml.safe_dump(panels, sort_keys=False), encoding="utf-8")
 
     with pytest.raises(ValueError, match="unknown memo sections"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_invalid_cadence_policy_kind(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    cadence_policies_path = config_dir / "cadence_policies.yaml"
+    cadence_policies = yaml.safe_load(cadence_policies_path.read_text(encoding="utf-8"))
+    cadence_policies["cadence_policies"][0]["kind"] = "hourly"
+    cadence_policies_path.write_text(
+        yaml.safe_dump(cadence_policies, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Unsupported cadence policy kind"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_invalid_custom_weekday_sets(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    cadence_policies_path = config_dir / "cadence_policies.yaml"
+    cadence_policies = yaml.safe_load(cadence_policies_path.read_text(encoding="utf-8"))
+    for policy in cadence_policies["cadence_policies"]:
+        if policy["id"] == "custom_weekdays":
+            policy["weekdays"] = ["monday", "monday"]
+            break
+    cadence_policies_path.write_text(
+        yaml.safe_dump(cadence_policies, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="unique weekdays"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_unknown_cadence_policy_references(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    run_policies_path = config_dir / "run_policies.yaml"
+    run_policies = yaml.safe_load(run_policies_path.read_text(encoding="utf-8"))
+    run_policies["run_policies"]["weekly_default"]["cadence"] = "unknown_policy"
+    run_policies_path.write_text(
+        yaml.safe_dump(run_policies, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="unknown cadence policy"):
         RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
 
 

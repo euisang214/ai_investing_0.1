@@ -1,0 +1,24 @@
+workspace_timezone: America/New_York
+default_policy_id: weekly
+cadence_policies:
+  - id: weekly
+    label: Weekly
+    kind: weekly
+    weekday: monday
+  - id: biweekly
+    label: Biweekly
+    kind: biweekly
+    weekday: monday
+  - id: weekdays
+    label: Weekdays
+    kind: weekdays
+  - id: monthly
+    label: Monthly
+    kind: monthly
+    day_of_month: 1
+  - id: custom_weekdays
+    label: Custom weekdays
+    kind: custom_weekdays
+    weekdays:
+      - tuesday
+      - thursday

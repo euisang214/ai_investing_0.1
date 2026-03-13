@@ -17,10 +17,20 @@ SUPPORTED_OUTPUT_SCHEMAS = frozenset(
 SUPPORTED_PANEL_SUBGRAPHS = frozenset({"gatekeeper", "debate"})
 INTERNAL_AGENT_PANEL_IDS = frozenset({"memo_updates", "ic", "monitoring"})
 SUPPORTED_SOURCE_CONNECTOR_KINDS = frozenset({"file_bundle", "mcp_stub"})
+SUPPORTED_CADENCE_POLICY_KINDS = frozenset(
+    {"weekly", "biweekly", "weekdays", "monthly", "custom_weekdays"}
+)
+SUPPORTED_WEEKDAY_VALUES = frozenset(
+    {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+)
 
 
 class ConfigModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+
+class OpenConfigModel(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
 
 class PanelConfig(ConfigModel):
@@ -224,6 +234,65 @@ class SourceConnectorsRegistry(ConfigModel):
     connectors: list[SourceConnectorConfig]
 
 
+class CadencePolicyConfig(OpenConfigModel):
+    id: str
+    label: str
+    kind: str
+    weekday: str | None = None
+    weekdays: list[str] = Field(default_factory=list)
+    day_of_month: int | None = None
+
+    @model_validator(mode="after")
+    def validate_shape(self) -> CadencePolicyConfig:
+        if self.kind not in SUPPORTED_CADENCE_POLICY_KINDS:
+            raise ValueError(f"Unsupported cadence policy kind: {self.kind}")
+
+        normalized_weekday = self.weekday.strip().lower() if self.weekday else None
+        normalized_weekdays = [value.strip().lower() for value in self.weekdays]
+        invalid_weekdays = [
+            value for value in [normalized_weekday, *normalized_weekdays] if value is not None
+        ]
+        invalid_weekdays = [
+            value for value in invalid_weekdays if value not in SUPPORTED_WEEKDAY_VALUES
+        ]
+        if invalid_weekdays:
+            joined = ", ".join(sorted(dict.fromkeys(invalid_weekdays)))
+            raise ValueError(f"Invalid weekday values: {joined}")
+
+        if normalized_weekday is not None:
+            self.weekday = normalized_weekday
+        self.weekdays = normalized_weekdays
+
+        if self.kind in {"weekly", "biweekly"} and self.weekday is None:
+            raise ValueError(f"{self.kind} cadence policies require weekday")
+        if self.kind == "weekdays":
+            if self.weekday is not None or self.weekdays:
+                raise ValueError("weekdays cadence policies do not accept weekday overrides")
+        if self.kind == "monthly":
+            if self.day_of_month is None:
+                raise ValueError("monthly cadence policies require day_of_month")
+            if not 1 <= self.day_of_month <= 28:
+                raise ValueError("day_of_month must be between 1 and 28")
+            if self.weekday is not None or self.weekdays:
+                raise ValueError("monthly cadence policies do not accept weekday fields")
+        if self.kind == "custom_weekdays":
+            if self.weekday is not None:
+                raise ValueError("custom_weekdays cadence policies use weekdays, not weekday")
+            if not self.weekdays:
+                raise ValueError("custom_weekdays cadence policies require weekdays")
+            if len(set(self.weekdays)) != len(self.weekdays):
+                raise ValueError("custom_weekdays cadence policies require unique weekdays")
+        if self.kind in {"weekly", "biweekly"} and self.weekdays:
+            raise ValueError(f"{self.kind} cadence policies do not accept weekdays")
+        return self
+
+
+class CadencePoliciesRegistry(ConfigModel):
+    workspace_timezone: str
+    default_policy_id: str = "weekly"
+    cadence_policies: list[CadencePolicyConfig]
+
+
 class MonitoringDriftRule(ConfigModel):
     factor_ids: list[str]
     drift_flag: str
@@ -294,5 +363,6 @@ class RegistryBundle(ConfigModel):
     tool_registry: ToolRegistry
     tool_bundles: ToolBundlesRegistry
     source_connectors: SourceConnectorsRegistry
+    cadence_policies: CadencePoliciesRegistry
     monitoring: MonitoringRegistry
     run_policies: RunPoliciesRegistry
