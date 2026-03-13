@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, TypedDict
 from langgraph.graph import END, StateGraph
 from langgraph.types import Command, interrupt
 
-from ai_investing.domain.enums import RunContinueAction
+from ai_investing.domain.enums import GateDecision, RunContinueAction
 from ai_investing.domain.models import GatekeeperVerdict, PanelVerdict
 from ai_investing.graphs.state import RefreshState
 
@@ -88,6 +88,12 @@ def build_gatekeeper_checkpoint(
     def checkpoint(state: RefreshState) -> Command[str]:
         gatekeeper_verdict = _gatekeeper_verdict_from_state(state)
         has_downstream_panels = continue_to != stop_to
+        if gatekeeper_verdict.gate_decision in {GateDecision.PASS, GateDecision.REVIEW}:
+            update = runtime.auto_continue_gatekeeper(
+                gatekeeper=gatekeeper_verdict,
+                has_downstream_panels=has_downstream_panels,
+            )
+            return Command(update=update, goto=continue_to)
         checkpoint_payload = runtime.prepare_gatekeeper_checkpoint(
             gatekeeper=gatekeeper_verdict,
             has_downstream_panels=has_downstream_panels,

@@ -33,6 +33,7 @@ from ai_investing.graphs.checkpointing import (
 )
 from ai_investing.graphs.company_refresh import build_company_refresh_graph
 from ai_investing.persistence.repositories import Repository
+from ai_investing.providers.fake import FakeModelProvider
 from ai_investing.settings import Settings
 
 
@@ -43,6 +44,20 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         assert coverage is not None
         coverage.panel_policy = panel_policy
         repository.upsert_coverage(coverage)
+
+
+def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
+
+    def forced_fail(self, request):
+        payload = original_gatekeeper_payload(self, request)
+        payload["recommendation"] = "negative"
+        payload["gate_decision"] = GateDecision.FAIL
+        payload["summary"] = "Gatekeepers failed the company."
+        payload["gate_reasons"] = ["Customer concentration remains too high."]
+        return payload
+
+    monkeypatch.setattr(FakeModelProvider, "_gatekeeper_payload", forced_fail)
 
 
 def test_run_record_round_trips_checkpoint_state(context) -> None:
@@ -157,7 +172,7 @@ def test_postgres_checkpoint_uses_psycopg_compatible_conn_string(monkeypatch) ->
     assert setup_calls == ["setup"]
 
 
-def test_company_refresh_graph_pauses_after_gatekeepers_and_resumes_continue(context) -> None:
+def test_company_refresh_graph_auto_continues_passed_gatekeepers(context) -> None:
     runtime = StubRuntime(gate_decision=GateDecision.PASS)
 
     with graph_checkpointer(context.settings) as checkpointer:
@@ -168,7 +183,7 @@ def test_company_refresh_graph_pauses_after_gatekeepers_and_resumes_continue(con
             monitoring_enabled=True,
             checkpointer=checkpointer,
         )
-        initial = graph.invoke(
+        result = graph.invoke(
             {
                 "company_id": "ACME",
                 "run_id": "run_pause_continue",
@@ -176,18 +191,12 @@ def test_company_refresh_graph_pauses_after_gatekeepers_and_resumes_continue(con
             },
             config=checkpoint_config("run_pause_continue"),
         )
-        payloads = interrupt_payloads(initial)
-        resumed = graph.invoke(
-            Command(resume={"action": "continue"}),
-            config=checkpoint_config("run_pause_continue"),
-        )
+        payloads = interrupt_payloads(result)
 
-    assert payloads and payloads[0]["checkpoint_panel_id"] == "gatekeepers"
-    assert payloads[0]["allowed_actions"] == ["stop", "continue"]
-    assert "demand_revenue_quality" not in initial.get("panel_results", {})
-    assert "demand_revenue_quality" in resumed["panel_results"]
-    assert resumed["provisional"] is False
-    assert resumed["memo"]["recommendation_summary"] == "memo reconciled"
+    assert payloads == []
+    assert "demand_revenue_quality" in result["panel_results"]
+    assert result["provisional"] is False
+    assert result["memo"]["recommendation_summary"] == "memo reconciled"
 
 
 def test_company_refresh_graph_routes_failed_gate_to_stop(context) -> None:
@@ -249,28 +258,24 @@ def test_company_refresh_graph_routes_failed_gate_to_provisional_continue(contex
     assert "demand_revenue_quality" in resumed["panel_results"]
 
 
-def test_analysis_service_pauses_and_resumes_same_run_id(seeded_acme) -> None:
+def test_analysis_service_auto_continues_passed_gatekeepers(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
-    paused = service.analyze_company("ACME")
-    run_id = paused["run"]["run_id"]
+    result = service.analyze_company("ACME")
 
-    assert paused["run"]["status"] == "awaiting_continue"
-    assert paused["run"]["awaiting_continue"] is True
-    assert paused["delta"] is None
-    assert "gatekeepers" in paused["panels"]
-    assert "demand_revenue_quality" not in paused["panels"]
+    assert result["run"]["status"] == "complete"
+    assert result["run"]["awaiting_continue"] is False
+    assert result["run"]["run_id"]
+    assert "gatekeepers" in result["panels"]
+    assert "demand_revenue_quality" in result["panels"]
+    assert result["delta"] is not None
+    assert result["run"]["checkpoint"]["resolution_action"] == "continue"
 
-    resumed = service.continue_run(run_id)
-
-    assert resumed["run"]["run_id"] == run_id
-    assert resumed["run"]["status"] == "complete"
-    assert resumed["run"]["awaiting_continue"] is False
-    assert "demand_revenue_quality" in resumed["panels"]
-    assert resumed["delta"] is not None
-
-
-def test_run_due_coverage_keeps_paused_runs_due_and_queryable(seeded_acme) -> None:
+def test_run_due_coverage_keeps_failed_gatekeeper_runs_due_and_queryable(
+    seeded_acme,
+    monkeypatch,
+) -> None:
+    _force_failed_gatekeeper(monkeypatch)
     service = AnalysisService(seeded_acme)
 
     first = service.run_due_coverage()
@@ -305,10 +310,9 @@ def test_completed_scheduled_run_rolls_forward_from_next_future_slot(seeded_acme
         coverage.next_run_at = datetime(2026, 3, 2, 14, 30, tzinfo=UTC)
         repository.upsert_coverage(coverage)
 
-    paused = AnalysisService(seeded_acme).analyze_company("ACME")
-    resumed = AnalysisService(seeded_acme).continue_run(paused["run"]["run_id"])
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
 
-    assert resumed["run"]["status"] == "complete"
+    assert result["run"]["status"] == "complete"
     with seeded_acme.database.session() as session:
         repository = Repository(session)
         coverage = repository.get_coverage("ACME")
@@ -318,7 +322,8 @@ def test_completed_scheduled_run_rolls_forward_from_next_future_slot(seeded_acme
     assert coverage.next_run_at == datetime(2026, 3, 16, 13, 30, tzinfo=UTC)
 
 
-def test_stopped_run_does_not_advance_coverage_schedule(seeded_acme) -> None:
+def test_stopped_run_does_not_advance_coverage_schedule(seeded_acme, monkeypatch) -> None:
+    _force_failed_gatekeeper(monkeypatch)
     with seeded_acme.database.session() as session:
         repository = Repository(session)
         coverage = repository.get_coverage("ACME")
@@ -331,7 +336,7 @@ def test_stopped_run_does_not_advance_coverage_schedule(seeded_acme) -> None:
         action=RunContinueAction.STOP,
     )
 
-    assert stopped["run"]["status"] == "stopped"
+    assert stopped["run"]["status"] == "gated_out"
     with seeded_acme.database.session() as session:
         repository = Repository(session)
         coverage = repository.get_coverage("ACME")
@@ -483,6 +488,22 @@ class StubRuntime:
             provisional_required=gatekeeper.gate_decision == GateDecision.FAIL,
             note="checkpoint ready",
         )
+
+    def auto_continue_gatekeeper(
+        self,
+        *,
+        gatekeeper: GatekeeperVerdict,
+        has_downstream_panels: bool,
+    ) -> dict[str, object]:
+        return {
+            "gate_decision": gatekeeper.gate_decision.value,
+            "awaiting_continue": False,
+            "gated_out": False,
+            "provisional": False,
+            "stopped_after_panel": None,
+            "checkpoint_panel_id": "gatekeepers",
+            "resume_action": RunContinueAction.CONTINUE.value,
+        }
 
     def resolve_gatekeeper_action(
         self,

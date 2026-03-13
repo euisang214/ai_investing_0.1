@@ -90,30 +90,22 @@ def test_tool_bundle_enforcement(seeded_acme) -> None:
             )
 
 
-def test_end_to_end_fake_provider_run_requires_explicit_continue(seeded_acme) -> None:
+def test_end_to_end_fake_provider_run_auto_continues_passed_gatekeepers(seeded_acme) -> None:
     service = AnalysisService(seeded_acme)
 
-    paused = service.analyze_company("ACME")
+    result = service.analyze_company("ACME")
 
-    assert paused["run"]["status"] == "awaiting_continue"
-    assert paused["run"]["awaiting_continue"] is True
-    assert paused["run"]["checkpoint_panel_id"] == "gatekeepers"
-    assert paused["run"]["checkpoint"]["allowed_actions"] == ["stop", "continue"]
-    assert paused["delta"] is None
-    assert set(paused["panels"]) == {"gatekeepers"}
-
-    resumed = service.continue_run(paused["run"]["run_id"])
-
-    assert resumed["run"]["run_id"] == paused["run"]["run_id"]
-    assert resumed["run"]["status"] == "complete"
-    assert resumed["run"]["awaiting_continue"] is False
-    assert set(resumed["panels"]) == {"gatekeepers", "demand_revenue_quality"}
-    assert resumed["delta"] is not None
-    assert resumed["delta"]["current_run_id"] == resumed["run"]["run_id"]
-    assert resumed["delta"]["prior_run_id"] is None
-    assert resumed["delta"]["change_summary"] == "Initial coverage run. No prior memo exists."
-    assert resumed["memo"]["is_initial_coverage"] is True
-    sections = _memo_section_map(resumed)
+    assert result["run"]["status"] == "complete"
+    assert result["run"]["awaiting_continue"] is False
+    assert result["run"]["checkpoint_panel_id"] == "gatekeepers"
+    assert result["run"]["checkpoint"]["resolution_action"] == "continue"
+    assert set(result["panels"]) == {"gatekeepers", "demand_revenue_quality"}
+    assert result["delta"] is not None
+    assert result["delta"]["current_run_id"] == result["run"]["run_id"]
+    assert result["delta"]["prior_run_id"] is None
+    assert result["delta"]["change_summary"] == "Initial coverage run. No prior memo exists."
+    assert result["memo"]["is_initial_coverage"] is True
+    sections = _memo_section_map(result)
     assert sections["economic_spread"]["status"] == "not_advanced"
     assert "Stale from the prior active memo." not in sections["economic_spread"]["content"]
     assert sections["valuation_terms"]["status"] == "not_advanced"
@@ -184,16 +176,10 @@ def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) 
 def test_refresh_rerun_emits_materiality_aware_delta(seeded_acme, repo_root: Path) -> None:
     service = AnalysisService(seeded_acme)
 
-    initial_pause = service.analyze_company("ACME")
-    initial = service.continue_run(initial_pause["run"]["run_id"])
+    initial = service.analyze_company("ACME")
 
     IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
-    rerun_pause = service.refresh_company("ACME")
-
-    assert rerun_pause["run"]["status"] == "awaiting_continue"
-    assert rerun_pause["delta"] is None
-
-    rerun = service.continue_run(rerun_pause["run"]["run_id"])
+    rerun = service.refresh_company("ACME")
     delta = rerun["delta"]
 
     assert delta is not None
@@ -204,13 +190,20 @@ def test_refresh_rerun_emits_materiality_aware_delta(seeded_acme, repo_root: Pat
     assert rerun["memo"]["is_initial_coverage"] is False
 
 
-def test_legacy_paused_run_without_baseline_metadata_does_not_self_baseline(seeded_acme) -> None:
+def test_legacy_paused_run_without_baseline_metadata_does_not_self_baseline(
+    seeded_acme,
+    monkeypatch,
+) -> None:
+    _force_failed_gatekeeper(monkeypatch)
     service = AnalysisService(seeded_acme)
 
     paused = service.analyze_company("ACME")
     _clear_run_baseline_metadata(seeded_acme, paused["run"]["run_id"])
 
-    resumed = service.continue_run(paused["run"]["run_id"])
+    resumed = service.continue_run(
+        paused["run"]["run_id"],
+        action=RunContinueAction.CONTINUE_PROVISIONAL,
+    )
 
     assert resumed["memo"]["is_initial_coverage"] is True
     assert resumed["delta"]["prior_run_id"] is None
@@ -219,18 +212,23 @@ def test_legacy_paused_run_without_baseline_metadata_does_not_self_baseline(seed
 
 
 def test_legacy_rerun_resume_recovers_prior_history_excluding_current_run(
-    seeded_acme, repo_root: Path
+    seeded_acme,
+    repo_root: Path,
+    monkeypatch,
 ) -> None:
     service = AnalysisService(seeded_acme)
 
-    initial_pause = service.analyze_company("ACME")
-    initial = service.continue_run(initial_pause["run"]["run_id"])
+    initial = service.analyze_company("ACME")
 
     IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    _force_failed_gatekeeper(monkeypatch)
     rerun_pause = service.refresh_company("ACME")
     _clear_run_baseline_metadata(seeded_acme, rerun_pause["run"]["run_id"])
 
-    rerun = service.continue_run(rerun_pause["run"]["run_id"])
+    rerun = service.continue_run(
+        rerun_pause["run"]["run_id"],
+        action=RunContinueAction.CONTINUE_PROVISIONAL,
+    )
 
     assert rerun["delta"]["prior_run_id"] == initial["run"]["run_id"]
     assert rerun["delta"]["current_run_id"] == rerun["run"]["run_id"]
@@ -273,10 +271,9 @@ def test_schedule_disabled_manual_run_clears_next_run_at_after_completion(seeded
         coverage.next_run_at = datetime(2026, 3, 11, 9, 0, tzinfo=UTC)
         repository.upsert_coverage(coverage)
 
-    paused = AnalysisService(seeded_acme).analyze_company("ACME")
-    resumed = AnalysisService(seeded_acme).continue_run(paused["run"]["run_id"])
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
 
-    assert resumed["run"]["status"] == "complete"
+    assert result["run"]["status"] == "complete"
     with seeded_acme.database.session() as session:
         repository = Repository(session)
         coverage = repository.get_coverage("ACME")
@@ -290,12 +287,10 @@ def test_schedule_disabled_manual_run_clears_next_run_at_after_completion(seeded
 def test_rerun_persists_useful_tool_log_refs(seeded_acme, repo_root: Path) -> None:
     service = AnalysisService(seeded_acme)
 
-    initial_pause = service.analyze_company("ACME")
-    service.continue_run(initial_pause["run"]["run_id"])
+    service.analyze_company("ACME")
 
     IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
-    rerun_pause = service.refresh_company("ACME")
-    rerun = service.continue_run(rerun_pause["run"]["run_id"])
+    rerun = service.refresh_company("ACME")
 
     with seeded_acme.database.session() as session:
         logs = Repository(session).list_tool_logs(rerun["run"]["run_id"])
@@ -336,18 +331,14 @@ def test_required_public_connector_evidence_is_compatible_with_analysis_flow(
         )
     )
 
-    paused = AnalysisService(context).analyze_company("ACME")
-    resumed = AnalysisService(context).continue_run(paused["run"]["run_id"])
+    result = AnalysisService(context).analyze_company("ACME")
 
-    assert paused["run"]["status"] == "awaiting_continue"
-    assert resumed["run"]["status"] == "complete"
+    assert result["run"]["status"] == "complete"
     with context.database.session() as session:
         repository = Repository(session)
         evidence = repository.list_evidence("ACME")
-        claims = repository.list_claim_cards("ACME", run_id=resumed["run"]["run_id"])
-        verdicts = repository.list_panel_verdicts(
-            "ACME", run_id=resumed["run"]["run_id"]
-        )
+        claims = repository.list_claim_cards("ACME", run_id=result["run"]["run_id"])
+        verdicts = repository.list_panel_verdicts("ACME", run_id=result["run"]["run_id"])
 
     assert any(record.metadata.get("evidence_family") == "regulatory" for record in evidence)
     assert any(record.metadata.get("evidence_family") == "consensus" for record in evidence)
@@ -376,15 +367,13 @@ def test_dataroom_evidence_is_compatible_with_private_analysis_flow(
         )
     )
 
-    paused = AnalysisService(context).analyze_company("BETA")
-    resumed = AnalysisService(context).continue_run(paused["run"]["run_id"])
+    result = AnalysisService(context).analyze_company("BETA")
 
-    assert paused["run"]["status"] == "awaiting_continue"
-    assert resumed["run"]["status"] == "complete"
+    assert result["run"]["status"] == "complete"
     with context.database.session() as session:
         repository = Repository(session)
         evidence = repository.list_evidence("BETA")
-        claims = repository.list_claim_cards("BETA", run_id=resumed["run"]["run_id"])
+        claims = repository.list_claim_cards("BETA", run_id=result["run"]["run_id"])
 
     assert any(record.metadata.get("evidence_family") == "dataroom" for record in evidence)
     assert any(record.metadata.get("evidence_family") == "kpi_packet" for record in evidence)

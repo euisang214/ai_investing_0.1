@@ -10,6 +10,7 @@ from typing import Any
 import yaml
 
 from ai_investing.application.context import AppContext
+from ai_investing.application.notifications import NotificationService
 from ai_investing.application.scheduling import compute_initial_next_run_at, compute_next_run_at
 from ai_investing.config.models import AgentConfig, PanelConfig
 from ai_investing.domain.enums import (
@@ -17,6 +18,7 @@ from ai_investing.domain.enums import (
     CompanyType,
     GateDecision,
     MemoSectionStatus,
+    RefreshJobStatus,
     RunContinueAction,
     RunKind,
     RunStatus,
@@ -31,6 +33,7 @@ from ai_investing.domain.models import (
     MemoSectionUpdate,
     MonitoringDelta,
     PanelVerdict,
+    ReviewQueueEntry,
     RunCheckpoint,
     RunRecord,
     StructuredGenerationRequest,
@@ -398,6 +401,44 @@ class RefreshRuntime:
         with self.context.database.session() as session:
             Repository(session).save_memo(memo)
         return memo
+
+    def auto_continue_gatekeeper(
+        self,
+        *,
+        gatekeeper: GatekeeperVerdict,
+        has_downstream_panels: bool,
+    ) -> dict[str, Any]:
+        checkpoint = RunCheckpoint(
+            checkpoint_panel_id="gatekeepers",
+            allowed_actions=(
+                [RunContinueAction.STOP, RunContinueAction.CONTINUE]
+                if has_downstream_panels
+                else [RunContinueAction.STOP]
+            ),
+            provisional_required=False,
+            note=self._checkpoint_note(gatekeeper.gate_decision, has_downstream_panels),
+            resolved_at=utc_now(),
+            resolution_action=RunContinueAction.CONTINUE,
+        )
+        self.run.gate_decision = gatekeeper.gate_decision
+        self.run.awaiting_continue = False
+        self.run.gated_out = False
+        self.run.provisional = False
+        self.run.stopped_after_panel = None
+        self.run.checkpoint_panel_id = "gatekeepers"
+        self.run.checkpoint = checkpoint
+        self.run.status = RunStatus.RUNNING
+        with self.context.database.session() as session:
+            Repository(session).save_run(self.run)
+        return {
+            "gate_decision": gatekeeper.gate_decision.value,
+            "awaiting_continue": False,
+            "gated_out": False,
+            "provisional": False,
+            "stopped_after_panel": None,
+            "checkpoint_panel_id": self.run.checkpoint_panel_id,
+            "resume_action": RunContinueAction.CONTINUE.value,
+        }
 
     def prepare_gatekeeper_checkpoint(
         self,
@@ -998,8 +1039,10 @@ class RefreshRuntime:
                 return "Gatekeepers failed. Continue only as provisional downstream analysis."
             return "Gatekeepers failed. Finalize by stopping after this panel."
         if has_downstream_panels:
-            return "Gatekeepers passed. Continue explicitly to run downstream panels."
-        return "Gatekeepers passed. Finalize by stopping after this panel."
+            if gate_decision == GateDecision.REVIEW:
+                return "Gatekeepers flagged review and downstream panels continue automatically."
+            return "Gatekeepers passed and downstream panels continue automatically."
+        return "Gatekeepers completed with no downstream panels remaining."
 
 
 @dataclass
@@ -1010,19 +1053,32 @@ class AnalysisService:
         self.context.database.initialize()
 
     def analyze_company(
-        self, company_id: str, panel_ids: list[str] | None = None
+        self,
+        company_id: str,
+        panel_ids: list[str] | None = None,
+        *,
+        triggered_by: str = "operator",
     ) -> dict[str, Any]:
         return self._start_run(
             company_id=company_id,
             panel_ids=panel_ids,
             run_kind=RunKind.ANALYZE,
+            triggered_by=triggered_by,
         )
 
-    def refresh_company(self, company_id: str) -> dict[str, Any]:
+    def refresh_company(
+        self,
+        company_id: str,
+        *,
+        job_id: str | None = None,
+        triggered_by: str = "system",
+    ) -> dict[str, Any]:
         return self._start_run(
             company_id=company_id,
             panel_ids=None,
             run_kind=RunKind.REFRESH,
+            job_id=job_id,
+            triggered_by=triggered_by,
         )
 
     def continue_run(
@@ -1044,6 +1100,26 @@ class AnalysisService:
             company_id=company_id,
             panel_ids=[panel_id],
             run_kind=RunKind.PANEL,
+            triggered_by="operator",
+        )
+
+    def execute_refresh_job(self, job_id: str, *, worker_id: str) -> dict[str, Any]:
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            job = repository.get_refresh_job(job_id)
+            if job is None:
+                raise KeyError(job_id)
+            if job.run_id is not None and job.status in {
+                RefreshJobStatus.COMPLETE,
+                RefreshJobStatus.REVIEW_REQUIRED,
+            }:
+                run = repository.get_run(job.run_id)
+                if run is not None:
+                    return self._build_persisted_result(repository, run)
+        return self.refresh_company(
+            job.company_id,
+            job_id=job_id,
+            triggered_by=f"worker:{worker_id}",
         )
 
     def run_due_coverage(self) -> list[dict[str, Any]]:
@@ -1083,6 +1159,8 @@ class AnalysisService:
         company_id: str,
         panel_ids: list[str] | None,
         run_kind: RunKind,
+        job_id: str | None = None,
+        triggered_by: str,
     ) -> dict[str, Any]:
         with self.context.database.session() as session:
             repository = Repository(session)
@@ -1105,7 +1183,12 @@ class AnalysisService:
             )
             prior_memo = repository.get_current_memo(company_id)
             prior_active_claims = repository.list_claim_cards(company_id, active_only=True)
-            run = RunRecord(company_id=company_id, run_kind=run_kind, status=RunStatus.RUNNING)
+            run = RunRecord(
+                company_id=company_id,
+                run_kind=run_kind,
+                status=RunStatus.RUNNING,
+                triggered_by=triggered_by,
+            )
             run.metadata = {
                 **run.metadata,
                 "panel_ids": selected_panels,
@@ -1125,6 +1208,7 @@ class AnalysisService:
                     verdict.model_dump(mode="json")
                     for verdict in repository.list_panel_verdicts(company_id, active_only=True)
                 ],
+                "job_id": job_id,
             }
             repository.save_run(run)
         return self._execute_run(run_id=run.run_id)
@@ -1220,10 +1304,155 @@ class AnalysisService:
                         repository.upsert_coverage(runtime.coverage)
             result = self._build_graph_result(runtime.run, graph_result)
 
+        self._sync_operational_state(runtime=runtime, error=error)
+
         if error is not None:
             raise error
         assert result is not None
         return result
+
+    def _sync_operational_state(
+        self,
+        *,
+        runtime: RefreshRuntime,
+        error: Exception | None,
+    ) -> None:
+        job_id = runtime.run.metadata.get("job_id")
+        job_id = str(job_id) if isinstance(job_id, str) and job_id else None
+
+        if error is not None:
+            if job_id is not None:
+                with self.context.database.session() as session:
+                    Repository(session).fail_refresh_job(
+                        job_id,
+                        error_message=str(error),
+                        run_id=runtime.run.run_id,
+                    )
+            NotificationService(self.context).emit_worker_failed(
+                company_id=runtime.company_profile.company_id,
+                company_name=runtime.company_profile.company_name,
+                coverage_status=runtime.coverage.coverage_status,
+                run_id=runtime.run.run_id,
+                job_id=job_id,
+                summary=str(error),
+            )
+            return
+
+        if (
+            runtime.run.status == RunStatus.AWAITING_CONTINUE
+            and runtime.run.gate_decision == GateDecision.FAIL
+        ):
+            review_entry = self._ensure_review_queue_entry(runtime=runtime, job_id=job_id)
+            if job_id is not None:
+                with self.context.database.session() as session:
+                    Repository(session).mark_refresh_job_review_required(
+                        job_id,
+                        run_id=runtime.run.run_id,
+                        review_entry_id=review_entry.review_id,
+                    )
+            return
+
+        if job_id is not None:
+            with self.context.database.session() as session:
+                repository = Repository(session)
+                if runtime.run.status in {RunStatus.COMPLETE, RunStatus.PROVISIONAL}:
+                    repository.complete_refresh_job(job_id, run_id=runtime.run.run_id)
+                elif runtime.run.status in {RunStatus.GATED_OUT, RunStatus.STOPPED}:
+                    review_entries = [
+                        entry
+                        for entry in repository.list_review_queue()
+                        if entry.run_id == runtime.run.run_id
+                    ]
+                    if review_entries:
+                        repository.mark_refresh_job_review_required(
+                            job_id,
+                            run_id=runtime.run.run_id,
+                            review_entry_id=review_entries[0].review_id,
+                        )
+
+        if runtime.run.status in {RunStatus.COMPLETE, RunStatus.PROVISIONAL}:
+            self._emit_success_notifications(runtime=runtime, job_id=job_id)
+
+    def _ensure_review_queue_entry(
+        self,
+        *,
+        runtime: RefreshRuntime,
+        job_id: str | None,
+    ) -> ReviewQueueEntry:
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            existing = next(
+                (
+                    entry
+                    for entry in repository.list_review_queue()
+                    if entry.run_id == runtime.run.run_id
+                ),
+                None,
+            )
+            if existing is not None:
+                return existing
+            review_entry = repository.save_review_queue_entry(
+                ReviewQueueEntry(
+                    company_id=runtime.company_profile.company_id,
+                    company_name=runtime.company_profile.company_name,
+                    coverage_status=runtime.coverage.coverage_status,
+                    run_id=runtime.run.run_id,
+                    job_id=job_id,
+                    reason_summary=(
+                        "Gatekeepers failed. Operator review is required before any "
+                        "provisional continuation."
+                    ),
+                )
+            )
+
+        event = NotificationService(self.context).emit_gatekeeper_failed(
+            company_id=runtime.company_profile.company_id,
+            company_name=runtime.company_profile.company_name,
+            coverage_status=runtime.coverage.coverage_status,
+            run_id=runtime.run.run_id,
+            review_id=review_entry.review_id,
+            job_id=job_id,
+            summary=review_entry.reason_summary,
+        )
+        review_entry.notification_event_id = event.event_id
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            repository.save_review_queue_entry(review_entry)
+        return review_entry
+
+    def _emit_success_notifications(
+        self,
+        *,
+        runtime: RefreshRuntime,
+        job_id: str | None,
+    ) -> None:
+        service = NotificationService(self.context)
+        delta = runtime.current_delta
+        if delta is not None and self._is_material_notification(delta):
+            service.emit_material_change(
+                company_id=runtime.company_profile.company_id,
+                company_name=runtime.company_profile.company_name,
+                coverage_status=runtime.coverage.coverage_status,
+                run_id=runtime.run.run_id,
+                job_id=job_id,
+                delta=delta,
+            )
+        service.emit_daily_digest_candidate(
+            company_id=runtime.company_profile.company_id,
+            company_name=runtime.company_profile.company_name,
+            coverage_status=runtime.coverage.coverage_status,
+            run_id=runtime.run.run_id,
+            job_id=job_id,
+            delta=delta,
+        )
+
+    @staticmethod
+    def _is_material_notification(delta: MonitoringDelta) -> bool:
+        return bool(
+            delta.changed_claim_ids
+            or delta.changed_sections
+            or delta.alert_level in {AlertLevel.MEDIUM, AlertLevel.HIGH}
+        )
 
     def _resolve_panel_ids(
         self,
