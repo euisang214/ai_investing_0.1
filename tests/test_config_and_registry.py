@@ -205,6 +205,28 @@ def test_registry_loader_rejects_missing_required_connector_settings(repo_root, 
         RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
 
 
+def test_registry_loader_rejects_conflicting_legacy_and_explicit_connector_settings(
+    repo_root, tmp_path
+) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    source_connectors_path = config_dir / "source_connectors.yaml"
+    source_connectors = yaml.safe_load(source_connectors_path.read_text(encoding="utf-8"))
+    for connector in source_connectors["connectors"]:
+        if connector["id"] == "public_file_connector":
+            connector["settings"] = {
+                "manifest_file": "alternate.json",
+                "raw_landing_zone": connector["raw_landing_zone"],
+            }
+            break
+    source_connectors_path.write_text(
+        yaml.safe_dump(source_connectors, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="manifest_file must match"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
 def test_registry_loader_rejects_missing_builtin_tool_handler(repo_root, tmp_path) -> None:
     config_dir = _copy_config(repo_root, tmp_path)
     tool_registry_path = config_dir / "tool_registry.yaml"

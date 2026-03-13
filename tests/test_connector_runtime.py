@@ -3,10 +3,12 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+import pytest
 import yaml
 
 from ai_investing.application.context import AppContext
 from ai_investing.application.services import IngestionService
+from ai_investing.ingestion.registry import SourceConnectorRegistry
 from ai_investing.persistence.repositories import Repository
 from ai_investing.settings import Settings
 
@@ -121,3 +123,52 @@ def test_connector_runtime_allows_explicit_connector_selection(
         record.source_path.startswith(str(tmp_path / "public_file_connector_alias"))
         for record in records
     )
+
+
+def test_connector_registry_resolves_configured_alias(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    source_connectors = _write_connector_landings(config_dir, tmp_path)
+    public_connector = next(
+        connector
+        for connector in source_connectors["connectors"]
+        if connector["id"] == "public_file_connector"
+    )
+    source_connectors["connectors"].append(
+        {
+            "id": "public_file_connector_alias",
+            "company_type": "public",
+            "kind": "file_bundle",
+            "settings": {
+                "manifest_file": public_connector["manifest_file"],
+                "raw_landing_zone": str(tmp_path / "public_file_connector_alias"),
+            },
+        }
+    )
+    (config_dir / "source_connectors.yaml").write_text(
+        yaml.safe_dump(source_connectors, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    context = _load_context(repo_root, config_dir)
+    registry = SourceConnectorRegistry.from_configs(context.registries.source_connectors.connectors)
+    connector = registry.resolve("public_file_connector_alias")
+
+    assert connector.id == "public_file_connector_alias"
+    assert connector.config.require_setting("manifest_file") == "manifest.json"
+    assert connector.config.require_setting("raw_landing_zone") == str(
+        tmp_path / "public_file_connector_alias"
+    )
+
+
+def test_connector_runtime_rejects_unknown_connector_id(
+    context: AppContext,
+    repo_root: Path,
+) -> None:
+    with pytest.raises(ValueError, match="Unknown connector id: missing_connector"):
+        IngestionService(context).ingest_public_data(
+            repo_root / "examples" / "acme_public",
+            connector_id="missing_connector",
+        )
