@@ -9,6 +9,7 @@ from typing import Annotated, Any
 import typer
 
 from ai_investing.application.context import AppContext
+from ai_investing.application.portfolio import PortfolioReadService, resolve_summary_segments
 from ai_investing.application.services import (
     AgentConfigService,
     AnalysisService,
@@ -40,6 +41,13 @@ def _parse_datetime(value: str) -> datetime:
 
 def _emit_json(payload: Any) -> None:
     typer.echo(json.dumps(payload, indent=2))
+
+
+def _resolve_summary_segment_option(segment: str) -> tuple[CoverageStatus, ...]:
+    try:
+        return resolve_summary_segments(segment)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
 
 
 def _resolve_continue_action(
@@ -215,6 +223,28 @@ def generate_memo(company_id: str) -> None:
 def show_delta(company_id: str) -> None:
     delta = AnalysisService(_context()).show_delta(company_id)
     typer.echo(render_delta_json(delta))
+
+
+@app.command("show-monitoring-history")
+def show_monitoring_history(
+    company_id: str,
+    limit: Annotated[int | None, typer.Option("--limit", min=1)] = None,
+) -> None:
+    history = PortfolioReadService(_context()).get_company_monitoring_history(
+        company_id,
+        limit=limit,
+    )
+    _emit_json(history.model_dump(mode="json"))
+
+
+@app.command("show-portfolio-summary")
+def show_portfolio_summary(
+    segment: Annotated[str, typer.Option("--segment")] = "all",
+) -> None:
+    summary = PortfolioReadService(_context()).get_portfolio_monitoring_summary(
+        coverage_statuses=_resolve_summary_segment_option(segment)
+    )
+    _emit_json(summary.model_dump(mode="json"))
 
 
 @app.command("list-agents")

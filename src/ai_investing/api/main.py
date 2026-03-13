@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from ai_investing.application.context import AppContext
+from ai_investing.application.portfolio import PortfolioReadService, resolve_summary_segments
 from ai_investing.application.services import (
     AgentConfigService,
     AnalysisService,
@@ -28,6 +29,7 @@ from ai_investing.domain.models import (
     PanelVerdict,
     RunRecord,
 )
+from ai_investing.domain.read_models import CompanyMonitoringHistory, PortfolioMonitoringSummary
 from ai_investing.persistence.repositories import Repository
 
 
@@ -94,6 +96,18 @@ class RunResultListEnvelope(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     data: list[RunResultResponseData] = Field(default_factory=list)
+
+
+class CompanyMonitoringHistoryEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    data: CompanyMonitoringHistory
+
+
+class PortfolioMonitoringSummaryEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    data: PortfolioMonitoringSummary
 
 
 def create_app(context: AppContext | None = None) -> FastAPI:
@@ -234,6 +248,34 @@ def create_app(context: AppContext | None = None) -> FastAPI:
     def get_delta(company_id: str, request: Request) -> JSONResponse:
         delta = AnalysisService(_context(request)).show_delta(company_id)
         return _success_response(delta.model_dump(mode="json"))
+
+    @app.get(
+        "/companies/{company_id}/monitoring-history",
+        response_model=CompanyMonitoringHistoryEnvelope,
+    )
+    def get_monitoring_history(
+        company_id: str,
+        request: Request,
+        limit: int | None = None,
+    ) -> JSONResponse:
+        history = PortfolioReadService(_context(request)).get_company_monitoring_history(
+            company_id,
+            limit=limit,
+        )
+        return _success_response(history.model_dump(mode="json"))
+
+    @app.get(
+        "/portfolio/monitoring-summary",
+        response_model=PortfolioMonitoringSummaryEnvelope,
+    )
+    def get_portfolio_monitoring_summary(
+        request: Request,
+        segment: str = "all",
+    ) -> JSONResponse:
+        summary = PortfolioReadService(_context(request)).get_portfolio_monitoring_summary(
+            coverage_statuses=resolve_summary_segments(segment)
+        )
+        return _success_response(summary.model_dump(mode="json"))
 
     @app.get("/agents")
     def list_agents(request: Request) -> JSONResponse:

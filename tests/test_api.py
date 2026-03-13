@@ -3,7 +3,21 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from ai_investing.api.main import create_app
-from ai_investing.domain.enums import RunContinueAction
+from ai_investing.domain.enums import (
+    AlertLevel,
+    CompanyType,
+    CoverageStatus,
+    RunContinueAction,
+    RunKind,
+    RunStatus,
+)
+from ai_investing.domain.models import (
+    CoverageEntry,
+    MonitoringCurrentState,
+    MonitoringDelta,
+    MonitoringReason,
+    RunRecord,
+)
 from ai_investing.persistence.repositories import Repository
 
 
@@ -14,6 +28,146 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         assert coverage is not None
         coverage.panel_policy = panel_policy
         repository.upsert_coverage(coverage)
+
+
+def _save_coverage(
+    repository: Repository,
+    *,
+    company_id: str,
+    company_name: str,
+    coverage_status: CoverageStatus,
+) -> None:
+    repository.upsert_coverage(
+        CoverageEntry(
+            company_id=company_id,
+            company_name=company_name,
+            company_type=CompanyType.PUBLIC,
+            coverage_status=coverage_status,
+        )
+    )
+
+
+def _save_run_and_delta(
+    repository: Repository,
+    *,
+    company_id: str,
+    run_kind: RunKind,
+    change_summary: str,
+    alert_level: AlertLevel,
+    changed_sections: list[str],
+    reason_specs: list[tuple[str, str, str]],
+    thesis_drift_flags: list[str] | None = None,
+    concentration_specs: list[tuple[str, str, str, str]] | None = None,
+) -> MonitoringDelta:
+    run = RunRecord(
+        company_id=company_id,
+        run_kind=run_kind,
+        status=RunStatus.COMPLETE,
+    )
+    repository.save_run(run)
+    delta = MonitoringDelta(
+        company_id=company_id,
+        current_run_id=run.run_id,
+        change_summary=change_summary,
+        changed_sections=changed_sections,
+        alert_level=alert_level,
+        thesis_drift_flags=thesis_drift_flags or [],
+        trigger_reasons=[
+            MonitoringReason(
+                category=category,
+                factor_id=factor_id,
+                summary=summary,
+            )
+            for category, factor_id, summary in reason_specs
+        ],
+        concentration_signals=[
+            MonitoringCurrentState(
+                category=category,
+                label=label,
+                factor_id=factor_id,
+                state=state,
+                summary=f"{label} is {state}.",
+            )
+            for category, factor_id, label, state in concentration_specs or []
+        ],
+    )
+    repository.save_monitoring_delta(delta)
+    return delta
+
+
+def _seed_monitoring_views(context) -> MonitoringDelta:
+    with context.database.session() as session:
+        repository = Repository(session)
+        _save_coverage(
+            repository,
+            company_id="ACME",
+            company_name="Acme Cloud",
+            coverage_status=CoverageStatus.WATCHLIST,
+        )
+        _save_coverage(
+            repository,
+            company_id="BETA",
+            company_name="Beta Logistics Software",
+            coverage_status=CoverageStatus.PORTFOLIO,
+        )
+        acme_delta = _save_run_and_delta(
+            repository,
+            company_id="ACME",
+            run_kind=RunKind.REFRESH,
+            change_summary="Watchlist name now shows contradictory concentration evidence.",
+            alert_level=AlertLevel.HIGH,
+            changed_sections=["risk", "overall_recommendation"],
+            reason_specs=[
+                (
+                    "contradiction",
+                    "customer_concentration",
+                    "Signals now span positive and negative evidence.",
+                ),
+                (
+                    "concentration",
+                    "customer_concentration",
+                    "A large customer now represents 12% of revenue.",
+                ),
+            ],
+            concentration_specs=[
+                (
+                    "customer_dependency",
+                    "customer_concentration",
+                    "Customer concentration",
+                    "pressured",
+                )
+            ],
+        )
+        _save_run_and_delta(
+            repository,
+            company_id="BETA",
+            run_kind=RunKind.REFRESH,
+            change_summary="Portfolio name shows overlapping concentration and drift pressure.",
+            alert_level=AlertLevel.MEDIUM,
+            changed_sections=["economic_spread", "growth"],
+            reason_specs=[
+                (
+                    "drift",
+                    "customer_concentration",
+                    "Dependency concentration changed enough to refresh the thesis.",
+                ),
+                (
+                    "concentration",
+                    "customer_concentration",
+                    "Largest customer share widened again.",
+                ),
+            ],
+            thesis_drift_flags=["concentration_increase"],
+            concentration_specs=[
+                (
+                    "customer_dependency",
+                    "customer_concentration",
+                    "Customer concentration",
+                    "pressured",
+                )
+            ],
+        )
+    return acme_delta
 
 
 def test_create_app_defers_context_loading_until_startup(context, monkeypatch) -> None:
@@ -73,6 +227,8 @@ def test_api_preserves_phase_one_operator_routes(context) -> None:
     assert "/companies/{company_id}/panels/{panel_id}/run" in route_paths
     assert "/companies/{company_id}/memo" in route_paths
     assert "/companies/{company_id}/delta" in route_paths
+    assert "/companies/{company_id}/monitoring-history" in route_paths
+    assert "/portfolio/monitoring-summary" in route_paths
     assert "/agents" in route_paths
     assert "/agents/{agent_id}/enable" in route_paths
     assert "/agents/{agent_id}/disable" in route_paths
@@ -179,6 +335,48 @@ def test_api_run_panel_and_continue_flow(seeded_acme) -> None:
             section["section_id"]: section for section in resumed_payload["memo"]["sections"]
         }
         assert resumed_sections["economic_spread"]["status"] == "not_advanced"
+
+
+def test_api_exposes_monitoring_history_and_portfolio_summary(context) -> None:
+    acme_delta = _seed_monitoring_views(context)
+
+    with TestClient(create_app(context)) as client:
+        delta = client.get("/companies/ACME/delta")
+        history = client.get("/companies/ACME/monitoring-history", params={"limit": 1})
+        summary = client.get("/portfolio/monitoring-summary")
+        watchlist = client.get("/portfolio/monitoring-summary", params={"segment": "watchlist"})
+
+    assert delta.status_code == 200
+    assert delta.json()["data"]["delta_id"] == acme_delta.delta_id
+
+    assert history.status_code == 200
+    history_payload = history.json()["data"]
+    assert history_payload["company_id"] == "ACME"
+    assert history_payload["coverage_status"] == "watchlist"
+    assert len(history_payload["entries"]) == 1
+    assert history_payload["entries"][0]["delta"]["delta_id"] == acme_delta.delta_id
+
+    assert summary.status_code == 200
+    summary_payload = summary.json()["data"]
+    assert summary_payload["included_segments"] == ["portfolio", "watchlist"]
+    assert summary_payload["portfolio_company_count"] == 1
+    assert summary_payload["watchlist_company_count"] == 1
+    cluster = summary_payload["shared_risk_clusters"][0]
+    assert cluster["portfolio"]["companies"][0]["company_id"] == "BETA"
+    assert cluster["watchlist"]["companies"][0]["company_id"] == "ACME"
+    contradiction = next(
+        group
+        for group in summary_payload["change_groups"]
+        if group["change_type"] == "contradiction"
+    )
+    assert contradiction["portfolio"]["company_count"] == 0
+    assert contradiction["watchlist"]["company_count"] == 1
+
+    assert watchlist.status_code == 200
+    watchlist_payload = watchlist.json()["data"]
+    assert watchlist_payload["included_segments"] == ["watchlist"]
+    assert watchlist_payload["portfolio_company_count"] == 0
+    assert watchlist_payload["watchlist_company_count"] == 1
 
 
 def test_api_run_panel_rejects_scaffold_only_panel(seeded_acme) -> None:

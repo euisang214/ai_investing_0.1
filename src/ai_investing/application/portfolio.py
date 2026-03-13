@@ -35,6 +35,17 @@ _CHANGE_LABELS = {
 }
 
 
+def resolve_summary_segments(segment: str) -> tuple[CoverageStatus, ...]:
+    normalized = segment.strip().lower()
+    if normalized == "all":
+        return _SUMMARY_SEGMENTS
+    if normalized == CoverageStatus.PORTFOLIO.value:
+        return (CoverageStatus.PORTFOLIO,)
+    if normalized == CoverageStatus.WATCHLIST.value:
+        return (CoverageStatus.WATCHLIST,)
+    raise ValueError("segment must be one of: all, portfolio, watchlist.")
+
+
 @dataclass(frozen=True)
 class _MonitoringSnapshot:
     coverage: CoverageEntry
