@@ -41,6 +41,9 @@ class CoverageCreateRequest(BaseModel):
     company_type: CompanyType
     coverage_status: CoverageStatus
     cadence: Cadence = Cadence.WEEKLY
+    schedule_policy_id: str | None = None
+    schedule_enabled: bool | None = None
+    preferred_run_time: str | None = None
     panel_policy: str = "weekly_default"
     memo_label_profile: str = "default"
     notes: str | None = None
@@ -56,6 +59,14 @@ class NextRunAtRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     next_run_at: str | None = None
+
+
+class CoverageScheduleRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schedule_policy_id: str | None = None
+    schedule_enabled: bool | None = None
+    preferred_run_time: str | None = None
 
 
 class ReparentAgentRequest(BaseModel):
@@ -154,12 +165,20 @@ def create_app(context: AppContext | None = None) -> FastAPI:
                 company_type=payload.company_type,
                 coverage_status=payload.coverage_status,
                 cadence=payload.cadence,
+                schedule_policy_id=payload.schedule_policy_id,
+                schedule_enabled=payload.schedule_enabled,
+                preferred_run_time=payload.preferred_run_time,
                 panel_policy=payload.panel_policy,
                 memo_label_profile=payload.memo_label_profile,
                 notes=payload.notes,
             )
         )
         return _success_response(entry.model_dump(mode="json"), status_code=status.HTTP_201_CREATED)
+
+    @app.get("/cadence-policies")
+    def list_cadence_policies(request: Request) -> JSONResponse:
+        payload = CoverageService(_context(request)).list_cadence_policies()
+        return _success_response(payload)
 
     @app.get("/coverage")
     def list_coverage(request: Request) -> JSONResponse:
@@ -185,6 +204,34 @@ def create_app(context: AppContext | None = None) -> FastAPI:
     ) -> JSONResponse:
         next_run_at = _parse_datetime(payload.next_run_at) if payload.next_run_at else None
         entry = CoverageService(_context(request)).set_next_run_at(company_id, next_run_at)
+        return _success_response(entry.model_dump(mode="json"))
+
+    @app.post("/coverage/{company_id}/schedule")
+    def set_coverage_schedule(
+        company_id: str,
+        payload: CoverageScheduleRequest,
+        request: Request,
+    ) -> JSONResponse:
+        fields_set = payload.model_fields_set
+        service = CoverageService(_context(request))
+        entry = service.set_schedule(
+            company_id,
+            **(
+                {"schedule_policy_id": payload.schedule_policy_id}
+                if "schedule_policy_id" in fields_set
+                else {}
+            ),
+            **(
+                {"schedule_enabled": payload.schedule_enabled}
+                if "schedule_enabled" in fields_set
+                else {}
+            ),
+            **(
+                {"preferred_run_time": payload.preferred_run_time}
+                if "preferred_run_time" in fields_set
+                else {}
+            ),
+        )
         return _success_response(entry.model_dump(mode="json"))
 
     @app.post("/coverage/run-due", response_model=RunResultListEnvelope)

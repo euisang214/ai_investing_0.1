@@ -121,6 +121,11 @@ def add_coverage(
     company_type: CompanyType,
     status: CoverageStatus,
     cadence: Cadence = Cadence.WEEKLY,
+    schedule_policy_id: Annotated[str | None, typer.Option("--schedule-policy-id")] = None,
+    schedule_enabled: Annotated[
+        bool | None, typer.Option("--schedule-enabled/--schedule-disabled")
+    ] = None,
+    preferred_run_time: Annotated[str | None, typer.Option("--preferred-run-time")] = None,
     panel_policy: str = "weekly_default",
     memo_label_profile: str = "default",
     notes: str | None = None,
@@ -132,12 +137,20 @@ def add_coverage(
             company_type=company_type,
             coverage_status=status,
             cadence=cadence,
+            schedule_policy_id=schedule_policy_id,
+            schedule_enabled=schedule_enabled,
+            preferred_run_time=preferred_run_time,
             panel_policy=panel_policy,
             memo_label_profile=memo_label_profile,
             notes=notes,
         )
     )
     _emit_json(entry.model_dump(mode="json"))
+
+
+@app.command("list-cadence-policies")
+def list_cadence_policies() -> None:
+    _emit_json(CoverageService(_context()).list_cadence_policies())
 
 
 @app.command("list-coverage")
@@ -165,6 +178,24 @@ def set_next_run_at(
 ) -> None:
     parsed_value = _parse_datetime(next_run_at) if next_run_at is not None else None
     entry = CoverageService(_context()).set_next_run_at(company_id, parsed_value)
+    _emit_json(entry.model_dump(mode="json"))
+
+
+@app.command("set-coverage-schedule")
+def set_coverage_schedule(
+    company_id: str,
+    schedule_policy_id: Annotated[str | None, typer.Option("--schedule-policy-id")] = None,
+    schedule_enabled: Annotated[
+        bool | None, typer.Option("--schedule-enabled/--schedule-disabled")
+    ] = None,
+    preferred_run_time: Annotated[str | None, typer.Option("--preferred-run-time")] = None,
+) -> None:
+    entry = CoverageService(_context()).set_schedule(
+        company_id,
+        **({"schedule_policy_id": schedule_policy_id} if schedule_policy_id is not None else {}),
+        **({"schedule_enabled": schedule_enabled} if schedule_enabled is not None else {}),
+        **({"preferred_run_time": preferred_run_time} if preferred_run_time is not None else {}),
+    )
     _emit_json(entry.model_dump(mode="json"))
 
 

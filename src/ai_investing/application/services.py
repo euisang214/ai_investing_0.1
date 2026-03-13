@@ -43,6 +43,7 @@ from ai_investing.monitoring import MonitoringDeltaService
 from ai_investing.persistence.repositories import Repository
 
 _MISSING_BASELINE = object()
+_UNSET = object()
 DEFAULT_CONNECTOR_IDS = {
     CompanyType.PUBLIC: "public_file_connector",
     CompanyType.PRIVATE: "private_file_connector",
@@ -87,6 +88,10 @@ class AgentConfigService:
 class CoverageService:
     context: AppContext
 
+    def list_cadence_policies(self) -> dict[str, Any]:
+        registry = self.context.registries.cadence_policies
+        return registry.model_dump(mode="json")
+
     def add_coverage(self, entry: CoverageEntry) -> CoverageEntry:
         if entry.next_run_at is None:
             entry.next_run_at = compute_initial_next_run_at(
@@ -102,6 +107,41 @@ class CoverageService:
         with self.context.database.session() as session:
             repository = Repository(session)
             return repository.upsert_coverage(entry)
+
+    def set_schedule(
+        self,
+        company_id: str,
+        *,
+        schedule_policy_id: str | object = _UNSET,
+        schedule_enabled: bool | object = _UNSET,
+        preferred_run_time: str | None | object = _UNSET,
+    ) -> CoverageEntry:
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            entry = repository.get_coverage(company_id)
+            if entry is None:
+                raise KeyError(company_id)
+
+            payload = entry.model_dump(mode="python")
+            if schedule_policy_id is not _UNSET:
+                payload["schedule_policy_id"] = schedule_policy_id
+            if schedule_enabled is not _UNSET:
+                payload["schedule_enabled"] = schedule_enabled
+            if preferred_run_time is not _UNSET:
+                payload["preferred_run_time"] = preferred_run_time
+
+            updated = CoverageEntry.model_validate(payload)
+            updated.next_run_at = (
+                None
+                if not updated.schedule_enabled
+                else compute_initial_next_run_at(
+                    self.context.registries.cadence_policies,
+                    updated,
+                    now=utc_now(),
+                    preserve_legacy_weekly_due_now=False,
+                )
+            )
+            return repository.upsert_coverage(updated)
 
     def list_coverage(self) -> list[CoverageEntry]:
         with self.context.database.session() as session:

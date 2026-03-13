@@ -214,9 +214,11 @@ def test_api_preserves_phase_one_operator_routes(context) -> None:
     route_paths = {route.path for route in app.routes}
 
     assert "/coverage" in route_paths
+    assert "/cadence-policies" in route_paths
     assert "/coverage/{company_id}/disable" in route_paths
     assert "/coverage/{company_id}" in route_paths
     assert "/coverage/{company_id}/next-run-at" in route_paths
+    assert "/coverage/{company_id}/schedule" in route_paths
     assert "/coverage/run-due" in route_paths
     assert "/companies/{company_id}/ingest-public" in route_paths
     assert "/companies/{company_id}/ingest-private" in route_paths
@@ -279,6 +281,46 @@ def test_api_coverage_lifecycle_and_agent_reparent(context) -> None:
         removed = client.delete("/coverage/ACME")
         assert removed.status_code == 200
         assert removed.json() == {"data": {"company_id": "ACME", "removed": True}}
+
+
+def test_api_lists_cadence_policies_and_updates_schedule(context) -> None:
+    with TestClient(create_app(context)) as client:
+        policies = client.get("/cadence-policies")
+        assert policies.status_code == 200
+        payload = policies.json()["data"]
+        assert payload["workspace_timezone"] == "America/New_York"
+        assert payload["default_policy_id"] == "weekly"
+        assert {policy["id"] for policy in payload["cadence_policies"]} >= {
+            "weekly",
+            "biweekly",
+            "weekdays",
+            "monthly",
+            "custom_weekdays",
+        }
+
+        created = client.post(
+            "/coverage",
+            json={
+                "company_id": "SCHED",
+                "company_name": "Scheduled Co",
+                "company_type": "public",
+                "coverage_status": "watchlist",
+                "schedule_policy_id": "biweekly",
+                "preferred_run_time": "09:30",
+            },
+        )
+        assert created.status_code == 201
+        assert created.json()["data"]["schedule_policy_id"] == "biweekly"
+        assert created.json()["data"]["preferred_run_time"] == "09:30"
+
+        updated = client.post(
+            "/coverage/SCHED/schedule",
+            json={"schedule_enabled": False},
+        )
+        assert updated.status_code == 200
+        assert updated.json()["data"]["schedule_enabled"] is False
+        assert updated.json()["data"]["cadence"] == "manual"
+        assert updated.json()["data"]["next_run_at"] is None
 
 
 def test_api_rejects_company_id_mismatch_on_ingest(context, repo_root) -> None:

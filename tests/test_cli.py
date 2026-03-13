@@ -204,6 +204,51 @@ def test_cli_coverage_lifecycle_commands(context, monkeypatch) -> None:
     assert json.loads(remove_result.stdout) == {"company_id": "ACME", "removed": True}
 
 
+def test_cli_lists_cadence_policies_and_updates_schedule(context, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: context)
+
+    policies = runner.invoke(app, ["list-cadence-policies"])
+    assert policies.exit_code == 0
+    payload = json.loads(policies.stdout)
+    assert payload["workspace_timezone"] == "America/New_York"
+    assert {policy["id"] for policy in payload["cadence_policies"]} >= {
+        "weekly",
+        "biweekly",
+        "weekdays",
+        "monthly",
+        "custom_weekdays",
+    }
+
+    created = runner.invoke(
+        app,
+        [
+            "add-coverage",
+            "SCHED",
+            "Scheduled Co",
+            "public",
+            "watchlist",
+            "--schedule-policy-id",
+            "biweekly",
+            "--preferred-run-time",
+            "09:30",
+        ],
+    )
+    assert created.exit_code == 0
+    created_payload = json.loads(created.stdout)
+    assert created_payload["schedule_policy_id"] == "biweekly"
+    assert created_payload["preferred_run_time"] == "09:30"
+
+    disabled = runner.invoke(
+        app,
+        ["set-coverage-schedule", "SCHED", "--schedule-disabled"],
+    )
+    assert disabled.exit_code == 0
+    disabled_payload = json.loads(disabled.stdout)
+    assert disabled_payload["schedule_enabled"] is False
+    assert disabled_payload["cadence"] == "manual"
+    assert disabled_payload["next_run_at"] is None
+
+
 def test_cli_reparent_agent_command(context, monkeypatch) -> None:
     monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: context)
 
