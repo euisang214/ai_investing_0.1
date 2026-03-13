@@ -18,6 +18,24 @@ panels:
       - balance_sheet_survivability
       - governance_investability
       - legal_regulatory_existential_risk
+    readiness:
+      wave: 0
+      required_evidence_families:
+        public:
+          - core_company_documents
+          - filings
+        private:
+          - core_company_documents
+          - dataroom
+      minimum_factor_coverage_ratio: 0.6
+      minimum_evidence_count: 4
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: false
   - id: demand_revenue_quality
     name: Demand And Revenue Quality
     enabled: true
@@ -42,6 +60,28 @@ panels:
       - pricing_power
       - demand_cyclicality_purchase_deferrability
       - brand_reputation_consideration_set
+    readiness:
+      wave: 0
+      required_evidence_families:
+        public:
+          - core_company_documents
+          - filings
+          - transcripts
+        private:
+          - core_company_documents
+          - dataroom
+          - kpi_reporting
+      minimum_factor_coverage_ratio: 0.55
+      minimum_evidence_count: 5
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.3
+        minimum_evidence_count: 2
   - id: supply_product_operations
     name: Supply Product Operations
     enabled: true
@@ -64,6 +104,28 @@ panels:
       - input_pricing_availability
       - product_concentration
       - innovation
+    readiness:
+      wave: 1
+      required_evidence_families:
+        public:
+          - core_company_documents
+          - filings
+          - transcripts
+        private:
+          - core_company_documents
+          - dataroom
+          - kpi_reporting
+      minimum_factor_coverage_ratio: 0.5
+      minimum_evidence_count: 4
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.25
+        minimum_evidence_count: 2
   - id: market_structure_growth
     name: Market Structure Growth
     enabled: true
@@ -84,6 +146,28 @@ panels:
       - growth_levers
       - secular_vs_cyclical_growth
       - adjacency_expansion_runway
+    readiness:
+      wave: 2
+      required_evidence_families:
+        public:
+          - market_data
+          - filings
+          - transcripts
+        private:
+          - market_data
+          - dataroom
+          - kpi_reporting
+      minimum_factor_coverage_ratio: 0.55
+      minimum_evidence_count: 5
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.3
+        minimum_evidence_count: 2
   - id: macro_industry_transmission
     name: Macro Industry Transmission
     enabled: true
@@ -103,6 +187,27 @@ panels:
       - fx_rates_credit_exposure
       - budget_cycle_exposure
       - regulation_subsidy_tax_transmission
+    readiness:
+      wave: 2
+      required_evidence_families:
+        public:
+          - market_data
+          - regulatory_intelligence
+        private:
+          - market_data
+          - dataroom
+          - regulatory_intelligence
+      minimum_factor_coverage_ratio: 0.5
+      minimum_evidence_count: 4
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.25
+        minimum_evidence_count: 2
   - id: management_governance_capital_allocation
     name: Management Governance Capital Allocation
     enabled: true
@@ -128,6 +233,28 @@ panels:
       - capital_allocation
       - incentive_alignment
       - related_party_red_flags
+    readiness:
+      wave: 1
+      required_evidence_families:
+        public:
+          - filings
+          - transcripts
+          - core_company_documents
+        private:
+          - dataroom
+          - management_materials
+          - core_company_documents
+      minimum_factor_coverage_ratio: 0.55
+      minimum_evidence_count: 4
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.3
+        minimum_evidence_count: 2
   - id: financial_quality_liquidity_economic_model
     name: Financial Quality Liquidity Economic Model
     enabled: true
@@ -155,6 +282,28 @@ panels:
       - fiscal_health
       - roic_decomposition
       - incremental_roic_reinvestment_runway
+    readiness:
+      wave: 1
+      required_evidence_families:
+        public:
+          - filings
+          - financial_statements
+          - transcripts
+        private:
+          - dataroom
+          - financial_statements
+          - kpi_reporting
+      minimum_factor_coverage_ratio: 0.6
+      minimum_evidence_count: 5
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.35
+        minimum_evidence_count: 2
   - id: external_regulatory_geopolitical
     name: External Regulatory Geopolitical
     enabled: true
@@ -171,6 +320,26 @@ panels:
       - subsidies_taxes
       - litigation_contingent_liabilities
       - regulatory_dependency
+    readiness:
+      wave: 2
+      required_evidence_families:
+        public:
+          - regulatory_intelligence
+          - market_data
+        private:
+          - regulatory_intelligence
+          - dataroom
+      minimum_factor_coverage_ratio: 0.5
+      minimum_evidence_count: 4
+      required_context: []
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: true
+        minimum_factor_coverage_ratio: 0.25
+        minimum_evidence_count: 2
   - id: expectations_catalyst_realization
     name: Expectations Catalyst Realization
     enabled: true
@@ -190,6 +359,27 @@ panels:
       - catalyst_path
       - timing_path_dependency
       - milestone_checklist
+    readiness:
+      wave: 3
+      required_evidence_families:
+        public:
+          - consensus_views
+          - market_data
+          - milestone_tracking
+        private:
+          - dataroom
+          - management_materials
+          - milestone_tracking
+      minimum_factor_coverage_ratio: 0.6
+      minimum_evidence_count: 4
+      required_context:
+        - expectations_context
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: false
   - id: security_or_deal_overlay
     name: Security Or Deal Overlay
     enabled: true
@@ -212,6 +402,25 @@ panels:
       - round_terms_preferences
       - control_rights
       - exit_path
+    readiness:
+      wave: 4
+      required_evidence_families:
+        public:
+          - market_data
+          - security_context
+        private:
+          - dataroom
+          - deal_context
+      minimum_factor_coverage_ratio: 0.65
+      minimum_evidence_count: 4
+      required_context:
+        - overlay_context
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: false
   - id: portfolio_fit_positioning
     name: Portfolio Fit Positioning
     enabled: true
@@ -232,3 +441,22 @@ panels:
       - event_risk_overlap
       - sizing_considerations
       - expected_value_vs_capital_at_risk
+    readiness:
+      wave: 4
+      required_evidence_families:
+        public:
+          - portfolio_context
+          - market_data
+        private:
+          - portfolio_context
+          - dataroom
+      minimum_factor_coverage_ratio: 0.65
+      minimum_evidence_count: 3
+      required_context:
+        - portfolio_context
+    support:
+      required_company_types:
+        - public
+        - private
+      weak_confidence:
+        enabled: false

@@ -1,12 +1,59 @@
 run_policies:
   weekly_default:
+    label: Weekly default
+    wave: 0
     cadence: weekly
     default_panel_ids:
       - gatekeepers
       - demand_revenue_quality
     memo_reconciliation: true
     monitoring_enabled: true
+  internal_company_quality:
+    label: Internal company-quality rollout
+    wave: 1
+    cadence: weekly
+    default_panel_ids:
+      - gatekeepers
+      - demand_revenue_quality
+      - supply_product_operations
+      - management_governance_capital_allocation
+      - financial_quality_liquidity_economic_model
+    memo_reconciliation: true
+    monitoring_enabled: true
+  external_company_quality:
+    label: External company-quality rollout
+    wave: 2
+    cadence: weekly
+    default_panel_ids:
+      - gatekeepers
+      - demand_revenue_quality
+      - supply_product_operations
+      - management_governance_capital_allocation
+      - financial_quality_liquidity_economic_model
+      - market_structure_growth
+      - macro_industry_transmission
+      - external_regulatory_geopolitical
+    memo_reconciliation: true
+    monitoring_enabled: true
+  expectations_rollout:
+    label: Expectations rollout
+    wave: 3
+    cadence: weekly
+    default_panel_ids:
+      - gatekeepers
+      - demand_revenue_quality
+      - supply_product_operations
+      - management_governance_capital_allocation
+      - financial_quality_liquidity_economic_model
+      - market_structure_growth
+      - macro_industry_transmission
+      - external_regulatory_geopolitical
+      - expectations_catalyst_realization
+    memo_reconciliation: true
+    monitoring_enabled: true
   full_surface:
+    label: Full surface
+    wave: 4
     cadence: weekly
     default_panel_ids:
       - gatekeepers
@@ -22,4 +69,3 @@ run_policies:
       - portfolio_fit_positioning
     memo_reconciliation: true
     monitoring_enabled: true
-

@@ -66,6 +66,23 @@ def test_config_loader_validates_registries(context) -> None:
         "custom_weekdays",
     }
     assert cadence_policies["custom_weekdays"].weekdays == ["tuesday", "thursday"]
+    run_policies = context.registries.run_policies.run_policies
+    assert set(run_policies) == {
+        "weekly_default",
+        "internal_company_quality",
+        "external_company_quality",
+        "expectations_rollout",
+        "full_surface",
+    }
+    assert run_policies["weekly_default"].wave == 0
+    assert run_policies["internal_company_quality"].default_panel_ids == [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model",
+    ]
+    assert run_policies["full_surface"].wave == 4
 
 
 def test_scaffold_panels_materialize_in_registry_without_active_agents(context) -> None:
@@ -114,6 +131,29 @@ def test_scaffold_panels_reference_existing_prompts_and_owned_factors(
         )
 
 
+def test_panels_expose_readiness_and_support_contracts(context) -> None:
+    panels = {panel.id: panel for panel in context.registries.panels.panels}
+
+    demand_panel = panels["demand_revenue_quality"]
+    assert demand_panel.readiness.wave == 0
+    assert demand_panel.support.required_company_types == ["public", "private"]
+    assert demand_panel.support.weak_confidence.enabled is True
+    assert demand_panel.readiness.required_evidence_families["private"] == [
+        "core_company_documents",
+        "dataroom",
+        "kpi_reporting",
+    ]
+
+    expectations_panel = panels["expectations_catalyst_realization"]
+    assert expectations_panel.readiness.required_context == ["expectations_context"]
+    assert expectations_panel.support.weak_confidence.enabled is False
+
+    overlay_panel = panels["portfolio_fit_positioning"]
+    assert overlay_panel.readiness.wave == 4
+    assert overlay_panel.readiness.required_context == ["portfolio_context"]
+    assert overlay_panel.support.weak_confidence.enabled is False
+
+
 def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -> None:
     config_dir = _copy_config(repo_root, tmp_path)
     panels_path = config_dir / "panels.yaml"
@@ -122,6 +162,28 @@ def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -
     panels_path.write_text(yaml.safe_dump(panels, sort_keys=False), encoding="utf-8")
 
     with pytest.raises(ValueError, match="unknown memo sections"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_missing_panel_support_evidence_family(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    panels_path = config_dir / "panels.yaml"
+    panels = yaml.safe_load(panels_path.read_text(encoding="utf-8"))
+    panels["panels"][0]["readiness"]["required_evidence_families"].pop("private")
+    panels_path.write_text(yaml.safe_dump(panels, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="missing required_evidence_families"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_invalid_weak_confidence_thresholds(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    panels_path = config_dir / "panels.yaml"
+    panels = yaml.safe_load(panels_path.read_text(encoding="utf-8"))
+    panels["panels"][1]["support"]["weak_confidence"]["minimum_factor_coverage_ratio"] = 0.9
+    panels_path.write_text(yaml.safe_dump(panels, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="weak_confidence.minimum_factor_coverage_ratio"):
         RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
 
 
@@ -167,6 +229,22 @@ def test_registry_loader_rejects_unknown_cadence_policy_references(repo_root, tm
     )
 
     with pytest.raises(ValueError, match="unknown cadence policy"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_run_policies_that_skip_gatekeepers(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    run_policies_path = config_dir / "run_policies.yaml"
+    run_policies = yaml.safe_load(run_policies_path.read_text(encoding="utf-8"))
+    run_policies["run_policies"]["internal_company_quality"]["default_panel_ids"] = [
+        "demand_revenue_quality"
+    ]
+    run_policies_path.write_text(
+        yaml.safe_dump(run_policies, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="must begin with gatekeepers"):
         RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
 
 

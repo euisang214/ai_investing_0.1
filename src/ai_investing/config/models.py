@@ -33,6 +33,66 @@ class OpenConfigModel(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+class WeakConfidenceConfig(ConfigModel):
+    enabled: bool = False
+    minimum_factor_coverage_ratio: float | None = Field(default=None, ge=0, le=1)
+    minimum_evidence_count: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_shape(self) -> WeakConfidenceConfig:
+        if self.enabled:
+            if self.minimum_factor_coverage_ratio is None:
+                raise ValueError(
+                    "weak_confidence.enabled requires minimum_factor_coverage_ratio"
+                )
+            if self.minimum_evidence_count is None:
+                raise ValueError("weak_confidence.enabled requires minimum_evidence_count")
+        elif self.minimum_factor_coverage_ratio is not None or self.minimum_evidence_count is not None:
+            raise ValueError(
+                "weak_confidence thresholds are only allowed when weak confidence is enabled"
+            )
+        return self
+
+
+class PanelReadinessConfig(ConfigModel):
+    wave: int = Field(ge=0)
+    required_evidence_families: dict[Literal["public", "private"], list[str]] = Field(
+        default_factory=dict
+    )
+    minimum_factor_coverage_ratio: float = Field(ge=0, le=1)
+    minimum_evidence_count: int = Field(ge=0, default=0)
+    required_context: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_shape(self) -> PanelReadinessConfig:
+        self.required_context = list(
+            dict.fromkeys(value.strip() for value in self.required_context if value.strip())
+        )
+        normalized_families: dict[Literal["public", "private"], list[str]] = {}
+        for company_type, families in self.required_evidence_families.items():
+            normalized = list(dict.fromkeys(value.strip() for value in families if value.strip()))
+            if not normalized:
+                raise ValueError(
+                    f"required_evidence_families.{company_type} must include at least one value"
+                )
+            normalized_families[company_type] = normalized
+        self.required_evidence_families = normalized_families
+        return self
+
+
+class PanelSupportConfig(ConfigModel):
+    required_company_types: list[Literal["public", "private"]] = Field(default_factory=list)
+    weak_confidence: WeakConfidenceConfig = Field(default_factory=WeakConfidenceConfig)
+
+    @model_validator(mode="after")
+    def validate_shape(self) -> PanelSupportConfig:
+        normalized_types = list(dict.fromkeys(self.required_company_types))
+        if not normalized_types:
+            raise ValueError("support.required_company_types must include at least one company type")
+        self.required_company_types = normalized_types
+        return self
+
+
 class PanelConfig(ConfigModel):
     id: str
     name: str
@@ -44,6 +104,47 @@ class PanelConfig(ConfigModel):
     prompt_path: str
     memo_section_ids: list[str]
     factor_ids: list[str] = Field(default_factory=list)
+    readiness: PanelReadinessConfig
+    support: PanelSupportConfig
+
+    @model_validator(mode="after")
+    def validate_support_contract(self) -> PanelConfig:
+        allowed_company_types = (
+            {"public", "private"} if self.scope == "both" else {self.scope}
+        )
+        unsupported_company_types = set(self.support.required_company_types) - allowed_company_types
+        if unsupported_company_types:
+            joined = ", ".join(sorted(unsupported_company_types))
+            raise ValueError(
+                f"support.required_company_types exceeds panel scope for {self.id}: {joined}"
+            )
+
+        readiness_types = set(self.readiness.required_evidence_families)
+        missing_types = set(self.support.required_company_types) - readiness_types
+        if missing_types:
+            joined = ", ".join(sorted(missing_types))
+            raise ValueError(
+                f"Panel {self.id} is missing required_evidence_families for: {joined}"
+            )
+
+        weak_confidence = self.support.weak_confidence
+        if weak_confidence.enabled:
+            assert weak_confidence.minimum_factor_coverage_ratio is not None
+            assert weak_confidence.minimum_evidence_count is not None
+            if (
+                weak_confidence.minimum_factor_coverage_ratio
+                > self.readiness.minimum_factor_coverage_ratio
+            ):
+                raise ValueError(
+                    "weak_confidence.minimum_factor_coverage_ratio must stay below the "
+                    "readiness threshold"
+                )
+            if weak_confidence.minimum_evidence_count > self.readiness.minimum_evidence_count:
+                raise ValueError(
+                    "weak_confidence.minimum_evidence_count must stay below the readiness threshold"
+                )
+
+        return self
 
 
 class PanelsRegistry(ConfigModel):
@@ -343,11 +444,23 @@ class MonitoringRegistry(ConfigModel):
 
 
 class RunPolicyConfig(ConfigModel):
+    label: str
+    wave: int = Field(ge=0)
     cadence: str
     default_panel_ids: list[str]
     memo_reconciliation: bool
     monitoring_enabled: bool
     allow_unimplemented_panels: bool = False
+
+    @model_validator(mode="after")
+    def validate_shape(self) -> RunPolicyConfig:
+        deduped_panel_ids = list(dict.fromkeys(self.default_panel_ids))
+        if not deduped_panel_ids:
+            raise ValueError("Run policies must include at least one default panel")
+        if deduped_panel_ids[0] != "gatekeepers":
+            raise ValueError("Run policies must begin with gatekeepers")
+        self.default_panel_ids = deduped_panel_ids
+        return self
 
 
 class RunPoliciesRegistry(ConfigModel):
