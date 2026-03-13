@@ -62,6 +62,12 @@ class AppContext:
                 return factor.name
         raise KeyError(factor_id)
 
+    def resolve_factor_name(self, factor_id: str) -> str:
+        try:
+            return self.get_factor_name(factor_id)
+        except KeyError:
+            return factor_id
+
     def active_agents_for_panel(self, panel_id: str) -> list[AgentConfig]:
         return [
             agent
@@ -81,6 +87,14 @@ class AppContext:
                 label = section.alternate_display_label
             labels[section.id] = label
         return labels
+
+    def resolve_memo_section_label(
+        self,
+        section_id: str,
+        *,
+        label_profile: str = "default",
+    ) -> str:
+        return self.memo_section_labels(label_profile).get(section_id, section_id)
 
     def get_provider(self, profile_name: str) -> ModelProvider:
         profile = self.registries.model_profiles.model_profiles[profile_name]

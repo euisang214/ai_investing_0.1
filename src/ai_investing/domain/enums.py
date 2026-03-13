@@ -70,6 +70,14 @@ class AlertLevel(str, Enum):
     HIGH = "high"
 
 
+class MonitoringChangeType(str, Enum):
+    SHARED_RISK_OVERLAP = "shared_risk_overlap"
+    CONTRADICTION = "contradiction"
+    THESIS_DRIFT = "thesis_drift"
+    CONCENTRATION = "concentration"
+    SECTION_MOVEMENT = "section_movement"
+
+
 class RunKind(str, Enum):
     ANALYZE = "analyze"
     REFRESH = "refresh"

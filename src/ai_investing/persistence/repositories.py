@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from ai_investing.domain.enums import RecordStatus
+from ai_investing.domain.enums import CoverageStatus, RecordStatus
 from ai_investing.domain.models import (
     ClaimCard,
     CompanyProfile,
@@ -74,7 +74,12 @@ class Repository:
         return entry
 
     def list_coverage(
-        self, *, enabled_only: bool = False, due_only: bool = False, now: datetime | None = None
+        self,
+        *,
+        enabled_only: bool = False,
+        due_only: bool = False,
+        now: datetime | None = None,
+        coverage_statuses: Sequence[CoverageStatus] | None = None,
     ) -> list[CoverageEntry]:
         stmt = select(CoverageEntryRow)
         if enabled_only:
@@ -83,6 +88,10 @@ class Repository:
             stmt = stmt.where(CoverageEntryRow.next_run_at.is_not(None))
             stmt = stmt.where(CoverageEntryRow.next_run_at <= now)
             stmt = stmt.where(CoverageEntryRow.enabled.is_(True))
+        if coverage_statuses:
+            stmt = stmt.where(
+                CoverageEntryRow.coverage_status.in_([status.value for status in coverage_statuses])
+            )
         rows = self.session.scalars(stmt.order_by(CoverageEntryRow.company_id)).all()
         return [CoverageEntry.model_validate(row.payload) for row in rows]
 
@@ -441,6 +450,22 @@ class Repository:
         if row is None:
             return None
         return MonitoringDelta.model_validate(row.payload)
+
+    def list_monitoring_deltas(
+        self,
+        company_id: str,
+        *,
+        run_id: str | None = None,
+        limit: int | None = None,
+    ) -> list[MonitoringDelta]:
+        stmt = select(MonitoringDeltaRow).where(MonitoringDeltaRow.company_id == company_id)
+        if run_id is not None:
+            stmt = stmt.where(MonitoringDeltaRow.current_run_id == run_id)
+        stmt = stmt.order_by(MonitoringDeltaRow.created_at.desc())
+        if limit is not None:
+            stmt = stmt.limit(limit)
+        rows = self.session.scalars(stmt).all()
+        return [MonitoringDelta.model_validate(row.payload) for row in rows]
 
     def save_tool_log(self, log: ToolInvocationLog) -> ToolInvocationLog:
         row = ToolInvocationLogRow(
