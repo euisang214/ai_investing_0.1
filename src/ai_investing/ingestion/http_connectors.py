@@ -3,13 +3,19 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Protocol
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
 from ai_investing.domain.enums import CompanyType
-from ai_investing.domain.models import CompanyProfile, EvidenceRecord, FactorSignal, SourceRef, utc_now
+from ai_investing.domain.models import (
+    CompanyProfile,
+    EvidenceRecord,
+    FactorSignal,
+    SourceRef,
+    utc_now,
+)
 from ai_investing.ingestion.base import ConnectorIngestRequest, SourceConnector
 
 
@@ -82,7 +88,11 @@ class YahooChartTransport:
         close = float(close_values[latest_index])
         volume = int(volume_values[latest_index] or 0)
         previous_close = float(result["meta"].get("previousClose") or close)
-        change_pct = 0.0 if previous_close == 0 else ((close - previous_close) / previous_close) * 100
+        change_pct = (
+            0.0
+            if previous_close == 0
+            else ((close - previous_close) / previous_close) * 100
+        )
         as_of_date = datetime.fromtimestamp(timestamps[latest_index], tz=UTC)
         return LiveMarketSnapshot(
             symbol=symbol.upper(),
@@ -141,7 +151,14 @@ class PublicMarketLiveConnector(SourceConnector):
             sector=ingest_request.sector,
             headquarters=ingest_request.headquarters,
             tags=list(
-                dict.fromkeys([*ingest_request.tags, "live_public", "market", "lightweight_connector"])
+                dict.fromkeys(
+                    [
+                        *ingest_request.tags,
+                        "live_public",
+                        "market",
+                        "lightweight_connector",
+                    ]
+                )
             ),
             namespace=f"company/{ingest_request.company_id}/profile",
         )
@@ -241,4 +258,6 @@ class PublicMarketLiveConnector(SourceConnector):
         return max(0, int((utc_now() - as_of_date).total_seconds() // 3600))
 
     def _staleness_tag(self, as_of_date: datetime) -> str:
-        return "fresh" if self._staleness_hours(as_of_date) <= self._max_staleness_hours else "stale"
+        if self._staleness_hours(as_of_date) <= self._max_staleness_hours:
+            return "fresh"
+        return "stale"

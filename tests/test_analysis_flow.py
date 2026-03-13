@@ -5,7 +5,13 @@ from pathlib import Path
 import pytest
 
 from ai_investing.application.services import AnalysisService, CoverageService, IngestionService
-from ai_investing.domain.enums import Cadence, CompanyType, CoverageStatus, GateDecision, RunContinueAction
+from ai_investing.domain.enums import (
+    Cadence,
+    CompanyType,
+    CoverageStatus,
+    GateDecision,
+    RunContinueAction,
+)
 from ai_investing.domain.models import CoverageEntry
 from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
@@ -296,7 +302,9 @@ def test_required_public_connector_evidence_is_compatible_with_analysis_flow(
         repository = Repository(session)
         evidence = repository.list_evidence("ACME")
         claims = repository.list_claim_cards("ACME", run_id=resumed["run"]["run_id"])
-        verdicts = repository.list_panel_verdicts("ACME", run_id=resumed["run"]["run_id"])
+        verdicts = repository.list_panel_verdicts(
+            "ACME", run_id=resumed["run"]["run_id"]
+        )
 
     assert any(record.metadata.get("evidence_family") == "regulatory" for record in evidence)
     assert any(record.metadata.get("evidence_family") == "consensus" for record in evidence)

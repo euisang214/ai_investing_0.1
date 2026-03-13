@@ -4,11 +4,9 @@ import hashlib
 import json
 import re
 import shutil
-import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from xml.etree import ElementTree
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -39,7 +37,6 @@ _MEDIA_TYPE_BY_SUFFIX = {
     ".xls": "spreadsheet",
     ".xlsx": "spreadsheet",
 }
-_XLSX_NS = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
 
 class ManifestDocument(BaseModel):
@@ -159,7 +156,7 @@ class FileBundleConnector(SourceConnector):
                 candidate = "__".join(relative_path.parts)
             if candidate in used:
                 suffix = relative_path.suffix
-                digest = hashlib.sha1(relative_path.as_posix().encode("utf-8")).hexdigest()[:8]
+                digest = hashlib.sha256(relative_path.as_posix().encode("utf-8")).hexdigest()[:8]
                 stem = candidate[: -len(suffix)] if suffix else candidate
                 candidate = f"{stem}__{digest}{suffix}"
             filenames[document.path] = candidate
@@ -230,52 +227,9 @@ class FileBundleConnector(SourceConnector):
         if source_path.suffix.lower() in {".csv", ".tsv"}:
             return self._read_text_file(source_path)
 
-        try:
-            with zipfile.ZipFile(source_path) as workbook:
-                shared_strings = self._load_shared_strings(workbook)
-                rows: list[str] = []
-                worksheet_names = sorted(
-                    name
-                    for name in workbook.namelist()
-                    if name.startswith("xl/worksheets/sheet") and name.endswith(".xml")
-                )
-                for worksheet_name in worksheet_names:
-                    root = ElementTree.fromstring(workbook.read(worksheet_name))
-                    for row in root.findall(".//main:row", _XLSX_NS):
-                        values: list[str] = []
-                        for cell in row.findall("main:c", _XLSX_NS):
-                            cell_type = cell.attrib.get("t")
-                            raw_value = cell.findtext("main:v", default="", namespaces=_XLSX_NS)
-                            if cell_type == "s" and raw_value.isdigit():
-                                shared_index = int(raw_value)
-                                value = (
-                                    shared_strings[shared_index]
-                                    if shared_index < len(shared_strings)
-                                    else raw_value
-                                )
-                            else:
-                                value = raw_value
-                            if value:
-                                values.append(value)
-                        if values:
-                            rows.append(", ".join(values))
-                if rows:
-                    return "\n".join(rows)
-        except zipfile.BadZipFile:
-            pass
-
         return self._normalize_whitespace(
             source_path.read_bytes().decode("utf-8", errors="ignore")
         )
-
-    def _load_shared_strings(self, workbook: zipfile.ZipFile) -> list[str]:
-        if "xl/sharedStrings.xml" not in workbook.namelist():
-            return []
-        root = ElementTree.fromstring(workbook.read("xl/sharedStrings.xml"))
-        return [
-            "".join(text for text in item.itertext()).strip()
-            for item in root.findall(".//main:si", _XLSX_NS)
-        ]
 
     def _normalize_whitespace(self, content: str) -> str:
         lines = [" ".join(line.split()) for line in content.splitlines()]

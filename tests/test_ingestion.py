@@ -113,9 +113,7 @@ def test_required_public_connector_families_emit_structured_evidence(repo_root, 
 
         records = _evidence_for(context, "ACME")
         family_records = [
-            record
-            for record in records
-            if record.metadata.get("connector") == connector_id
+            record for record in records if record.metadata.get("connector") == connector_id
         ]
         assert len(family_records) == expected_count
         assert all(record.metadata["evidence_family"] == family for record in family_records)
@@ -160,8 +158,14 @@ def test_events_and_transcript_news_packets_keep_attachment_policy_honest(
     assert all("Attachment-only" in record.body for record in events_records)
     assert len(transcript_records) == 2
     assert all(record.metadata["attachment_only"] is False for record in transcript_records)
-    assert any("workflow usage stayed steady" in record.body.lower() for record in transcript_records)
-    assert any("trade press still places acme" in record.body.lower() for record in transcript_records)
+    assert any(
+        "workflow usage stayed steady" in record.body.lower()
+        for record in transcript_records
+    )
+    assert any(
+        "trade press still places acme" in record.body.lower()
+        for record in transcript_records
+    )
 
 
 def test_pdf_and_spreadsheet_packets_become_first_class_evidence(repo_root, tmp_path) -> None:
@@ -194,7 +198,7 @@ def test_pdf_and_spreadsheet_packets_become_first_class_evidence(repo_root, tmp_
 
 
 def test_duplicate_raw_artifact_names_are_renamed_deterministically(repo_root, tmp_path) -> None:
-    config_dir, source_connectors = _copy_config(repo_root, tmp_path)
+    config_dir, _ = _copy_config(repo_root, tmp_path)
     context = _load_context(repo_root, config_dir)
 
     input_dir = tmp_path / "duplicate_bundle"
@@ -261,7 +265,9 @@ def test_duplicate_raw_artifact_names_are_renamed_deterministically(repo_root, t
 
     assert profile.company_id == "ACME"
     assert len(evidence_ids) == 2
-    raw_names = sorted(Path(record.source_path).name for record in _evidence_for(context, "ACME"))
+    raw_names = sorted(
+        Path(record.source_path).name for record in _evidence_for(context, "ACME")
+    )
     assert raw_names == ["finance__summary.md", "ops__summary.md"]
 
 
@@ -288,5 +294,8 @@ def test_raw_artifacts_stay_flattened_under_connector_specific_landing_zones(
 
     assert records
     assert all(record.source_path.startswith(str(landing_root)) for record in records)
-    assert all(Path(record.source_path).parent.parent == landing_root / profile.company_id for record in records)
+    assert all(
+        Path(record.source_path).parent.parent == landing_root / profile.company_id
+        for record in records
+    )
     assert all(Path(record.source_path).parent.name.endswith("Z") for record in records)

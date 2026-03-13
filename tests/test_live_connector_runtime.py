@@ -10,11 +10,11 @@ import yaml
 from ai_investing.application.context import AppContext
 from ai_investing.application.services import IngestionService
 from ai_investing.domain.enums import CompanyType
+from ai_investing.ingestion.base import ConnectorIngestRequest
 from ai_investing.ingestion.http_connectors import (
     LiveMarketSnapshot,
     PublicMarketLiveConnector,
 )
-from ai_investing.ingestion.base import ConnectorIngestRequest
 from ai_investing.persistence.repositories import Repository
 from ai_investing.settings import Settings
 
