@@ -37,10 +37,15 @@ from ai_investing.domain.models import (
     new_id,
     utc_now,
 )
-from ai_investing.ingestion.file_connectors import FileBundleConnector
+from ai_investing.ingestion.base import ConnectorIngestRequest
+from ai_investing.ingestion.registry import SourceConnectorRegistry
 from ai_investing.persistence.repositories import Repository
 
 _MISSING_BASELINE = object()
+DEFAULT_CONNECTOR_IDS = {
+    CompanyType.PUBLIC: "public_file_connector",
+    CompanyType.PRIVATE: "private_file_connector",
+}
 
 
 @dataclass
@@ -123,45 +128,61 @@ class CoverageService:
 class IngestionService:
     context: AppContext
 
-    def ingest_public_data(self, input_dir: Path) -> tuple[CompanyProfile, list[str]]:
-        return self._ingest(company_type=CompanyType.PUBLIC, input_dir=input_dir)
-
-    def ingest_private_data(self, input_dir: Path) -> tuple[CompanyProfile, list[str]]:
-        return self._ingest(company_type=CompanyType.PRIVATE, input_dir=input_dir)
-
-    def _ingest(
-        self, *, company_type: CompanyType, input_dir: Path
+    def ingest_public_data(
+        self,
+        input_dir: Path,
+        *,
+        connector_id: str | None = None,
     ) -> tuple[CompanyProfile, list[str]]:
-        connector_id = (
-            "public_file_connector"
-            if company_type == CompanyType.PUBLIC
-            else "private_file_connector"
-        )
-        connector_config = next(
-            connector
-            for connector in self.context.registries.source_connectors.connectors
-            if connector.id == connector_id
-        )
-        if connector_config.kind != "file_bundle":
-            raise ValueError(
-                f"Unsupported connector kind for {connector_id}: {connector_config.kind}"
+        return self._ingest(
+            ConnectorIngestRequest(
+                company_type=CompanyType.PUBLIC,
+                input_dir=input_dir,
+                connector_id=connector_id,
             )
-        connector = FileBundleConnector(
-            manifest_file=connector_config.manifest_file,
-            raw_landing_zone=Path(connector_config.raw_landing_zone),
         )
-        profile, records = connector.ingest(input_dir)
-        if profile.company_type != company_type:
+
+    def ingest_private_data(
+        self,
+        input_dir: Path,
+        *,
+        connector_id: str | None = None,
+    ) -> tuple[CompanyProfile, list[str]]:
+        return self._ingest(
+            ConnectorIngestRequest(
+                company_type=CompanyType.PRIVATE,
+                input_dir=input_dir,
+                connector_id=connector_id,
+            )
+        )
+
+    def _ingest(self, request: ConnectorIngestRequest) -> tuple[CompanyProfile, list[str]]:
+        connector = self._resolve_connector(request)
+        profile, records = connector.ingest(request)
+        if profile.company_type != request.company_type:
             raise ValueError(
-                f"Connector {connector_id} loaded "
+                f"Connector {connector.id} loaded "
                 f"{profile.company_type.value} data for a "
-                f"{company_type.value} workflow."
+                f"{request.company_type.value} workflow."
             )
         with self.context.database.session() as session:
             repository = Repository(session)
             repository.save_company_profile(profile)
             repository.save_evidence_records(records)
         return profile, [record.evidence_id for record in records]
+
+    def _resolve_connector(self, request: ConnectorIngestRequest):
+        connector_id = request.connector_id or DEFAULT_CONNECTOR_IDS[request.company_type]
+        registry = SourceConnectorRegistry.from_configs(
+            self.context.registries.source_connectors.connectors
+        )
+        connector = registry.resolve(connector_id)
+        if not connector.supports_company_type(request.company_type):
+            raise ValueError(
+                f"Connector {connector_id} is configured for {connector.config.company_type} "
+                f"companies, not {request.company_type.value}."
+            )
+        return connector
 
 
 @dataclass
