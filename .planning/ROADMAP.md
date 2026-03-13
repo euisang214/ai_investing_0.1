@@ -15,7 +15,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 | 1 | Foundation And Contracts | Establish the repo, registries, schemas, persistence contracts, provider/tool abstractions, and interface skeletons | CONF-01, CONF-02, CONF-03, COV-01, COV-02, ING-01, ING-02, MEM-01, MEM-02, MEMO-02, ORCH-01, TOOLS-01, PROV-01, API-01, API-02, OPS-01 | 5 |
 | 2 | Vertical Slice And Delta Flow | Completed on 2026-03-11 with repaired first-completion baseline semantics, deterministic artifacts, and full regression coverage | COV-03, ING-03, MEM-03, ORCH-02, ORCH-03, MEMO-01, MEMO-03, TOOLS-02, TEST-01, TEST-02 | 5 |
 | 3 | Remaining Panel Scaffolds | Add configurable placeholder prompts, schemas, and registry entries for the remaining top-level panels | V2-01 | 3 |
-| 4 | Monitoring And Connectors | In progress on 2026-03-13 with connector-runtime, representative adapter, and richer monitoring slices complete while portfolio-summary work remains | V2-02, V2-04 | 3 |
+| 4 | Monitoring And Connectors | Completed on 2026-03-13 with connector-runtime, representative adapters, richer monitoring deltas, and read-only portfolio monitoring surfaces | V2-02, V2-04 | 3 |
 | 5 | Scheduling And Notifications | Harden n8n workflows, configurable cadence policies, and run notifications | V2-03, V2-05 | 3 |
 
 ## Phase Details
@@ -67,16 +67,16 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 4: Monitoring And Connectors
 
 **Goal:** Expand reusable services and connector depth once the core slice is stable.
-**Status:** In progress as of 2026-03-13. Plans `04-01`, `04-02`, and `04-03` completed the registry-backed connector runtime seam, representative adapter slice, and richer monitoring slice. Parent requirement `V2-02` is now satisfied; only `V2-04` portfolio-summary work remains open in `04-04`.
+**Status:** Completed on 2026-03-13. Plans `04-01`, `04-02`, `04-03`, and `04-04` delivered the registry-backed connector runtime seam, representative adapter slice, richer monitoring services, and read-only portfolio monitoring history plus summary surfaces. Parent requirements `V2-02` and `V2-04` are both satisfied.
 
 **Requirements:** `V2-02`, `V2-04`
 
-**Plan progress:** `3 / 4` completed (`04-01`, `04-02`, and `04-03` done)
+**Plan progress:** `4 / 4` completed (`04-01`, `04-02`, `04-03`, and `04-04` done)
 
 **Success criteria:**
 1. Dependency concentration, base-rate analog, contradiction, and thesis-drift services are broadened.
 2. Sample public and private adapters cover more evidence types.
-3. Monitoring outputs become richer without changing memo contracts.
+3. Monitoring outputs become richer and operators can inspect monitoring history plus portfolio summaries without changing memo contracts.
 
 ### Phase 5: Scheduling And Notifications
 
@@ -90,4 +90,4 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 3. Background execution and notification boundaries are documented cleanly.
 
 ---
-*Last updated: 2026-03-13 after Phase 04 Plan 02 completion*
+*Last updated: 2026-03-13 after Phase 04 Plan 04 completion*

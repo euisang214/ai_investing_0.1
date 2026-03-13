@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 4
 current_phase_name: monitoring and connectors
 current_plan: 4
-status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-03-13T02:08:11.685Z"
+status: verifying
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-03-13T12:54:36.427Z"
 last_activity: 2026-03-13
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 17
-  completed_plans: 16
-  percent: 94
+  completed_plans: 17
+  percent: 100
 ---
 
 # STATE
@@ -24,7 +24,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 4 has the connector-runtime seam, representative adapter slice, and richer monitoring services complete; only the portfolio-level monitoring read surface remains in `04-04`
+**Current focus:** Phase 4 is complete with the connector-runtime seam, representative adapter slice, richer monitoring services, and portfolio-level monitoring read surfaces in place; the next step is Phase 5 scheduling and notification work.
 
 ## Execution Tracking
 
@@ -33,10 +33,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Total Phases:** 5
 **Current Plan:** 4
 **Total Plans in Phase:** 4
-**Status:** Ready to execute
-**Progress:** [█████████░] 94%
+**Status:** Phase complete — ready for verification
+**Progress:** [██████████] 100%
 **Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 04 Plan 02 completed with representative public/private connector packets, one lightweight live market path, and verified downstream evidence compatibility
+**Last Activity Description:** Phase 04 Plan 04 completed with typed monitoring history and portfolio summary read surfaces, additive CLI/API inspection, and read-only boundary docs
 
 ## Current Status
 
@@ -51,11 +51,12 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 4 Plan 01 completed on 2026-03-13 with backward-compatible connector config expansion, registry-backed ingestion dispatch, explicit connector-id selection, and Docker-verified tests plus lint.
 - Phase 4 Plan 02 completed on 2026-03-13 with representative regulatory, market, consensus, ownership, dataroom, and KPI packets, one lightweight live market connector, truthful docs, and Docker-verified tests plus lint.
 - Phase 4 Plan 03 completed on 2026-03-13 with config-backed monitoring enrichment, shared contradiction and analog services, richer additive delta details, regenerated examples, and Docker-verified lint plus tests.
+- Phase 4 Plan 04 completed on 2026-03-13 with typed monitoring history and portfolio summary read models, additive CLI/API operator surfaces, read-only boundary documentation, and a full Docker-verified regression pass.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
 - Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
 - Parent requirement `V2-02` is now satisfied by Plans 04-01 and 04-02, which together deliver the connector runtime seam plus the representative adapter expansion.
-- Parent requirement `V2-04` remains open because Plan 04-03 delivers the richer monitoring slice (`V2-04A`), while portfolio-level monitoring history and summary surfaces remain deferred to Plan 04-04.
+- Parent requirement `V2-04` is now satisfied by Plans 04-03 and 04-04, which together deliver the richer monitoring slice plus portfolio-level monitoring history and summary read surfaces.
 
 ## Key Risks
 
@@ -65,7 +66,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 4 Plan 04 to add the portfolio-level monitoring history and summary read models on top of the completed connector and monitoring slices.
+- Begin Phase 5 work for scheduling and notifications now that Phase 4 monitoring and connector scope is complete.
 
 ## Decisions
 
@@ -99,6 +100,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 04]: Keep exactly one lightweight live public connector and require every other family to stay fixture-backed in Phase 4.
 - [Phase 04]: Treat PDFs and readable spreadsheet exports as first-class evidence while keeping HTML and image artifacts attachment-only by default.
 - [Phase 04]: Preserve flattened raw landing zones and resolve duplicate basenames with stable path-derived filenames instead of nested raw directories.
+- [Phase 04]: Keep monitoring history and portfolio monitoring as read-only projections instead of widening orchestration or memo-writing behavior.
+- [Phase 04]: Organize portfolio monitoring by change type first while keeping portfolio and watchlist names separate in every group.
+- [Phase 04]: Allow portfolio_fit_positioning to appear in monitoring output only as memo projection metadata while keeping the panel scaffold-only.
 
 ## Performance Metrics
 
@@ -115,9 +119,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 04 P01 | 10min | 3 tasks | 7 files |
 | Phase 04 P03 | 12min | 3 tasks | 19 files |
 | Phase 04 P02 | 7min | 3 tasks | 32 files |
+| Phase 04 P04 | 16min | 3 tasks | 13 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T02:08:11.683Z
-**Stopped At:** Completed 04-02-PLAN.md
+**Last Date:** 2026-03-13T12:54:36.424Z
+**Stopped At:** Completed 04-04-PLAN.md
 **Resume File:** None

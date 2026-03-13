@@ -68,7 +68,7 @@
 
 ### Platform Expansion
 
-- [ ] **V2-04**: Add richer contradiction resolution, analog graph search, and portfolio-level analytics views.
+- [x] **V2-04**: Add richer contradiction resolution, analog graph search, and portfolio-level analytics views.
 - [ ] **V2-05**: Add background worker infrastructure for large-scale concurrent coverage refreshes.
 
 ## Out of Scope
