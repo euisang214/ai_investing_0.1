@@ -329,8 +329,13 @@ class FakeModelProvider(ModelProvider):
             stale_note = " Stale evidence tempers conviction in this section."
         weak_note = ""
         if support_assessment.get("status") == "weak_confidence":
-            weak_note = " Weak-confidence support remains in effect for this section."
-        updated_text = f"{panel_summaries} Key claims: {notable_claims}{stale_note}{weak_note}".strip()
+            weak_note = (
+                " Weak-confidence support remains in effect for this section."
+            )
+        updated_text = (
+            f"{panel_summaries} Key claims: {notable_claims}"
+            f"{stale_note}{weak_note}"
+        ).strip()
         if not prior_text:
             change = ChangeClassification.INITIAL
         elif prior_text == updated_text:

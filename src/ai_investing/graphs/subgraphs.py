@@ -131,11 +131,15 @@ def build_gatekeeper_checkpoint(
 
 
 def build_memo_update_subgraph(runtime: RefreshRuntime, panel_id: str):
-    def update(_state: MemoState) -> MemoState:
+    def update(state: RefreshState) -> RefreshState:
         result = runtime.update_memo_for_panel(panel_id)
-        return {"memo": result["memo"]}
+        next_state: RefreshState = {"memo": result["memo"]}
+        for key in ("panel_results", "claims", "verdict", "skip", "support"):
+            if key in state:
+                next_state[key] = state[key]
+        return next_state
 
-    graph = StateGraph(MemoState)
+    graph = StateGraph(RefreshState)
     graph.add_node("update", update)
     graph.set_entry_point("update")
     graph.add_edge("update", END)

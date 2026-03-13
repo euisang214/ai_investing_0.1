@@ -35,7 +35,9 @@ panels:
         - public
         - private
       weak_confidence:
-        enabled: false
+        enabled: true
+        minimum_factor_coverage_ratio: 0.15
+        minimum_evidence_count: 1
   - id: demand_revenue_quality
     name: Demand And Revenue Quality
     enabled: true

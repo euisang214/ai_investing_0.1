@@ -47,7 +47,7 @@
           {
             "section_id": "investment_snapshot",
             "label": "Investment Snapshot",
-            "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+            "content": "Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
             "status": "refreshed",
             "supporting_claim_ids": [
               "clm_000000000019",
@@ -79,7 +79,7 @@
               "clm_000000000045"
             ],
             "supporting_verdict_ids": [
-              "vrd_000000000004"
+              "vrd_000000000005"
             ],
             "updated_by_run_id": "run_000000000001",
             "updated_at": "2026-03-11T11:47:00Z"
@@ -97,7 +97,7 @@
           {
             "section_id": "risk",
             "label": "Risk",
-            "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+            "content": "Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
             "status": "refreshed",
             "supporting_claim_ids": [
               "clm_000000000019",
@@ -129,7 +129,7 @@
               "clm_000000000045"
             ],
             "supporting_verdict_ids": [
-              "vrd_000000000004"
+              "vrd_000000000005"
             ],
             "updated_by_run_id": "run_000000000001",
             "updated_at": "2026-03-11T11:53:00Z"
@@ -137,7 +137,7 @@
           {
             "section_id": "durability_resilience",
             "label": "Durability And Resilience",
-            "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+            "content": "Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
             "status": "refreshed",
             "supporting_claim_ids": [
               "clm_000000000019",
@@ -169,7 +169,7 @@
               "clm_000000000045"
             ],
             "supporting_verdict_ids": [
-              "vrd_000000000004"
+              "vrd_000000000005"
             ],
             "updated_by_run_id": "run_000000000001",
             "updated_at": "2026-03-11T11:51:00Z"
@@ -177,7 +177,7 @@
           {
             "section_id": "growth",
             "label": "Growth",
-            "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+            "content": "Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
             "status": "refreshed",
             "supporting_claim_ids": [
               "clm_000000000019",
@@ -209,7 +209,7 @@
               "clm_000000000045"
             ],
             "supporting_verdict_ids": [
-              "vrd_000000000004"
+              "vrd_000000000005"
             ],
             "updated_by_run_id": "run_000000000001",
             "updated_at": "2026-03-11T11:49:00Z"
@@ -267,7 +267,7 @@
           {
             "section_id": "overall_recommendation",
             "label": "Overall Recommendation",
-            "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+            "content": "Overall recommendation reflects company-quality panels only; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
             "status": "refreshed",
             "supporting_claim_ids": [
               "clm_000000000019",
@@ -299,13 +299,13 @@
               "clm_000000000045"
             ],
             "supporting_verdict_ids": [
-              "vrd_000000000004"
+              "vrd_000000000005"
             ],
             "updated_by_run_id": "run_000000000001",
             "updated_at": "2026-03-11T11:55:00Z"
           }
         ],
-        "recommendation_summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "recommendation_summary": "Overall recommendation reflects company-quality panels only; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
         "namespace": "company/ACME/memos/current",
         "created_at": "2026-03-11T12:11:00Z",
         "updated_at": "2026-03-11T12:12:00Z"
@@ -3383,16 +3383,16 @@
       ],
       "baseline_active_verdicts": [
         {
-          "verdict_id": "vrd_000000000004",
+          "verdict_id": "vrd_000000000005",
           "company_id": "ACME",
           "company_type": "public",
           "run_id": "run_000000000001",
           "panel_id": "demand_revenue_quality",
           "panel_name": "Demand And Revenue Quality",
-          "summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality.",
+          "summary": "Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence.",
           "recommendation": "mixed",
           "score": 0.67,
-          "confidence": 0.53,
+          "confidence": 0.45,
           "strengths": [
             "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
             "Subscription revenue is 92% of total revenue with multi-year contracts on larger customers.",
@@ -3400,8 +3400,7 @@
           ],
           "concerns": [
             "few direct negatives surfaced for revenue recurrence contract strength",
-            "few direct negatives surfaced for revenue recurrence contract strength",
-            "few direct negatives surfaced for revenue recurrence contract strength"
+            "Demand And Revenue Quality has only 2 supporting records with 0.78 factor coverage against a 0.55 readiness bar."
           ],
           "affected_section_ids": [
             "investment_snapshot",
@@ -3449,7 +3448,7 @@
           "namespace": "company/ACME/verdicts/demand_revenue_quality",
           "status": "active",
           "created_at": "2026-03-11T11:45:00Z",
-          "supersedes_verdict_id": "vrd_000000000003"
+          "supersedes_verdict_id": "vrd_000000000004"
         },
         {
           "verdict_id": "vrd_000000000002",
@@ -3458,7 +3457,7 @@
           "run_id": "run_000000000001",
           "panel_id": "gatekeepers",
           "panel_name": "Gatekeepers",
-          "summary": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers.",
+          "summary": "Lead synthesis: Acme Cloud shows a mixed read on gatekeepers. The panel lead reconciled the judge output for memo use.",
           "recommendation": "mixed",
           "score": 0.67,
           "confidence": 0.57,
@@ -3517,6 +3516,46 @@
           ]
         }
       ],
+      "panel_support_assessments": [
+        {
+          "panel_id": "gatekeepers",
+          "panel_name": "Gatekeepers",
+          "company_type": "public",
+          "status": "supported",
+          "reason": "Panel support requirements are satisfied for this run.",
+          "evidence_count": 4,
+          "factor_coverage_ratio": 1.0,
+          "evidence_summary": "4 records matched this panel; evidence families: news, regulatory, transcript; factor coverage ratio: 1.00.",
+          "available_evidence_families": [
+            "news",
+            "regulatory",
+            "transcript"
+          ],
+          "missing_evidence_families": [],
+          "required_context": [],
+          "missing_context": [],
+          "weak_confidence_allowed": true
+        },
+        {
+          "panel_id": "demand_revenue_quality",
+          "panel_name": "Demand And Revenue Quality",
+          "company_type": "public",
+          "status": "supported",
+          "reason": "Panel support requirements are satisfied for this run.",
+          "evidence_count": 3,
+          "factor_coverage_ratio": 0.78,
+          "evidence_summary": "3 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 0.78.",
+          "available_evidence_families": [
+            "regulatory",
+            "transcript"
+          ],
+          "missing_evidence_families": [],
+          "required_context": [],
+          "missing_context": [],
+          "weak_confidence_allowed": true
+        }
+      ],
+      "skipped_panels": [],
       "job_id": null
     }
   },
@@ -4740,13 +4779,13 @@
         }
       ],
       "verdict": {
-        "verdict_id": "vrd_000000000006",
+        "verdict_id": "vrd_000000000007",
         "company_id": "ACME",
         "company_type": "public",
         "run_id": "run_000000000002",
         "panel_id": "gatekeepers",
         "panel_name": "Gatekeepers",
-        "summary": "Gatekeeper lead: Acme Cloud shows a mixed read on gatekeepers.",
+        "summary": "Lead synthesis: Acme Cloud shows a mixed read on gatekeepers. The panel lead reconciled the judge output for memo use.",
         "recommendation": "mixed",
         "score": 0.67,
         "confidence": 0.59,
@@ -4795,7 +4834,7 @@
         "namespace": "company/ACME/verdicts/gatekeepers",
         "status": "active",
         "created_at": "2026-03-11T13:16:00Z",
-        "supersedes_verdict_id": "vrd_000000000005",
+        "supersedes_verdict_id": "vrd_000000000006",
         "gate_decision": "review",
         "gate_reasons": [
           "The platform sits in billing and procurement workflows and customers describe it as operationally mandatory.",
@@ -6921,13 +6960,13 @@
         }
       ],
       "verdict": {
-        "verdict_id": "vrd_000000000008",
+        "verdict_id": "vrd_000000000009",
         "company_id": "ACME",
         "company_type": "public",
         "run_id": "run_000000000002",
         "panel_id": "demand_revenue_quality",
         "panel_name": "Demand And Revenue Quality",
-        "summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality.",
+        "summary": "Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use.",
         "recommendation": "mixed",
         "score": 0.59,
         "confidence": 0.54,
@@ -6987,7 +7026,7 @@
         "namespace": "company/ACME/verdicts/demand_revenue_quality",
         "status": "active",
         "created_at": "2026-03-11T14:48:00Z",
-        "supersedes_verdict_id": "vrd_000000000007"
+        "supersedes_verdict_id": "vrd_000000000008"
       }
     }
   },
@@ -7001,7 +7040,7 @@
       {
         "section_id": "investment_snapshot",
         "label": "Investment Snapshot",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
         "status": "refreshed",
         "supporting_claim_ids": [
           "clm_000000000064",
@@ -7033,7 +7072,7 @@
           "clm_000000000090"
         ],
         "supporting_verdict_ids": [
-          "vrd_000000000008"
+          "vrd_000000000009"
         ],
         "updated_by_run_id": "run_000000000002",
         "updated_at": "2026-03-11T14:50:00Z"
@@ -7051,7 +7090,7 @@
       {
         "section_id": "risk",
         "label": "Risk",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
         "status": "refreshed",
         "supporting_claim_ids": [
           "clm_000000000064",
@@ -7083,7 +7122,7 @@
           "clm_000000000090"
         ],
         "supporting_verdict_ids": [
-          "vrd_000000000008"
+          "vrd_000000000009"
         ],
         "updated_by_run_id": "run_000000000002",
         "updated_at": "2026-03-11T14:56:00Z"
@@ -7091,7 +7130,7 @@
       {
         "section_id": "durability_resilience",
         "label": "Durability And Resilience",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
         "status": "refreshed",
         "supporting_claim_ids": [
           "clm_000000000064",
@@ -7123,7 +7162,7 @@
           "clm_000000000090"
         ],
         "supporting_verdict_ids": [
-          "vrd_000000000008"
+          "vrd_000000000009"
         ],
         "updated_by_run_id": "run_000000000002",
         "updated_at": "2026-03-11T14:54:00Z"
@@ -7131,7 +7170,7 @@
       {
         "section_id": "growth",
         "label": "Growth",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
         "status": "refreshed",
         "supporting_claim_ids": [
           "clm_000000000064",
@@ -7163,7 +7202,7 @@
           "clm_000000000090"
         ],
         "supporting_verdict_ids": [
-          "vrd_000000000008"
+          "vrd_000000000009"
         ],
         "updated_by_run_id": "run_000000000002",
         "updated_at": "2026-03-11T14:52:00Z"
@@ -7221,7 +7260,7 @@
       {
         "section_id": "overall_recommendation",
         "label": "Overall Recommendation",
-        "content": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+        "content": "Overall recommendation reflects company-quality panels only; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
         "status": "refreshed",
         "supporting_claim_ids": [
           "clm_000000000064",
@@ -7253,13 +7292,13 @@
           "clm_000000000090"
         ],
         "supporting_verdict_ids": [
-          "vrd_000000000008"
+          "vrd_000000000009"
         ],
         "updated_by_run_id": "run_000000000002",
         "updated_at": "2026-03-11T14:58:00Z"
       }
     ],
-    "recommendation_summary": "Panel lead: Acme Cloud shows a mixed read on demand and revenue quality. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
+    "recommendation_summary": "Overall recommendation reflects company-quality panels only; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.",
     "namespace": "company/ACME/memos/current",
     "created_at": "2026-03-11T15:03:00Z",
     "updated_at": "2026-03-11T15:04:00Z"
@@ -7374,6 +7413,19 @@
           "valuation_terms",
           "realization_path_catalysts"
         ]
+      },
+      {
+        "category": "panel_change",
+        "summary": "demand_revenue_quality confidence moved from 0.45 to 0.54.",
+        "factor_id": null,
+        "severity": "info",
+        "related_section_ids": [
+          "investment_snapshot",
+          "growth",
+          "durability_resilience",
+          "risk",
+          "overall_recommendation"
+        ]
       }
     ],
     "contradiction_references": [
@@ -7438,6 +7490,21 @@
         "metrics": {
           "independent_directors": 5
         }
+      }
+    ],
+    "panel_change_hints": [
+      {
+        "category": "panel_change",
+        "summary": "demand_revenue_quality confidence moved from 0.45 to 0.54.",
+        "factor_id": null,
+        "severity": "info",
+        "related_section_ids": [
+          "investment_snapshot",
+          "growth",
+          "durability_resilience",
+          "risk",
+          "overall_recommendation"
+        ]
       }
     ],
     "created_at": "2026-03-11T15:01:00Z"

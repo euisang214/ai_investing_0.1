@@ -47,7 +47,10 @@ class WeakConfidenceConfig(ConfigModel):
                 )
             if self.minimum_evidence_count is None:
                 raise ValueError("weak_confidence.enabled requires minimum_evidence_count")
-        elif self.minimum_factor_coverage_ratio is not None or self.minimum_evidence_count is not None:
+        elif (
+            self.minimum_factor_coverage_ratio is not None
+            or self.minimum_evidence_count is not None
+        ):
             raise ValueError(
                 "weak_confidence thresholds are only allowed when weak confidence is enabled"
             )
@@ -88,7 +91,9 @@ class PanelSupportConfig(ConfigModel):
     def validate_shape(self) -> PanelSupportConfig:
         normalized_types = list(dict.fromkeys(self.required_company_types))
         if not normalized_types:
-            raise ValueError("support.required_company_types must include at least one company type")
+            raise ValueError(
+                "support.required_company_types must include at least one company type"
+            )
         self.required_company_types = normalized_types
         return self
 

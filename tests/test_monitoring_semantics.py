@@ -338,8 +338,14 @@ def test_overall_recommendation_calls_out_unsupported_overlay_runs(seeded_acme) 
             panel_name="Security Or Deal Overlay",
             company_type=CompanyType.PUBLIC,
             reason_code="missing_context",
-            reason="Security Or Deal Overlay requires run context that is missing: overlay_context.",
-            evidence_summary="0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+            reason=(
+                "Security Or Deal Overlay requires run context that is missing: "
+                "overlay_context."
+            ),
+            evidence_summary=(
+                "0 records matched this panel; evidence families: none; "
+                "factor coverage ratio: 0.00."
+            ),
             required_context=["overlay_context"],
             missing_context=["overlay_context"],
         ),
@@ -348,8 +354,14 @@ def test_overall_recommendation_calls_out_unsupported_overlay_runs(seeded_acme) 
             panel_name="Portfolio Fit Positioning",
             company_type=CompanyType.PUBLIC,
             reason_code="missing_context",
-            reason="Portfolio Fit Positioning requires run context that is missing: portfolio_context.",
-            evidence_summary="0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+            reason=(
+                "Portfolio Fit Positioning requires run context that is missing: "
+                "portfolio_context."
+            ),
+            evidence_summary=(
+                "0 records matched this panel; evidence families: none; "
+                "factor coverage ratio: 0.00."
+            ),
             required_context=["portfolio_context"],
             missing_context=["portfolio_context"],
         ),
@@ -576,10 +588,16 @@ def test_memo_updates_call_out_weak_confidence_support() -> None:
                     "panel_name": "Demand And Revenue Quality",
                     "company_type": "public",
                     "status": "weak_confidence",
-                    "reason": "Demand And Revenue Quality has only 3 supporting records with 0.44 factor coverage against a 0.55 readiness bar.",
+                    "reason": (
+                        "Demand And Revenue Quality has only 3 supporting records "
+                        "with 0.44 factor coverage against a 0.55 readiness bar."
+                    ),
                     "evidence_count": 3,
                     "factor_coverage_ratio": 0.44,
-                    "evidence_summary": "3 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 0.44.",
+                    "evidence_summary": (
+                        "3 records matched this panel; evidence families: "
+                        "regulatory, transcript; factor coverage ratio: 0.44."
+                    ),
                     "available_evidence_families": ["regulatory", "transcript"],
                     "missing_evidence_families": [],
                     "required_context": [],

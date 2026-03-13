@@ -259,7 +259,10 @@ def test_company_refresh_graph_routes_failed_gate_to_provisional_continue(contex
 
 
 def test_company_refresh_graph_keeps_structured_skips_visible(context) -> None:
-    runtime = StubRuntime(gate_decision=GateDecision.PASS, skipped_panels={"demand_revenue_quality"})
+    runtime = StubRuntime(
+        gate_decision=GateDecision.PASS,
+        skipped_panels={"demand_revenue_quality"},
+    )
 
     with graph_checkpointer(context.settings) as checkpointer:
         graph = build_company_refresh_graph(
@@ -445,8 +448,14 @@ class StubRuntime:
                     "company_type": "public",
                     "status": "skipped",
                     "reason_code": "missing_context",
-                    "reason": "Demand And Revenue Quality requires run context that is missing: portfolio_context.",
-                    "evidence_summary": "0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+                    "reason": (
+                        "Demand And Revenue Quality requires run context that is "
+                        "missing: portfolio_context."
+                    ),
+                    "evidence_summary": (
+                        "0 records matched this panel; evidence families: none; "
+                        "factor coverage ratio: 0.00."
+                    ),
                     "evidence_count": 0,
                     "factor_coverage_ratio": 0.0,
                     "available_evidence_families": [],
@@ -459,10 +468,16 @@ class StubRuntime:
                     "panel_name": "Demand And Revenue Quality",
                     "company_type": "public",
                     "status": "unsupported",
-                    "reason": "Demand And Revenue Quality requires run context that is missing: portfolio_context.",
+                    "reason": (
+                        "Demand And Revenue Quality requires run context that is "
+                        "missing: portfolio_context."
+                    ),
                     "evidence_count": 0,
                     "factor_coverage_ratio": 0.0,
-                    "evidence_summary": "0 records matched this panel; evidence families: none; factor coverage ratio: 0.00.",
+                    "evidence_summary": (
+                        "0 records matched this panel; evidence families: none; "
+                        "factor coverage ratio: 0.00."
+                    ),
                     "available_evidence_families": [],
                     "missing_evidence_families": [],
                     "required_context": ["portfolio_context"],
@@ -513,7 +528,10 @@ class StubRuntime:
                 "reason": "Panel support requirements are satisfied for this run.",
                 "evidence_count": 2,
                 "factor_coverage_ratio": 1.0,
-                "evidence_summary": "2 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 1.00.",
+                "evidence_summary": (
+                    "2 records matched this panel; evidence families: regulatory, "
+                    "transcript; factor coverage ratio: 1.00."
+                ),
                 "available_evidence_families": ["regulatory", "transcript"],
                 "missing_evidence_families": [],
                 "required_context": [],

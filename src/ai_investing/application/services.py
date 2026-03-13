@@ -832,7 +832,11 @@ class RefreshRuntime:
         status = "supported"
         reason = "Panel support requirements are satisfied for this run."
         if not fully_supported:
-            if missing_context or missing_families or company_type not in support.required_company_types:
+            if (
+                missing_context
+                or missing_families
+                or company_type not in support.required_company_types
+            ):
                 status = "unsupported"
             elif weak_threshold_met:
                 status = "weak_confidence"
@@ -855,7 +859,11 @@ class RefreshRuntime:
             reason=reason,
             evidence_count=evidence_count,
             factor_coverage_ratio=round(factor_coverage_ratio, 2),
-            evidence_summary=self._evidence_summary(evidence_count, evidence_families, factor_coverage_ratio),
+            evidence_summary=self._evidence_summary(
+                evidence_count,
+                evidence_families,
+                factor_coverage_ratio,
+            ),
             available_evidence_families=sorted(evidence_families),
             missing_evidence_families=missing_families,
             required_context=required_context,
@@ -872,7 +880,7 @@ class RefreshRuntime:
         return verdict.model_copy(
             update={
                 "verdict_id": new_id("vrd"),
-                "summary": self._prefix_content(
+                "summary": self._append_content(
                     verdict.summary,
                     "Weak-confidence read due to thin evidence.",
                 ),
@@ -898,9 +906,7 @@ class RefreshRuntime:
 
     def _record_skipped_panel(self, skip: SkippedPanelResult) -> None:
         self.current_skipped_panels[skip.panel_id] = skip
-        skipped_panels = [
-            item for item in self.current_skipped_panels.values()
-        ]
+        skipped_panels = list(self.current_skipped_panels.values())
         self.run.metadata = {
             **self.run.metadata,
             "skipped_panels": [item.model_dump(mode="json") for item in skipped_panels],
@@ -938,7 +944,9 @@ class RefreshRuntime:
         covered_factors: set[str] = set()
         for record in evidence:
             covered_factors.update(
-                factor_id for factor_id in getattr(record, "factor_ids", []) if factor_id in panel.factor_ids
+                factor_id
+                for factor_id in getattr(record, "factor_ids", [])
+                if factor_id in panel.factor_ids
             )
         return len(covered_factors) / len(panel.factor_ids)
 
@@ -1233,6 +1241,12 @@ class RefreshRuntime:
         if content.startswith(prefix):
             return content
         return f"{prefix} {content}".strip()
+
+    @staticmethod
+    def _append_content(content: str, suffix: str) -> str:
+        if content.endswith(suffix):
+            return content
+        return f"{content} {suffix}".strip()
 
     def _current_gate_decision(self) -> GateDecision | None:
         if self.run.gate_decision is not None:
