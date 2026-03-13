@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 6
 current_phase_name: productionize remaining panels
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-13T21:03:46.400Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-13T23:46:02.232Z"
 last_activity: 2026-03-13
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 26
-  completed_plans: 21
-  percent: 81
+  completed_plans: 22
+  percent: 85
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 6 is in progress after Plan 01 shipped the rollout/support contract for additional panel productionization.
+**Current focus:** Phase 6 is in progress after Plan 02 productionized the first additional company-quality panel family on top of the rollout/support contract.
 
 ## Execution Tracking
 
 **Current Phase:** 6
 **Current Phase Name:** productionize remaining panels
 **Total Phases:** 8
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 6
-**Status:** Phase in progress
-**Progress:** [████████░░] 81%
+**Status:** Ready to execute
+**Progress:** [█████████░] 85%
 **Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 06 Plan 01 completed with config-driven rollout waves, typed support and skip surfaces, truthful partial-run memo wording, regenerated lifecycle artifacts, and a green Docker verification gate
+**Last Activity Description:** Phase 06 Plan 02 completed with runnable Wave 1 company-quality panels, truthful public/private support coverage, support-aware operator surfaces, and a green Docker verification gate
 
 ## Current Status
 
@@ -57,6 +57,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 5 Plan 03 completed on 2026-03-13 with truthful operator and architecture docs, boundary-safe n8n workflow examples, regenerated lifecycle artifacts, and Docker-verified docs/example regressions plus full-suite verification.
 - Phase 5 is complete as of 2026-03-13; cadence policies, queue-backed refresh operations, review handling, notification delivery, and the external-automation documentation layer now align to one shipped contract.
 - Phase 6 Plan 01 completed on 2026-03-13 with config-driven rollout policies, typed readiness and support rules, structured skipped-panel reads, truthful memo and IC wording for partial runs, regenerated ACME lifecycle artifacts, and Docker-verified full-suite coverage.
+- Phase 6 Plan 02 completed on 2026-03-13 with runnable Wave 1 supply, management, and financial-quality panels, truthful public and private support signals, support-aware API/CLI read surfaces, regenerated examples, and Docker-verified full-suite coverage.
 - Phase 6 remains in progress; parent requirement `V2-01` stays open while later plans productionize the remaining scaffolded panels on top of the new rollout contract.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
@@ -74,7 +75,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 6 Plan 02 while keeping parent requirement `V2-01` open until the remaining panel families are productionized and verified.
+- Execute Phase 6 Plan 03 while keeping parent requirement `V2-01` open until the remaining panel families are productionized and verified.
 
 ## Decisions
 
@@ -125,6 +126,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 06]: Persist weak-confidence and skipped-panel outcomes as typed run metadata so API, CLI, memo projection, and generated examples stay aligned.
 - [Phase 06]: Keep parent requirement V2-01 open because Plan 06-01 completes rollout slice V2-01A, not the full remaining-panel production scope.
 - [Phase 06]: Keep rollout policy and panel support behavior config-driven instead of adding panel-specific graph branches.
+- [Phase 06-productionize-remaining-panels]: Wave 1 remains limited to internal company-quality panels so overlay and expectations work can land later without entangling memo ownership.
+- [Phase 06-productionize-remaining-panels]: Panel support posture is persisted and rehydrated through services, API, and CLI so weak-confidence runs remain explicit in operator views.
+- [Phase 06-productionize-remaining-panels]: Parent requirement V2-01 remains open after Plan 06-02 because this plan delivers slice V2-01B, not the full remaining-panel production scope.
 
 ## Performance Metrics
 
@@ -146,9 +150,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 05 P02 | 34min | 3 tasks | 32 files |
 | Phase 05 P03 | 2 min | 3 tasks | 20 files |
 | Phase 06 P01 | 35min | 3 tasks | 26 files |
+| Phase 06-productionize-remaining-panels P02 | 2h29m | 3 tasks | 38 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T21:02:16.492Z
-**Stopped At:** Completed 06-01-PLAN.md
+**Last Date:** 2026-03-13T23:46:02.229Z
+**Stopped At:** Completed 06-02-PLAN.md
 **Resume File:** None
