@@ -17,6 +17,9 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 | 3 | Remaining Panel Scaffolds | Add configurable placeholder prompts, schemas, and registry entries for the remaining top-level panels | V2-01 | 3 |
 | 4 | Monitoring And Connectors | Completed on 2026-03-13 with connector-runtime, representative adapters, richer monitoring deltas, and read-only portfolio monitoring surfaces | V2-02, V2-04 | 3 |
 | 5 | Scheduling And Notifications | Harden n8n workflows, configurable cadence policies, and run notifications | V2-03, V2-05 | 3 |
+| 6 | Productionize Remaining Panels | Convert the remaining scaffold-only top-level panels into runnable, verified production flows | V2-01 | 3 |
+| 7 | Close Phase 04 Verification Gap | Reconcile Phase 04 verification coverage and parent requirement evidence so monitoring and connector work is archive-ready | V2-02, V2-04 | 3 |
+| 8 | Close Phase 05 Operational Gaps | Finish the worker-state and notification-failure boundaries needed for truthful large-scale refresh operations | V2-05 | 3 |
 
 ## Phase Details
 
@@ -67,7 +70,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 4: Monitoring And Connectors
 
 **Goal:** Expand reusable services and connector depth once the core slice is stable.
-**Status:** Completed on 2026-03-13. Plans `04-01`, `04-02`, `04-03`, and `04-04` delivered the registry-backed connector runtime seam, representative adapter slice, richer monitoring services, and read-only portfolio monitoring history plus summary surfaces. Parent requirements `V2-02` and `V2-04` are both satisfied.
+**Status:** Completed on 2026-03-13 at the implementation slice level. Plans `04-01`, `04-02`, `04-03`, and `04-04` delivered the registry-backed connector runtime seam, representative adapter slice, richer monitoring services, and read-only portfolio monitoring history plus summary surfaces. The 2026-03-13 milestone audit found the parent verification chain incomplete, so final requirement closure for `V2-02` and `V2-04` now moves to Phase 7.
 
 **Requirements:** `V2-02`, `V2-04`
 
@@ -81,7 +84,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 5: Scheduling And Notifications
 
 **Goal:** Move from local repeatability to reliable recurring operations.
-**Status:** Completed on 2026-03-13. Plans `05-01`, `05-02`, and `05-03` delivered config-driven cadence policies, queue-backed worker execution, review handling, notification delivery surfaces, and truthful external-automation docs plus checked examples. Parent requirements `V2-03` and `V2-05` are satisfied.
+**Status:** Completed on 2026-03-13 at the primary slice level. Plans `05-01`, `05-02`, and `05-03` delivered config-driven cadence policies, queue-backed worker execution, review handling, notification delivery surfaces, and truthful external-automation docs plus checked examples. The 2026-03-13 milestone audit found two supported-boundary gaps under `V2-05`, so final closure of that requirement moves to Phase 8 while `V2-03` remains complete.
 
 **Requirements:** `V2-03`, `V2-05`
 
@@ -92,5 +95,49 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 2. n8n workflow examples cover weekly refreshes, ingestion webhooks, and notifications.
 3. Background execution and notification boundaries are documented cleanly.
 
+### Phase 6: Productionize Remaining Panels
+
+**Goal:** Turn the remaining scaffold-only top-level panels into executable, verified production flows without breaking the config-driven runtime.
+**Status:** In progress on 2026-03-13. Plan `06-01` shipped rollout waves, typed panel support and skip surfaces, truthful partial-run memo wording, and regenerated lifecycle artifacts. Parent requirement `V2-01` remains open.
+
+**Requirements:** `V2-01`
+
+**Gap Closure:** Closes the audit's partial `V2-01` requirement gap carried forward from Phase 03.
+
+**Plan progress:** `1 / 6` completed (`06-01` done)
+
+**Success criteria:**
+1. The remaining top-level panels execute through supported graph paths instead of stopping at placeholder scaffolds.
+2. Each newly productionized panel keeps prompts, schemas, factor mappings, and tool bundles config-driven and editable.
+3. Phase verification marks parent requirement `V2-01` complete with regression coverage for the added production panels.
+
+### Phase 7: Close Phase 04 Verification Gap
+
+**Goal:** Finish the missing verification and requirement-evidence chain for the monitoring and connector work already shipped in Phase 04.
+**Status:** Planned on 2026-03-13 from the milestone audit.
+
+**Requirements:** `V2-02`, `V2-04`
+
+**Gap Closure:** Closes the audit's `V2-02` unsatisfied gap, `V2-04` partial gap, and the broken "Phase 4 verification chain" flow.
+
+**Success criteria:**
+1. Phase 04 has a complete verification artifact that covers the parent milestone requirements, not only individual plan slices.
+2. Requirement traceability and summary evidence consistently show the completed parent outcomes for `V2-02` and `V2-04`.
+3. The milestone audit can verify the Phase 04 chain without relying on implied completion from summaries alone.
+
+### Phase 8: Close Phase 05 Operational Gaps
+
+**Goal:** Complete the supported execution and notification boundaries needed for truthful queue state and failure handling in recurring refresh operations.
+**Status:** Planned on 2026-03-13 from the milestone audit.
+
+**Requirements:** `V2-05`
+
+**Gap Closure:** Closes the audit's two `V2-05` integration gaps in worker running-state truthfulness and external notification failure reporting.
+
+**Success criteria:**
+1. Worker execution persists a truthful `running` transition through the supported repository boundary so queue read surfaces reflect active work.
+2. External API and CLI flows can report notification delivery failure using the supported boundary, not only internal helpers.
+3. Verification covers the full `due coverage -> queue enqueue -> worker execution -> review queue/notifications` flow with the repaired operational boundaries.
+
 ---
-*Last updated: 2026-03-13 after Phase 05 Plan 03 completion*
+*Last updated: 2026-03-13 after Phase 06 Plan 01 execution*
