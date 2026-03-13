@@ -3593,6 +3593,160 @@
       "weakening_recurrence"
     ],
     "alert_level": "high",
+    "trigger_reasons": [
+      {
+        "category": "contradiction",
+        "summary": "Conflicting evidence persists on search costs: signals span negative, positive.",
+        "factor_id": "search_costs",
+        "severity": "medium",
+        "related_section_ids": [
+          "durability_resilience",
+          "growth",
+          "investment_snapshot",
+          "overall_recommendation",
+          "risk"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Survivability support changed enough to refresh the downside view.",
+        "factor_id": "balance_sheet_survivability",
+        "severity": "medium",
+        "related_section_ids": [
+          "investment_snapshot",
+          "risk",
+          "overall_recommendation"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Customer concentration changed enough to refresh the dependency view.",
+        "factor_id": "customer_concentration",
+        "severity": "medium",
+        "related_section_ids": [
+          "economic_spread",
+          "expectations_variant_view",
+          "portfolio_fit_positioning"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Governance posture shifted enough to refresh the monitoring view.",
+        "factor_id": "governance_investability",
+        "severity": "medium",
+        "related_section_ids": [
+          "investment_snapshot",
+          "risk",
+          "overall_recommendation"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Recurrence durability moved enough to refresh the thesis.",
+        "factor_id": "revenue_recurrence_contract_strength",
+        "severity": "medium",
+        "related_section_ids": [
+          "economic_spread",
+          "growth",
+          "valuation_terms",
+          "realization_path_catalysts"
+        ]
+      },
+      {
+        "category": "panel_change",
+        "summary": "demand_revenue_quality produced a new panel verdict in this run.",
+        "factor_id": null,
+        "severity": "info",
+        "related_section_ids": [
+          "investment_snapshot",
+          "growth",
+          "durability_resilience",
+          "risk",
+          "overall_recommendation"
+        ]
+      },
+      {
+        "category": "panel_change",
+        "summary": "gatekeepers produced a new panel verdict in this run.",
+        "factor_id": null,
+        "severity": "info",
+        "related_section_ids": [
+          "investment_snapshot",
+          "risk",
+          "overall_recommendation"
+        ]
+      }
+    ],
+    "contradiction_references": [
+      {
+        "category": "contradiction",
+        "label": "search costs",
+        "rationale": "Conflicting evidence persists on search costs: signals span negative, positive.",
+        "factor_id": "search_costs",
+        "company_id": null,
+        "company_name": null,
+        "source_ref": null,
+        "score": null
+      }
+    ],
+    "concentration_signals": [
+      {
+        "category": "customer_dependency",
+        "label": "Customer concentration",
+        "factor_id": "customer_concentration",
+        "state": "stable",
+        "summary": "Customer concentration is currently stable: No customer accounts for more than 4% of revenue.",
+        "metrics": {
+          "largest_customer": "4%"
+        }
+      },
+      {
+        "category": "financing_dependency",
+        "label": "Financing dependency",
+        "factor_id": "balance_sheet_survivability",
+        "state": "stable",
+        "summary": "Financing dependency is currently stable: Net cash remains positive and the company is free cash flow positive.",
+        "metrics": {
+          "net_cash_millions": 220
+        }
+      },
+      {
+        "category": "governance_dependency",
+        "label": "Governance concentration",
+        "factor_id": "governance_investability",
+        "state": "stable",
+        "summary": "Governance concentration is currently stable: The board added an independent audit chair and refreshed compensation disclosures.",
+        "metrics": {
+          "independent_directors": 5
+        }
+      }
+    ],
+    "panel_change_hints": [
+      {
+        "category": "panel_change",
+        "summary": "demand_revenue_quality produced a new panel verdict in this run.",
+        "factor_id": null,
+        "severity": "info",
+        "related_section_ids": [
+          "investment_snapshot",
+          "growth",
+          "durability_resilience",
+          "risk",
+          "overall_recommendation"
+        ]
+      },
+      {
+        "category": "panel_change",
+        "summary": "gatekeepers produced a new panel verdict in this run.",
+        "factor_id": null,
+        "severity": "info",
+        "related_section_ids": [
+          "investment_snapshot",
+          "risk",
+          "overall_recommendation"
+        ]
+      }
+    ],
     "created_at": "2026-03-11T11:59:00Z"
   }
 }

@@ -78,8 +78,15 @@ class ClaimContradictionService:
         for factor_id in factor_pool:
             evidence_stances = self._evidence_stances(evidence_by_factor.get(factor_id, []), factor_id)
             claim_stances = self._claim_stances(claims_by_factor.get(factor_id, []))
-            combined_stances = evidence_stances.union(claim_stances)
-            if not self._is_meaningfully_contradictory(combined_stances):
+            contradiction_stances = evidence_stances
+            if contradiction_stances:
+                if not self._is_meaningfully_contradictory(contradiction_stances):
+                    continue
+            else:
+                contradiction_stances = claim_stances
+                if not self._is_meaningfully_contradictory(contradiction_stances):
+                    continue
+            if not contradiction_stances:
                 continue
             recent_record = self._latest_record(evidence_by_factor.get(factor_id, []))
             label = factor_id.replace("_", " ")
@@ -89,7 +96,7 @@ class ClaimContradictionService:
                     label=label,
                     rationale=(
                         f"Conflicting evidence persists on {label}: "
-                        f"signals span {', '.join(sorted(combined_stances))}."
+                        f"signals span {', '.join(sorted(contradiction_stances))}."
                     ),
                     factor_id=factor_id,
                     source_ref=(

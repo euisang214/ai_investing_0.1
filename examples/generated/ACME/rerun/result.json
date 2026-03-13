@@ -7037,7 +7037,7 @@
       {
         "section_id": "what_changed_since_last_run",
         "label": "What Changed Since Last Run",
-        "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Changed sections: investment_snapshot, risk, durability_resilience, growth, economic_spread, valuation_terms, expectations_variant_view, realization_path_catalysts, portfolio_fit_positioning, overall_recommendation.",
+        "content": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability. Changed sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms, what_changed_since_last_run.",
         "status": "refreshed",
         "supporting_claim_ids": [],
         "supporting_verdict_ids": [],
@@ -7295,13 +7295,152 @@
       "valuation_terms",
       "what_changed_since_last_run"
     ],
-    "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence.",
+    "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability.",
     "thesis_drift_flags": [
       "concentration_increase",
       "survivability_deterioration",
       "weakening_recurrence"
     ],
     "alert_level": "high",
+    "trigger_reasons": [
+      {
+        "category": "concentration",
+        "summary": "Customer concentration is currently pressured: A newly expanded strategic customer now represents 12% of revenue.",
+        "factor_id": "customer_concentration",
+        "severity": "medium",
+        "related_section_ids": [
+          "durability_resilience",
+          "growth",
+          "investment_snapshot",
+          "overall_recommendation",
+          "risk"
+        ]
+      },
+      {
+        "category": "contradiction",
+        "summary": "Conflicting evidence persists on customer concentration: signals span negative, positive.",
+        "factor_id": "customer_concentration",
+        "severity": "medium",
+        "related_section_ids": [
+          "durability_resilience",
+          "growth",
+          "investment_snapshot",
+          "overall_recommendation",
+          "risk"
+        ]
+      },
+      {
+        "category": "contradiction",
+        "summary": "Conflicting evidence persists on demand cyclicality purchase deferrability: signals span mixed, negative.",
+        "factor_id": "demand_cyclicality_purchase_deferrability",
+        "severity": "medium",
+        "related_section_ids": [
+          "durability_resilience",
+          "growth",
+          "investment_snapshot",
+          "overall_recommendation",
+          "risk"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Survivability support changed enough to refresh the downside view.",
+        "factor_id": "balance_sheet_survivability",
+        "severity": "medium",
+        "related_section_ids": [
+          "investment_snapshot",
+          "risk",
+          "overall_recommendation"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Customer concentration changed enough to refresh the dependency view.",
+        "factor_id": "customer_concentration",
+        "severity": "medium",
+        "related_section_ids": [
+          "economic_spread",
+          "expectations_variant_view",
+          "portfolio_fit_positioning"
+        ]
+      },
+      {
+        "category": "drift",
+        "summary": "Recurrence durability moved enough to refresh the thesis.",
+        "factor_id": "revenue_recurrence_contract_strength",
+        "severity": "medium",
+        "related_section_ids": [
+          "economic_spread",
+          "growth",
+          "valuation_terms",
+          "realization_path_catalysts"
+        ]
+      }
+    ],
+    "contradiction_references": [
+      {
+        "category": "contradiction",
+        "label": "customer concentration",
+        "rationale": "Conflicting evidence persists on customer concentration: signals span negative, positive.",
+        "factor_id": "customer_concentration",
+        "company_id": null,
+        "company_name": null,
+        "source_ref": {
+          "label": "Q1 2026 Update",
+          "url": "https://example.com/acme-q1",
+          "page": null,
+          "excerpt": null
+        },
+        "score": null
+      },
+      {
+        "category": "contradiction",
+        "label": "demand cyclicality purchase deferrability",
+        "rationale": "Conflicting evidence persists on demand cyclicality purchase deferrability: signals span mixed, negative.",
+        "factor_id": "demand_cyclicality_purchase_deferrability",
+        "company_id": null,
+        "company_name": null,
+        "source_ref": {
+          "label": "Q1 2026 Update",
+          "url": "https://example.com/acme-q1",
+          "page": null,
+          "excerpt": null
+        },
+        "score": null
+      }
+    ],
+    "concentration_signals": [
+      {
+        "category": "customer_dependency",
+        "label": "Customer concentration",
+        "factor_id": "customer_concentration",
+        "state": "pressured",
+        "summary": "Customer concentration is currently pressured: A newly expanded strategic customer now represents 12% of revenue.",
+        "metrics": {
+          "largest_customer": "12%"
+        }
+      },
+      {
+        "category": "financing_dependency",
+        "label": "Financing dependency",
+        "factor_id": "balance_sheet_survivability",
+        "state": "stable",
+        "summary": "Financing dependency is currently stable: The company remains cash generative with no near-term debt pressure.",
+        "metrics": {
+          "net_cash_millions": 205
+        }
+      },
+      {
+        "category": "governance_dependency",
+        "label": "Governance concentration",
+        "factor_id": "governance_investability",
+        "state": "stable",
+        "summary": "Governance concentration is currently stable: The board added an independent audit chair and refreshed compensation disclosures.",
+        "metrics": {
+          "independent_directors": 5
+        }
+      }
+    ],
     "created_at": "2026-03-11T14:50:00Z"
   }
 }
