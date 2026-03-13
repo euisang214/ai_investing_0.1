@@ -9,6 +9,7 @@ from ai_investing.config.models import (
     INTERNAL_AGENT_PANEL_IDS,
     SUPPORTED_OUTPUT_SCHEMAS,
     SUPPORTED_PANEL_SUBGRAPHS,
+    SUPPORTED_SOURCE_CONNECTOR_KINDS,
     AgentsRegistry,
     FactorsRegistry,
     MemoSectionsRegistry,
@@ -23,6 +24,10 @@ from ai_investing.config.models import (
 )
 
 ConfigT = TypeVar("ConfigT")
+SOURCE_CONNECTOR_REQUIRED_SETTINGS = {
+    "file_bundle": ("manifest_file", "raw_landing_zone"),
+    "mcp_stub": ("raw_landing_zone",),
+}
 
 
 def load_yaml(path: Path) -> dict:
@@ -142,10 +147,7 @@ class RegistryLoader:
                 )
 
         for connector in bundle.source_connectors.connectors:
-            if connector.kind == "file_bundle" and not connector.manifest_file:
-                raise ValueError(
-                    f"Connector {connector.id} must declare a manifest_file for kind=file_bundle"
-                )
+            self._validate_source_connector(connector)
 
         for policy_name, policy in bundle.run_policies.run_policies.items():
             missing_panels = [
@@ -167,6 +169,22 @@ class RegistryLoader:
     def _validate_output_schema(self, owner_id: str, schema_name: str) -> None:
         if schema_name not in SUPPORTED_OUTPUT_SCHEMAS:
             raise ValueError(f"{owner_id} references unsupported output schema: {schema_name}")
+
+    def _validate_source_connector(self, connector) -> None:
+        if connector.kind not in SUPPORTED_SOURCE_CONNECTOR_KINDS:
+            raise ValueError(f"Unsupported connector kind for {connector.id}: {connector.kind}")
+
+        missing_settings = [
+            setting_name
+            for setting_name in SOURCE_CONNECTOR_REQUIRED_SETTINGS[connector.kind]
+            if connector.setting(setting_name) in (None, "")
+        ]
+        if missing_settings:
+            joined = ", ".join(missing_settings)
+            raise ValueError(
+                f"Connector {connector.id} is missing required settings for {connector.kind}: "
+                f"{joined}"
+            )
 
     def _validate_prompt_path(self, prompt_path: str) -> None:
         if self._prompts_dir is None:

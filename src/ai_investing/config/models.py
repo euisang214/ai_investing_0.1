@@ -16,6 +16,7 @@ SUPPORTED_OUTPUT_SCHEMAS = frozenset(
 )
 SUPPORTED_PANEL_SUBGRAPHS = frozenset({"gatekeeper", "debate"})
 INTERNAL_AGENT_PANEL_IDS = frozenset({"memo_updates", "ic", "monitoring"})
+SUPPORTED_SOURCE_CONNECTOR_KINDS = frozenset({"file_bundle", "mcp_stub"})
 
 
 class ConfigModel(BaseModel):
@@ -129,12 +130,94 @@ class ToolBundlesRegistry(ConfigModel):
     bundles: list[ToolBundle]
 
 
+class SourceConnectorSettings(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    manifest_file: str | None = None
+    raw_landing_zone: str | None = None
+
+
+class SourceConnectorLiveRefresh(ConfigModel):
+    posture: Literal["static", "manual", "scheduled"] = "static"
+    cadence: str | None = None
+    max_staleness_hours: int | None = None
+
+
+class SourceConnectorEvidencePolicy(ConfigModel):
+    extraction_mode: Literal["full_text", "metadata_only", "attachment_only"] = "full_text"
+    attachment_handling: Literal["copy_to_raw", "reference_only"] = "copy_to_raw"
+
+
 class SourceConnectorConfig(ConfigModel):
     id: str
     company_type: Literal["public", "private", "both"]
     kind: str
-    manifest_file: str
-    raw_landing_zone: str
+    manifest_file: str = ""
+    raw_landing_zone: str = ""
+    settings: SourceConnectorSettings = Field(default_factory=SourceConnectorSettings)
+    live_refresh: SourceConnectorLiveRefresh = Field(default_factory=SourceConnectorLiveRefresh)
+    evidence_policy: SourceConnectorEvidencePolicy = Field(
+        default_factory=SourceConnectorEvidencePolicy
+    )
+    capabilities: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_legacy_settings(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        payload = dict(data)
+        raw_settings = payload.get("settings")
+        if raw_settings is None:
+            settings: dict[str, Any] = {}
+        elif isinstance(raw_settings, dict):
+            settings = dict(raw_settings)
+        else:
+            raise ValueError("settings must be a mapping")
+
+        for field_name in ("manifest_file", "raw_landing_zone"):
+            raw_value = payload.get(field_name)
+            if raw_value not in (None, ""):
+                if field_name in settings and settings[field_name] != raw_value:
+                    raise ValueError(
+                        f"{field_name} must match the explicit settings value when both are set"
+                    )
+                settings.setdefault(field_name, raw_value)
+
+        payload["settings"] = settings
+        return payload
+
+    @model_validator(mode="after")
+    def sync_compatibility_fields(self) -> SourceConnectorConfig:
+        manifest_file = self.settings.manifest_file or self.manifest_file
+        raw_landing_zone = self.settings.raw_landing_zone or self.raw_landing_zone
+        self.settings.manifest_file = manifest_file
+        self.settings.raw_landing_zone = raw_landing_zone
+        self.manifest_file = manifest_file or ""
+        self.raw_landing_zone = raw_landing_zone or ""
+        self.capabilities = list(
+            dict.fromkeys(
+                capability.strip()
+                for capability in self.capabilities
+                if capability and capability.strip()
+            )
+        )
+        return self
+
+    def setting(self, name: str) -> Any:
+        if hasattr(self.settings, name):
+            return getattr(self.settings, name)
+        return self.settings.model_extra.get(name) if self.settings.model_extra else None
+
+    def require_setting(self, name: str) -> str:
+        value = self.setting(name)
+        if value in (None, ""):
+            raise ValueError(f"Connector {self.id} must declare setting '{name}'")
+        return str(value)
+
+    def supports_company_type(self, company_type: str) -> bool:
+        return self.company_type == "both" or self.company_type == company_type
 
 
 class SourceConnectorsRegistry(ConfigModel):

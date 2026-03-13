@@ -112,6 +112,99 @@ def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -
         RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
 
 
+def test_connector_registry_keeps_legacy_shape_backward_compatible(context) -> None:
+    connectors = {
+        connector.id: connector for connector in context.registries.source_connectors.connectors
+    }
+    public_connector = connectors["public_file_connector"]
+
+    assert public_connector.kind == "file_bundle"
+    assert public_connector.manifest_file == "manifest.json"
+    assert public_connector.settings.manifest_file == "manifest.json"
+    assert public_connector.raw_landing_zone.endswith("public_file_connector")
+    assert public_connector.settings.raw_landing_zone.endswith("public_file_connector")
+    assert public_connector.live_refresh.posture == "static"
+    assert public_connector.evidence_policy.attachment_handling == "copy_to_raw"
+
+
+def test_connector_registry_accepts_explicit_settings_and_policy_fields(
+    repo_root, tmp_path
+) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    source_connectors_path = config_dir / "source_connectors.yaml"
+    source_connectors = yaml.safe_load(source_connectors_path.read_text(encoding="utf-8"))
+    for connector in source_connectors["connectors"]:
+        if connector["id"] == "public_file_connector":
+            connector.pop("manifest_file", None)
+            connector.pop("raw_landing_zone", None)
+            connector["settings"] = {
+                "manifest_file": "manifest.json",
+                "raw_landing_zone": str(tmp_path / "raw-public"),
+                "batch_size": 25,
+            }
+            connector["live_refresh"] = {
+                "posture": "scheduled",
+                "cadence": "0 6 * * 1",
+                "max_staleness_hours": 72,
+            }
+            connector["evidence_policy"] = {
+                "extraction_mode": "metadata_only",
+                "attachment_handling": "reference_only",
+            }
+            connector["capabilities"] = ["structured_evidence", "live_refresh"]
+            break
+    source_connectors_path.write_text(
+        yaml.safe_dump(source_connectors, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    registries = RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+    connector = next(
+        item
+        for item in registries.source_connectors.connectors
+        if item.id == "public_file_connector"
+    )
+
+    assert connector.manifest_file == "manifest.json"
+    assert connector.raw_landing_zone == str(tmp_path / "raw-public")
+    assert connector.settings.model_extra["batch_size"] == 25
+    assert connector.live_refresh.posture == "scheduled"
+    assert connector.evidence_policy.extraction_mode == "metadata_only"
+    assert connector.capabilities == ["structured_evidence", "live_refresh"]
+
+
+def test_registry_loader_rejects_unknown_connector_kind(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    source_connectors_path = config_dir / "source_connectors.yaml"
+    source_connectors = yaml.safe_load(source_connectors_path.read_text(encoding="utf-8"))
+    source_connectors["connectors"][0]["kind"] = "mystery_api"
+    source_connectors_path.write_text(
+        yaml.safe_dump(source_connectors, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Unsupported connector kind"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
+def test_registry_loader_rejects_missing_required_connector_settings(repo_root, tmp_path) -> None:
+    config_dir = _copy_config(repo_root, tmp_path)
+    source_connectors_path = config_dir / "source_connectors.yaml"
+    source_connectors = yaml.safe_load(source_connectors_path.read_text(encoding="utf-8"))
+    for connector in source_connectors["connectors"]:
+        if connector["id"] == "public_file_connector":
+            connector.pop("manifest_file", None)
+            connector["settings"] = {"raw_landing_zone": connector["raw_landing_zone"]}
+            break
+    source_connectors_path.write_text(
+        yaml.safe_dump(source_connectors, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="missing required settings"):
+        RegistryLoader(config_dir, prompts_dir=repo_root / "prompts").load_all()
+
+
 def test_registry_loader_rejects_missing_builtin_tool_handler(repo_root, tmp_path) -> None:
     config_dir = _copy_config(repo_root, tmp_path)
     tool_registry_path = config_dir / "tool_registry.yaml"
