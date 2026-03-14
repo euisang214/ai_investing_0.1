@@ -64,7 +64,7 @@ def test_private_ingestion_supported(context, repo_root) -> None:
         repo_root / "examples" / "beta_private"
     )
     assert profile.company_type.value == "private"
-    assert len(evidence_ids) == 4
+    assert len(evidence_ids) == 5
 
 
 def test_ingestion_uses_configured_manifest_file(repo_root, tmp_path) -> None:
@@ -101,7 +101,7 @@ def test_required_public_connector_families_emit_structured_evidence(repo_root, 
     fixture_expectations = [
         ("acme_regulatory_packet", "regulatory", 1),
         ("acme_market_packet", "market", 2),
-        ("acme_consensus_packet", "consensus", 1),
+        ("acme_consensus_packet", "consensus", 2),
         ("acme_ownership_packet", "ownership", 2),
     ]
     for connector_id, family, expected_count in fixture_expectations:
@@ -116,7 +116,11 @@ def test_required_public_connector_families_emit_structured_evidence(repo_root, 
             record for record in records if record.metadata.get("connector") == connector_id
         ]
         assert len(family_records) == expected_count
-        assert all(record.metadata["evidence_family"] == family for record in family_records)
+        actual_families = {record.metadata["evidence_family"] for record in family_records}
+        if connector_id == "acme_consensus_packet":
+            assert actual_families == {"consensus", "market"}
+        else:
+            assert actual_families == {family}
         assert all(record.factor_ids for record in family_records)
         assert all(record.panel_ids for record in family_records)
         assert all(record.evidence_quality > 0.6 for record in family_records)
@@ -152,7 +156,7 @@ def test_events_and_transcript_news_packets_keep_attachment_policy_honest(
         if record.metadata.get("connector") == "acme_transcript_news_packet"
     ]
 
-    assert len(events_records) == 2
+    assert len(events_records) == 3
     assert {record.source_type for record in events_records} == {"event_page", "event_image"}
     assert all(record.metadata["attachment_only"] is True for record in events_records)
     assert all("Attachment-only" in record.body for record in events_records)

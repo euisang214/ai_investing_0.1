@@ -389,7 +389,7 @@ def test_cli_analyze_company_rejects_full_surface_policy(seeded_acme, monkeypatc
     assert invalid.exit_code != 0
     assert invalid.exception is not None
     assert str(invalid.exception) == (
-        "Panel expectations_catalyst_realization is not implemented for policy full_surface."
+        "Panel security_or_deal_overlay is not implemented for policy full_surface."
     )
 
     with seeded_acme.database.session() as session:

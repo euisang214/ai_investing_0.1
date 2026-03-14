@@ -537,7 +537,7 @@ def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme
         "error": {
             "code": "invalid_request",
             "message": (
-                "Panel expectations_catalyst_realization is not implemented for policy "
+                "Panel security_or_deal_overlay is not implemented for policy "
                 "full_surface."
             ),
         }

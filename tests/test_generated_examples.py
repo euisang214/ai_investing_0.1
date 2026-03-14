@@ -59,8 +59,14 @@ def test_generation_script_writes_phase5_lifecycle_examples(
     assert continued["run"]["checkpoint"]["resolution_action"] == "continue"
     assert continued["memo"]["is_initial_coverage"] is True
     assert continued["delta"]["prior_run_id"] is None
-    assert initial["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
-    assert continued["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert (
+        initial["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        continued["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["run"]["awaiting_continue"] is False
     assert rerun["delta"]["prior_run_id"] == continued["run"]["run_id"]
@@ -81,7 +87,10 @@ def test_generated_expectations_delta_examples_include_rerun_changes(
     initial = _load_json(output_root / "initial" / "result.json")
     rerun = _load_json(output_root / "rerun" / "result.json")
 
-    assert initial["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert (
+        initial["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
     assert _section_map(initial)["expectations_variant_view"]["status"] == "refreshed"
     assert _section_map(initial)["realization_path_catalysts"]["status"] == "refreshed"
     assert "expectations_variant_view" in rerun["delta"]["changed_sections"]
@@ -141,8 +150,14 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["run"]["checkpoint"]["resolution_action"] == "continue"
     assert rerun_delta["prior_run_id"] == continued["run"]["run_id"]
-    assert initial["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
-    assert rerun["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert (
+        initial["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        rerun["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
     assert "expectations_variant_view" in rerun_delta["changed_sections"]
     assert "realization_path_catalysts" in rerun_delta["changed_sections"]
     initial_memo = (generated_root / "ACME" / "initial" / "memo.md").read_text(encoding="utf-8")
@@ -155,8 +170,8 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert "Stale from the prior active memo." not in continued_memo
     assert "This section has not been advanced yet." in continued_memo
     assert "Stale from the prior active memo." in rerun_memo
-    assert "## Expectations Variant View" in initial_memo
-    assert "## Realization Path Catalysts" in initial_memo
+    assert "## Expectations And Variant View" in initial_memo
+    assert "## Realization Path And Catalysts" in initial_memo
 
 
 def test_supply_management_financial_manifests_cover_wave1_public_and_private_samples(
@@ -384,7 +399,9 @@ def test_expectations_manifests_cover_public_private_and_rerun_samples(repo_root
         for document in manifest["documents"]:
             if panel_id in document["panel_ids"]:
                 public_factors.update(
-                    factor_id for factor_id in document["factor_ids"] if factor_id in expected_factors
+                    factor_id
+                    for factor_id in document["factor_ids"]
+                    if factor_id in expected_factors
                 )
                 public_families.add(document["metadata"]["evidence_family"])
 

@@ -508,7 +508,10 @@ def test_expectations_rollout_refresh_surfaces_skip_when_inputs_are_missing(
     result = analysis.refresh_company("ACME")
 
     assert result["run"]["status"] == "complete"
-    assert result["panels"]["expectations_catalyst_realization"]["support"]["status"] == "unsupported"
+    assert (
+        result["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "unsupported"
+    )
     assert result["panels"]["expectations_catalyst_realization"]["skip"]["reason_code"] == (
         "missing_evidence_families"
     )
