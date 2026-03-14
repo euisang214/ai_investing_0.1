@@ -7,13 +7,25 @@ import pytest
 
 from ai_investing.application.services import AnalysisService, CoverageService, IngestionService
 from ai_investing.domain.enums import (
+    AlertLevel,
     Cadence,
     CompanyType,
     CoverageStatus,
     GateDecision,
     RunContinueAction,
+    RunKind,
+    RunStatus,
 )
-from ai_investing.domain.models import CoverageEntry
+from ai_investing.domain.models import (
+    CoverageEntry,
+    EvidenceRecord,
+    FactorSignal,
+    MonitoringDelta,
+    MonitoringReason,
+    RunRecord,
+    SourceRef,
+    utc_now,
+)
 from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
 
@@ -88,6 +100,169 @@ def _seed_public_expectations_connectors(context, repo_root: Path) -> None:
 def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
     panel = context.get_panel(panel_id)
     panel.readiness.required_context = required_context
+
+
+def _seed_portfolio_context_peer(context, repo_root: Path) -> None:
+    _seed_private_beta(context, repo_root)
+    with context.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("BETA")
+        assert coverage is not None
+        coverage.coverage_status = CoverageStatus.PORTFOLIO
+        repository.upsert_coverage(coverage)
+
+        run = RunRecord(
+            company_id="BETA",
+            run_kind=RunKind.REFRESH,
+            status=RunStatus.COMPLETE,
+            triggered_by="test",
+            completed_at=utc_now(),
+        )
+        repository.save_run(run)
+        repository.save_monitoring_delta(
+            MonitoringDelta(
+                company_id="BETA",
+                current_run_id=run.run_id,
+                changed_sections=["risk", "overall_recommendation"],
+                change_summary="Portfolio name now shares concentration pressure with ACME.",
+                alert_level=AlertLevel.MEDIUM,
+                trigger_reasons=[
+                    MonitoringReason(
+                        category="concentration",
+                        factor_id="customer_concentration",
+                        summary="Customer concentration overlaps with the current book.",
+                    )
+                ],
+            )
+        )
+
+
+def _seed_public_overlay_evidence(context) -> None:
+    now = datetime(2026, 3, 14, tzinfo=UTC)
+    records = [
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="market_snapshot",
+            title="Public overlay valuation snapshot",
+            body="Valuation, positioning, and technical liquidity all matter for the current entry.",
+            source_path="examples/generated/public_overlay_valuation.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "valuation_multiples_vs_peers",
+                "technical_stock_movement",
+                "positioning_liquidity",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Public overlay evidence supports this factor.",
+                )
+                for factor_id in [
+                    "valuation_multiples_vs_peers",
+                    "technical_stock_movement",
+                    "positioning_liquidity",
+                ]
+            },
+            source_refs=[SourceRef(label="Overlay market snapshot")],
+            evidence_quality=0.82,
+            staleness_days=0,
+            as_of_date=now,
+            metadata={"evidence_family": "market"},
+        ),
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="ownership_report",
+            title="Public overlay ownership flow",
+            body="Ownership flow and borrow data show the sponsorship and crowding setup.",
+            source_path="examples/generated/public_overlay_ownership.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "insider_institutional_flow",
+                "borrow_short_interest_if_relevant",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Ownership-oriented overlay evidence supports this factor.",
+                )
+                for factor_id in [
+                    "insider_institutional_flow",
+                    "borrow_short_interest_if_relevant",
+                ]
+            },
+            source_refs=[SourceRef(label="Overlay ownership report")],
+            evidence_quality=0.8,
+            staleness_days=0,
+            as_of_date=now,
+            metadata={"evidence_family": "ownership"},
+        ),
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="ownership_report",
+            title="Public overlay financing posture",
+            body="Current financing dependency and control rights are visible in the structure.",
+            source_path="examples/generated/public_overlay_financing.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "cap_table",
+                "financing_dependency",
+                "control_rights",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Structure evidence supports this factor.",
+                )
+                for factor_id in [
+                    "cap_table",
+                    "financing_dependency",
+                    "control_rights",
+                ]
+            },
+            source_refs=[SourceRef(label="Overlay financing report")],
+            evidence_quality=0.78,
+            staleness_days=0,
+            as_of_date=now,
+            metadata={"evidence_family": "ownership"},
+        ),
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="market_commentary",
+            title="Public overlay exit posture",
+            body="Round terms and exit path remain central to the implementation posture.",
+            source_path="examples/generated/public_overlay_exit.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "round_terms_preferences",
+                "exit_path",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Exit evidence supports this factor.",
+                )
+                for factor_id in [
+                    "round_terms_preferences",
+                    "exit_path",
+                ]
+            },
+            source_refs=[SourceRef(label="Overlay exit memo")],
+            evidence_quality=0.79,
+            staleness_days=0,
+            as_of_date=now,
+            metadata={"evidence_family": "market"},
+        ),
+    ]
+    with context.database.session() as session:
+        Repository(session).save_evidence_records(records)
 
 
 def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -235,6 +410,85 @@ def test_expectations_rollout_without_expectation_inputs_surfaces_structured_ski
         "market_data",
         "milestone_tracking",
     }
+
+
+def test_full_surface_overlay_runs_with_supported_overlay_and_portfolio_context(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    _seed_public_overlay_evidence(seeded_acme)
+    _seed_portfolio_context_peer(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    assert result["panels"]["security_or_deal_overlay"]["support"]["status"] == "supported"
+    assert result["panels"]["portfolio_fit_positioning"]["support"]["status"] == "supported"
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert sections["portfolio_fit_positioning"]["status"] == "refreshed"
+    assert "company-quality panels only" not in sections["overall_recommendation"]["content"]
+    assert "unsupported for this run" not in sections["overall_recommendation"]["content"]
+
+
+def test_full_surface_overlay_skips_when_overlay_or_portfolio_context_is_missing(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    assert result["panels"]["security_or_deal_overlay"]["skip"]["reason_code"] == "missing_context"
+    assert (
+        result["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"]
+        == "missing_context"
+    )
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert sections["portfolio_fit_positioning"]["status"] == "not_advanced"
+    assert "company-quality panels only" in sections["overall_recommendation"]["content"]
+    assert (
+        "security or deal overlay unsupported for this run"
+        in sections["overall_recommendation"]["content"]
+    )
+    assert (
+        "portfolio fit positioning unsupported for this run"
+        in sections["overall_recommendation"]["content"]
+    )
+
+
+def test_portfolio_context_tool_returns_narrow_book_aware_summary(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_portfolio_context_peer(seeded_acme, repo_root)
+    agent = next(
+        item for item in seeded_acme.registries.agents.agents if item.id == "portfolio_fit_advocate"
+    )
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        payload = seeded_acme.tool_registry.execute(
+            repository=repository,
+            agent=agent,
+            company_id="ACME",
+            run_id="run_portfolio_tool",
+            tool_id="portfolio_context_summary",
+            payload={},
+        )
+
+    context_payload = payload["portfolio_context"]
+    assert context_payload["company_id"] == "ACME"
+    assert context_payload["portfolio_peer_count"] == 1
+    assert context_payload["watchlist_peer_count"] == 0
+    assert context_payload["shared_risk_peers"][0]["company_id"] == "BETA"
+    assert "target_factor_ids" in context_payload
+    assert "peer_changes" in context_payload
+    assert "baseline_active_claims" not in context_payload
 
 
 def test_supply_management_financial_internal_policy_runs_public_with_supported_results(

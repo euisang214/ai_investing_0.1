@@ -241,6 +241,7 @@ def test_overlay_tool_bundles_stay_bounded_to_overlay_inputs(context) -> None:
     assert bundles["portfolio_fit_research"].tool_ids == [
         "evidence_search",
         "claim_search",
+        "portfolio_context_summary",
         "analog_lookup",
         "price_volume_query",
     ]

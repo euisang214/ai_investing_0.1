@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ai_investing.application.portfolio import build_portfolio_positioning_context
 from ai_investing.domain.models import WriteMemoSectionInput
 from ai_investing.monitoring import AnalogGraph, ClaimContradictionService
 from ai_investing.tools.base import ToolContext
@@ -86,6 +87,24 @@ def analog_lookup(context: ToolContext, payload: dict[str, Any]) -> dict[str, An
             f"company:{reference.company_id}"
             for reference in references
             if reference.company_id is not None
+        ],
+    }
+
+
+def portfolio_context_summary(context: ToolContext, payload: dict[str, Any]) -> dict[str, Any]:
+    company_id = str(payload.get("company_id") or context.company_id)
+    summary = build_portfolio_positioning_context(
+        context.repository,
+        company_id=company_id,
+    )
+    if summary is None:
+        return {"portfolio_context": None, "output_refs": []}
+    return {
+        "portfolio_context": summary,
+        "output_refs": [
+            f"company:{item['company_id']}"
+            for item in summary.get("peer_changes", [])
+            if item.get("company_id")
         ],
     }
 

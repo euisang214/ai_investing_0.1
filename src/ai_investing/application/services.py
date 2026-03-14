@@ -11,6 +11,10 @@ import yaml
 
 from ai_investing.application.context import AppContext
 from ai_investing.application.notifications import NotificationService
+from ai_investing.application.portfolio import (
+    build_portfolio_context_evidence,
+    build_portfolio_positioning_context,
+)
 from ai_investing.application.scheduling import compute_initial_next_run_at, compute_next_run_at
 from ai_investing.config.models import AgentConfig, PanelConfig
 from ai_investing.domain.enums import (
@@ -27,6 +31,7 @@ from ai_investing.domain.models import (
     ClaimCard,
     CompanyProfile,
     CoverageEntry,
+    EvidenceRecord,
     GatekeeperVerdict,
     ICMemo,
     MemoSection,
@@ -346,7 +351,7 @@ class RefreshRuntime:
         with self.context.database.session() as session:
             repository = Repository(session)
             panel = self.context.get_panel(panel_id)
-            evidence = repository.list_evidence(self.company_profile.company_id, panel_id=panel_id)
+            evidence = self._panel_evidence(repository=repository, panel=panel)
             support = self._evaluate_panel_support(panel=panel, evidence=evidence)
             self._record_panel_support_assessment(support)
             if support.status == "unsupported":
@@ -610,6 +615,11 @@ class RefreshRuntime:
                     tool_id="evidence_search",
                     payload={"panel_id": panel.id, "factor_id": factor_id},
                 )["records"]
+                tool_evidence = self._merge_factor_evidence(
+                    base_records=tool_evidence,
+                    factor_id=factor_id,
+                    evidence=evidence,
+                )
                 prior_claims = self.context.tool_registry.execute(
                     repository=repository,
                     agent=agent,
@@ -787,9 +797,49 @@ class RefreshRuntime:
             ]
         if "prior_run" in channel_set:
             payload["prior_run"] = self._prior_run_payload()
+        if "portfolio_context" in channel_set:
+            payload["portfolio_context"] = self.run.metadata.get("portfolio_context")
         if support is not None:
             payload["support_assessment"] = support.model_dump(mode="json")
         return payload
+
+    def _panel_evidence(
+        self,
+        *,
+        repository: Repository,
+        panel: PanelConfig,
+    ) -> list[EvidenceRecord]:
+        evidence = list(repository.list_evidence(self.company_profile.company_id, panel_id=panel.id))
+        if panel.id == "portfolio_fit_positioning":
+            portfolio_context = self.run.metadata.get("portfolio_context")
+            if isinstance(portfolio_context, dict):
+                evidence.extend(
+                    build_portfolio_context_evidence(
+                        company_profile=self.company_profile,
+                        portfolio_context=portfolio_context,
+                    )
+                )
+        return evidence
+
+    @staticmethod
+    def _merge_factor_evidence(
+        *,
+        base_records: list[dict[str, Any]],
+        factor_id: str,
+        evidence: list[EvidenceRecord],
+    ) -> list[dict[str, Any]]:
+        merged = list(base_records)
+        seen_ids = {
+            str(record.get("evidence_id"))
+            for record in base_records
+            if isinstance(record, dict) and record.get("evidence_id")
+        }
+        for record in evidence:
+            if factor_id not in record.factor_ids or record.evidence_id in seen_ids:
+                continue
+            merged.append(record.model_dump(mode="json"))
+            seen_ids.add(record.evidence_id)
+        return merged
 
     def _evaluate_panel_support(
         self,
@@ -915,6 +965,8 @@ class RefreshRuntime:
     def _available_context_keys(self) -> set[str]:
         raw_context = self.run.metadata.get("available_context", [])
         available = {str(item) for item in raw_context if isinstance(item, str)}
+        if self.run.metadata.get("portfolio_context") is not None:
+            available.add("portfolio_context")
         if self.prior_memo is not None:
             available.add("prior_memo")
         if self.prior_active_verdicts:
@@ -1627,6 +1679,34 @@ class AnalysisService:
                 raise KeyError(company_id)
             return delta
 
+    def _resolve_run_context(
+        self,
+        *,
+        repository: Repository,
+        company_id: str,
+        selected_panels: list[str],
+    ) -> dict[str, Any]:
+        available_context: list[str] = []
+        context_payload: dict[str, Any] = {}
+
+        if (
+            "security_or_deal_overlay" in selected_panels
+            and repository.list_evidence(company_id, panel_id="security_or_deal_overlay")
+        ):
+            available_context.append("overlay_context")
+
+        if "portfolio_fit_positioning" in selected_panels:
+            portfolio_context = build_portfolio_positioning_context(
+                repository,
+                company_id=company_id,
+            )
+            if portfolio_context is not None:
+                available_context.append("portfolio_context")
+                context_payload["portfolio_context"] = portfolio_context
+
+        context_payload["available_context"] = sorted(set(available_context))
+        return context_payload
+
     def _start_run(
         self,
         *,
@@ -1685,6 +1765,11 @@ class AnalysisService:
                 "panel_support_assessments": [],
                 "skipped_panels": [],
                 "job_id": job_id,
+                **self._resolve_run_context(
+                    repository=repository,
+                    company_id=company_id,
+                    selected_panels=selected_panels,
+                ),
             }
             repository.save_run(run)
         return self._execute_run(run_id=run.run_id)
@@ -1735,7 +1820,10 @@ class AnalysisService:
                     monitoring_enabled=monitoring_enabled,
                     checkpointer=checkpointer,
                 )
-                config = checkpoint_config(runtime.run.run_id)
+                config = checkpoint_config(
+                    runtime.run.run_id,
+                    recursion_limit=max(25, (len(selected_panels) * 4) + 8),
+                )
                 if resume_action is None:
                     graph_result = graph.invoke(
                         {

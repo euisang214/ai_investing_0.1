@@ -13,8 +13,8 @@ tools:
   - { id: contradiction_finder, category: memory_knowledge, kind: builtin, description: "Find contradictions across claims and verdicts", handler: contradiction_finder }
   - { id: claim_search, category: memory_knowledge, kind: builtin, description: "Search prior claim cards", handler: claim_search }
   - { id: evidence_search, category: memory_knowledge, kind: builtin, description: "Search evidence by panel and factor", handler: evidence_search }
+  - { id: portfolio_context_summary, category: memory_knowledge, kind: builtin, description: "Retrieve a narrow portfolio-context summary for portfolio fit work", handler: portfolio_context_summary }
   - { id: memo_section_writer, category: workflow_side_effect, kind: builtin, description: "Write memo section content", handler: memo_section_writer }
   - { id: analog_lookup, category: memory_knowledge, kind: builtin, description: "Retrieve analog and base-rate notes", handler: analog_lookup }
   - { id: create_task, category: workflow_side_effect, kind: stub, description: "Create a follow-up task", handler: passthrough_stub }
   - { id: send_notification, category: workflow_side_effect, kind: stub, description: "Send a refresh notification", handler: passthrough_stub }
-

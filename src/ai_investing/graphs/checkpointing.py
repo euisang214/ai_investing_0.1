@@ -12,8 +12,15 @@ _MEMORY_SAVERS: dict[tuple[str, str, str], Any] = {}
 _POSTGRES_SETUP_COMPLETE: set[str] = set()
 
 
-def checkpoint_config(run_id: str) -> dict[str, dict[str, str]]:
-    return {"configurable": {"thread_id": run_id}}
+def checkpoint_config(
+    run_id: str,
+    *,
+    recursion_limit: int = 25,
+) -> dict[str, Any]:
+    return {
+        "configurable": {"thread_id": run_id},
+        "recursion_limit": recursion_limit,
+    }
 
 
 def interrupt_payloads(result: dict[str, Any]) -> list[Any]:

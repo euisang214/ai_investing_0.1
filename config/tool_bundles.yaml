@@ -22,7 +22,7 @@ bundles:
   - id: security_overlay_research
     tool_ids: [evidence_search, claim_search, financial_query, price_volume_query, ownership_flow_query, private_doc_fetch]
   - id: portfolio_fit_research
-    tool_ids: [evidence_search, claim_search, analog_lookup, price_volume_query]
+    tool_ids: [evidence_search, claim_search, portfolio_context_summary, analog_lookup, price_volume_query]
   - id: ic_judge
     tool_ids: [claim_search, contradiction_finder, memo_section_writer, analog_lookup]
   - id: memo_updater

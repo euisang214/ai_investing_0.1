@@ -21,6 +21,7 @@ class ToolRegistryService:
             "claim_search": builtins.claim_search,
             "contradiction_finder": builtins.contradiction_finder,
             "analog_lookup": builtins.analog_lookup,
+            "portfolio_context_summary": builtins.portfolio_context_summary,
             "memo_section_writer": builtins.memo_section_writer,
             "public_doc_fetch": builtins.public_doc_fetch,
             "private_doc_fetch": builtins.private_doc_fetch,

@@ -2,11 +2,19 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from ai_investing.application.context import AppContext
 from ai_investing.domain.enums import CoverageStatus, MonitoringChangeType
-from ai_investing.domain.models import CoverageEntry, MonitoringDelta, RunRecord, utc_now
+from ai_investing.domain.models import (
+    CompanyProfile,
+    CoverageEntry,
+    EvidenceRecord,
+    FactorSignal,
+    MonitoringDelta,
+    RunRecord,
+    SourceRef,
+    utc_now,
+)
 from ai_investing.domain.read_models import (
     CompanyMonitoringHistory,
     CompanyMonitoringHistoryEntry,
@@ -19,6 +27,9 @@ from ai_investing.domain.read_models import (
     PortfolioSharedRiskCluster,
 )
 from ai_investing.persistence.repositories import Repository
+
+if TYPE_CHECKING:
+    from ai_investing.application.context import AppContext
 
 _SUMMARY_SEGMENTS = (CoverageStatus.PORTFOLIO, CoverageStatus.WATCHLIST)
 _CHANGE_ORDER = (
@@ -33,6 +44,37 @@ _CHANGE_LABELS = {
     MonitoringChangeType.CONCENTRATION: "Concentration Signals",
     MonitoringChangeType.SECTION_MOVEMENT: "Section Movement",
 }
+_PORTFOLIO_CONTEXT_FACTOR_GROUPS = (
+    (
+        "portfolio_overlap_snapshot",
+        "Portfolio overlap snapshot",
+        "portfolio_context",
+        (
+            "factor_exposures",
+            "correlation_to_existing_book",
+            "crowding",
+        ),
+    ),
+    (
+        "liquidity_event_snapshot",
+        "Liquidity and event overlap snapshot",
+        "market",
+        (
+            "liquidity_exitability",
+            "downside_gap_risk",
+            "event_risk_overlap",
+        ),
+    ),
+    (
+        "sizing_snapshot",
+        "Sizing efficiency snapshot",
+        "portfolio_context",
+        (
+            "sizing_considerations",
+            "expected_value_vs_capital_at_risk",
+        ),
+    ),
+)
 
 
 def resolve_summary_segments(segment: str) -> tuple[CoverageStatus, ...]:
@@ -415,3 +457,185 @@ class PortfolioReadService:
             f"{label} currently affect {len(portfolio_items)} portfolio names "
             f"and {len(watchlist_items)} watchlist names."
         )
+
+
+def build_portfolio_positioning_context(
+    repository: Repository,
+    *,
+    company_id: str,
+) -> dict[str, Any] | None:
+    coverage = repository.get_coverage(company_id)
+    if coverage is None:
+        return None
+
+    peers = [
+        entry
+        for entry in repository.list_coverage(
+            enabled_only=True,
+            coverage_statuses=_SUMMARY_SEGMENTS,
+        )
+        if entry.company_id != company_id
+    ]
+    if not peers:
+        return None
+
+    target_factor_ids = _company_factor_ids(repository, company_id)
+    peer_summaries: list[dict[str, Any]] = []
+    segment_counts = {"portfolio": 0, "watchlist": 0}
+    for peer in peers:
+        latest_delta = repository.get_latest_monitoring_delta(peer.company_id)
+        if latest_delta is None:
+            continue
+        peer_factor_ids = _delta_factor_ids(latest_delta)
+        overlap_factor_ids = sorted(target_factor_ids.intersection(peer_factor_ids))
+        segment_counts[peer.coverage_status.value] += 1
+        peer_summaries.append(
+            {
+                "company_id": peer.company_id,
+                "company_name": peer.company_name,
+                "coverage_status": peer.coverage_status.value,
+                "change_summary": latest_delta.change_summary,
+                "changed_sections": list(latest_delta.changed_sections),
+                "shared_factor_ids": overlap_factor_ids,
+                "alert_level": latest_delta.alert_level.value,
+            }
+        )
+
+    if not peer_summaries:
+        return None
+
+    shared_risk_peers = [item for item in peer_summaries if item["shared_factor_ids"]]
+    return {
+        "company_id": coverage.company_id,
+        "company_name": coverage.company_name,
+        "coverage_status": coverage.coverage_status.value,
+        "portfolio_peer_count": segment_counts["portfolio"],
+        "watchlist_peer_count": segment_counts["watchlist"],
+        "shared_risk_peer_count": len(shared_risk_peers),
+        "shared_risk_peers": shared_risk_peers[:5],
+        "peer_changes": peer_summaries[:5],
+        "target_factor_ids": sorted(target_factor_ids),
+        "generated_at": utc_now().isoformat(),
+    }
+
+
+def build_portfolio_context_evidence(
+    *,
+    company_profile: CompanyProfile,
+    portfolio_context: dict[str, Any],
+) -> list[EvidenceRecord]:
+    peer_changes = portfolio_context.get("peer_changes", [])
+    shared_risk_peers = portfolio_context.get("shared_risk_peers", [])
+    peer_names = ", ".join(item["company_name"] for item in peer_changes[:3]) or "none"
+    shared_factor_ids = sorted(
+        {
+            factor_id
+            for item in shared_risk_peers
+            for factor_id in item.get("shared_factor_ids", [])
+        }
+    )
+    overlap_summary = (
+        "Shared risk peers: "
+        + ", ".join(
+            f"{item['company_name']} ({', '.join(item['shared_factor_ids'])})"
+            for item in shared_risk_peers[:3]
+        )
+        if shared_risk_peers
+        else "No direct shared-risk peers surfaced in the latest book snapshot."
+    )
+    source_type = (
+        "market_snapshot"
+        if company_profile.company_type.value == "public"
+        else "board_deck"
+    )
+
+    bodies = {
+        "portfolio_overlap_snapshot": (
+            f"Coverage status: {portfolio_context['coverage_status']}. "
+            f"Portfolio peers: {portfolio_context['portfolio_peer_count']}; "
+            f"watchlist peers: {portfolio_context['watchlist_peer_count']}. "
+            f"{overlap_summary}"
+        ),
+        "liquidity_event_snapshot": (
+            f"Recent peer changes informing liquidity and event overlap: {peer_names}. "
+            f"Shared factor ids: {', '.join(shared_factor_ids) or 'none'}."
+        ),
+        "sizing_snapshot": (
+            f"Book-aware sizing context shows {portfolio_context['shared_risk_peer_count']} "
+            "shared-risk peers and a live coverage mix that should shape expected value "
+            "versus capital-at-risk discipline."
+        ),
+    }
+
+    evidence_records: list[EvidenceRecord] = []
+    for key, title, family, factor_ids in _PORTFOLIO_CONTEXT_FACTOR_GROUPS:
+        evidence_records.append(
+            EvidenceRecord(
+                company_id=company_profile.company_id,
+                company_type=company_profile.company_type,
+                source_type=source_type,
+                title=title,
+                body=bodies[key],
+                source_path=f"portfolio://{company_profile.company_id}/{key}",
+                namespace=f"company/{company_profile.company_id}/evidence/portfolio_context",
+                panel_ids=["portfolio_fit_positioning"],
+                factor_ids=list(factor_ids),
+                factor_signals={
+                    factor_id: FactorSignal(
+                        stance="contextual",
+                        summary=bodies[key],
+                        metrics={
+                            "portfolio_peer_count": portfolio_context["portfolio_peer_count"],
+                            "watchlist_peer_count": portfolio_context["watchlist_peer_count"],
+                            "shared_risk_peer_count": portfolio_context["shared_risk_peer_count"],
+                        },
+                    )
+                    for factor_id in factor_ids
+                },
+                source_refs=[
+                    SourceRef(
+                        label="Portfolio monitoring summary",
+                        excerpt=bodies[key],
+                    )
+                ],
+                evidence_quality=0.72,
+                staleness_days=0,
+                as_of_date=utc_now(),
+                metadata={
+                    "evidence_family": (
+                        family
+                        if family != "market" or company_profile.company_type.value == "public"
+                        else "dataroom"
+                    ),
+                    "context_source": "portfolio_positioning_context",
+                },
+            )
+        )
+    return evidence_records
+
+
+def _company_factor_ids(repository: Repository, company_id: str) -> set[str]:
+    factor_ids: set[str] = set()
+    for record in repository.list_evidence(company_id):
+        factor_ids.update(record.factor_ids)
+    return factor_ids
+
+
+def _delta_factor_ids(delta: MonitoringDelta) -> set[str]:
+    factor_ids = {
+        reason.factor_id
+        for reason in delta.trigger_reasons
+        if reason.factor_id is not None
+    }
+    factor_ids.update(
+        reference.factor_id
+        for reference in delta.contradiction_references
+        if reference.factor_id is not None
+    )
+    factor_ids.update(signal.factor_id for signal in delta.concentration_signals)
+    factor_ids.update(
+        reference.factor_id
+        for reference in delta.analog_references
+        if reference.factor_id is not None
+    )
+    return factor_ids
