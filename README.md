@@ -1,30 +1,35 @@
 # AI Investing
 
-AI Investing is a config-driven multi-agent investment research platform for public and private company analysis. It preserves structured factor-level memory, consolidates panel verdicts, maintains a living IC memo, and produces rerun deltas for covered names.
+AI Investing is a config-driven multi-agent investment research platform for public and private company analysis. The shipped runtime persists structured evidence, factor-level claims, panel verdicts, memo section updates, and rerun deltas so weekly refreshes remain inspectable instead of collapsing into one terminal report.
 
-## What Is Implemented Today
+## What The Runtime Produces
 
-The productionized vertical slice is intentionally narrow:
+- factor-level claim cards
+- panel-level verdicts
+- a living IC memo
+- rerun deltas against the prior active memo
+- queue, review, and notification records for recurring operations
 
-- YAML-driven cohort, factor, tool, memo-section, connector, and run-policy registries
-- typed schemas and Postgres-backed persistence
-- file-based public/private ingestion
-- working panel execution for `gatekeepers`
-- working panel execution for `demand_revenue_quality`
-- section-level memo updates during the run
-- rerun delta generation
-- FastAPI and Typer interfaces
-- sample data, n8n workflow examples, and automated tests
+The memo remains a living artifact. Its required sections are:
 
-## Current Panel Status
+- `investment_snapshot`
+- `what_changed_since_last_run`
+- `risk`
+- `durability_resilience`
+- `growth`
+- `economic_spread`
+- `valuation_terms`
+- `expectations_variant_view`
+- `realization_path_catalysts`
+- `portfolio_fit_positioning`
+- `overall_recommendation`
 
-Implemented and runnable today:
+## Implemented Panel Surface
+
+All top-level panels in the configured surface are now productionized and runnable through the shared runtime:
 
 - `gatekeepers`
 - `demand_revenue_quality`
-
-Scaffold-only and visible in config, but not runnable yet:
-
 - `supply_product_operations`
 - `market_structure_growth`
 - `macro_industry_transmission`
@@ -35,153 +40,121 @@ Scaffold-only and visible in config, but not runnable yet:
 - `security_or_deal_overlay`
 - `portfolio_fit_positioning`
 
-This distinction matters operationally. `config/panels.yaml` and `config/run_policies.yaml` intentionally keep the full planned panel topology inspectable, including future-facing policies such as `full_surface`. That future-facing surface is allowed to exist in config before it is runnable. The runtime still blocks execution when a selected policy or explicit panel list includes scaffold-only panels, so visibility in config does not mean production readiness.
+That does not mean every run executes every panel. Panel selection is still policy-driven and support-aware.
 
-## Short Extension Checklist
+## Run Policies
 
-Use this high-level checklist before treating any scaffold-only panel as runnable:
+The runtime keeps rollout and operator defaults config-driven in `config/run_policies.yaml`.
 
-1. Confirm the panel contract in `config/panels.yaml`, including `implemented`, `memo_section_ids`, and `factor_ids`.
-2. Expand the panel agent tree in `config/agents.yaml` instead of hardcoding topology in orchestration.
-3. Keep factor ownership and descriptions aligned in `config/factors.yaml`.
-4. Replace scaffold prompts in `prompts/` with implementation-ready panel and agent prompts.
-5. Add or update tests in `tests/` that prove the new panel works and that scaffold boundaries remain explicit.
-6. Change runtime code only if the abstraction truly needs expansion; config and prompt work should remain the default path.
+- `weekly_default`: narrow operator default for recurring coverage. Runs `gatekeepers` and `demand_revenue_quality`.
+- `internal_company_quality`: adds `supply_product_operations`, `management_governance_capital_allocation`, and `financial_quality_liquidity_economic_model`.
+- `external_company_quality`: adds `market_structure_growth`, `macro_industry_transmission`, and `external_regulatory_geopolitical`.
+- `expectations_rollout`: adds `expectations_catalyst_realization`.
+- `full_surface`: adds the overlay family, `security_or_deal_overlay` and `portfolio_fit_positioning`.
 
-Need the full file-by-file path? See the [panel extension guide](docs/panel_extension_path.md).
+`weekly_default` intentionally stays narrower than `full_surface`. The repository ships the full productionized panel surface, but operators still choose how wide a given run should be.
+
+## Support Contract
+
+Every selected panel passes through the same support check before execution. The panel config declares:
+
+- required evidence families by company type
+- minimum factor coverage ratio
+- minimum evidence count
+- required context, when applicable
+- whether weak confidence is allowed
+
+The support outcome is explicit and persisted in run metadata:
+
+- `supported`: the panel ran with its normal posture
+- `weak_confidence`: the panel still ran, but the runtime calls out thin support directly in the panel support metadata and affected memo section text
+- `unsupported`: the panel is skipped explicitly and the run continues
+
+The runtime does not silently drop unsupported panels and it does not fail the whole run only because one later panel lacks support.
+
+## Weak Confidence Versus Skip
+
+Most company-quality panels can run with `weak_confidence` when evidence is present but thinner than the normal readiness bar. That preserves analytical continuity while keeping the confidence posture honest.
+
+Some panels do not allow that fallback:
+
+- `expectations_catalyst_realization` requires expectations-specific evidence such as consensus or milestone tracking
+- `security_or_deal_overlay` requires overlay-specific context
+- `portfolio_fit_positioning` requires portfolio context
+
+When those requirements are missing, the runtime records an explicit skip instead of fabricating a conclusion.
+
+## Analytical Separation
+
+The runtime preserves the analytical boundary that the project requires:
+
+- company quality lives in `demand_revenue_quality`, `supply_product_operations`, `market_structure_growth`, `macro_industry_transmission`, `management_governance_capital_allocation`, `financial_quality_liquidity_economic_model`, and `external_regulatory_geopolitical`
+- expectations and catalysts live in `expectations_catalyst_realization`
+- security quality or deal framing lives in `security_or_deal_overlay`
+- portfolio fit lives in `portfolio_fit_positioning`
+
+Those families remain separate in config, prompts, memo ownership, generated artifacts, CLI/API read surfaces, and docs. `security_or_deal_overlay` is not merged into company quality, and `portfolio_fit_positioning` is not treated as a generic extension of the company memo.
+
+## Overall Recommendation Scope
+
+`overall_recommendation` is truthful about what actually ran.
+
+- If a run stops at company-quality and expectations policies, the memo calls out that the overlays are pending for that rollout.
+- If `full_surface` is selected but overlay context is missing, the memo and interface surfaces call out that the relevant overlays were unsupported for this run.
+- If both overlays run successfully, the recommendation scope is `overlay_complete`.
+
+A partial recommendation therefore still has value, but it should be read as company-quality-only or company-quality-plus-expectations guidance until the overlays are either run or explicitly deemed unsupported.
 
 ## Quick Start
 
-Docker is the primary local workflow. The host workflow is supported only when Python 3.11+ is available.
+Docker is the primary local workflow. The host path is supported only when Python 3.11+ is available.
 
 ```bash
 docker compose up --build -d
 docker compose exec api ai-investing init-db
 docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
 docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
-docker compose exec api ai-investing list-cadence-policies
 docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
 docker compose exec api ai-investing analyze-company ACME
-# pass and review now auto-continue; inspect the persisted run after completion
 docker compose exec api ai-investing show-run <run_id>
-docker compose exec api ai-investing enqueue-watchlist
-docker compose exec api ai-investing run-worker --worker-id local --max-concurrency 2
 docker compose exec api ai-investing generate-memo ACME
+docker compose exec api ai-investing show-delta ACME
 ```
 
-The Phase 5 runtime keeps `gatekeepers` as the first checkpoint, but the checkpoint is no longer a universal human pause. `pass` and `review` auto-continue into downstream work for both initial and scheduled runs. `fail` stops after `gatekeepers`, creates a review-queue record, and emits an immediate operator notification. `continue-run <run_id> --provisional` remains the explicit operator-only path for exploratory downstream work after a failed gatekeeper. Structured lifecycle fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`, and `checkpoint` remain available so operators and automation clients can inspect run state without scraping prose.
+To run a broader surface, update the coverage policy or submit a refresh through the API or CLI with the relevant policy configured on the company.
 
-## Host Workflow
+## Queue And Notification Operations
 
-Only use this path when `python --version` reports Python 3.11 or newer.
+Recurring operations are queue-backed and remain outside the reasoning core.
 
-```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -e ".[dev]"
-ai-investing init-db
-```
+- `enqueue-watchlist`, `enqueue-portfolio`, and `enqueue-due-coverage` submit work
+- `run-worker` executes bounded queue work through the same service-owned runtime
+- failed gatekeepers become review-queue items
+- external automation claims and dispatches notification events instead of inferring them from memo text
 
-## Example CLI Commands
+The checkpoint policy is also explicit:
 
-```bash
-ai-investing init-db
-ai-investing ingest-public-data examples/acme_public
-ai-investing ingest-private-data examples/beta_private
-ai-investing add-coverage ACME "Acme Cloud" public watchlist
-ai-investing list-cadence-policies
-ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
-ai-investing list-coverage
-ai-investing disable-coverage ACME
-ai-investing set-next-run-at ACME 2026-03-10T09:30:00+00:00
-ai-investing remove-coverage ACME
-ai-investing analyze-company ACME
-ai-investing show-run run_123
-ai-investing continue-run run_123 --provisional
-ai-investing run-panel ACME gatekeepers
-ai-investing refresh-company ACME
-ai-investing run-due-coverage
-ai-investing queue-summary
-ai-investing enqueue-companies ACME
-ai-investing enqueue-watchlist
-ai-investing enqueue-portfolio
-ai-investing enqueue-due-coverage
-ai-investing show-job job_123
-ai-investing retry-job job_123
-ai-investing cancel-job job_123 --reason "coverage disabled"
-ai-investing force-run-job job_123
-ai-investing list-review-queue
-ai-investing run-worker --worker-id worker_a --max-concurrency 2
-ai-investing list-notifications
-ai-investing claim-notifications --consumer-id n8n
-ai-investing dispatch-notification notif_123
-ai-investing acknowledge-notification notif_123
-ai-investing generate-memo ACME
-ai-investing show-delta ACME
-ai-investing list-agents
-ai-investing enable-agent demand_skeptic
-ai-investing disable-agent demand_skeptic
-ai-investing reparent-agent demand_skeptic demand_advocate
-```
+- every run enters `gatekeepers`
+- `pass` and `review` auto-continue
+- `fail` stops for review and only an operator can choose provisional continuation
 
-## Scheduled Operations
+## Generated Artifacts
 
-Phase 5 adds a queue-backed operating model around the existing analysis service:
+Checked artifacts under `examples/generated/` document the shipped runtime contract.
 
-- cadence policy selection remains config-driven through `list-cadence-policies` and `set-coverage-schedule`
-- bulk watchlist, portfolio, selected-company, and due-coverage refreshes enqueue jobs instead of running all reasoning inline
-- workers claim queued jobs and execute the same service-owned graph runtime used by manual refreshes
-- failed gatekeepers become review-queue items instead of generic worker failures
-- provisional downstream analysis stays operator-only through `continue-run <run_id> --provisional`
+- `ACME/initial`: initial lifecycle output for the configured policy
+- `ACME/continued`: persisted reread of the same completed run
+- `ACME/rerun`: rerun with delta output against the prior active memo
+- `ACME/overlay_gap`: `full_surface` output where company-quality work still completes but overlay context is unsupported and skipped explicitly
 
-The queue and worker surfaces are additive. `analyze-company` and `refresh-company` still work for targeted runs, while scheduled and bulk operations use `enqueue-*`, `queue-summary`, `show-job`, `run-worker`, `retry-job`, `cancel-job`, and `force-run-job`.
-
-## Notifications
-
-Notification delivery is also additive and stays outside the reasoning runtime:
-
-- immediate alerts fire for failed gatekeepers, worker failures, and materially changed successful runs
-- daily digest candidates are created for successful runs even when a company has no key changes
-- one shared operator channel is the current target, with n8n or another external system claiming and dispatching events through stable notification endpoints
-- no workflow is allowed to auto-trigger provisional continuation after a failed gatekeeper
-
-## Monitoring Read Surfaces
-
-Phase 4 adds additive operator-facing inspection surfaces for monitoring history and portfolio
-monitoring. They are read-only projections over persisted coverage, run, and monitoring records.
-They do not create a frontend, they do not widen orchestration, and they do not make
-`portfolio_fit_positioning` runnable.
-
-Operator CLI examples:
-
-```bash
-ai-investing show-monitoring-history ACME --limit 5
-ai-investing show-portfolio-summary
-ai-investing show-portfolio-summary --segment portfolio
-```
-
-Matching API routes:
-
-- `GET /companies/{company_id}/monitoring-history`
-- `GET /portfolio/monitoring-summary`
-
-The portfolio monitoring summary includes both portfolio and watchlist names by default, but it
-keeps those segments separate in every response. Operators should read the summary by change type
-first, then by segment. Shared-risk or overlap clusters appear ahead of exploratory analog
-drill-down so the main portfolio monitoring view stays actionable instead of becoming a blended
-company list.
+These artifacts are generated by `scripts/generate_phase2_examples.py` and locked by `tests/test_generated_examples.py`.
 
 ## Repo Layout
 
 See [docs/architecture.md](docs/architecture.md), [docs/factor_ontology.md](docs/factor_ontology.md), [docs/memory_model.md](docs/memory_model.md), and [docs/runbook.md](docs/runbook.md).
 
-For the explicit scaffold-to-production handoff, start with the [panel extension guide](docs/panel_extension_path.md).
+## Next Work
 
-The operator workflow for cadence policies, queue-backed refresh submission, review handling, notification delivery, provisional overrides, and run inspection lives in [docs/runbook.md](docs/runbook.md).
-
-## Next Backlog
-
-- productionize the remaining panels
-- deepen contradiction and analog services
-- add more realistic public/private connector adapters
-- add more notification destinations and operator-facing review tooling
+- close the remaining Phase 4 and Phase 5 verification chains
+- deepen connector realism without breaking the config-driven runtime
+- extend operator tooling around review and notification flows

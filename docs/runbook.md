@@ -2,168 +2,186 @@
 
 ## Docker-First Workflow
 
-1. Start Postgres with Docker Compose.
-2. Initialize the database.
-3. Ingest sample evidence.
-4. Add a coverage entry.
-5. Inspect cadence policies and assign a schedule.
-6. Run an analysis or enqueue scheduled work.
-7. Inspect the queue, review queue, notifications, memo, and delta outputs.
-
-## Recommended Commands
-
 ```bash
 docker compose up --build -d
 docker compose exec api ai-investing init-db
 docker compose exec api ai-investing ingest-public-data /app/examples/acme_public
 docker compose exec api ai-investing add-coverage ACME "Acme Cloud" public watchlist
-docker compose exec api ai-investing list-cadence-policies
-docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
-docker compose exec api ai-investing analyze-company ACME
-docker compose exec api ai-investing enqueue-watchlist
-docker compose exec api ai-investing run-worker --worker-id local --max-concurrency 2
-```
-
-## Checkpoint Workflow
-
-Every company analysis still enters `gatekeepers` first. The difference in Phase 5 is that the checkpoint is now auto-resolved for `pass` and `review`, while `fail` remains a blocking review state.
-
-1. Start the run with `ai-investing analyze-company ACME`, `ai-investing refresh-company ACME`, or
-   `POST /companies/{company_id}/analyze`.
-2. Read the returned `run.run_id`.
-3. Use `ai-investing show-run <run_id>` or `GET /runs/{run_id}` to retrieve the persisted run.
-4. Look at the structured fields instead of parsing prose:
-   `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`,
-   `checkpoint_panel_id`, and `checkpoint.allowed_actions`.
-5. If `gate_decision` is `pass` or `review`, the run should already be terminal. The checkpoint record stays on the run for auditability, but `awaiting_continue` is `false` and `checkpoint.resolution_action` should already be `continue`.
-6. If `gate_decision` is `fail`, downstream work is blocked until the operator reviews the queue entry and explicitly chooses
-   `ai-investing continue-run <run_id> --provisional` or
-   `{"action": "continue_provisional"}`.
-7. `--stop` remains valid when an operator wants to finalize a failed gatekeeper run without any provisional downstream work.
-
-## What Exists Before And After Continue
-
-- The gatekeeper verdict, memo projection, and checkpoint metadata are persisted for every run, even when the checkpoint is auto-resolved.
-- Successful pass or review runs can already emit final memo and delta artifacts because downstream work completes automatically.
-- Failed gatekeeper runs stay at `awaiting_continue` and do not emit a terminal monitoring delta until the operator stops or resumes provisionally.
-- Stopping after `gatekeepers` keeps the full memo shape visible; sections without downstream work remain `not_advanced` or `stale` instead of disappearing.
-- Provisional resumes keep `provisional: true` on the run payload so downstream output stays visibly exploratory.
-
-## Cadence Policies
-
-Use cadence policies for recurring operations instead of hardcoding weekly behavior in automation.
-
-```bash
-docker compose exec api ai-investing list-cadence-policies
-docker compose exec api ai-investing set-coverage-schedule ACME --schedule-policy-id weekdays
-docker compose exec api ai-investing set-coverage-schedule ACME --schedule-disabled
-docker compose exec api ai-investing set-next-run-at ACME 2026-03-17T09:30:00+00:00
-```
-
-- `schedule_policy_id` is the primary cadence control for scheduled refreshes.
-- `schedule_enabled` lets operators disable recurring runs without deleting coverage.
-- `preferred_run_time` keeps timing explicit while preserving one shared workspace timezone.
-- `set-next-run-at` remains useful for one-off overrides and manual testing.
-
-## Queue Submission And Worker Execution
-
-Scheduled and bulk operations should enqueue jobs instead of running all reasoning inline.
-
-```bash
-docker compose exec api ai-investing queue-summary
-docker compose exec api ai-investing enqueue-companies ACME BETA
-docker compose exec api ai-investing enqueue-watchlist
-docker compose exec api ai-investing enqueue-portfolio
-docker compose exec api ai-investing enqueue-due-coverage
-docker compose exec api ai-investing show-job <job_id>
-docker compose exec api ai-investing retry-job <job_id>
-docker compose exec api ai-investing cancel-job <job_id> --reason "coverage disabled"
-docker compose exec api ai-investing force-run-job <job_id>
-docker compose exec api ai-investing run-worker --worker-id local --max-concurrency 2
-```
-
-- `enqueue-companies` is for a hand-picked set of company ids.
-- `enqueue-watchlist` and `enqueue-portfolio` are the bulk operator entrypoints.
-- `enqueue-due-coverage` is the scheduling-friendly surface for cron or n8n.
-- `run-worker` executes bounded parallel queue work inside the service runtime.
-- `queue-summary` and `show-job` expose queue state without requiring direct database access.
-
-## Review Queue And Provisional Overrides
-
-- `ai-investing run-due-coverage` and `POST /coverage/run-due` preserve the same checkpoint flow.
-  They remain available for local debugging, but scheduled automation should prefer queue submission.
-- If a company is already paused at `awaiting_continue`, the existing paused run is returned instead
-  of silently starting a new one.
-- `ai-investing run-panel` and `POST /companies/{company_id}/panels/{panel_id}/run` can only start
-  with `gatekeepers`.
-- Direct downstream panel execution such as `demand_revenue_quality` requires an existing paused run
-  plus an explicit continue action.
-- Failed gatekeepers appear in `ai-investing list-review-queue` and `GET /review-queue`.
-- Review-queue items are first-class operational records linked to the run, job, and notification event.
-- No worker, webhook, or n8n flow may call `continue-run --provisional` automatically.
-
-## Notifications
-
-Notifications are created by the service and delivered by external automation against stable endpoints.
-
-```bash
-docker compose exec api ai-investing list-notifications
-docker compose exec api ai-investing claim-notifications --consumer-id n8n
-docker compose exec api ai-investing dispatch-notification <event_id>
-docker compose exec api ai-investing acknowledge-notification <event_id>
-```
-
-- immediate alerts fire for failed gatekeepers, worker failures, and materially changed successful runs
-- the daily digest includes successful runs with no key changes so operators can confirm coverage still processed
-- notification records include the company, summary, next action, and any linked job or review ids
-- external tooling should claim and dispatch notifications; it should not infer them from memo text or database reads
-
-## Operator Examples
-
-```bash
 docker compose exec api ai-investing analyze-company ACME
 docker compose exec api ai-investing show-run <run_id>
-docker compose exec api ai-investing continue-run <run_id> --stop
-docker compose exec api ai-investing continue-run <run_id> --provisional
-docker compose exec api ai-investing run-panel ACME gatekeepers
-docker compose exec api ai-investing queue-summary
-docker compose exec api ai-investing enqueue-watchlist
-docker compose exec api ai-investing list-review-queue
-docker compose exec api ai-investing list-notifications
 docker compose exec api ai-investing generate-memo ACME
 docker compose exec api ai-investing show-delta ACME
 ```
 
+Use the host workflow only when Python 3.11+ is available locally.
+
+## Choosing A Run Policy
+
+Coverage policy determines how wide the panel surface is for a run.
+
+- `weekly_default`: use for the narrow recurring operator baseline
+- `internal_company_quality`: use when you want the full internal company-quality family
+- `external_company_quality`: use when you also want market and regulatory context
+- `expectations_rollout`: use when you want the company-quality surface plus `expectations_catalyst_realization`
+- `full_surface`: use when you also want `security_or_deal_overlay` and `portfolio_fit_positioning`
+
+The wider policies do not force unsupported panels to fabricate output. They still honor the support contract per run.
+
+## Checkpoint Workflow
+
+Every run enters `gatekeepers` first.
+
+1. Start the run with `ai-investing analyze-company ACME`, `ai-investing refresh-company ACME`, or the matching API route.
+2. Capture the returned `run_id`.
+3. Inspect the persisted run with `ai-investing show-run <run_id>` or `GET /runs/{run_id}`.
+4. Read structured state instead of memo prose alone:
+   `gate_decision`, `awaiting_continue`, `checkpoint_panel_id`, `checkpoint`, `panel_support_assessments`, and `skipped_panels`.
+
+Checkpoint behavior is:
+
+- `pass`: auto-continue
+- `review`: auto-continue
+- `fail`: stop for review and require explicit operator-only provisional continuation or stop
+
+## Reading Panel Support
+
+Each selected panel surfaces one of three support states:
+
+- `supported`
+- `weak_confidence`
+- `unsupported`
+
+Interpret them as follows:
+
+### Supported
+
+The configured readiness bar was satisfied. Read the panel verdict and affected memo sections normally.
+
+### Weak Confidence
+
+The panel still ran, but the evidence or factor coverage is thinner than the preferred readiness bar. The run payload records that status explicitly, and affected memo sections call out weak confidence so the operator does not need to inspect raw evidence counts manually.
+
+This is most relevant for company-quality families such as:
+
+- `supply_product_operations`
+- `market_structure_growth`
+- `management_governance_capital_allocation`
+- `financial_quality_liquidity_economic_model`
+
+### Unsupported
+
+The panel did not run. The runtime records:
+
+- a `support` object with `status: unsupported`
+- a `skip` object with a reason code and missing context or evidence detail
+
+The run continues. Unsupported panels do not abort the full analysis unless the operator intentionally stops the run earlier.
+
+## Reading Partial Recommendations
+
+`overall_recommendation` is intentionally scoped.
+
+- If a narrower policy such as `expectations_rollout` ran, the memo should say that the security or deal overlay is pending for that rollout and that portfolio fit positioning has not been added yet.
+- If `full_surface` ran but overlay context was unavailable, the memo should say the relevant overlay was unsupported for this run.
+- If both overlays ran successfully, the recommendation scope is complete across company quality, expectations, `security_or_deal_overlay`, and `portfolio_fit_positioning`.
+
+A partial recommendation is still useful. Read it as the best available conclusion for the executed surface, not as a silent claim that every panel family completed.
+
+## Overlay Support Rules
+
+Overlay handling is stricter than ordinary company-quality panels.
+
+- `security_or_deal_overlay` requires overlay-specific context and evidence
+- `portfolio_fit_positioning` requires portfolio context
+
+Neither overlay falls back to weak confidence today. Missing overlay support yields an explicit skip.
+
+This is the expected behavior for runs where:
+
+- the operator chooses `full_surface` without loading overlay evidence
+- the company has company-quality support but no book-aware portfolio context
+
+## Queue And Review Operations
+
+Use queue-backed commands for scheduled or batch work.
+
+```bash
+docker compose exec api ai-investing queue-summary
+docker compose exec api ai-investing enqueue-watchlist
+docker compose exec api ai-investing enqueue-portfolio
+docker compose exec api ai-investing enqueue-due-coverage
+docker compose exec api ai-investing run-worker --worker-id local --max-concurrency 2
+docker compose exec api ai-investing list-review-queue
+docker compose exec api ai-investing list-notifications
+```
+
+Key rules:
+
+- queue jobs execute the same analysis runtime as direct operator runs
+- failed gatekeepers create review-queue items
+- no worker or external automation flow may call provisional continuation automatically
+
+## Generated Artifact Inspection
+
+Checked artifacts under `examples/generated/ACME/` provide a stable operator reference for the shipped Phase 6 contract.
+
+- `initial/`: initial run output
+- `continued/`: persisted reread of that same completed run
+- `rerun/`: rerun with delta output against the prior active memo
+- `overlay_gap/`: `full_surface` output where company-quality and expectations panels complete, but overlays are skipped explicitly because support context is missing
+
+Inspect in this order:
+
+1. `result.json` for run metadata, support states, and skipped panels
+2. `memo.md` for how sections and `overall_recommendation` render
+3. `delta.json` for rerun changes
+
+## Common Operator Reads
+
+### Company-quality only
+
+If you are using `weekly_default`, `internal_company_quality`, or `external_company_quality`, treat the memo as intentionally incomplete on overlays. That is policy choice, not runtime failure.
+
+### Expectations included, overlays not selected
+
+If `expectations_rollout` ran, `expectations_catalyst_realization` should be present, and `overall_recommendation` should still describe overlay work as pending rather than complete.
+
+### Full surface with unsupported overlays
+
+If `full_surface` ran and overlays show `unsupported`, the correct conclusion is:
+
+- company-quality work still completed
+- overlay support was absent for this run
+- the memo should not imply that skipped overlays disappeared
+
+### Full surface with supported overlays
+
+If `security_or_deal_overlay` and `portfolio_fit_positioning` both show `supported`, the run has the full panel surface and the recommendation scope can be read as overlay-complete.
+
 ## HTTP API Surfaces
 
-Use these endpoints when wiring external automation:
+Use these endpoints for automation:
 
-- `POST /queue/enqueue-selected`
+- `POST /companies/{company_id}/analyze`
+- `POST /companies/{company_id}/refresh`
+- `GET /runs/{run_id}`
+- `GET /review-queue`
 - `POST /queue/enqueue-watchlist`
 - `POST /queue/enqueue-portfolio`
 - `POST /queue/enqueue-due`
-- `GET /queue`
-- `GET /queue/{job_id}`
-- `GET /review-queue`
 - `POST /workers/run`
 - `GET /notifications`
 - `POST /notifications/claim`
 - `POST /notifications/{event_id}/dispatch`
 - `POST /notifications/{event_id}/acknowledge`
 
-Keep n8n and other schedulers on those API and webhook boundaries. They should not coordinate worker-internal callbacks, panel sequencing, or provisional continuation logic.
+Keep external automation on those boundaries. It should not coordinate panel sequencing or infer recommendation scope by scraping memo text.
 
-## Host Workflow
-
-Only use the host workflow when Python 3.11+ is available locally.
+## Regenerating Checked Examples
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -e ".[dev]"
-ai-investing init-db
+docker compose run --rm api python scripts/generate_phase2_examples.py
+docker compose run --rm api pytest -q tests/test_generated_examples.py
 ```
 
-## Python Version Note
-
-The project target runtime is Python 3.11+ because current LangGraph releases require Python 3.10 or newer. Docker remains the recommended path when the host interpreter is older or missing the project dependencies.
+Those commands keep the docs, checked artifacts, and regression contract synchronized.

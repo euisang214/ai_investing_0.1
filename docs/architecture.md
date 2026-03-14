@@ -2,28 +2,23 @@
 
 ## Overview
 
-This repository implements a modular multi-agent investment research platform for public and private company analysis. The design treats factor-level memory, panel verdicts, and memo section updates as first-class structured records, then composes company refreshes from reusable LangGraph subgraphs instead of bespoke workflows.
+This repository implements a modular multi-agent investment research platform for public and private company analysis. The shipped runtime composes reusable LangGraph subgraphs, typed persistence, config-driven registries, and memo projection services into one auditable flow that can run narrow or wide panel policies without changing orchestration code.
 
-The initial production scope is deliberately narrow:
+The runtime stores structured records for:
 
-- full vertical slice for `gatekeepers`
-- full vertical slice for `demand_revenue_quality`
-- living memo updates during the run
-- rerun delta generation against the prior active memo
+- evidence
+- claim cards
+- panel verdicts
+- memo sections and memo section updates
+- monitoring deltas
+- queue, review, and notification events
 
-The rest of the panel surface area is scaffolded in configuration and prompts so it can be expanded without rewriting orchestration core code.
+## Current Runtime Surface
 
-## Current Panel Topology
-
-The current runtime intentionally separates implemented panels from scaffold-only panels.
-
-Implemented and runnable today:
+All configured top-level panels are now implemented:
 
 - `gatekeepers`
 - `demand_revenue_quality`
-
-Scaffold-only panels that already exist in registry and prompt assets:
-
 - `supply_product_operations`
 - `market_structure_growth`
 - `macro_industry_transmission`
@@ -34,307 +29,185 @@ Scaffold-only panels that already exist in registry and prompt assets:
 - `security_or_deal_overlay`
 - `portfolio_fit_positioning`
 
-This topology is config-driven on purpose. The repository needs the eventual panel map to be editable in YAML long before every panel has a safe execution path. That is why future-facing policies can appear in config before those panels are runnable.
+Execution breadth is controlled by run policy, not by changing the graph. `weekly_default` remains the narrow operator default, while `internal_company_quality`, `external_company_quality`, `expectations_rollout`, and `full_surface` expose broader configured slices.
 
-## Runtime Boundary For Scaffold-Only Panels
-
-Three rules define the current posture:
-
-1. `config/panels.yaml` is the source of truth for the intended panel inventory, even when some entries are scaffold-only.
-2. `config/run_policies.yaml` may expose future-facing policies such as `full_surface` so operators and engineers can inspect the planned topology.
-3. Execution still rejects scaffold-only panels until the required agents, prompts, tests, and verification coverage exist.
-
-The important operational point is that "present in config" is not the same as "approved for production runs." Config visibility helps maintainability and extension planning. Runtime safety still depends on the execution guardrails that block unimplemented panels before partial work starts.
-
-## Target Runtime
-
-- Python `3.11+`
-- `uv` for environment and dependency management
-- FastAPI for the service layer
-- Typer for the CLI
-- LangGraph for orchestration
-- SQLAlchemy + Postgres for persistence
-- Pydantic v2 for schemas
-- Docker Compose for local Postgres-backed development
-
-## Assumptions
-
-- v1 users are engineers or research operators comfortable with CLI/API workflows.
-- Evidence ingestion can begin with local files and sample adapters rather than live vendor APIs.
-- Weekly reruns are the default cadence, but cadence is a policy concern and must remain configurable.
-- The first useful outcome is a strong backend contract and one trustworthy vertical slice, not full coverage of every panel.
-- Postgres is the source of truth for persisted state; vector search is optional and loosely coupled.
-
-## Explicit Non-Goals
-
-- Frontend application or analyst UI
-- Compliance, entitlement, or restricted-information workflow controls
-- Production-ready live integrations for premium public or private data vendors
-- Full implementation of every panel's reasoning logic in v1
-- Autonomous portfolio execution or trade routing
-
-## Proposed File Tree
-
-```text
-.
-|-- .planning/
-|-- config/
-|   |-- agents.yaml
-|   |-- factors.yaml
-|   |-- memo_sections.yaml
-|   |-- model_profiles.yaml
-|   |-- monitoring.yaml
-|   |-- panels.yaml
-|   |-- run_policies.yaml
-|   |-- source_connectors.yaml
-|   |-- tool_bundles.yaml
-|   `-- tool_registry.yaml
-|-- docs/
-|   |-- architecture.md
-|   |-- factor_ontology.md
-|   |-- ingestion.md
-|   |-- memory_model.md
-|   |-- monitoring.md
-|   |-- prompting_strategy.md
-|   |-- runbook.md
-|   `-- tool_registry.md
-|-- examples/
-|   |-- acme_public/
-|   |-- acme_public_rerun/
-|   |-- beta_private/
-|   `-- generated/
-|-- n8n/
-|-- prompts/
-|   |-- gatekeepers/
-|   |-- ic/
-|   |-- memo_updates/
-|   |-- monitoring/
-|   `-- panels/
-|-- src/
-|   `-- ai_investing/
-|       |-- api/
-|       |-- application/
-|       |-- config/
-|       |-- domain/
-|       |-- graphs/
-|       |-- ingestion/
-|       |-- persistence/
-|       |-- prompts/
-|       |-- providers/
-|       |-- tools/
-|       `-- cli.py
-|-- tests/
-|-- docker-compose.yml
-|-- Dockerfile
-|-- pyproject.toml
-`-- README.md
-```
-
-## System Layers
+## Layered Design
 
 ### 1. Configuration Layer
 
-YAML registries define panels, factors, agents, memo sections, tool bundles, model profiles, run policies, and source connectors. Runtime services consume validated config objects, so adding a factor or agent requires config and prompt updates instead of orchestration rewrites.
+YAML registries define:
 
-For scaffold-only panels, the key files are:
+- panels and their readiness or support contracts
+- factors and panel ownership
+- memo sections
+- agent topology
+- tool bundles
+- run policies
+- source connectors
 
-- `config/panels.yaml` for panel-level contracts, factor coverage, and memo-section mapping
-- `config/agents.yaml` for disabled placeholder or later production agent trees
-- `config/factors.yaml` for factor ownership and descriptions
-- `prompts/` for panel and agent instructions that stay editable outside the runtime
+This keeps the cohort config-driven. Adding or changing a panel should normally mean config, prompt, and tests changes rather than orchestration rewrites.
 
 ### 2. Domain Contract Layer
 
-Pydantic models describe the canonical record types:
-
-- `CoverageEntry`
-- `CompanyProfile`
-- `EvidenceRecord`
-- `ClaimCard`
-- `PanelVerdict`
-- `GatekeeperVerdict`
-- `MemoSection`
-- `MemoSectionUpdate`
-- `ICMemo`
-- `MonitoringDelta`
-- `ToolInvocationLog`
-- `RunRecord`
-
-These models are the handoff contracts between ingestion, orchestration, memo logic, and interfaces.
+Pydantic models define the stable typed records passed between ingestion, orchestration, memo logic, and interfaces. That includes `ClaimCard`, `PanelVerdict`, `PanelSupportAssessment`, `SkippedPanelResult`, `MemoSection`, `MemoSectionUpdate`, `ICMemo`, `MonitoringDelta`, and `RunRecord`.
 
 ### 3. Persistence Layer
 
-Postgres stores typed records in explicit tables with JSON payloads where necessary. Historical records are never destructively overwritten; instead, active records can be superseded or rejected. This keeps memo history, claim history, and run-to-run drift analyzable.
+Postgres stores typed records and preserves history with additive status transitions rather than destructive overwrites. Prior beliefs are superseded or rejected, not erased.
 
 ### 4. Orchestration Layer
 
-LangGraph composes reusable subgraphs:
+LangGraph composes one shared company refresh runtime from reusable subgraphs:
 
-- `GatekeeperSubgraph`
-- `DebateSubgraph`
-- `PanelLeadSubgraph`
-- `MemoUpdateSubgraph`
-- `MonitoringDiffSubgraph`
-- `ICSynthesisGraph`
-- `CompanyRefreshGraph`
+- `gatekeepers`
+- `debate`
+- memo update
+- monitoring delta
+- IC reconciliation
 
-The `CompanyRefreshGraph` loads due panels from config and run policy, executes the active subgraphs, persists outputs, and updates memo sections incrementally.
+The runtime does not branch into bespoke per-panel graphs for the Phase 6 surface. `gatekeepers` remains the only special checkpoint family; the remaining panels fit the shared debate path.
 
-The first production checkpoint remains mandatory, but the project-wide continuation policy changed on 2026-03-13:
+### 5. Interface Layer
 
-- `gatekeepers` always runs before downstream panels
-- the old universal pause rule is superseded
-- `pass` and `review` should auto-continue into downstream work for both initial and scheduled runs
-- `fail` should stop after `gatekeepers`, enter a review queue, and notify immediately
-- failed gatekeepers can continue only as provisional analysis after an explicit operator action
-- direct downstream `run-panel` execution is rejected unless the run already has the required gatekeeper context
+CLI and FastAPI both call the same application services. n8n remains outside the reasoning runtime and uses stable enqueue, ingest, review, and notification endpoints instead of coordinating panel sequencing directly.
 
-That same orchestration layer also enforces the Phase 3 scaffold boundary:
+## Run Policy Contract
 
-- config may name scaffold-only panels
-- policies may reference scaffold-only panels
-- execution may inspect scaffold-only topology
-- runtime may not treat scaffold-only panels as runnable until implementation work is complete
+`config/run_policies.yaml` now describes five important surfaces:
 
-### 5. Provider Layer
+- `weekly_default`
+- `internal_company_quality`
+- `external_company_quality`
+- `expectations_rollout`
+- `full_surface`
 
-`ModelProvider` adapters shield the domain logic from provider-specific SDKs. v1 includes:
+The policy selects the panel set. The support contract then decides, panel by panel, whether the selected panel is:
 
-- `FakeModelProvider` for deterministic tests and sample artifacts
-- `OpenAIModelProvider`
-- `AnthropicModelProvider`
+- runnable with normal confidence
+- runnable with `weak_confidence`
+- explicitly skipped as unsupported
 
-Only the fake provider is required for tests and local sample runs.
+This separation matters. A panel being productionized means the runtime knows how to run it honestly. It does not mean every run or every default policy must include it.
 
-### 6. Tool Layer
+## Support And Readiness Contract
 
-All tools are declared in `config/tool_registry.yaml` and attached to agents via `config/tool_bundles.yaml`. Tool execution is centralized so bundle enforcement and invocation logging happen in one place.
+Each `PanelConfig` carries two related concepts:
 
-### 7. Interface Layer
+- readiness: what the panel normally needs to count as fully supported
+- support: what company types it supports and whether weak-confidence fallback exists
 
-Typer CLI and FastAPI endpoints both call the same application services. n8n stays outside the service boundary and interacts through HTTP and webhook-friendly APIs.
+The runtime evaluates:
 
-The operator-facing contract is checkpoint-aware:
+- evidence families available for the panel
+- evidence count
+- factor coverage ratio
+- required context such as `overlay_context` or `portfolio_context`
 
-- `analyze-company`, `refresh-company`, and due-coverage entrypoints return a structured run payload
-- `show-run` and `GET /runs/{run_id}` expose persisted failed, review-queued, paused, or completed runs by `run_id`
-- `continue-run` and `POST /runs/{run_id}/continue` remain available for explicit follow-up actions, especially provisional overrides after failed gatekeepers
-- stable fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, `provisional`, and `checkpoint` make automation clients parse state without scraping prose
-- pass and review checkpoints resolve automatically, so the persisted run still shows the gatekeeper boundary without requiring a manual resume step
-- failed gatekeepers stay blocked at the checkpoint, create review-queue records, and require explicit operator-only provisional continuation
+The result is persisted as `PanelSupportAssessment`.
 
-Phase 4 extends that interface layer with additive monitoring inspection routes:
+### Supported
 
-- `GET /companies/{company_id}/monitoring-history`
-- `GET /portfolio/monitoring-summary`
-- `ai-investing show-monitoring-history`
-- `ai-investing show-portfolio-summary`
+`supported` means the panel met its configured bar and executed normally.
 
-These surfaces expose read-only projections over persisted structured records. They improve
-operator visibility into monitoring history and portfolio monitoring without introducing a new
-frontend, changing the company-refresh runtime, or making `portfolio_fit_positioning` runnable.
-The portfolio summary is organized by change type first, then by clearly separated portfolio and
-watchlist segments. Shared-risk or overlap clusters are primary output when present, while broader
-analog exploration remains a secondary drill-down.
+### Weak Confidence
 
-## Phase 5 Operations Boundary
+`weak_confidence` means the panel still ran, but the evidence is thinner than the normal readiness threshold. This is mainly allowed for company-quality panels so the runtime can produce a truthful but cautious update instead of hiding panel output.
 
-Phase 5 adds queue, worker, review, and notification seams without changing the core reasoning owner.
+The memo layer propagates that posture into affected sections. Operators do not need to infer the thin-support condition from raw claim volume.
 
-### Cadence And Scheduling
+### Unsupported Skip
 
-- coverage entries still store compatibility fields such as `cadence`, `next_run_at`, and `last_run_at`
-- `schedule_policy_id`, `schedule_enabled`, and `preferred_run_time` now carry the real cadence policy contract
-- schedule computation remains service-owned and config-driven rather than embedded in n8n or hardcoded in orchestration graphs
-- bulk submission surfaces enqueue work for selected companies, the watchlist, the portfolio, or the due set
+`unsupported` means the panel is explicitly skipped and recorded as `SkippedPanelResult`. The run continues and the skipped panel remains inspectable in:
 
-### Queue Execution
+- run metadata
+- CLI and API payloads
+- generated artifacts
+- memo wording for affected sections
 
-- `QueueService` owns job submission, duplicate suppression, queue summaries, per-job inspection, retry, cancel, and force-run controls
-- `WorkerService` claims queued jobs and runs bounded parallel execution against the same `AnalysisService` runtime used by manual refreshes
-- queue records are typed operational data, not log lines or memo prose
-- a job can resolve as complete, failed, cancelled, or review-required without teaching n8n any panel sequencing details
+This is critical for `security_or_deal_overlay` and `portfolio_fit_positioning`, where missing support must not masquerade as completed analysis.
 
-### Review Queue Semantics
+## Checkpoint And Continuation Policy
 
-- every run still starts with `gatekeepers`
-- `pass` and `review` auto-continue into downstream work for both initial and scheduled runs
-- `fail` stops after `gatekeepers`, persists `awaiting_continue`, creates a review-queue entry, and emits an immediate notification
-- downstream work after `fail` remains explicitly provisional and operator-only through `continue-run`
-- n8n, workers, and scheduled automation may not invoke provisional continuation automatically
+Every run still starts with `gatekeepers`.
 
-### Notification Delivery Surface
+- `pass` auto-continues
+- `review` auto-continues
+- `fail` stops into the review queue and can continue only through explicit operator-only provisional action
 
-- notification events are typed records with category, summary, next action, and optional review or job linkage
-- immediate notifications cover failed gatekeepers, worker failures, and materially changed successful runs
-- successful runs also write a daily digest candidate even when the company had no key changes, so operators can confirm it was processed
-- the service owns notification event creation; external automation claims, dispatches, and acknowledges events through stable endpoints
+That checkpoint contract is persisted even when it resolves automatically so the audit trail is stable across manual, scheduled, and queued runs.
 
-### n8n Boundary
+## Panel Families And Memo Ownership
 
-n8n remains an external automation shell:
+The analytical split is deliberate and must remain intact:
 
-- schedule triggers should call `/queue/enqueue-watchlist`, `/queue/enqueue-portfolio`, or `/queue/enqueue-due`
-- evidence webhooks should call ingest endpoints such as `/companies/{company_id}/ingest-public`
-- notification workflows should use `/notifications/claim`, `/notifications/{event_id}/dispatch`, and `/notifications/{event_id}/acknowledge`
-- n8n must not read the database directly, invoke worker-internal callbacks, coordinate panel sequencing, or auto-resume failed gatekeeper runs
+### Company Quality
 
-## Data Model And Memory Strategy
+- `demand_revenue_quality`
+- `supply_product_operations`
+- `market_structure_growth`
+- `macro_industry_transmission`
+- `management_governance_capital_allocation`
+- `financial_quality_liquidity_economic_model`
+- `external_regulatory_geopolitical`
 
-Each company uses stable namespace conventions:
+These panels drive most of `investment_snapshot`, `growth`, `durability_resilience`, `risk`, `economic_spread`, and part of `overall_recommendation`.
 
-- `company/{company_id}/profile`
-- `company/{company_id}/evidence`
-- `company/{company_id}/claims/{factor_id}`
-- `company/{company_id}/debates/{panel_id}`
-- `company/{company_id}/verdicts/{panel_id}`
-- `company/{company_id}/memos/current`
-- `company/{company_id}/memos/history`
-- `company/{company_id}/monitoring`
-- `company/{company_id}/tool_logs`
-- `portfolio/framework_notes`
-- `portfolio/analogs`
+### Expectations
 
-Structured tables, not a generic prose-only store, hold the real data. Namespace strings are stored alongside records so tools and agents can query coherently.
+- `expectations_catalyst_realization`
 
-## Vertical Slice Scope
+This panel owns the expectations and catalyst narrative and should not be collapsed into generic company-quality prose.
 
-Phase 1 and Phase 2 implementation in this repo cover:
+### Overlay Family
 
-- config and prompt registries
-- typed schemas and repositories
-- public/private file-based ingestion
-- coverage management
-- reusable graph scaffolding
-- working gatekeeper and demand panel flows
-- section-level memo updates
-- IC synthesis
-- rerun delta generation
-- API and CLI
-- tests and sample outputs
+- `security_or_deal_overlay`
+- `portfolio_fit_positioning`
 
-Phase 3 adds the documentation, config breadth, and prompt scaffolding for the remaining panels, but it does not change the statement above: only `gatekeepers` and `demand_revenue_quality` are implemented today.
+These remain distinct from company quality and from each other. `security_or_deal_overlay` represents security-quality or deal-structure framing. `portfolio_fit_positioning` represents portfolio construction context. Neither should be inferred from the other.
 
-Phase 4 adds portfolio monitoring visibility, not portfolio reasoning runtime expansion. The
-`portfolio_fit_positioning` panel remains scaffold-only even if operators now see that memo section
-appear in monitoring history or portfolio monitoring summaries as a read-only projection.
+## Overall Recommendation Semantics
 
-## Short Extension Checklist
+The memo layer reconciles `overall_recommendation` honestly:
 
-Use this checklist before expanding a scaffold-only panel:
+- if overlays are not selected because a narrower policy ran, the memo calls out that the security or deal overlay and portfolio fit positioning are pending for that rollout
+- if `full_surface` is selected but overlays lack support, the memo calls out that they were unsupported for this run
+- if both overlay panels run, the recommendation scope is overlay-complete
 
-1. Start with `config/panels.yaml` and keep the panel id, memo sections, and factor mappings stable.
-2. Add or expand the agent tree in `config/agents.yaml` rather than branching the graph for one panel.
-3. Update factor contracts in `config/factors.yaml` so ontology and prompts do not drift.
-4. Replace placeholder prompt assets in `prompts/` with implementation-ready instructions for the new agents.
-5. Add verification in `tests/` for config loading, runtime behavior, and user-facing entrypoints.
-6. Only change orchestration abstractions when the abstraction truly needs expansion; config-first extension is the default architecture rule.
+This keeps company-quality output useful without pretending a skipped overlay silently vanished or that unsupported context aborts the whole run.
 
-For the full file-by-file sequence, see the [panel extension guide](panel_extension_path.md).
+## Narrow Overlay Context Seam
 
-## Tradeoffs
+Phase 6 did not add a new orchestration family for portfolio-aware reasoning. Instead it added a bounded context seam:
 
-- SQLAlchemy is used instead of a lighter ad-hoc persistence layer because history-heavy typed records need explicit schemas and indexing.
-- LangGraph is used even for a small initial slice because reusable subgraph composition is a core requirement, not a future enhancement.
-- Only two panels are implemented deeply so the contracts stay credible before the system expands.
-- `uv` is the chosen package manager even though some local hosts may not have it installed yet; the repo documents Docker-based fallback setup.
+- overlay evidence can satisfy `security_or_deal_overlay`
+- a narrow portfolio context summary can satisfy `portfolio_fit_positioning`
+
+That keeps portfolio fit config-driven and inspectable without introducing unrestricted agent access to book data.
+
+## Generated Artifact Contract
+
+`scripts/generate_phase2_examples.py` produces checked artifacts that describe the runtime contract directly:
+
+- initial run
+- persisted reread of the same run
+- rerun with delta behavior
+- explicit `full_surface` overlay-gap run where overlays skip but company-quality analysis completes
+
+These artifacts matter because they pin docs, runtime behavior, and operator expectations to reproducible outputs instead of leaving the Phase 6 story scattered across tests.
+
+## Operational Boundary
+
+Queue submission, workers, review queue handling, and notification dispatch stay outside the memo reasoning core.
+
+- scheduling chooses when to run
+- queue services choose which coverage enters execution
+- the analysis runtime owns panel execution, memo updates, and deltas
+- external automation delivers notifications but does not infer investment conclusions
+
+## Non-Goals That Remain Intact
+
+- no frontend analyst UI
+- no bespoke orchestration branch per panel family
+- no compliance or entitlement workflow system in v1
+- no destructive rewrite of prior memo or verdict history
+- no collapse of company quality, expectations, `security_or_deal_overlay`, and `portfolio_fit_positioning` into one blended panel

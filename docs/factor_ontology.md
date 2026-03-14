@@ -2,15 +2,35 @@
 
 ## Principles
 
-- Factors belong to exactly one top-level panel.
-- Company quality, security or deal overlay, and portfolio fit remain separate.
-- Factors are identified by stable IDs so memory namespaces do not break when display language changes.
-- Implementation breadth can lag ontology breadth; a factor may be scaffolded before it has active specialist agents.
-- Future-facing policies can refer to scaffold-only factor coverage in config before those panels are runnable.
+- factors belong to exactly one top-level panel
+- panel ownership stays config-driven
+- company quality, expectations, `security_or_deal_overlay`, and `portfolio_fit_positioning` stay analytically separate
+- factor ids are stable even when display wording changes
+- memo ownership follows panel ownership rather than ad hoc prose conventions
 
-## Implemented v1 Factors
+## Implemented Top-Level Panels
+
+The full configured panel surface is now implemented:
+
+- `gatekeepers`
+- `demand_revenue_quality`
+- `supply_product_operations`
+- `market_structure_growth`
+- `macro_industry_transmission`
+- `management_governance_capital_allocation`
+- `financial_quality_liquidity_economic_model`
+- `external_regulatory_geopolitical`
+- `expectations_catalyst_realization`
+- `security_or_deal_overlay`
+- `portfolio_fit_positioning`
+
+Policy choice and support posture still determine whether a run reaches a panel and whether that panel executes normally, executes with weak confidence, or is skipped explicitly.
+
+## Panel Families
 
 ### Gatekeepers
+
+`gatekeepers` remains the checkpoint family. It owns the early investability and survivability screen:
 
 - `need_to_exist`
 - `non_fad_durability`
@@ -20,6 +40,8 @@
 - `legal_regulatory_existential_risk`
 
 ### Demand And Revenue Quality
+
+`demand_revenue_quality` covers the demand-side quality core:
 
 - `revenue_recurrence_contract_strength`
 - `switching_costs`
@@ -31,43 +53,77 @@
 - `demand_cyclicality_purchase_deferrability`
 - `brand_reputation_consideration_set`
 
-These two panels are the only implemented factor groups in the current runtime.
+### Internal Company Quality
 
-## Scaffold-Only Factor Groups
+`supply_product_operations` covers supply-side resilience and product delivery:
 
-The remaining panel ids are present in `config/panels.yaml` and `config/factors.yaml`, but they remain scaffold-only until their agent trees, prompts, and runtime verification are expanded:
+- `supply_side_advantage`
+- `barriers_to_entry`
+- `procurement_supplier_concentration`
+- `supplier_fiscal_health`
+- `production_distribution_channels`
+- `reliability`
+- `negotiating_power`
+- `input_pricing_availability`
+- `product_concentration`
+- `innovation`
 
-- `supply_product_operations`
-- `market_structure_growth`
-- `macro_industry_transmission`
-- `management_governance_capital_allocation`
-- `financial_quality_liquidity_economic_model`
-- `external_regulatory_geopolitical`
-- `expectations_catalyst_realization`
-- `security_or_deal_overlay`
-- `portfolio_fit_positioning`
+`management_governance_capital_allocation` covers management execution and governance quality.
 
-This lets the repository keep ontology breadth ahead of implementation breadth without pretending those panels are production-ready. The config can describe the future panel surface and future-facing policies can reference it, while runtime entrypoints still reject scaffold-only panels as not runnable.
+`financial_quality_liquidity_economic_model` covers financial quality, liquidity, unit economics, and economic spread.
 
-## Why The Ontology Is Broader Than The Runtime
+These families usually support `durability_resilience`, `risk`, and `economic_spread`.
 
-The config-driven architecture needs stable factor ownership before every panel is implemented. That is why the repo already carries scaffold-only factor groups in:
+### External Company Quality
 
-- `config/panels.yaml`
-- `config/factors.yaml`
-- `config/agents.yaml`
-- `prompts/`
+`market_structure_growth` covers market shape, share, and growth drivers.
 
-Keeping those files aligned means a future engineer can productionize one panel at a time without renaming factor ids or rewriting the graph core.
+`macro_industry_transmission` covers transmission from macro conditions, policy, and value-chain exposure.
 
-## Short Extension Checklist
+`external_regulatory_geopolitical` covers external regulatory and geopolitical posture.
 
-When moving a scaffold-only factor group toward production readiness:
+These families primarily update `growth`, `risk`, and parts of `expectations_variant_view`.
 
-1. Confirm panel-to-factor ownership in `config/panels.yaml` and `config/factors.yaml`.
-2. Add the correct enabled agent tree in `config/agents.yaml` while preserving the existing panel and factor ids.
-3. Replace scaffold prompts in `prompts/` with panel-specific implementation prompts that still target the same contracts.
-4. Add or extend tests in `tests/` so factor coverage, prompt assets, and runtime boundaries stay consistent.
-5. Preserve the rule that runtime changes happen only when the abstraction truly needs expansion.
+### Expectations
 
-For the full worked example and ordered file handoff, see the [panel extension guide](panel_extension_path.md).
+`expectations_catalyst_realization` owns the expectations and catalyst layer.
+
+Its factors stay separate because they depend on consensus, milestone, and realization framing rather than generic quality assessment.
+
+### Overlay Family
+
+`security_or_deal_overlay` covers security-quality or deal-specific overlay work.
+
+`portfolio_fit_positioning` covers book-aware portfolio context and position fit.
+
+They are not synonyms. One can be supported while the other is unsupported, and both can be skipped while the company-quality memo still completes.
+
+## Support Posture By Family
+
+The ontology is broader than a single confidence mode.
+
+- company-quality families may surface `weak_confidence` when evidence exists but does not fully satisfy readiness thresholds
+- `expectations_catalyst_realization` requires expectations-specific support and skips when that support is absent
+- `security_or_deal_overlay` and `portfolio_fit_positioning` require dedicated context and skip explicitly when that context is unavailable
+
+This keeps the ontology truthful. A missing overlay does not become a hidden null, and a thin company-quality read does not pretend to be high confidence.
+
+## Memo Separation
+
+The panel-to-section contract stays explicit:
+
+- company-quality families influence the core memo view
+- expectations work updates `expectations_variant_view` and `realization_path_catalysts`
+- `security_or_deal_overlay` updates security-quality or deal-framing output
+- `portfolio_fit_positioning` updates portfolio-fit output
+- `overall_recommendation` reconciles the executed surface and calls out skipped overlays or weak confidence when relevant
+
+## Operator Interpretation
+
+Read ontology breadth together with policy and support state:
+
+- a panel omitted by policy was not requested
+- a panel with `weak_confidence` ran with thin support
+- a panel with `unsupported` and a recorded skip was selected but could not run honestly
+
+That distinction is part of the shipped contract, not an implementation detail hidden in tests.
