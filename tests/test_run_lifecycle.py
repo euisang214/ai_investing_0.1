@@ -7,7 +7,9 @@ from types import SimpleNamespace
 import pytest
 from langgraph.types import Command
 
-from ai_investing.application.services import AnalysisService
+from pathlib import Path
+
+from ai_investing.application.services import AnalysisService, IngestionService
 from ai_investing.domain.enums import (
     AlertLevel,
     CompanyType,
@@ -395,7 +397,7 @@ def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_
 
     with pytest.raises(
         ValueError,
-        match=r"Panel market_structure_growth is not implemented for policy full_surface\.",
+        match=r"Panel expectations_catalyst_realization is not implemented for policy full_surface\.",
     ):
         AnalysisService(seeded_acme).refresh_company("ACME")
 
@@ -403,6 +405,35 @@ def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_
         runs = Repository(session).list_runs("ACME")
 
     assert runs == []
+
+
+def test_refresh_company_keeps_market_macro_regulatory_support_visible(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    service = IngestionService(seeded_acme)
+    for connector_id in (
+        "acme_market_packet",
+        "acme_regulatory_packet",
+        "acme_transcript_news_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+    analysis = AnalysisService(seeded_acme)
+    _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
+    initial = analysis.analyze_company("ACME")
+    refreshed = analysis.refresh_company("ACME")
+
+    assert initial["panels"]["market_structure_growth"]["support"]["status"] == "supported"
+    assert refreshed["panels"]["market_structure_growth"]["support"]["status"] == "supported"
+    assert refreshed["panels"]["macro_industry_transmission"]["support"]["status"] == "supported"
+    assert (
+        refreshed["panels"]["external_regulatory_geopolitical"]["support"]["status"]
+        == "supported"
+    )
 
 
 class StubContext:

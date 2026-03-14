@@ -142,7 +142,7 @@ def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seed
 
     with pytest.raises(
         ValueError,
-        match=r"Panel market_structure_growth is not implemented for policy full_surface\.",
+        match=r"Panel expectations_catalyst_realization is not implemented for policy full_surface\.",
     ):
         AnalysisService(seeded_acme).analyze_company("ACME")
 
@@ -152,20 +152,21 @@ def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seed
     assert runs == []
 
 
-def test_analyze_company_rejects_explicit_scaffold_panel_selection(seeded_acme) -> None:
-    with pytest.raises(
-        ValueError,
-        match=r"Panel market_structure_growth is not implemented for policy weekly_default\.",
-    ):
-        AnalysisService(seeded_acme).analyze_company(
-            "ACME",
-            panel_ids=["gatekeepers", "market_structure_growth"],
-        )
+def test_analyze_company_allows_explicit_market_panel_selection_with_structured_skip(
+    seeded_acme,
+) -> None:
+    result = AnalysisService(seeded_acme).analyze_company(
+        "ACME",
+        panel_ids=["gatekeepers", "market_structure_growth"],
+    )
 
-    with seeded_acme.database.session() as session:
-        runs = Repository(session).list_runs("ACME")
+    market = result["panels"]["market_structure_growth"]
 
-    assert runs == []
+    assert result["run"]["status"] == "complete"
+    assert set(result["panels"]) == {"gatekeepers", "market_structure_growth"}
+    assert market["support"]["status"] == "unsupported"
+    assert market["skip"]["status"] == "skipped"
+    assert market["skip"]["reason_code"] == "missing_evidence_families"
 
 
 def test_unsupported_implemented_panel_surfaces_structured_skip(seeded_acme) -> None:
@@ -267,6 +268,64 @@ def test_supply_management_financial_persisted_result_keeps_support_status(seede
         persisted["panels"]["financial_quality_liquidity_economic_model"]["support"]["status"]
         == "supported"
     )
+
+
+def test_market_macro_regulatory_external_policy_runs_public_with_supported_results(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    service = IngestionService(seeded_acme)
+    for connector_id in (
+        "acme_market_packet",
+        "acme_regulatory_packet",
+        "acme_transcript_news_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+    _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    assert result["panels"]["market_structure_growth"]["support"]["status"] == "supported"
+    assert result["panels"]["macro_industry_transmission"]["support"]["status"] == "supported"
+    assert (
+        result["panels"]["external_regulatory_geopolitical"]["support"]["status"] == "supported"
+    )
+    assert sections["growth"]["status"] == "refreshed"
+    assert sections["risk"]["status"] == "refreshed"
+    assert sections["expectations_variant_view"]["status"] == "refreshed"
+    assert sections["portfolio_fit_positioning"]["status"] == "not_advanced"
+
+
+def test_market_macro_regulatory_external_policy_runs_private_with_weak_confidence(
+    context,
+    repo_root: Path,
+) -> None:
+    _seed_private_beta(context, repo_root)
+    _set_panel_policy(context, "BETA", "external_company_quality")
+
+    result = AnalysisService(context).analyze_company("BETA")
+    sections = _memo_section_map(result)
+
+    for panel_id in (
+        "market_structure_growth",
+        "macro_industry_transmission",
+        "external_regulatory_geopolitical",
+    ):
+        panel = result["panels"][panel_id]
+        assert panel["support"]["status"] == "weak_confidence"
+        assert panel["verdict"]["summary"].endswith("Weak-confidence read due to thin evidence.")
+        assert panel["verdict"]["confidence"] <= 0.45
+
+    assert sections["growth"]["status"] == "refreshed"
+    assert sections["risk"]["status"] == "refreshed"
+    assert sections["expectations_variant_view"]["status"] == "refreshed"
+    assert "Weak-confidence support this run" in sections["growth"]["content"]
 
 
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:
@@ -435,8 +494,7 @@ def test_required_public_connector_evidence_is_compatible_with_analysis_flow(
     for connector_id in (
         "acme_regulatory_packet",
         "acme_market_packet",
-        "acme_consensus_packet",
-        "acme_ownership_packet",
+        "acme_transcript_news_packet",
     ):
         service.ingest_public_data(
             repo_root / "examples" / "connectors" / connector_id,
@@ -463,7 +521,8 @@ def test_required_public_connector_evidence_is_compatible_with_analysis_flow(
         verdicts = repository.list_panel_verdicts("ACME", run_id=result["run"]["run_id"])
 
     assert any(record.metadata.get("evidence_family") == "regulatory" for record in evidence)
-    assert any(record.metadata.get("evidence_family") == "consensus" for record in evidence)
+    assert any(record.metadata.get("evidence_family") == "market" for record in evidence)
+    assert any(record.metadata.get("evidence_family") == "news" for record in evidence)
     assert claims
     assert verdicts
 

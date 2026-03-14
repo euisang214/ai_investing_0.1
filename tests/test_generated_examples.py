@@ -190,3 +190,58 @@ def test_supply_management_financial_manifests_cover_wave1_public_and_private_sa
     assert len(factor_counts["BETA:supply_product_operations"]) >= 4
     assert len(factor_counts["BETA:management_governance_capital_allocation"]) >= 5
     assert len(factor_counts["BETA:financial_quality_liquidity_economic_model"]) >= 6
+
+
+def test_market_macro_regulatory_manifests_cover_wave2_public_and_private_samples(
+    repo_root: Path,
+) -> None:
+    panel_ids = {
+        "market_structure_growth",
+        "macro_industry_transmission",
+        "external_regulatory_geopolitical",
+    }
+    allowed_wave2_factors = {
+        "industry_market_share_trends",
+        "tam",
+        "per_product_market_share_history",
+        "industry_cagr_vs_revenue_cagr",
+        "organic_vs_inorganic_growth",
+        "growth_levers",
+        "secular_vs_cyclical_growth",
+        "adjacency_expansion_runway",
+        "macro_variable_exposure",
+        "transmission_mechanisms",
+        "cycle_sensitivity",
+        "value_chain_relationships",
+        "budget_cycle_exposure",
+        "regulation_subsidy_tax_transmission",
+        "government_exposure",
+        "geopolitical_exposure",
+        "subsidies_taxes",
+        "litigation_contingent_liabilities",
+        "regulatory_dependency",
+    }
+    factor_counts: dict[str, set[str]] = defaultdict(set)
+
+    for manifest_path in (
+        repo_root / "examples" / "acme_public" / "manifest.json",
+        repo_root / "examples" / "beta_private" / "manifest.json",
+        repo_root / "examples" / "connectors" / "acme_market_packet" / "manifest.json",
+        repo_root / "examples" / "connectors" / "acme_regulatory_packet" / "manifest.json",
+        repo_root / "examples" / "connectors" / "acme_transcript_news_packet" / "manifest.json",
+    ):
+        manifest = _load_json(manifest_path)
+        for document in manifest["documents"]:
+            for panel_id in panel_ids.intersection(document["panel_ids"]):
+                factor_counts[f"{manifest['company_id']}:{panel_id}"].update(
+                    factor_id
+                    for factor_id in document["factor_ids"]
+                    if factor_id in allowed_wave2_factors
+                )
+
+    assert len(factor_counts["ACME:market_structure_growth"]) >= 6
+    assert len(factor_counts["ACME:macro_industry_transmission"]) >= 5
+    assert len(factor_counts["ACME:external_regulatory_geopolitical"]) >= 4
+    assert len(factor_counts["BETA:market_structure_growth"]) >= 5
+    assert len(factor_counts["BETA:macro_industry_transmission"]) >= 3
+    assert len(factor_counts["BETA:external_regulatory_geopolitical"]) >= 3

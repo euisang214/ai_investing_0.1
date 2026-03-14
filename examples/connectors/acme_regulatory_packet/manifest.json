@@ -13,8 +13,8 @@
       "title": "Privacy Program 8-K Summary",
       "as_of_date": "2026-03-01T00:00:00Z",
       "period": "Current",
-      "panel_ids": ["gatekeepers"],
-      "factor_ids": ["legal_regulatory_existential_risk", "governance_investability"],
+      "panel_ids": ["gatekeepers", "external_regulatory_geopolitical"],
+      "factor_ids": ["legal_regulatory_existential_risk", "governance_investability", "geopolitical_exposure", "subsidies_taxes"],
       "factor_signals": {
         "legal_regulatory_existential_risk": {
           "stance": "positive",
@@ -25,6 +25,16 @@
           "stance": "mixed",
           "summary": "Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
           "metrics": { "committee_created": true }
+        },
+        "geopolitical_exposure": {
+          "stance": "mixed",
+          "summary": "The privacy program still has to satisfy EU and UK data-transfer rules, though the company has little direct conflict-zone exposure.",
+          "metrics": { "cross_border_data_regions": 2 }
+        },
+        "subsidies_taxes": {
+          "stance": "positive",
+          "summary": "The remediation plan assumes only modest reliance on software R&D credits and no policy-driven demand subsidy.",
+          "metrics": { "r_and_d_credit_dependence": "low" }
         }
       },
       "source_refs": [

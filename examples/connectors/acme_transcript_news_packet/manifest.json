@@ -13,10 +13,12 @@
       "title": "Q1 2026 Earnings Transcript Excerpt",
       "as_of_date": "2026-03-06T00:00:00Z",
       "period": "Q1 2026",
-      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "panel_ids": ["gatekeepers", "demand_revenue_quality", "market_structure_growth", "macro_industry_transmission"],
       "factor_ids": [
         "customer_habit",
-        "demand_cyclicality_purchase_deferrability"
+        "demand_cyclicality_purchase_deferrability",
+        "adjacency_expansion_runway",
+        "value_chain_relationships"
       ],
       "factor_signals": {
         "customer_habit": {
@@ -28,6 +30,16 @@
           "stance": "mixed",
           "summary": "SMB expansions slipped while enterprise modules held up.",
           "metrics": { "smb_pipeline_growth_pct": 7.0 }
+        },
+        "adjacency_expansion_runway": {
+          "stance": "positive",
+          "summary": "Management said customers are adopting adjacent workflow modules on top of the core procurement product.",
+          "metrics": { "adjacent_module_attach_pct": 31.0 }
+        },
+        "value_chain_relationships": {
+          "stance": "mixed",
+          "summary": "The transcript highlights tighter integrations with ERP and procurement systems, which strengthen channel position but still depend on partner roadmaps.",
+          "metrics": { "erp_integrations": 28 }
         }
       },
       "source_refs": [
@@ -44,8 +56,8 @@
       "title": "Vertical News Roundup",
       "as_of_date": "2026-03-07T00:00:00Z",
       "period": "Current",
-      "panel_ids": ["gatekeepers"],
-      "factor_ids": ["brand_reputation_consideration_set", "fad_fashion_risk"],
+      "panel_ids": ["gatekeepers", "external_regulatory_geopolitical"],
+      "factor_ids": ["brand_reputation_consideration_set", "fad_fashion_risk", "government_exposure"],
       "factor_signals": {
         "brand_reputation_consideration_set": {
           "stance": "positive",
@@ -56,6 +68,11 @@
           "stance": "negative",
           "summary": "Coverage still overweights AI branding relative to the underlying workflow depth.",
           "metrics": { "ai_headline_share_pct": 62.0 }
+        },
+        "government_exposure": {
+          "stance": "mixed",
+          "summary": "Trade coverage noted a growing public-sector procurement shortlist, but government workflows are still a small piece of the revenue mix.",
+          "metrics": { "public_sector_pipeline_pct": 9.0 }
         }
       },
       "source_refs": [

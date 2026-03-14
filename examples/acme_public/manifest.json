@@ -18,7 +18,8 @@
         "demand_revenue_quality",
         "supply_product_operations",
         "management_governance_capital_allocation",
-        "financial_quality_liquidity_economic_model"
+        "financial_quality_liquidity_economic_model",
+        "market_structure_growth"
       ],
       "factor_ids": [
         "need_to_exist",
@@ -40,7 +41,9 @@
         "business_model_cash_timing",
         "margin_profile_operating_leverage",
         "fiscal_health",
-        "capitalization"
+        "capitalization",
+        "tam",
+        "industry_cagr_vs_revenue_cagr"
       ],
       "factor_signals": {
         "need_to_exist": { "stance": "positive", "summary": "The platform sits in billing and procurement workflows and customers describe it as operationally mandatory.", "metrics": { "gross_retention": "95%" } },
@@ -62,7 +65,9 @@
         "business_model_cash_timing": { "stance": "positive", "summary": "Annual contracts and upfront billings support favorable cash timing.", "metrics": { "deferred_revenue_trend": "up" } },
         "margin_profile_operating_leverage": { "stance": "positive", "summary": "Gross margins and free cash flow improved as revenue scaled.", "metrics": { "gross_margin": "78%" } },
         "fiscal_health": { "stance": "positive", "summary": "Net cash and positive free cash flow leave liquidity comfortable.", "metrics": { "net_cash_millions": 220 } },
-        "capitalization": { "stance": "positive", "summary": "The company remains lightly levered with a clean common-equity-centered capital structure.", "metrics": { "net_debt": "none" } }
+        "capitalization": { "stance": "positive", "summary": "The company remains lightly levered with a clean common-equity-centered capital structure.", "metrics": { "net_debt": "none" } },
+        "tam": { "stance": "positive", "summary": "Management sized the reachable procurement and billing automation opportunity in current geographies at roughly $9 billion.", "metrics": { "reachable_tam_billions": 9.0 } },
+        "industry_cagr_vs_revenue_cagr": { "stance": "positive", "summary": "Acme's revenue growth continues to outpace the high-single-digit industry baseline, implying share gains rather than only market tailwinds.", "metrics": { "company_growth_pct": 17.0, "industry_growth_pct": 8.0 } }
       },
       "source_refs": [
         { "label": "FY2025 10-K", "url": "https://example.com/acme-10k" }
@@ -82,7 +87,9 @@
         "demand_revenue_quality",
         "supply_product_operations",
         "management_governance_capital_allocation",
-        "financial_quality_liquidity_economic_model"
+        "financial_quality_liquidity_economic_model",
+        "market_structure_growth",
+        "macro_industry_transmission"
       ],
       "factor_ids": [
         "customer_habit",
@@ -101,7 +108,11 @@
         "unit_economics",
         "capital_efficiency",
         "roic_decomposition",
-        "incremental_roic_reinvestment_runway"
+        "incremental_roic_reinvestment_runway",
+        "growth_levers",
+        "organic_vs_inorganic_growth",
+        "cycle_sensitivity",
+        "budget_cycle_exposure"
       ],
       "factor_signals": {
         "customer_habit": { "stance": "positive", "summary": "Customers log in daily and rely on approvals running through Acme's workflow engine.", "metrics": { "daily_active_admins": 0.82 } },
@@ -120,7 +131,11 @@
         "unit_economics": { "stance": "positive", "summary": "Enterprise expansion economics remained attractive as module count increased.", "metrics": { "gross_margin_incremental": "high" } },
         "capital_efficiency": { "stance": "positive", "summary": "The company scaled revenue faster than operating expense growth.", "metrics": { "opex_growth_vs_revenue": "favorable" } },
         "roic_decomposition": { "stance": "positive", "summary": "Margin expansion and efficient asset turns are both contributing to returns.", "metrics": { "roic_trend": "up" } },
-        "incremental_roic_reinvestment_runway": { "stance": "positive", "summary": "Management continues to find reinvestment opportunities in product and go-to-market with attractive payback.", "metrics": { "payback_months": 18 } }
+        "incremental_roic_reinvestment_runway": { "stance": "positive", "summary": "Management continues to find reinvestment opportunities in product and go-to-market with attractive payback.", "metrics": { "payback_months": 18 } },
+        "growth_levers": { "stance": "positive", "summary": "Management described expansion through module attach, enterprise-seat growth, and deeper workflow penetration rather than one-off pricing moves.", "metrics": { "enterprise_module_expansion": "broad" } },
+        "organic_vs_inorganic_growth": { "stance": "positive", "summary": "Management attributed the year's growth to organic cross-sell and expansion rather than acquisitions.", "metrics": { "acquisitions_contributing_growth": 0 } },
+        "cycle_sensitivity": { "stance": "mixed", "summary": "SMB demand softened as budgets tightened, while enterprise expansion remained steadier.", "metrics": { "smb_growth_pct": 8.0, "enterprise_growth_pct": 19.0 } },
+        "budget_cycle_exposure": { "stance": "mixed", "summary": "Management acknowledged that enterprise procurement timing can shift expansion deals across quarter boundaries.", "metrics": { "budget_timing_impact": "moderate" } }
       },
       "source_refs": [
         { "label": "Q4 2025 Call", "url": "https://example.com/acme-call" }
@@ -139,7 +154,9 @@
         "gatekeepers",
         "supply_product_operations",
         "management_governance_capital_allocation",
-        "financial_quality_liquidity_economic_model"
+        "financial_quality_liquidity_economic_model",
+        "macro_industry_transmission",
+        "external_regulatory_geopolitical"
       ],
       "factor_ids": [
         "legal_regulatory_existential_risk",
@@ -148,7 +165,10 @@
         "supplier_fiscal_health",
         "org_legal_structure",
         "related_party_red_flags",
-        "off_balance_sheet_liabilities_equity"
+        "off_balance_sheet_liabilities_equity",
+        "regulation_subsidy_tax_transmission",
+        "litigation_contingent_liabilities",
+        "regulatory_dependency"
       ],
       "factor_signals": {
         "legal_regulatory_existential_risk": { "stance": "positive", "summary": "No material regulatory enforcement actions were disclosed; privacy updates appear manageable.", "metrics": { "open_actions": 0 } },
@@ -157,7 +177,10 @@
         "supplier_fiscal_health": { "stance": "positive", "summary": "The company's critical infrastructure vendors remain large, well-capitalized counterparties.", "metrics": { "critical_vendor_failures": 0 } },
         "org_legal_structure": { "stance": "positive", "summary": "The disclosed legal structure remained straightforward with no new complexity around subsidiaries.", "metrics": { "material_subsidiaries": 2 } },
         "related_party_red_flags": { "stance": "positive", "summary": "No new related-party transactions or governance red flags were disclosed.", "metrics": { "related_party_transactions": 0 } },
-        "off_balance_sheet_liabilities_equity": { "stance": "positive", "summary": "No new contingent liabilities or unusual equity claims were highlighted in the review.", "metrics": { "material_contingencies": 0 } }
+        "off_balance_sheet_liabilities_equity": { "stance": "positive", "summary": "No new contingent liabilities or unusual equity claims were highlighted in the review.", "metrics": { "material_contingencies": 0 } },
+        "regulation_subsidy_tax_transmission": { "stance": "mixed", "summary": "Privacy compliance work raises operating costs modestly, but management does not expect it to alter demand or pricing materially.", "metrics": { "compliance_cost_growth": "modest" } },
+        "litigation_contingent_liabilities": { "stance": "positive", "summary": "The review did not identify new litigation reserves or contingent liabilities beyond routine matters.", "metrics": { "material_legal_reserves": 0 } },
+        "regulatory_dependency": { "stance": "mixed", "summary": "Enterprise wins still require credible privacy and procurement compliance, even though the business is not dependent on a single license.", "metrics": { "compliance_reviews_per_enterprise_deal": "standardized" } }
       },
       "source_refs": [
         { "label": "Regulatory Note", "url": "https://example.com/acme-regulatory" }

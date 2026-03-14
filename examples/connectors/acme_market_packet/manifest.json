@@ -13,8 +13,8 @@
       "title": "Price And Volume Snapshot",
       "as_of_date": "2026-03-05T00:00:00Z",
       "period": "Trailing 30 Days",
-      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
-      "factor_ids": ["fad_fashion_risk", "brand_reputation_consideration_set"],
+      "panel_ids": ["gatekeepers", "demand_revenue_quality", "market_structure_growth"],
+      "factor_ids": ["fad_fashion_risk", "brand_reputation_consideration_set", "industry_market_share_trends"],
       "factor_signals": {
         "fad_fashion_risk": {
           "stance": "mixed",
@@ -25,6 +25,11 @@
           "stance": "positive",
           "summary": "Trading strength followed broad channel checks that kept Acme in the enterprise shortlist.",
           "metrics": { "share_price_change_pct": 12.4 }
+        },
+        "industry_market_share_trends": {
+          "stance": "positive",
+          "summary": "Channel checks continue to show Acme winning shortlist positions at a faster pace than slower-moving legacy tools.",
+          "metrics": { "net_new_shortlist_mentions": 6 }
         }
       },
       "source_refs": [
@@ -42,10 +47,14 @@
       "title": "Guidance Bridge Note",
       "as_of_date": "2026-03-05T00:00:00Z",
       "period": "FY2026 Outlook",
-      "panel_ids": ["demand_revenue_quality"],
+      "panel_ids": ["demand_revenue_quality", "market_structure_growth", "macro_industry_transmission"],
       "factor_ids": [
         "demand_cyclicality_purchase_deferrability",
-        "pricing_power"
+        "pricing_power",
+        "industry_cagr_vs_revenue_cagr",
+        "secular_vs_cyclical_growth",
+        "macro_variable_exposure",
+        "transmission_mechanisms"
       ],
       "factor_signals": {
         "demand_cyclicality_purchase_deferrability": {
@@ -57,6 +66,26 @@
           "stance": "positive",
           "summary": "Renewal pricing remained firm despite a wider macro valuation reset.",
           "metrics": { "renewal_uplift_pct": 6.0 }
+        },
+        "industry_cagr_vs_revenue_cagr": {
+          "stance": "positive",
+          "summary": "The note frames category growth in the high single digits while Acme still guides to mid-teens growth, implying share gains.",
+          "metrics": { "company_growth_pct": 15.0, "industry_growth_pct": 8.0 }
+        },
+        "secular_vs_cyclical_growth": {
+          "stance": "mixed",
+          "summary": "Workflow automation remains secular, but the current demand bridge still depends on budget releases landing on time.",
+          "metrics": { "budget_release_dependency": "moderate" }
+        },
+        "macro_variable_exposure": {
+          "stance": "mixed",
+          "summary": "Tighter IT budgets remain the main macro variable affecting near-term upsell timing.",
+          "metrics": { "it_budget_outlook": "cautious" }
+        },
+        "transmission_mechanisms": {
+          "stance": "mixed",
+          "summary": "Macro pressure first slows new-seat approvals, then delays module expansions before it affects retention.",
+          "metrics": { "approval_lag_quarters": 1 }
         }
       },
       "source_refs": [
