@@ -11,6 +11,9 @@ IMPLEMENTED_PANEL_IDS = {
     "supply_product_operations",
     "management_governance_capital_allocation",
     "financial_quality_liquidity_economic_model",
+    "market_structure_growth",
+    "macro_industry_transmission",
+    "external_regulatory_geopolitical",
 }
 WAVE1_PRODUCTION_PROMPT_FILES = {
     "supply_product_operations": (
@@ -28,6 +31,29 @@ WAVE1_PRODUCTION_PROMPT_FILES = {
         "panel_lead.md",
     ),
     "financial_quality_liquidity_economic_model": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+}
+WAVE2_PRODUCTION_PROMPT_FILES = {
+    "market_structure_growth": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+    "macro_industry_transmission": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+    "external_regulatory_geopolitical": (
         "advocate.md",
         "skeptic.md",
         "durability.md",
@@ -151,6 +177,35 @@ def test_supply_management_financial_prompts_avoid_scaffold_language() -> None:
             panel_dir = repo_root / "prompts" / "panels" / "management_governance"
         elif panel_id == "financial_quality_liquidity_economic_model":
             panel_dir = repo_root / "prompts" / "panels" / "financial_quality"
+        else:
+            panel_dir = repo_root / "prompts" / "panels" / panel_id
+
+        for filename in filenames:
+            text = (panel_dir / filename).read_text(encoding="utf-8").lower()
+            assert "scaffold-only" not in text, f"{panel_id}:{filename}"
+            assert "placeholder" not in text, f"{panel_id}:{filename}"
+            assert "weak-confidence" in text or "thin evidence" in text, f"{panel_id}:{filename}"
+
+
+def test_market_macro_regulatory_prompt_inventory_is_complete() -> None:
+    repo_root = _repo_root()
+
+    for panel_id, filenames in WAVE2_PRODUCTION_PROMPT_FILES.items():
+        if panel_id == "external_regulatory_geopolitical":
+            panel_dir = repo_root / "prompts" / "panels" / "external_regulatory"
+        else:
+            panel_dir = repo_root / "prompts" / "panels" / panel_id
+
+        for filename in filenames:
+            assert (panel_dir / filename).is_file(), f"{panel_id}:{filename}"
+
+
+def test_market_macro_regulatory_prompts_avoid_scaffold_language() -> None:
+    repo_root = _repo_root()
+
+    for panel_id, filenames in WAVE2_PRODUCTION_PROMPT_FILES.items():
+        if panel_id == "external_regulatory_geopolitical":
+            panel_dir = repo_root / "prompts" / "panels" / "external_regulatory"
         else:
             panel_dir = repo_root / "prompts" / "panels" / panel_id
 

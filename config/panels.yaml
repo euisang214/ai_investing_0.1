@@ -132,10 +132,10 @@ panels:
     name: Market Structure Growth
     enabled: true
     scope: both
-    implemented: false
+    implemented: true
     subgraph: debate
     output_schema: PanelVerdict
-    prompt_path: prompts/panels/market_structure_growth/placeholder.md
+    prompt_path: prompts/panels/market_structure_growth/panel_lead.md
     memo_section_ids:
       - growth
       - expectations_variant_view
@@ -174,10 +174,10 @@ panels:
     name: Macro Industry Transmission
     enabled: true
     scope: both
-    implemented: false
+    implemented: true
     subgraph: debate
     output_schema: PanelVerdict
-    prompt_path: prompts/panels/macro_industry_transmission/placeholder.md
+    prompt_path: prompts/panels/macro_industry_transmission/panel_lead.md
     memo_section_ids:
       - risk
     factor_ids:
@@ -310,10 +310,10 @@ panels:
     name: External Regulatory Geopolitical
     enabled: true
     scope: both
-    implemented: false
+    implemented: true
     subgraph: debate
     output_schema: PanelVerdict
-    prompt_path: prompts/panels/external_regulatory/placeholder.md
+    prompt_path: prompts/panels/external_regulatory/panel_lead.md
     memo_section_ids:
       - risk
     factor_ids:

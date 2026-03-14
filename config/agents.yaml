@@ -435,48 +435,246 @@ agents:
   - wave_1
   - supply
   - lead
-- id: market_structure_growth_placeholder_lead
-  name: Market Structure Growth Placeholder Lead
+- id: market_growth_advocate
+  name: Market Structure Growth Advocate
   panel_id: market_structure_growth
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/market_structure_growth/placeholder.md
+  role_type: specialist
+  goal: Build the base-case market structure and growth thesis from evidence.
+  enabled: true
+  prompt_path: prompts/panels/market_structure_growth/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: market_growth_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - market
+  - advocate
+- id: market_growth_skeptic
+  name: Market Structure Growth Skeptic
+  panel_id: market_structure_growth
+  parent_id: market_growth_advocate
+  role_type: skeptic
+  goal: Pressure-test share gains, market sizing, and runway claims against contradictory evidence.
+  enabled: true
+  prompt_path: prompts/panels/market_structure_growth/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: market_growth_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - market
+  - skeptic
+- id: market_growth_durability
+  name: Market Structure Growth Durability
+  panel_id: market_structure_growth
+  parent_id: market_growth_advocate
+  role_type: durability
+  goal: Test whether growth drivers and share gains persist through cycle shifts and competitive response.
+  enabled: true
+  prompt_path: prompts/panels/market_structure_growth/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: market_growth_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - market
+  - durability
+- id: market_growth_judge
+  name: Market Structure Growth Judge
+  panel_id: market_structure_growth
+  parent_id: market_growth_advocate
+  role_type: judge
+  goal: Consolidate market structure and growth claims into one panel verdict.
+  enabled: true
+  prompt_path: prompts/panels/market_structure_growth/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: market_growth_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
-- id: macro_industry_transmission_placeholder_lead
-  name: Macro Industry Transmission Placeholder Lead
+  - wave_2
+  - market
+  - judge
+- id: market_growth_panel_lead
+  name: Market Structure Growth Panel Lead
+  panel_id: market_structure_growth
+  parent_id: market_growth_judge
+  role_type: lead
+  goal: Translate the market structure verdict into memo-ready growth language without implying expectations work ran.
+  enabled: true
+  prompt_path: prompts/panels/market_structure_growth/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_2
+  - market
+  - lead
+- id: macro_transmission_advocate
+  name: Macro Industry Transmission Advocate
   panel_id: macro_industry_transmission
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/macro_industry_transmission/placeholder.md
+  role_type: specialist
+  goal: Build the base-case macro transmission thesis from evidence.
+  enabled: true
+  prompt_path: prompts/panels/macro_industry_transmission/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: macro_transmission_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - macro
+  - advocate
+- id: macro_transmission_skeptic
+  name: Macro Industry Transmission Skeptic
+  panel_id: macro_industry_transmission
+  parent_id: macro_transmission_advocate
+  role_type: skeptic
+  goal: Stress-test macro and industry transmission claims for weak causal links or overgeneralized cycle calls.
+  enabled: true
+  prompt_path: prompts/panels/macro_industry_transmission/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: macro_transmission_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - macro
+  - skeptic
+- id: macro_transmission_durability
+  name: Macro Industry Transmission Durability
+  panel_id: macro_industry_transmission
+  parent_id: macro_transmission_advocate
+  role_type: durability
+  goal: Evaluate whether macro transmission paths remain durable across policy, commodity, and credit shifts.
+  enabled: true
+  prompt_path: prompts/panels/macro_industry_transmission/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: macro_transmission_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - macro
+  - durability
+- id: macro_transmission_judge
+  name: Macro Industry Transmission Judge
+  panel_id: macro_industry_transmission
+  parent_id: macro_transmission_advocate
+  role_type: judge
+  goal: Consolidate macro transmission claims into one panel verdict.
+  enabled: true
+  prompt_path: prompts/panels/macro_industry_transmission/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: macro_transmission_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
+  - wave_2
+  - macro
+  - judge
+- id: macro_transmission_panel_lead
+  name: Macro Industry Transmission Panel Lead
+  panel_id: macro_industry_transmission
+  parent_id: macro_transmission_judge
+  role_type: lead
+  goal: Translate the macro transmission verdict into memo-ready risk language without implying overlay work ran.
+  enabled: true
+  prompt_path: prompts/panels/macro_industry_transmission/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_2
+  - macro
+  - lead
 - id: management_advocate
   name: Management Governance Capital Allocation Advocate
   panel_id: management_governance_capital_allocation
@@ -717,27 +915,126 @@ agents:
   - wave_1
   - financial
   - lead
-- id: external_regulatory_geopolitical_placeholder_lead
-  name: External Regulatory Geopolitical Placeholder Lead
+- id: external_regulatory_advocate
+  name: External Regulatory Geopolitical Advocate
   panel_id: external_regulatory_geopolitical
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/external_regulatory/placeholder.md
+  role_type: specialist
+  goal: Build the base-case regulatory and geopolitical risk thesis from evidence.
+  enabled: true
+  prompt_path: prompts/panels/external_regulatory/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: regulatory_context_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - regulatory
+  - advocate
+- id: external_regulatory_skeptic
+  name: External Regulatory Geopolitical Skeptic
+  panel_id: external_regulatory_geopolitical
+  parent_id: external_regulatory_advocate
+  role_type: skeptic
+  goal: Stress-test whether policy, legal, or geopolitical risks are more severe than the base case assumes.
+  enabled: true
+  prompt_path: prompts/panels/external_regulatory/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: regulatory_context_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - regulatory
+  - skeptic
+- id: external_regulatory_durability
+  name: External Regulatory Geopolitical Durability
+  panel_id: external_regulatory_geopolitical
+  parent_id: external_regulatory_advocate
+  role_type: durability
+  goal: Test whether licenses, government counterparties, and geopolitical exposures remain manageable through shocks.
+  enabled: true
+  prompt_path: prompts/panels/external_regulatory/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: regulatory_context_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_2
+  - regulatory
+  - durability
+- id: external_regulatory_judge
+  name: External Regulatory Geopolitical Judge
+  panel_id: external_regulatory_geopolitical
+  parent_id: external_regulatory_advocate
+  role_type: judge
+  goal: Consolidate regulatory and geopolitical claims into one panel verdict.
+  enabled: true
+  prompt_path: prompts/panels/external_regulatory/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: regulatory_context_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
+  - wave_2
+  - regulatory
+  - judge
+- id: external_regulatory_panel_lead
+  name: External Regulatory Geopolitical Panel Lead
+  panel_id: external_regulatory_geopolitical
+  parent_id: external_regulatory_judge
+  role_type: lead
+  goal: Translate the external regulatory verdict into memo-ready risk language without implying security overlay conclusions.
+  enabled: true
+  prompt_path: prompts/panels/external_regulatory/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_2
+  - regulatory
+  - lead
 - id: expectations_catalyst_realization_placeholder_lead
   name: Expectations Catalyst Realization Placeholder Lead
   panel_id: expectations_catalyst_realization

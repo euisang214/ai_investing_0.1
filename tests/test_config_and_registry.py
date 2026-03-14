@@ -14,9 +14,6 @@ from ai_investing.settings import Settings
 
 EXPECTED_SCAFFOLD_PANEL_IDS = {
     "expectations_catalyst_realization",
-    "external_regulatory_geopolitical",
-    "macro_industry_transmission",
-    "market_structure_growth",
     "portfolio_fit_positioning",
     "security_or_deal_overlay",
 }
@@ -24,6 +21,11 @@ EXPECTED_WAVE1_PANEL_IDS = {
     "supply_product_operations",
     "management_governance_capital_allocation",
     "financial_quality_liquidity_economic_model",
+}
+EXPECTED_WAVE2_PANEL_IDS = {
+    "market_structure_growth",
+    "macro_industry_transmission",
+    "external_regulatory_geopolitical",
 }
 
 
@@ -84,6 +86,16 @@ def test_config_loader_validates_registries(context) -> None:
         "management_governance_capital_allocation",
         "financial_quality_liquidity_economic_model",
     ]
+    assert run_policies["external_company_quality"].default_panel_ids == [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model",
+        "market_structure_growth",
+        "macro_industry_transmission",
+        "external_regulatory_geopolitical",
+    ]
     assert run_policies["full_surface"].wave == 4
 
 
@@ -101,6 +113,19 @@ def test_supply_management_financial_panels_are_implemented_with_active_agents(c
     expected_roles = {"specialist", "skeptic", "durability", "judge", "lead"}
 
     for panel_id in EXPECTED_WAVE1_PANEL_IDS:
+        panel = context.get_panel(panel_id)
+        active_agents = context.active_agents_for_panel(panel_id)
+
+        assert panel.implemented is True
+        assert panel.prompt_path.endswith("panel_lead.md")
+        assert {agent.role_type for agent in active_agents} == expected_roles
+        assert all(agent.enabled for agent in active_agents)
+
+
+def test_market_macro_regulatory_panels_are_implemented_with_active_agents(context) -> None:
+    expected_roles = {"specialist", "skeptic", "durability", "judge", "lead"}
+
+    for panel_id in EXPECTED_WAVE2_PANEL_IDS:
         panel = context.get_panel(panel_id)
         active_agents = context.active_agents_for_panel(panel_id)
 
@@ -180,6 +205,21 @@ def test_panels_expose_readiness_and_support_contracts(context) -> None:
     financial_panel = panels["financial_quality_liquidity_economic_model"]
     assert financial_panel.implemented is True
     assert financial_panel.readiness.minimum_evidence_count == 3
+
+    market_panel = panels["market_structure_growth"]
+    assert market_panel.implemented is True
+    assert market_panel.readiness.wave == 2
+    assert market_panel.readiness.minimum_evidence_count == 5
+
+    macro_panel = panels["macro_industry_transmission"]
+    assert macro_panel.implemented is True
+    assert macro_panel.readiness.wave == 2
+    assert macro_panel.readiness.minimum_evidence_count == 4
+
+    regulatory_panel = panels["external_regulatory_geopolitical"]
+    assert regulatory_panel.implemented is True
+    assert regulatory_panel.readiness.wave == 2
+    assert regulatory_panel.readiness.minimum_evidence_count == 3
 
 
 def test_registry_loader_rejects_invalid_cross_references(repo_root, tmp_path) -> None:
