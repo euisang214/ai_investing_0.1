@@ -48,6 +48,19 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
         repository.upsert_coverage(coverage)
 
 
+def _seed_public_wave2_connectors(context, repo_root: Path) -> None:
+    service = IngestionService(context)
+    for connector_id in (
+        "acme_market_packet",
+        "acme_regulatory_packet",
+        "acme_transcript_news_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+
 def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -411,23 +424,18 @@ def test_refresh_company_keeps_market_macro_regulatory_support_visible(
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    service = IngestionService(seeded_acme)
-    for connector_id in (
-        "acme_market_packet",
-        "acme_regulatory_packet",
-        "acme_transcript_news_packet",
-    ):
-        service.ingest_public_data(
-            repo_root / "examples" / "connectors" / connector_id,
-            connector_id=connector_id,
-        )
-
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
     analysis = AnalysisService(seeded_acme)
     _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
     initial = analysis.analyze_company("ACME")
     refreshed = analysis.refresh_company("ACME")
 
+    assert initial["panels"]["demand_revenue_quality"]["support"]["status"] == "supported"
+    assert initial["panels"]["supply_product_operations"]["support"]["status"] == "supported"
     assert initial["panels"]["market_structure_growth"]["support"]["status"] == "supported"
+    assert refreshed["delta"] is not None
+    assert refreshed["panels"]["demand_revenue_quality"]["support"]["status"] == "supported"
+    assert refreshed["panels"]["supply_product_operations"]["support"]["status"] == "supported"
     assert refreshed["panels"]["market_structure_growth"]["support"]["status"] == "supported"
     assert refreshed["panels"]["macro_industry_transmission"]["support"]["status"] == "supported"
     assert (

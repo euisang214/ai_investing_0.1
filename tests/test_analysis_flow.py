@@ -62,6 +62,19 @@ def _seed_private_beta(context, repo_root: Path) -> None:
     )
 
 
+def _seed_public_wave2_connectors(context, repo_root: Path) -> None:
+    service = IngestionService(context)
+    for connector_id in (
+        "acme_market_packet",
+        "acme_regulatory_packet",
+        "acme_transcript_news_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+
 def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
     panel = context.get_panel(panel_id)
     panel.readiness.required_context = required_context
@@ -274,17 +287,7 @@ def test_market_macro_regulatory_external_policy_runs_public_with_supported_resu
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    service = IngestionService(seeded_acme)
-    for connector_id in (
-        "acme_market_packet",
-        "acme_regulatory_packet",
-        "acme_transcript_news_packet",
-    ):
-        service.ingest_public_data(
-            repo_root / "examples" / "connectors" / connector_id,
-            connector_id=connector_id,
-        )
-
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
 
     result = AnalysisService(seeded_acme).analyze_company("ACME")
@@ -299,7 +302,12 @@ def test_market_macro_regulatory_external_policy_runs_public_with_supported_resu
     assert sections["growth"]["status"] == "refreshed"
     assert sections["risk"]["status"] == "refreshed"
     assert sections["expectations_variant_view"]["status"] == "refreshed"
+    assert sections["realization_path_catalysts"]["status"] == "not_advanced"
     assert sections["portfolio_fit_positioning"]["status"] == "not_advanced"
+    assert (
+        "expectations and catalyst realization pending for this rollout"
+        in sections["overall_recommendation"]["content"]
+    )
 
 
 def test_market_macro_regulatory_external_policy_runs_private_with_weak_confidence(
@@ -326,6 +334,50 @@ def test_market_macro_regulatory_external_policy_runs_private_with_weak_confiden
     assert sections["risk"]["status"] == "refreshed"
     assert sections["expectations_variant_view"]["status"] == "refreshed"
     assert "Weak-confidence support this run" in sections["growth"]["content"]
+
+
+def test_market_macro_regulatory_external_policy_rerun_preserves_prior_panel_sections(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
+
+    service = AnalysisService(seeded_acme)
+    initial = service.analyze_company("ACME")
+
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    rerun = service.refresh_company("ACME")
+    sections = _memo_section_map(rerun)
+    delta = rerun["delta"]
+
+    assert rerun["run"]["status"] == "complete"
+    assert rerun["panels"]["demand_revenue_quality"]["support"]["status"] == "supported"
+    assert rerun["panels"]["supply_product_operations"]["support"]["status"] == "supported"
+    assert (
+        rerun["panels"]["management_governance_capital_allocation"]["support"]["status"]
+        == "supported"
+    )
+    assert (
+        rerun["panels"]["financial_quality_liquidity_economic_model"]["support"]["status"]
+        == "supported"
+    )
+    assert rerun["panels"]["market_structure_growth"]["support"]["status"] == "supported"
+    assert rerun["panels"]["macro_industry_transmission"]["support"]["status"] == "supported"
+    assert (
+        rerun["panels"]["external_regulatory_geopolitical"]["support"]["status"] == "supported"
+    )
+    assert sections["durability_resilience"]["status"] == "refreshed"
+    assert sections["economic_spread"]["status"] == "refreshed"
+    assert sections["valuation_terms"]["status"] == "refreshed"
+    assert sections["growth"]["status"] == "refreshed"
+    assert sections["risk"]["status"] == "refreshed"
+    assert sections["realization_path_catalysts"]["status"] == "stale"
+    assert sections["portfolio_fit_positioning"]["status"] == "stale"
+    assert delta is not None
+    assert delta["prior_run_id"] == initial["run"]["run_id"]
+    assert delta["current_run_id"] == rerun["run"]["run_id"]
+    assert "what_changed_since_last_run" in delta["changed_sections"]
 
 
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:

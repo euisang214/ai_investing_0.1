@@ -1057,11 +1057,12 @@ class RefreshRuntime:
     def _overall_recommendation_truthfulness_note(self) -> str | None:
         selected_panel_ids = self._selected_panel_ids()
         notes: list[str] = []
-        overlay_labels = {
+        later_panel_labels = {
+            "expectations_catalyst_realization": "expectations and catalyst realization",
             "security_or_deal_overlay": "security or deal overlay",
             "portfolio_fit_positioning": "portfolio fit positioning",
         }
-        for panel_id, label in overlay_labels.items():
+        for panel_id, label in later_panel_labels.items():
             if panel_id not in selected_panel_ids:
                 notes.append(f"{label} pending for this rollout")
             elif panel_id in self.current_skipped_panels:
