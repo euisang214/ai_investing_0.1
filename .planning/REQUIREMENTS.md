@@ -62,14 +62,14 @@
 
 ### Broader Panel Coverage
 
-- [ ] **V2-01**: Productionize all remaining top-level panels beyond the initial vertical slice.
-- [x] **V2-02**: Add richer live connectors for regulatory, market, consensus, ownership, and dataroom systems.
+- [x] **V2-01**: Productionize all remaining top-level panels beyond the initial vertical slice.
+- [ ] **V2-02**: Add richer live connectors for regulatory, market, consensus, ownership, and dataroom systems.
 - [x] **V2-03**: Add configurable cadence schedules beyond weekly defaults.
 
 ### Platform Expansion
 
-- [x] **V2-04**: Add richer contradiction resolution, analog graph search, and portfolio-level analytics views.
-- [x] **V2-05**: Add background worker infrastructure for large-scale concurrent coverage refreshes.
+- [ ] **V2-04**: Add richer contradiction resolution, analog graph search, and portfolio-level analytics views.
+- [ ] **V2-05**: Add background worker infrastructure for large-scale concurrent coverage refreshes.
 
 ## Out of Scope
 
@@ -110,11 +110,11 @@
 | OPS-01 | Phase 1 | Complete |
 | TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 2 | Complete |
-| V2-01 | Phase 3 | Incomplete |
-| V2-02 | Phase 4 | Complete |
+| V2-01 | Phase 6 | Complete |
+| V2-02 | Phase 7 | Pending |
 | V2-03 | Phase 5 | Complete |
-| V2-04 | Phase 4 | Complete |
-| V2-05 | Phase 5 | Complete |
+| V2-04 | Phase 7 | Pending |
+| V2-05 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
@@ -123,4 +123,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-13 after Phase 05 Plan 03 completion*
+*Last updated: 2026-03-14 after Phase 06 Plan 04 execution*
