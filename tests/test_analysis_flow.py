@@ -145,7 +145,10 @@ def _seed_public_overlay_evidence(context) -> None:
             company_type=CompanyType.PUBLIC,
             source_type="market_snapshot",
             title="Public overlay valuation snapshot",
-            body="Valuation, positioning, and technical liquidity all matter for the current entry.",
+            body=(
+                "Valuation, positioning, and technical liquidity all matter for the "
+                "current entry."
+            ),
             source_path="examples/generated/public_overlay_valuation.json",
             namespace="company/ACME/evidence/security_overlay",
             panel_ids=["security_or_deal_overlay"],
@@ -330,28 +333,30 @@ def test_end_to_end_fake_provider_run_auto_continues_passed_gatekeepers(seeded_a
     assert sections["valuation_terms"]["status"] == "not_advanced"
 
 
-def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seeded_acme) -> None:
+def test_full_surface_policy_runs_and_persists_company_quality_only_result(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
     policy = seeded_acme.registries.run_policies.run_policies["full_surface"]
-    expected_error = (
-        r"Panel security_or_deal_overlay is not implemented for policy "
-        r"full_surface\."
-    )
 
     assert "supply_product_operations" in policy.default_panel_ids
-    assert policy.allow_unimplemented_panels is False
+    assert "security_or_deal_overlay" in policy.default_panel_ids
+    assert "portfolio_fit_positioning" in policy.default_panel_ids
 
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
 
-    with pytest.raises(
-        ValueError,
-        match=expected_error,
-    ):
-        AnalysisService(seeded_acme).analyze_company("ACME")
+    assert result["run"]["status"] == "complete"
+    assert result["panels"]["security_or_deal_overlay"]["support"]["status"] == "unsupported"
+    assert result["panels"]["portfolio_fit_positioning"]["support"]["status"] == "unsupported"
+    assert result["panels"]["security_or_deal_overlay"]["skip"]["reason_code"] == "missing_context"
+    assert result["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"] == "missing_context"
 
     with seeded_acme.database.session() as session:
         runs = Repository(session).list_runs("ACME")
 
-    assert runs == []
+    assert len(runs) == 1
 
 
 def test_analyze_company_allows_explicit_market_panel_selection_with_structured_skip(

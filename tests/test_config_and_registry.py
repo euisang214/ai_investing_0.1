@@ -12,8 +12,7 @@ from ai_investing.config.loader import RegistryLoader
 from ai_investing.domain.models import ClaimCard
 from ai_investing.settings import Settings
 
-EXPECTED_SCAFFOLD_PANEL_IDS = {
-}
+EXPECTED_SCAFFOLD_PANEL_IDS: set[str] = set()
 EXPECTED_WAVE1_PANEL_IDS = {
     "supply_product_operations",
     "management_governance_capital_allocation",
@@ -103,14 +102,12 @@ def test_config_loader_validates_registries(context) -> None:
     assert run_policies["full_surface"].wave == 4
 
 
-def test_scaffold_panels_materialize_in_registry_without_active_agents(context) -> None:
+def test_phase6_has_no_remaining_scaffold_panels(context) -> None:
     scaffold_panels = _scaffold_panels(context)
     scaffold_panel_ids = {panel.id for panel in scaffold_panels}
 
     assert scaffold_panel_ids == EXPECTED_SCAFFOLD_PANEL_IDS
-    for panel in scaffold_panels:
-        assert context.get_panel(panel.id).implemented is False
-        assert context.active_agents_for_panel(panel.id) == []
+    assert scaffold_panels == []
 
 
 def test_supply_management_financial_panels_are_implemented_with_active_agents(context) -> None:
@@ -247,34 +244,29 @@ def test_overlay_tool_bundles_stay_bounded_to_overlay_inputs(context) -> None:
     ]
 
 
-def test_scaffold_panels_have_one_disabled_placeholder_lead(context) -> None:
-    scaffold_panels = _scaffold_panels(context)
-    placeholder_agents = {
-        panel.id: [
-            agent
-            for agent in context.registries.agents.agents
-            if agent.panel_id == panel.id and agent.role_type == "lead" and not agent.enabled
-        ]
-        for panel in scaffold_panels
-    }
+def test_phase6_removes_disabled_placeholder_leads_for_top_level_panels(context) -> None:
+    placeholder_agents = [
+        agent
+        for agent in context.registries.agents.agents
+        if agent.role_type == "lead"
+        and not agent.enabled
+        and agent.panel_id not in {None, "gatekeepers", "demand_revenue_quality"}
+    ]
 
-    for panel in scaffold_panels:
-        assert len(placeholder_agents[panel.id]) == 1, panel.id
-        placeholder = placeholder_agents[panel.id][0]
-        assert placeholder.prompt_path == panel.prompt_path
-        assert "placeholder" in placeholder.tags
-        assert "scaffold_only" in placeholder.tags
+    assert placeholder_agents == []
 
 
-def test_scaffold_panels_reference_existing_prompts_and_owned_factors(
+def test_all_implemented_panels_reference_existing_prompts_and_owned_factors(
     context, repo_root
 ) -> None:
-    scaffold_panels = _scaffold_panels(context)
+    implemented_panels = [
+        panel for panel in context.registries.panels.panels if panel.id != "gatekeepers"
+    ]
     factor_owner = {
         factor.id: factor.panel_id for factor in context.registries.factors.factors
     }
 
-    for panel in scaffold_panels:
+    for panel in implemented_panels:
         prompt_path = repo_root / panel.prompt_path
         assert prompt_path.is_file(), panel.prompt_path
         assert panel.factor_ids, panel.id

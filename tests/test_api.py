@@ -111,7 +111,10 @@ def _seed_public_overlay_evidence(context) -> None:
                 "positioning_liquidity",
             ],
             factor_signals={
-                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Overlay evidence supports this factor.",
+                )
                 for factor_id in [
                     "valuation_multiples_vs_peers",
                     "technical_stock_movement",
@@ -143,7 +146,10 @@ def _seed_public_overlay_evidence(context) -> None:
                 "exit_path",
             ],
             factor_signals={
-                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Overlay evidence supports this factor.",
+                )
                 for factor_id in [
                     "insider_institutional_flow",
                     "borrow_short_interest_if_relevant",
@@ -175,7 +181,10 @@ def _seed_public_overlay_evidence(context) -> None:
                 "control_rights",
             ],
             factor_signals={
-                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Overlay evidence supports this factor.",
+                )
                 for factor_id in [
                     "cap_table",
                     "financing_dependency",
@@ -202,7 +211,10 @@ def _seed_public_overlay_evidence(context) -> None:
                 "exit_path",
             ],
             factor_signals={
-                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                factor_id: FactorSignal(
+                    stance="supported",
+                    summary="Overlay evidence supports this factor.",
+                )
                 for factor_id in [
                     "round_terms_preferences",
                     "exit_path",

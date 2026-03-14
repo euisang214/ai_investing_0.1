@@ -809,7 +809,12 @@ class RefreshRuntime:
         repository: Repository,
         panel: PanelConfig,
     ) -> list[EvidenceRecord]:
-        evidence = list(repository.list_evidence(self.company_profile.company_id, panel_id=panel.id))
+        evidence = list(
+            repository.list_evidence(
+                self.company_profile.company_id,
+                panel_id=panel.id,
+            )
+        )
         if panel.id == "portfolio_fit_positioning":
             portfolio_context = self.run.metadata.get("portfolio_context")
             if isinstance(portfolio_context, dict):

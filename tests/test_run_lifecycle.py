@@ -414,23 +414,34 @@ def test_run_panel_rejects_unimplemented_scaffold_panel(seeded_acme) -> None:
     assert runs == []
 
 
-def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_acme) -> None:
+def test_refresh_company_runs_full_surface_with_explicit_overlay_skips(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
-    expected_error = (
-        r"Panel security_or_deal_overlay is not implemented for policy "
-        r"full_surface\."
-    )
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    analysis = AnalysisService(seeded_acme)
+    initial = analysis.analyze_company("ACME")
+    refreshed = analysis.refresh_company("ACME")
 
-    with pytest.raises(
-        ValueError,
-        match=expected_error,
-    ):
-        AnalysisService(seeded_acme).refresh_company("ACME")
+    assert initial["run"]["status"] == "complete"
+    assert refreshed["run"]["status"] == "complete"
+    assert refreshed["delta"] is not None
+    assert refreshed["panels"]["security_or_deal_overlay"]["support"]["status"] == "unsupported"
+    assert refreshed["panels"]["portfolio_fit_positioning"]["support"]["status"] == "unsupported"
+    assert (
+        refreshed["panels"]["security_or_deal_overlay"]["skip"]["reason_code"]
+        == "missing_context"
+    )
+    assert (
+        refreshed["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"]
+        == "missing_context"
+    )
 
     with seeded_acme.database.session() as session:
         runs = Repository(session).list_runs("ACME")
 
-    assert runs == []
+    assert len(runs) == 2
 
 
 def test_refresh_company_keeps_market_macro_regulatory_support_visible(
