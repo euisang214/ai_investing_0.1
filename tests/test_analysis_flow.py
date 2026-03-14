@@ -380,6 +380,35 @@ def test_market_macro_regulatory_external_policy_rerun_preserves_prior_panel_sec
     assert "what_changed_since_last_run" in delta["changed_sections"]
 
 
+def test_external_company_quality_policy_keeps_later_scaffolds_out_of_results(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
+
+    service = AnalysisService(seeded_acme)
+    initial = service.analyze_company("ACME")
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    rerun = service.refresh_company("ACME")
+    changed_sections = set(rerun["delta"]["changed_sections"])
+
+    for result in (initial, rerun):
+        assert result["run"]["status"] == "complete"
+        assert "expectations_catalyst_realization" not in result["panels"]
+        assert "security_or_deal_overlay" not in result["panels"]
+        assert "portfolio_fit_positioning" not in result["panels"]
+
+    assert "growth" in changed_sections
+    assert "risk" in changed_sections
+    assert "durability_resilience" in changed_sections
+    assert "economic_spread" in changed_sections
+    assert "valuation_terms" in changed_sections
+    assert "what_changed_since_last_run" in changed_sections
+    assert "realization_path_catalysts" not in changed_sections
+    assert "portfolio_fit_positioning" not in changed_sections
+
+
 def test_failed_gatekeeper_can_continue_provisionally(seeded_acme, monkeypatch) -> None:
     _force_failed_gatekeeper(monkeypatch)
     service = AnalysisService(seeded_acme)

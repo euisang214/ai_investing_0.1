@@ -444,6 +444,24 @@ def test_refresh_company_keeps_market_macro_regulatory_support_visible(
     )
 
 
+def test_external_company_quality_refresh_stays_narrower_than_full_surface(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
+    analysis = AnalysisService(seeded_acme)
+    _set_panel_policy(seeded_acme, "ACME", "external_company_quality")
+
+    result = analysis.refresh_company("ACME")
+
+    assert result["run"]["status"] == "complete"
+    assert "expectations_catalyst_realization" not in result["panels"]
+    assert "security_or_deal_overlay" not in result["panels"]
+    assert "portfolio_fit_positioning" not in result["panels"]
+    assert result["delta"] is not None
+    assert "what_changed_since_last_run" in result["delta"]["changed_sections"]
+
+
 class StubContext:
     def __init__(self) -> None:
         self._panels = {
