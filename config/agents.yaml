@@ -1155,45 +1155,274 @@ agents:
   - wave_3
   - expectations
   - lead
-- id: security_or_deal_overlay_placeholder_lead
-  name: Security Or Deal Overlay Placeholder Lead
+- id: security_overlay_advocate
+  name: Security Or Deal Overlay Advocate
   panel_id: security_or_deal_overlay
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/security_overlay/placeholder.md
+  role_type: specialist
+  goal: Build the base-case security-specific or deal-specific overlay thesis from bounded valuation, flow, and term evidence.
+  enabled: true
+  prompt_path: prompts/panels/security_overlay/advocate.md
   input_channels:
   - evidence
-  output_schema: PanelVerdict
+  - prior_claims
+  - prior_memo
+  - panel_verdicts
+  output_schema: ClaimCard
   memory_read_namespaces:
   - company/{company_id}/evidence
-  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: security_overlay_research
+  model_profile: balanced
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
-- id: portfolio_fit_positioning_placeholder_lead
-  name: Portfolio Fit Positioning Placeholder Lead
+  - wave_4
+  - overlay
+  - advocate
+- id: security_overlay_skeptic
+  name: Security Or Deal Overlay Skeptic
+  panel_id: security_or_deal_overlay
+  parent_id: security_overlay_advocate
+  role_type: skeptic
+  goal: Stress-test overlay claims so thin valuation, flow, or deal-term evidence does not masquerade as support.
+  enabled: true
+  prompt_path: prompts/panels/security_overlay/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  - panel_verdicts
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: security_overlay_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_4
+  - overlay
+  - skeptic
+- id: security_overlay_durability
+  name: Security Or Deal Overlay Durability
+  panel_id: security_or_deal_overlay
+  parent_id: security_overlay_advocate
+  role_type: durability
+  goal: Evaluate whether the overlay view survives liquidity pressure, financing needs, and exit friction over time.
+  enabled: true
+  prompt_path: prompts/panels/security_overlay/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  - panel_verdicts
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: security_overlay_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_4
+  - overlay
+  - durability
+- id: security_overlay_judge
+  name: Security Or Deal Overlay Judge
+  panel_id: security_or_deal_overlay
+  parent_id: security_overlay_advocate
+  role_type: judge
+  goal: Consolidate security-specific or deal-specific claims into one bounded overlay verdict.
+  enabled: true
+  prompt_path: prompts/panels/security_overlay/judge.md
+  input_channels:
+  - claims
+  - evidence
+  - panel_verdicts
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/evidence
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: security_overlay_research
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_4
+  - overlay
+  - judge
+- id: security_overlay_panel_lead
+  name: Security Or Deal Overlay Panel Lead
+  panel_id: security_or_deal_overlay
+  parent_id: security_overlay_judge
+  role_type: lead
+  goal: Translate the overlay verdict into valuation-terms and recommendation wording without collapsing back into company-quality claims.
+  enabled: true
+  prompt_path: prompts/panels/security_overlay/panel_lead.md
+  input_channels:
+  - panel_verdict
+  - panel_verdicts
+  - prior_memo
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_4
+  - overlay
+  - lead
+- id: portfolio_fit_advocate
+  name: Portfolio Fit Positioning Advocate
   panel_id: portfolio_fit_positioning
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/portfolio_fit/placeholder.md
+  role_type: specialist
+  goal: Build the base-case portfolio-fit thesis from bounded book-aware context plus company evidence.
+  enabled: true
+  prompt_path: prompts/panels/portfolio_fit/advocate.md
   input_channels:
   - evidence
-  output_schema: PanelVerdict
+  - prior_claims
+  - prior_memo
+  - panel_verdicts
+  - prior_run
+  - portfolio_context
+  output_schema: ClaimCard
   memory_read_namespaces:
   - company/{company_id}/evidence
-  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/memos/current
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: portfolio_fit_research
+  model_profile: balanced
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
+  - wave_4
+  - portfolio
+  - advocate
+- id: portfolio_fit_skeptic
+  name: Portfolio Fit Positioning Skeptic
+  panel_id: portfolio_fit_positioning
+  parent_id: portfolio_fit_advocate
+  role_type: skeptic
+  goal: Pressure-test whether book overlap, liquidity, or shared-risk exposure makes the position worse than the standalone company story suggests.
+  enabled: true
+  prompt_path: prompts/panels/portfolio_fit/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  - panel_verdicts
+  - prior_run
+  - portfolio_context
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: portfolio_fit_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_4
+  - portfolio
+  - skeptic
+- id: portfolio_fit_durability
+  name: Portfolio Fit Positioning Durability
+  panel_id: portfolio_fit_positioning
+  parent_id: portfolio_fit_advocate
+  role_type: durability
+  goal: Evaluate whether the proposed fit, sizing, and exit posture stay workable through stress and correlated shocks.
+  enabled: true
+  prompt_path: prompts/panels/portfolio_fit/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  - panel_verdicts
+  - prior_run
+  - portfolio_context
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  allowed_tool_bundle: portfolio_fit_research
+  model_profile: balanced
+  scope: both
+  tags:
+  - wave_4
+  - portfolio
+  - durability
+- id: portfolio_fit_judge
+  name: Portfolio Fit Positioning Judge
+  panel_id: portfolio_fit_positioning
+  parent_id: portfolio_fit_advocate
+  role_type: judge
+  goal: Consolidate book-aware portfolio-fit claims into one bounded verdict.
+  enabled: true
+  prompt_path: prompts/panels/portfolio_fit/judge.md
+  input_channels:
+  - claims
+  - evidence
+  - panel_verdicts
+  - portfolio_context
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/claims/{factor_id}
+  - company/{company_id}/evidence
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: portfolio_fit_research
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_4
+  - portfolio
+  - judge
+- id: portfolio_fit_panel_lead
+  name: Portfolio Fit Positioning Panel Lead
+  panel_id: portfolio_fit_positioning
+  parent_id: portfolio_fit_judge
+  role_type: lead
+  goal: Translate the portfolio-fit verdict into sizing and recommendation wording without turning company quality into portfolio fit.
+  enabled: true
+  prompt_path: prompts/panels/portfolio_fit/panel_lead.md
+  input_channels:
+  - panel_verdict
+  - panel_verdicts
+  - prior_memo
+  - prior_run
+  - portfolio_context
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  - company/{company_id}/memos/current
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_4
+  - portfolio
+  - lead

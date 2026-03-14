@@ -385,10 +385,10 @@ panels:
     name: Security Or Deal Overlay
     enabled: true
     scope: both
-    implemented: false
+    implemented: true
     subgraph: debate
     output_schema: PanelVerdict
-    prompt_path: prompts/panels/security_overlay/placeholder.md
+    prompt_path: prompts/panels/security_overlay/panel_lead.md
     memo_section_ids:
       - valuation_terms
       - overall_recommendation
@@ -426,10 +426,10 @@ panels:
     name: Portfolio Fit Positioning
     enabled: true
     scope: both
-    implemented: false
+    implemented: true
     subgraph: debate
     output_schema: PanelVerdict
-    prompt_path: prompts/panels/portfolio_fit/placeholder.md
+    prompt_path: prompts/panels/portfolio_fit/panel_lead.md
     memo_section_ids:
       - portfolio_fit_positioning
       - overall_recommendation

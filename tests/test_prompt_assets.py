@@ -15,6 +15,8 @@ IMPLEMENTED_PANEL_IDS = {
     "macro_industry_transmission",
     "external_regulatory_geopolitical",
     "expectations_catalyst_realization",
+    "security_or_deal_overlay",
+    "portfolio_fit_positioning",
 }
 WAVE1_PRODUCTION_PROMPT_FILES = {
     "supply_product_operations": (
@@ -64,6 +66,22 @@ WAVE2_PRODUCTION_PROMPT_FILES = {
 }
 WAVE3_PRODUCTION_PROMPT_FILES = {
     "expectations_catalyst_realization": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+}
+WAVE4_PRODUCTION_PROMPT_FILES = {
+    "security_or_deal_overlay": (
+        "advocate.md",
+        "skeptic.md",
+        "durability.md",
+        "judge.md",
+        "panel_lead.md",
+    ),
+    "portfolio_fit_positioning": (
         "advocate.md",
         "skeptic.md",
         "durability.md",
@@ -147,6 +165,10 @@ def _panel_dir(panel_id: str) -> Path:
         return repo_root / "prompts" / "panels" / "financial_quality"
     if panel_id == "external_regulatory_geopolitical":
         return repo_root / "prompts" / "panels" / "external_regulatory"
+    if panel_id == "security_or_deal_overlay":
+        return repo_root / "prompts" / "panels" / "security_overlay"
+    if panel_id == "portfolio_fit_positioning":
+        return repo_root / "prompts" / "panels" / "portfolio_fit"
     return repo_root / "prompts" / "panels" / panel_id
 
 
@@ -282,6 +304,41 @@ def test_expectations_panel_lead_encodes_production_contract() -> None:
     }
 
     for panel_id in WAVE3_PRODUCTION_PROMPT_FILES:
+        lead_text = (_panel_dir(panel_id) / "panel_lead.md").read_text(encoding="utf-8")
+        assert len(lead_text.splitlines()) >= 20, panel_id
+        for heading in WAVE3_PANEL_LEAD_SECTIONS:
+            assert f"## {heading}" in lead_text, (panel_id, heading)
+        assert _section_ids(lead_text, "Affected Memo Sections") == panels[panel_id][
+            "memo_section_ids"
+        ]
+        assert _section_ids(lead_text, "Factor Coverage") == panels[panel_id]["factor_ids"]
+
+
+def test_overlay_prompt_inventory_is_complete() -> None:
+    for panel_id, filenames in WAVE4_PRODUCTION_PROMPT_FILES.items():
+        panel_dir = _panel_dir(panel_id)
+        for filename in filenames:
+            assert (panel_dir / filename).is_file(), f"{panel_id}:{filename}"
+
+
+def test_overlay_prompts_avoid_scaffold_language() -> None:
+    for panel_id, filenames in WAVE4_PRODUCTION_PROMPT_FILES.items():
+        panel_dir = _panel_dir(panel_id)
+        for filename in filenames:
+            text = (panel_dir / filename).read_text(encoding="utf-8").lower()
+            assert "scaffold-only" not in text, f"{panel_id}:{filename}"
+            assert "placeholder" not in text, f"{panel_id}:{filename}"
+            assert "thin evidence" in text, f"{panel_id}:{filename}"
+
+
+def test_overlay_panel_leads_encode_production_contract() -> None:
+    panels = {
+        panel["id"]: panel
+        for panel in _load_yaml(_repo_root() / "config" / "panels.yaml")["panels"]
+        if panel["id"] in WAVE4_PRODUCTION_PROMPT_FILES
+    }
+
+    for panel_id in WAVE4_PRODUCTION_PROMPT_FILES:
         lead_text = (_panel_dir(panel_id) / "panel_lead.md").read_text(encoding="utf-8")
         assert len(lead_text.splitlines()) >= 20, panel_id
         for heading in WAVE3_PANEL_LEAD_SECTIONS:

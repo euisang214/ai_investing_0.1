@@ -13,8 +13,6 @@ from ai_investing.domain.models import ClaimCard
 from ai_investing.settings import Settings
 
 EXPECTED_SCAFFOLD_PANEL_IDS = {
-    "portfolio_fit_positioning",
-    "security_or_deal_overlay",
 }
 EXPECTED_WAVE1_PANEL_IDS = {
     "supply_product_operations",
@@ -28,6 +26,10 @@ EXPECTED_WAVE2_PANEL_IDS = {
 }
 EXPECTED_WAVE3_PANEL_IDS = {
     "expectations_catalyst_realization",
+}
+EXPECTED_WAVE4_PANEL_IDS = {
+    "security_or_deal_overlay",
+    "portfolio_fit_positioning",
 }
 
 
@@ -150,6 +152,19 @@ def test_expectations_panel_is_implemented_with_active_agents(context) -> None:
         assert all(agent.enabled for agent in active_agents)
 
 
+def test_overlay_panels_are_implemented_with_active_agents(context) -> None:
+    expected_roles = {"specialist", "skeptic", "durability", "judge", "lead"}
+
+    for panel_id in EXPECTED_WAVE4_PANEL_IDS:
+        panel = context.get_panel(panel_id)
+        active_agents = context.active_agents_for_panel(panel_id)
+
+        assert panel.implemented is True
+        assert panel.prompt_path.endswith("panel_lead.md")
+        assert {agent.role_type for agent in active_agents} == expected_roles
+        assert all(agent.enabled for agent in active_agents)
+
+
 def test_expectations_rollout_policy_runs_after_company_quality(context) -> None:
     run_policies = context.registries.run_policies.run_policies
 
@@ -210,6 +225,27 @@ def test_expectations_tool_bundle_stays_bounded_to_expectation_inputs(context) -
     ]
 
 
+def test_overlay_tool_bundles_stay_bounded_to_overlay_inputs(context) -> None:
+    bundles = {
+        bundle.id: bundle for bundle in context.registries.tool_bundles.bundles
+    }
+
+    assert bundles["security_overlay_research"].tool_ids == [
+        "evidence_search",
+        "claim_search",
+        "financial_query",
+        "price_volume_query",
+        "ownership_flow_query",
+        "private_doc_fetch",
+    ]
+    assert bundles["portfolio_fit_research"].tool_ids == [
+        "evidence_search",
+        "claim_search",
+        "analog_lookup",
+        "price_volume_query",
+    ]
+
+
 def test_scaffold_panels_have_one_disabled_placeholder_lead(context) -> None:
     scaffold_panels = _scaffold_panels(context)
     placeholder_agents = {
@@ -263,7 +299,22 @@ def test_panels_expose_readiness_and_support_contracts(context) -> None:
     assert expectations_panel.readiness.required_context == []
     assert expectations_panel.support.weak_confidence.enabled is False
 
+    security_overlay_panel = panels["security_or_deal_overlay"]
+    assert security_overlay_panel.implemented is True
+    assert security_overlay_panel.readiness.wave == 4
+    assert security_overlay_panel.readiness.required_context == ["overlay_context"]
+    assert security_overlay_panel.readiness.required_evidence_families["public"] == [
+        "market_data",
+        "security_context",
+    ]
+    assert security_overlay_panel.readiness.required_evidence_families["private"] == [
+        "dataroom",
+        "deal_context",
+    ]
+    assert security_overlay_panel.support.weak_confidence.enabled is False
+
     overlay_panel = panels["portfolio_fit_positioning"]
+    assert overlay_panel.implemented is True
     assert overlay_panel.readiness.wave == 4
     assert overlay_panel.readiness.required_context == ["portfolio_context"]
     assert overlay_panel.support.weak_confidence.enabled is False
