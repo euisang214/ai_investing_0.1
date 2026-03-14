@@ -80,8 +80,14 @@ def test_generation_script_writes_phase6_runtime_examples(
     assert overlay_gap["run"]["status"] == "complete"
     assert overlay_gap["panels"]["security_or_deal_overlay"]["support"]["status"] == "unsupported"
     assert overlay_gap["panels"]["portfolio_fit_positioning"]["support"]["status"] == "unsupported"
-    assert overlay_gap["panels"]["security_or_deal_overlay"]["skip"]["reason_code"] == "missing_context"
-    assert overlay_gap["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"] == "missing_context"
+    assert (
+        overlay_gap["panels"]["security_or_deal_overlay"]["skip"]["reason_code"]
+        == "missing_context"
+    )
+    assert (
+        overlay_gap["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"]
+        == "missing_context"
+    )
     assert (
         _section_map(overlay_gap)["portfolio_fit_positioning"]["status"] == "not_advanced"
     )
@@ -168,8 +174,14 @@ def test_checked_in_examples_describe_the_phase6_runtime(repo_root: Path) -> Non
     assert overlay_gap["run"]["metadata"]["panel_policy"] == "full_surface"
     assert overlay_gap["panels"]["security_or_deal_overlay"]["support"]["status"] == "unsupported"
     assert overlay_gap["panels"]["portfolio_fit_positioning"]["support"]["status"] == "unsupported"
-    assert overlay_gap["panels"]["security_or_deal_overlay"]["skip"]["reason_code"] == "missing_context"
-    assert overlay_gap["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"] == "missing_context"
+    assert (
+        overlay_gap["panels"]["security_or_deal_overlay"]["skip"]["reason_code"]
+        == "missing_context"
+    )
+    assert (
+        overlay_gap["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"]
+        == "missing_context"
+    )
     assert (
         initial["panels"]["expectations_catalyst_realization"]["support"]["status"]
         == "supported"

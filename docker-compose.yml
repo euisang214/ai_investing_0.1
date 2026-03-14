@@ -30,6 +30,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - ./.planning:/app/.planning
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
       - ./config:/app/config
