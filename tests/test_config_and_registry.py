@@ -13,7 +13,6 @@ from ai_investing.domain.models import ClaimCard
 from ai_investing.settings import Settings
 
 EXPECTED_SCAFFOLD_PANEL_IDS = {
-    "expectations_catalyst_realization",
     "portfolio_fit_positioning",
     "security_or_deal_overlay",
 }
@@ -26,6 +25,9 @@ EXPECTED_WAVE2_PANEL_IDS = {
     "market_structure_growth",
     "macro_industry_transmission",
     "external_regulatory_geopolitical",
+}
+EXPECTED_WAVE3_PANEL_IDS = {
+    "expectations_catalyst_realization",
 }
 
 
@@ -135,6 +137,36 @@ def test_market_macro_regulatory_panels_are_implemented_with_active_agents(conte
         assert all(agent.enabled for agent in active_agents)
 
 
+def test_expectations_panel_is_implemented_with_active_agents(context) -> None:
+    expected_roles = {"specialist", "skeptic", "durability", "judge", "lead"}
+
+    for panel_id in EXPECTED_WAVE3_PANEL_IDS:
+        panel = context.get_panel(panel_id)
+        active_agents = context.active_agents_for_panel(panel_id)
+
+        assert panel.implemented is True
+        assert panel.prompt_path.endswith("panel_lead.md")
+        assert {agent.role_type for agent in active_agents} == expected_roles
+        assert all(agent.enabled for agent in active_agents)
+
+
+def test_expectations_rollout_policy_runs_after_company_quality(context) -> None:
+    run_policies = context.registries.run_policies.run_policies
+
+    assert run_policies["expectations_rollout"].wave == 3
+    assert run_policies["expectations_rollout"].default_panel_ids == [
+        "gatekeepers",
+        "demand_revenue_quality",
+        "supply_product_operations",
+        "management_governance_capital_allocation",
+        "financial_quality_liquidity_economic_model",
+        "market_structure_growth",
+        "macro_industry_transmission",
+        "external_regulatory_geopolitical",
+        "expectations_catalyst_realization",
+    ]
+
+
 def test_wave2_tool_bundles_match_external_context_evidence_needs(context) -> None:
     bundles = {
         bundle.id: bundle for bundle in context.registries.tool_bundles.bundles
@@ -163,6 +195,19 @@ def test_wave2_tool_bundles_match_external_context_evidence_needs(context) -> No
         "transcript_fetch",
         "public_news_fetch",
     }
+
+
+def test_expectations_tool_bundle_stays_bounded_to_expectation_inputs(context) -> None:
+    bundles = {
+        bundle.id: bundle for bundle in context.registries.tool_bundles.bundles
+    }
+
+    assert bundles["expectations_realization_research"].tool_ids == [
+        "evidence_search",
+        "claim_search",
+        "estimate_revision_query",
+        "event_calendar_query",
+    ]
 
 
 def test_scaffold_panels_have_one_disabled_placeholder_lead(context) -> None:

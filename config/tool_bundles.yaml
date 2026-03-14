@@ -17,8 +17,8 @@ bundles:
     tool_ids: [evidence_search, claim_search, transcript_fetch, public_news_fetch, financial_query, filing_fetch, private_doc_fetch]
   - id: regulatory_context_research
     tool_ids: [evidence_search, claim_search, filing_fetch, transcript_fetch, public_news_fetch, private_doc_fetch]
-  - id: expectations_security
-    tool_ids: [evidence_search, claim_search, price_volume_query, estimate_revision_query, ownership_flow_query, event_calendar_query]
+  - id: expectations_realization_research
+    tool_ids: [evidence_search, claim_search, estimate_revision_query, event_calendar_query]
   - id: ic_judge
     tool_ids: [claim_search, contradiction_finder, memo_section_writer, analog_lookup]
   - id: memo_updater

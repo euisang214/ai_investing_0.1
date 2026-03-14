@@ -346,10 +346,10 @@ panels:
     name: Expectations Catalyst Realization
     enabled: true
     scope: both
-    implemented: false
+    implemented: true
     subgraph: debate
     output_schema: PanelVerdict
-    prompt_path: prompts/panels/expectations_catalyst_realization/placeholder.md
+    prompt_path: prompts/panels/expectations_catalyst_realization/panel_lead.md
     memo_section_ids:
       - expectations_variant_view
       - realization_path_catalysts

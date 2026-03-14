@@ -1035,27 +1035,126 @@ agents:
   - wave_2
   - regulatory
   - lead
-- id: expectations_catalyst_realization_placeholder_lead
-  name: Expectations Catalyst Realization Placeholder Lead
+- id: expectations_catalyst_realization_advocate
+  name: Expectations Catalyst Realization Advocate
   panel_id: expectations_catalyst_realization
   parent_id: null
-  role_type: lead
-  goal: Scaffold-only lead placeholder until the panel is implemented.
-  enabled: false
-  prompt_path: prompts/panels/expectations_catalyst_realization/placeholder.md
+  role_type: specialist
+  goal: Build the base-case expectations and catalyst path from explicit consensus, milestone, and event evidence.
+  enabled: true
+  prompt_path: prompts/panels/expectations_catalyst_realization/advocate.md
   input_channels:
+  - evidence
+  - prior_claims
+  - prior_memo
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims
+  - company/{company_id}/memos
+  memory_write_namespaces:
+  - company/{company_id}/claims/{panel_id}
+  allowed_tool_bundle: expectations_realization_research
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_3
+  - expectations
+  - advocate
+- id: expectations_catalyst_realization_skeptic
+  name: Expectations Catalyst Realization Skeptic
+  panel_id: expectations_catalyst_realization
+  parent_id: expectations_catalyst_realization_advocate
+  role_type: skeptic
+  goal: Pressure-test the variant view, timeline, and catalyst chain against what is already priced or unsupported.
+  enabled: true
+  prompt_path: prompts/panels/expectations_catalyst_realization/skeptic.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims
+  memory_write_namespaces:
+  - company/{company_id}/claims/{panel_id}
+  allowed_tool_bundle: expectations_realization_research
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_3
+  - expectations
+  - skeptic
+- id: expectations_catalyst_realization_durability
+  name: Expectations Catalyst Realization Durability
+  panel_id: expectations_catalyst_realization
+  parent_id: expectations_catalyst_realization_advocate
+  role_type: durability
+  goal: Test whether milestone sequencing, kill criteria, and catalyst dependencies are durable enough to support the thesis.
+  enabled: true
+  prompt_path: prompts/panels/expectations_catalyst_realization/durability.md
+  input_channels:
+  - evidence
+  - prior_claims
+  output_schema: ClaimCard
+  memory_read_namespaces:
+  - company/{company_id}/evidence
+  - company/{company_id}/claims
+  memory_write_namespaces:
+  - company/{company_id}/claims/{panel_id}
+  allowed_tool_bundle: expectations_realization_research
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_3
+  - expectations
+  - durability
+- id: expectations_catalyst_realization_judge
+  name: Expectations Catalyst Realization Judge
+  panel_id: expectations_catalyst_realization
+  parent_id: expectations_catalyst_realization_advocate
+  role_type: judge
+  goal: Reconcile the expectations debate into a bounded panel verdict covering variant view and realization path.
+  enabled: true
+  prompt_path: prompts/panels/expectations_catalyst_realization/judge.md
+  input_channels:
+  - claims
   - evidence
   output_schema: PanelVerdict
   memory_read_namespaces:
+  - company/{company_id}/claims/{panel_id}
   - company/{company_id}/evidence
   memory_write_namespaces:
   - company/{company_id}/verdicts/{panel_id}
-  allowed_tool_bundle: demand_research
-  model_profile: budget
+  allowed_tool_bundle: expectations_realization_research
+  model_profile: quality
   scope: both
   tags:
-  - placeholder
-  - scaffold_only
+  - wave_3
+  - expectations
+  - judge
+- id: expectations_catalyst_realization_lead
+  name: Expectations Catalyst Realization Lead
+  panel_id: expectations_catalyst_realization
+  parent_id: null
+  role_type: lead
+  goal: Translate the expectations verdict into memo-ready variant-view and catalyst language without implying overlay conclusions.
+  enabled: true
+  prompt_path: prompts/panels/expectations_catalyst_realization/panel_lead.md
+  input_channels:
+  - panel_verdict
+  output_schema: PanelVerdict
+  memory_read_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  memory_write_namespaces:
+  - company/{company_id}/verdicts/{panel_id}
+  allowed_tool_bundle: ic_judge
+  model_profile: quality
+  scope: both
+  tags:
+  - wave_3
+  - expectations
+  - lead
 - id: security_or_deal_overlay_placeholder_lead
   name: Security Or Deal Overlay Placeholder Lead
   panel_id: security_or_deal_overlay
