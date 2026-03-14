@@ -13,13 +13,23 @@
       "title": "Investor Day Landing Page",
       "as_of_date": "2026-03-02T00:00:00Z",
       "period": "Current",
-      "panel_ids": ["gatekeepers"],
-      "factor_ids": ["brand_reputation_consideration_set"],
+      "panel_ids": ["gatekeepers", "expectations_catalyst_realization"],
+      "factor_ids": ["brand_reputation_consideration_set", "catalyst_path", "milestone_checklist"],
       "factor_signals": {
         "brand_reputation_consideration_set": {
           "stance": "positive",
           "summary": "Acme scheduled a customer-heavy investor day to reinforce enterprise relevance.",
           "metrics": { "event_days_until_start": 14 }
+        },
+        "catalyst_path": {
+          "stance": "positive",
+          "summary": "Management positioned the investor day as the first public checkpoint for enterprise product adoption and FY2026 guidance support.",
+          "metrics": { "catalyst_window_days": 14 }
+        },
+        "milestone_checklist": {
+          "stance": "mixed",
+          "summary": "The event agenda highlights product demos, customer references, and updated attach-rate targets as the milestones the market will watch.",
+          "metrics": { "public_milestones": 3 }
         }
       },
       "source_refs": [
@@ -38,13 +48,18 @@
       "title": "Investor Day Teaser Image",
       "as_of_date": "2026-03-02T00:00:00Z",
       "period": "Current",
-      "panel_ids": ["gatekeepers"],
-      "factor_ids": ["brand_reputation_consideration_set"],
+      "panel_ids": ["gatekeepers", "expectations_catalyst_realization"],
+      "factor_ids": ["brand_reputation_consideration_set", "timing_path_dependency"],
       "factor_signals": {
         "brand_reputation_consideration_set": {
           "stance": "mixed",
           "summary": "The teaser highlights AI messaging that still requires context from richer public evidence.",
           "metrics": { "ai_sessions": 2 }
+        },
+        "timing_path_dependency": {
+          "stance": "mixed",
+          "summary": "The teaser locks management into a near-term catalyst calendar, so any slip in the spring launch path becomes visible quickly.",
+          "metrics": { "launch_window_quarter": 2 }
         }
       },
       "source_refs": [
@@ -55,6 +70,40 @@
         "evidence_family": "events",
         "media_type": "image",
         "handling": "attachment_only"
+      }
+    },
+    {
+      "path": "acme_catalyst_tracker.html",
+      "source_type": "event_page",
+      "title": "Catalyst Tracker",
+      "as_of_date": "2026-03-06T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["expectations_catalyst_realization"],
+      "factor_ids": ["catalyst_path", "timing_path_dependency", "milestone_checklist"],
+      "factor_signals": {
+        "catalyst_path": {
+          "stance": "positive",
+          "summary": "Acme laid out a sequence from investor day to enterprise launch proof points and then revised guidance credibility.",
+          "metrics": { "catalyst_steps": 3 }
+        },
+        "timing_path_dependency": {
+          "stance": "mixed",
+          "summary": "Each later catalyst depends on the investor day producing usable customer proof before the launch update.",
+          "metrics": { "dependent_steps": 2 }
+        },
+        "milestone_checklist": {
+          "stance": "positive",
+          "summary": "The tracker names launch readiness, attach-rate disclosure, and guidance confirmation as milestone gates.",
+          "metrics": { "tracked_milestones": 3 }
+        }
+      },
+      "source_refs": [
+        { "label": "Catalyst Tracker", "url": "https://example.com/acme/catalyst-tracker" }
+      ],
+      "metadata": {
+        "connector": "acme_events_packet",
+        "evidence_family": "events",
+        "media_type": "html"
       }
     }
   ]

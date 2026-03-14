@@ -13,8 +13,13 @@
       "title": "Street Consensus Snapshot",
       "as_of_date": "2026-03-04T00:00:00Z",
       "period": "FY2026",
-      "panel_ids": ["demand_revenue_quality"],
-      "factor_ids": ["pricing_power", "demand_cyclicality_purchase_deferrability"],
+      "panel_ids": ["demand_revenue_quality", "expectations_catalyst_realization"],
+      "factor_ids": [
+        "pricing_power",
+        "demand_cyclicality_purchase_deferrability",
+        "implied_expectations",
+        "consensus_narrative_map"
+      ],
       "factor_signals": {
         "pricing_power": {
           "stance": "positive",
@@ -25,6 +30,16 @@
           "stance": "mixed",
           "summary": "Analysts trimmed SMB demand expectations while leaving enterprise retention assumptions stable.",
           "metrics": { "estimate_revision_pct": -1.5 }
+        },
+        "implied_expectations": {
+          "stance": "mixed",
+          "summary": "Consensus embeds another year of double-digit expansion and stable margin capture.",
+          "metrics": { "fy2026_revenue_growth_pct": 14.0 }
+        },
+        "consensus_narrative_map": {
+          "stance": "mixed",
+          "summary": "The central sell-side narrative assumes enterprise upsell remains healthy even as SMB seats slow.",
+          "metrics": { "enterprise_nrr_assumption_pct": 117.0 }
         }
       },
       "source_refs": [
@@ -35,6 +50,36 @@
         "evidence_family": "consensus",
         "fixture_depth": "thin_required_slice",
         "media_type": "spreadsheet"
+      }
+    },
+    {
+      "path": "acme_estimate_revision_context.md",
+      "source_type": "market_commentary",
+      "title": "Estimate Revision Context",
+      "as_of_date": "2026-03-05T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["expectations_catalyst_realization"],
+      "factor_ids": ["variant_view", "falsification_kill_criteria"],
+      "factor_signals": {
+        "variant_view": {
+          "stance": "positive",
+          "summary": "Recent estimate trims still underwrite a fast seat-reacceleration path that may prove too optimistic.",
+          "metrics": { "street_revision_bps": -150 }
+        },
+        "falsification_kill_criteria": {
+          "stance": "mixed",
+          "summary": "If enterprise expansion slips again after the investor day, the upside case loses credibility quickly.",
+          "metrics": { "kill_trigger_quarters": 2 }
+        }
+      },
+      "source_refs": [
+        { "label": "Estimate Revision Note", "url": "https://example.com/acme/revisions" }
+      ],
+      "metadata": {
+        "connector": "acme_consensus_packet",
+        "evidence_family": "market",
+        "fixture_depth": "thin_required_slice",
+        "media_type": "markdown"
       }
     }
   ]

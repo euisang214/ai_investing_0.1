@@ -13,20 +13,24 @@
       "title": "Q1 2026 Update",
       "as_of_date": "2026-03-01T00:00:00Z",
       "period": "Q1 2026",
-      "panel_ids": ["gatekeepers", "demand_revenue_quality"],
+      "panel_ids": ["gatekeepers", "demand_revenue_quality", "expectations_catalyst_realization"],
       "factor_ids": [
         "balance_sheet_survivability",
         "revenue_recurrence_contract_strength",
         "customer_concentration",
         "pricing_power",
-        "demand_cyclicality_purchase_deferrability"
+        "demand_cyclicality_purchase_deferrability",
+        "variant_view",
+        "timing_path_dependency"
       ],
       "factor_signals": {
         "balance_sheet_survivability": { "stance": "positive", "summary": "The company remains cash generative with no near-term debt pressure.", "metrics": { "net_cash_millions": 205 } },
         "revenue_recurrence_contract_strength": { "stance": "mixed", "summary": "Net revenue retention eased to 113% as seat expansion slowed.", "metrics": { "nrr": "113%" } },
         "customer_concentration": { "stance": "negative", "summary": "A newly expanded strategic customer now represents 12% of revenue.", "metrics": { "largest_customer": "12%" } },
         "pricing_power": { "stance": "positive", "summary": "Renewal pricing still held despite slower seat growth.", "metrics": { "renewal_price_capture": "90%" } },
-        "demand_cyclicality_purchase_deferrability": { "stance": "negative", "summary": "SMB customers delayed new seat purchases for budget reasons.", "metrics": { "smb_pipeline_pushouts": "high" } }
+        "demand_cyclicality_purchase_deferrability": { "stance": "negative", "summary": "SMB customers delayed new seat purchases for budget reasons.", "metrics": { "smb_pipeline_pushouts": "high" } },
+        "variant_view": { "stance": "negative", "summary": "The quarter undermines the prior fast-reacceleration variant view because usage proof is arriving later than expected.", "metrics": { "enterprise_launch_slip_days": 21 } },
+        "timing_path_dependency": { "stance": "negative", "summary": "Management pushed the attach-rate milestone into the following quarter, compressing the catalyst path.", "metrics": { "milestone_delay_days": 30 } }
       },
       "source_refs": [
         { "label": "Q1 2026 Update", "url": "https://example.com/acme-q1" }
@@ -34,7 +38,27 @@
       "metadata": {
         "connector": "public_file_connector"
       }
+    },
+    {
+      "path": "acme_catalyst_update.md",
+      "source_type": "public_news",
+      "title": "Catalyst Update",
+      "as_of_date": "2026-03-08T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["expectations_catalyst_realization"],
+      "factor_ids": ["falsification_kill_criteria", "catalyst_path", "milestone_checklist"],
+      "factor_signals": {
+        "falsification_kill_criteria": { "stance": "negative", "summary": "Sell-side desks now frame the spring product launch as a kill criterion for the upside case.", "metrics": { "kill_event_days": 45 } },
+        "catalyst_path": { "stance": "negative", "summary": "The catalyst chain now relies on a compressed sequence of launch proof and guidance repair instead of a gradual rerating path.", "metrics": { "remaining_catalysts": 2 } },
+        "milestone_checklist": { "stance": "negative", "summary": "The market added launch readiness and attach-rate disclosure as make-or-break milestones after the quarter.", "metrics": { "critical_milestones": 2 } }
+      },
+      "source_refs": [
+        { "label": "Catalyst Update", "url": "https://example.com/acme-catalyst-update" }
+      ],
+      "metadata": {
+        "connector": "public_file_connector",
+        "evidence_family": "events"
+      }
     }
   ]
 }
-

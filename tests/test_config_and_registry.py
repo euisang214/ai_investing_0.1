@@ -260,7 +260,7 @@ def test_panels_expose_readiness_and_support_contracts(context) -> None:
     ]
 
     expectations_panel = panels["expectations_catalyst_realization"]
-    assert expectations_panel.readiness.required_context == ["expectations_context"]
+    assert expectations_panel.readiness.required_context == []
     assert expectations_panel.support.weak_confidence.enabled is False
 
     overlay_panel = panels["portfolio_fit_positioning"]

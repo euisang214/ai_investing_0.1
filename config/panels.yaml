@@ -374,8 +374,7 @@ panels:
           - milestone_tracking
       minimum_factor_coverage_ratio: 0.6
       minimum_evidence_count: 4
-      required_context:
-        - expectations_context
+      required_context: []
     support:
       required_company_types:
         - public

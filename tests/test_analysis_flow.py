@@ -75,6 +75,16 @@ def _seed_public_wave2_connectors(context, repo_root: Path) -> None:
         )
 
 
+def _seed_public_expectations_connectors(context, repo_root: Path) -> None:
+    _seed_public_wave2_connectors(context, repo_root)
+    service = IngestionService(context)
+    for connector_id in ("acme_consensus_packet", "acme_events_packet"):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+
 def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
     panel = context.get_panel(panel_id)
     panel.readiness.required_context = required_context
@@ -148,7 +158,7 @@ def test_end_to_end_fake_provider_run_auto_continues_passed_gatekeepers(seeded_a
 def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seeded_acme) -> None:
     policy = seeded_acme.registries.run_policies.run_policies["full_surface"]
     expected_error = (
-        r"Panel expectations_catalyst_realization is not implemented for policy "
+        r"Panel security_or_deal_overlay is not implemented for policy "
         r"full_surface\."
     )
 
@@ -203,6 +213,28 @@ def test_unsupported_implemented_panel_surfaces_structured_skip(seeded_acme) -> 
 
     assert run is not None
     assert run.metadata["skipped_panels"][0]["panel_id"] == "demand_revenue_quality"
+
+
+def test_expectations_rollout_without_expectation_inputs_surfaces_structured_skip(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+
+    expectations = result["panels"]["expectations_catalyst_realization"]
+    assert result["run"]["status"] == "complete"
+    assert expectations["claims"] == []
+    assert expectations["support"]["status"] == "unsupported"
+    assert expectations["skip"]["status"] == "skipped"
+    assert expectations["skip"]["reason_code"] == "missing_evidence_families"
+    assert set(expectations["skip"]["missing_evidence_families"]) == {
+        "consensus_views",
+        "market_data",
+        "milestone_tracking",
+    }
 
 
 def test_supply_management_financial_internal_policy_runs_public_with_supported_results(
@@ -338,6 +370,49 @@ def test_market_macro_regulatory_external_policy_runs_private_with_weak_confiden
     assert sections["risk"]["status"] == "refreshed"
     assert sections["expectations_variant_view"]["status"] == "refreshed"
     assert "Weak-confidence support this run" in sections["growth"]["content"]
+
+
+def test_expectations_rollout_runs_public_with_supported_results(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+
+    result = AnalysisService(seeded_acme).analyze_company("ACME")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    assert (
+        result["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
+    assert sections["expectations_variant_view"]["status"] == "refreshed"
+    assert sections["realization_path_catalysts"]["status"] == "refreshed"
+    assert (
+        "security or deal overlay pending for this rollout"
+        in sections["overall_recommendation"]["content"]
+    )
+
+
+def test_expectations_rollout_runs_private_with_supported_results(
+    context,
+    repo_root: Path,
+) -> None:
+    _seed_private_beta(context, repo_root)
+    _set_panel_policy(context, "BETA", "expectations_rollout")
+
+    result = AnalysisService(context).analyze_company("BETA")
+    sections = _memo_section_map(result)
+
+    assert result["run"]["status"] == "complete"
+    assert (
+        result["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
+    assert sections["expectations_variant_view"]["status"] == "refreshed"
+    assert sections["realization_path_catalysts"]["status"] == "refreshed"
+    assert "unsupported for this run" not in sections["overall_recommendation"]["content"]
 
 
 def test_market_macro_regulatory_external_policy_rerun_preserves_prior_panel_sections(

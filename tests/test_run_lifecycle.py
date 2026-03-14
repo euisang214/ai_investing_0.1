@@ -60,6 +60,16 @@ def _seed_public_wave2_connectors(context, repo_root: Path) -> None:
         )
 
 
+def _seed_public_expectations_connectors(context, repo_root: Path) -> None:
+    _seed_public_wave2_connectors(context, repo_root)
+    service = IngestionService(context)
+    for connector_id in ("acme_consensus_packet", "acme_events_packet"):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+
 def _force_failed_gatekeeper(monkeypatch: pytest.MonkeyPatch) -> None:
     original_gatekeeper_payload = FakeModelProvider._gatekeeper_payload
 
@@ -407,7 +417,7 @@ def test_run_panel_rejects_unimplemented_scaffold_panel(seeded_acme) -> None:
 def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_acme) -> None:
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
     expected_error = (
-        r"Panel expectations_catalyst_realization is not implemented for policy "
+        r"Panel security_or_deal_overlay is not implemented for policy "
         r"full_surface\."
     )
 
@@ -463,6 +473,45 @@ def test_external_company_quality_refresh_stays_narrower_than_full_surface(
     assert "portfolio_fit_positioning" not in result["panels"]
     assert result["delta"] is not None
     assert "what_changed_since_last_run" in result["delta"]["changed_sections"]
+
+
+def test_expectations_rollout_refresh_keeps_expectations_support_visible(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    analysis = AnalysisService(seeded_acme)
+    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+    initial = analysis.analyze_company("ACME")
+    refreshed = analysis.refresh_company("ACME")
+
+    assert (
+        initial["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
+    assert refreshed["delta"] is not None
+    assert (
+        refreshed["panels"]["expectations_catalyst_realization"]["support"]["status"]
+        == "supported"
+    )
+    assert "skip" not in refreshed["panels"]["expectations_catalyst_realization"]
+
+
+def test_expectations_rollout_refresh_surfaces_skip_when_inputs_are_missing(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_wave2_connectors(seeded_acme, repo_root)
+    analysis = AnalysisService(seeded_acme)
+    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+
+    result = analysis.refresh_company("ACME")
+
+    assert result["run"]["status"] == "complete"
+    assert result["panels"]["expectations_catalyst_realization"]["support"]["status"] == "unsupported"
+    assert result["panels"]["expectations_catalyst_realization"]["skip"]["reason_code"] == (
+        "missing_evidence_families"
+    )
 
 
 class StubContext:

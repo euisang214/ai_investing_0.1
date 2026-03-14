@@ -21,7 +21,8 @@
         "financial_quality_liquidity_economic_model",
         "market_structure_growth",
         "macro_industry_transmission",
-        "external_regulatory_geopolitical"
+        "external_regulatory_geopolitical",
+        "expectations_catalyst_realization"
       ],
       "factor_ids": [
         "need_to_exist",
@@ -40,7 +41,9 @@
         "growth_levers",
         "organic_vs_inorganic_growth",
         "cycle_sensitivity",
-        "government_exposure"
+        "government_exposure",
+        "implied_expectations",
+        "consensus_narrative_map"
       ],
       "factor_signals": {
         "need_to_exist": { "stance": "positive", "summary": "Customers route freight and invoicing through Beta's core workflow, making the product hard to rip out.", "metrics": { "core_workflow": true } },
@@ -60,7 +63,9 @@
         "organic_vs_inorganic_growth": { "stance": "positive", "summary": "Growth plans remain organic, with no acquisition contribution built into the board plan.", "metrics": { "acquisition_pipeline": "none" } },
         "cycle_sensitivity": { "stance": "mixed", "summary": "Freight-volume softness still flows through customer budgets and slows the path to the next phase of growth.", "metrics": { "freight_market_outlook": "soft" } },
         "government_exposure": { "stance": "mixed", "summary": "A modest slice of customers serve municipal and regulated food-distribution routes, which adds some public-sector procurement sensitivity.", "metrics": { "regulated_customer_mix_pct": 12.0 } },
-        "macro_variable_exposure": { "stance": "mixed", "summary": "Management still frames freight activity and customer IT budgets as the two main external variables shaping near-term demand.", "metrics": { "budget_headwind": "present" } }
+        "macro_variable_exposure": { "stance": "mixed", "summary": "Management still frames freight activity and customer IT budgets as the two main external variables shaping near-term demand.", "metrics": { "budget_headwind": "present" } },
+        "implied_expectations": { "stance": "mixed", "summary": "The board plan already assumes warehouse-module expansion and an improving freight backdrop in the second half.", "metrics": { "board_plan_arr_growth_pct": 22.0 } },
+        "consensus_narrative_map": { "stance": "mixed", "summary": "Inside the company, the standing narrative is that execution discipline plus a freight rebound unlock the next financing window.", "metrics": { "core_milestones": 2 } }
       },
       "source_refs": [
         { "label": "Board Deck", "url": "https://example.com/beta-board" }
@@ -82,7 +87,8 @@
         "supply_product_operations",
         "management_governance_capital_allocation",
         "financial_quality_liquidity_economic_model",
-        "macro_industry_transmission"
+        "macro_industry_transmission",
+        "expectations_catalyst_realization"
       ],
       "factor_ids": [
         "customer_habit",
@@ -93,7 +99,9 @@
         "incentive_alignment",
         "unit_economics",
         "off_balance_sheet_liabilities_equity",
-        "value_chain_relationships"
+        "value_chain_relationships",
+        "variant_view",
+        "falsification_kill_criteria"
       ],
       "factor_signals": {
         "customer_habit": { "stance": "positive", "summary": "Operations managers use Beta throughout the day to monitor loads and exceptions.", "metrics": { "daily_usage": "high" } },
@@ -105,7 +113,9 @@
         "unit_economics": { "stance": "mixed", "summary": "Customers stay sticky, but services-heavy onboarding still pressures early-period margins.", "metrics": { "implementation_margin": "low" } },
         "off_balance_sheet_liabilities_equity": { "stance": "mixed", "summary": "Preferred and option overhang are manageable, but still matter to the common-equity outcome.", "metrics": { "preferred_stack": "present" } },
         "value_chain_relationships": { "stance": "mixed", "summary": "Customer interviews still highlight dependence on a small set of carrier integrations and distributor workflows.", "metrics": { "critical_partner_set": 4 } },
-        "transmission_mechanisms": { "stance": "mixed", "summary": "When freight volumes soften, customers first delay onboarding projects and then trim module expansion budgets.", "metrics": { "budget_pushout_months": 2 } }
+        "transmission_mechanisms": { "stance": "mixed", "summary": "When freight volumes soften, customers first delay onboarding projects and then trim module expansion budgets.", "metrics": { "budget_pushout_months": 2 } },
+        "variant_view": { "stance": "positive", "summary": "Customer interviews suggest module attach can still expand even if the broader freight recovery stays muted.", "metrics": { "expansion_accounts": 4 } },
+        "falsification_kill_criteria": { "stance": "negative", "summary": "If onboarding delays continue through the next quarter, the funding and expansion thesis needs to be reset.", "metrics": { "kill_trigger_months": 3 } }
       },
       "source_refs": [
         { "label": "Diligence Notes", "url": "https://example.com/beta-diligence" }
@@ -125,19 +135,22 @@
         "supply_product_operations",
         "management_governance_capital_allocation",
         "financial_quality_liquidity_economic_model",
-        "market_structure_growth"
+        "market_structure_growth",
+        "expectations_catalyst_realization"
       ],
       "factor_ids": [
         "reliability",
         "planning_execution",
         "capital_efficiency",
-        "per_product_market_share_history"
+        "per_product_market_share_history",
+        "timing_path_dependency"
       ],
       "factor_signals": {
         "reliability": { "stance": "mixed", "summary": "Service levels remain acceptable, but implementation cycle times still move around quarter to quarter.", "metrics": { "on_time_implementation_rate": "89%" } },
         "planning_execution": { "stance": "mixed", "summary": "Management is delivering most operating targets, though timing remains uneven across customer cohorts.", "metrics": { "operating_plan_hit_rate": "mostly on track" } },
         "capital_efficiency": { "stance": "mixed", "summary": "Gross profit per implementation dollar is improving, but efficiency is not yet at scaled-software levels.", "metrics": { "payback_trend": "improving" } },
-        "per_product_market_share_history": { "stance": "mixed", "summary": "The latest packet shows warehouse and fleet modules gaining share within Beta's installed base, but market penetration is still narrow.", "metrics": { "second_module_attach_pct": 28.0 } }
+        "per_product_market_share_history": { "stance": "mixed", "summary": "The latest packet shows warehouse and fleet modules gaining share within Beta's installed base, but market penetration is still narrow.", "metrics": { "second_module_attach_pct": 28.0 } },
+        "timing_path_dependency": { "stance": "mixed", "summary": "Implementation timing still determines whether the expansion narrative lands before the company needs to raise capital again.", "metrics": { "implementation_cycle_days": 74 } }
       },
       "source_refs": [
         { "label": "KPI Packet", "url": "https://example.com/beta-kpi" }
@@ -156,7 +169,8 @@
       "panel_ids": [
         "market_structure_growth",
         "macro_industry_transmission",
-        "external_regulatory_geopolitical"
+        "external_regulatory_geopolitical",
+        "expectations_catalyst_realization"
       ],
       "factor_ids": [
         "industry_market_share_trends",
@@ -164,7 +178,8 @@
         "secular_vs_cyclical_growth",
         "regulation_subsidy_tax_transmission",
         "regulatory_dependency",
-        "geopolitical_exposure"
+        "geopolitical_exposure",
+        "catalyst_path"
       ],
       "factor_signals": {
         "industry_market_share_trends": { "stance": "mixed", "summary": "Beta appears to be winning a few mid-market distributor accounts, but the niche remains fragmented and no clear share leader exists.", "metrics": { "recent_competitive_wins": 3 } },
@@ -172,7 +187,8 @@
         "secular_vs_cyclical_growth": { "stance": "mixed", "summary": "Workflow digitization is secular, but freight-volume weakness still slows buying urgency in the near term.", "metrics": { "freight_index_trend": "down" } },
         "regulation_subsidy_tax_transmission": { "stance": "mixed", "summary": "Changes to cross-border customs filing rules and fuel-surcharge practices can alter customer software budgets and implementation timing.", "metrics": { "policy_change_count": 2 } },
         "regulatory_dependency": { "stance": "mixed", "summary": "The product must stay current with customs and carrier-compliance workflows, making regulatory updates operationally relevant even without a single license gate.", "metrics": { "compliance_modules": 2 } },
-        "geopolitical_exposure": { "stance": "mixed", "summary": "Cross-border carrier routing creates some exposure to tariff and border-policy changes, though the company has little direct conflict-zone dependence.", "metrics": { "cross_border_customer_mix_pct": 18.0 } }
+        "geopolitical_exposure": { "stance": "mixed", "summary": "Cross-border carrier routing creates some exposure to tariff and border-policy changes, though the company has little direct conflict-zone dependence.", "metrics": { "cross_border_customer_mix_pct": 18.0 } },
+        "catalyst_path": { "stance": "mixed", "summary": "Industry stabilization and compliance-driven workflow upgrades remain the external catalysts for a cleaner growth narrative.", "metrics": { "external_catalysts": 2 } }
       },
       "source_refs": [
         { "label": "Industry Risk Note", "url": "https://example.com/beta-industry-risk" }
@@ -180,6 +196,27 @@
       "metadata": {
         "connector": "private_file_connector",
         "evidence_family": "news"
+      }
+    },
+    {
+      "path": "beta_milestone_tracker.md",
+      "source_type": "event_page",
+      "title": "Milestone Tracker",
+      "as_of_date": "2026-02-12T00:00:00Z",
+      "period": "Current",
+      "panel_ids": ["expectations_catalyst_realization"],
+      "factor_ids": ["catalyst_path", "timing_path_dependency", "milestone_checklist"],
+      "factor_signals": {
+        "catalyst_path": { "stance": "positive", "summary": "Management's next financing and expansion plan depends on the warehouse rollout, customer references, and implementation automation landing in sequence.", "metrics": { "path_steps": 3 } },
+        "timing_path_dependency": { "stance": "mixed", "summary": "Each milestone depends on implementation throughput improving before the company reopens fundraising conversations.", "metrics": { "dependent_milestones": 3 } },
+        "milestone_checklist": { "stance": "positive", "summary": "The tracker names warehouse rollout readiness, attach-rate expansion, and fundraising readiness as the milestones that confirm progress.", "metrics": { "tracked_milestones": 3 } }
+      },
+      "source_refs": [
+        { "label": "Milestone Tracker", "url": "https://example.com/beta-milestones" }
+      ],
+      "metadata": {
+        "connector": "private_file_connector",
+        "evidence_family": "events"
       }
     }
   ]
