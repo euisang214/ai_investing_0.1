@@ -73,7 +73,8 @@
         { "label": "FY2025 10-K", "url": "https://example.com/acme-10k" }
       ],
       "metadata": {
-        "connector": "public_file_connector"
+        "connector": "public_file_connector",
+        "evidence_family": "regulatory"
       }
     },
     {
@@ -135,13 +136,15 @@
         "growth_levers": { "stance": "positive", "summary": "Management described expansion through module attach, enterprise-seat growth, and deeper workflow penetration rather than one-off pricing moves.", "metrics": { "enterprise_module_expansion": "broad" } },
         "organic_vs_inorganic_growth": { "stance": "positive", "summary": "Management attributed the year's growth to organic cross-sell and expansion rather than acquisitions.", "metrics": { "acquisitions_contributing_growth": 0 } },
         "cycle_sensitivity": { "stance": "mixed", "summary": "SMB demand softened as budgets tightened, while enterprise expansion remained steadier.", "metrics": { "smb_growth_pct": 8.0, "enterprise_growth_pct": 19.0 } },
-        "budget_cycle_exposure": { "stance": "mixed", "summary": "Management acknowledged that enterprise procurement timing can shift expansion deals across quarter boundaries.", "metrics": { "budget_timing_impact": "moderate" } }
+        "budget_cycle_exposure": { "stance": "mixed", "summary": "Management acknowledged that enterprise procurement timing can shift expansion deals across quarter boundaries.", "metrics": { "budget_timing_impact": "moderate" } },
+        "transmission_mechanisms": { "stance": "mixed", "summary": "Budget caution first slows approvals and implementation timing before it shows up in renewals, which makes the macro path visible rather than abstract.", "metrics": { "approval_lag_quarters": 1 } }
       },
       "source_refs": [
         { "label": "Q4 2025 Call", "url": "https://example.com/acme-call" }
       ],
       "metadata": {
-        "connector": "public_file_connector"
+        "connector": "public_file_connector",
+        "evidence_family": "transcript"
       }
     },
     {
@@ -186,7 +189,8 @@
         { "label": "Regulatory Note", "url": "https://example.com/acme-regulatory" }
       ],
       "metadata": {
-        "connector": "public_file_connector"
+        "connector": "public_file_connector",
+        "evidence_family": "regulatory"
       }
     }
   ]

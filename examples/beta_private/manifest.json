@@ -59,13 +59,15 @@
         "growth_levers": { "stance": "mixed", "summary": "The board still sees expansion through new carrier workflows and warehouse modules, but the opportunities remain early.", "metrics": { "new_module_targets": 2 } },
         "organic_vs_inorganic_growth": { "stance": "positive", "summary": "Growth plans remain organic, with no acquisition contribution built into the board plan.", "metrics": { "acquisition_pipeline": "none" } },
         "cycle_sensitivity": { "stance": "mixed", "summary": "Freight-volume softness still flows through customer budgets and slows the path to the next phase of growth.", "metrics": { "freight_market_outlook": "soft" } },
-        "government_exposure": { "stance": "mixed", "summary": "A modest slice of customers serve municipal and regulated food-distribution routes, which adds some public-sector procurement sensitivity.", "metrics": { "regulated_customer_mix_pct": 12.0 } }
+        "government_exposure": { "stance": "mixed", "summary": "A modest slice of customers serve municipal and regulated food-distribution routes, which adds some public-sector procurement sensitivity.", "metrics": { "regulated_customer_mix_pct": 12.0 } },
+        "macro_variable_exposure": { "stance": "mixed", "summary": "Management still frames freight activity and customer IT budgets as the two main external variables shaping near-term demand.", "metrics": { "budget_headwind": "present" } }
       },
       "source_refs": [
         { "label": "Board Deck", "url": "https://example.com/beta-board" }
       ],
       "metadata": {
-        "connector": "private_file_connector"
+        "connector": "private_file_connector",
+        "evidence_family": "dataroom"
       }
     },
     {
@@ -102,13 +104,15 @@
         "incentive_alignment": { "stance": "mixed", "summary": "Founder control is still heavy, though equity refreshes now include more operating leaders.", "metrics": { "founder_control": "high" } },
         "unit_economics": { "stance": "mixed", "summary": "Customers stay sticky, but services-heavy onboarding still pressures early-period margins.", "metrics": { "implementation_margin": "low" } },
         "off_balance_sheet_liabilities_equity": { "stance": "mixed", "summary": "Preferred and option overhang are manageable, but still matter to the common-equity outcome.", "metrics": { "preferred_stack": "present" } },
-        "value_chain_relationships": { "stance": "mixed", "summary": "Customer interviews still highlight dependence on a small set of carrier integrations and distributor workflows.", "metrics": { "critical_partner_set": 4 } }
+        "value_chain_relationships": { "stance": "mixed", "summary": "Customer interviews still highlight dependence on a small set of carrier integrations and distributor workflows.", "metrics": { "critical_partner_set": 4 } },
+        "transmission_mechanisms": { "stance": "mixed", "summary": "When freight volumes soften, customers first delay onboarding projects and then trim module expansion budgets.", "metrics": { "budget_pushout_months": 2 } }
       },
       "source_refs": [
         { "label": "Diligence Notes", "url": "https://example.com/beta-diligence" }
       ],
       "metadata": {
-        "connector": "private_file_connector"
+        "connector": "private_file_connector",
+        "evidence_family": "dataroom"
       }
     },
     {
@@ -139,7 +143,8 @@
         { "label": "KPI Packet", "url": "https://example.com/beta-kpi" }
       ],
       "metadata": {
-        "connector": "private_file_connector"
+        "connector": "private_file_connector",
+        "evidence_family": "kpi_packet"
       }
     },
     {
@@ -173,7 +178,8 @@
         { "label": "Industry Risk Note", "url": "https://example.com/beta-industry-risk" }
       ],
       "metadata": {
-        "connector": "private_file_connector"
+        "connector": "private_file_connector",
+        "evidence_family": "news"
       }
     }
   ]

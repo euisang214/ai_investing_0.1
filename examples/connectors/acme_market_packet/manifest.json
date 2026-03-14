@@ -54,7 +54,9 @@
         "industry_cagr_vs_revenue_cagr",
         "secular_vs_cyclical_growth",
         "macro_variable_exposure",
-        "transmission_mechanisms"
+        "transmission_mechanisms",
+        "budget_cycle_exposure",
+        "fx_rates_credit_exposure"
       ],
       "factor_signals": {
         "demand_cyclicality_purchase_deferrability": {
@@ -86,6 +88,16 @@
           "stance": "mixed",
           "summary": "Macro pressure first slows new-seat approvals, then delays module expansions before it affects retention.",
           "metrics": { "approval_lag_quarters": 1 }
+        },
+        "budget_cycle_exposure": {
+          "stance": "mixed",
+          "summary": "The bridge still depends on enterprise budget releases landing on time for large expansions to close.",
+          "metrics": { "budget_release_dependency": "moderate" }
+        },
+        "fx_rates_credit_exposure": {
+          "stance": "negative",
+          "summary": "A small European reseller channel sees slower collections when customer credit terms widen and the dollar strengthens.",
+          "metrics": { "international_arr_pct": 11.0 }
         }
       },
       "source_refs": [

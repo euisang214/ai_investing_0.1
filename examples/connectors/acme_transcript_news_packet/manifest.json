@@ -18,7 +18,8 @@
         "customer_habit",
         "demand_cyclicality_purchase_deferrability",
         "adjacency_expansion_runway",
-        "value_chain_relationships"
+        "value_chain_relationships",
+        "per_product_market_share_history"
       ],
       "factor_signals": {
         "customer_habit": {
@@ -40,6 +41,11 @@
           "stance": "mixed",
           "summary": "The transcript highlights tighter integrations with ERP and procurement systems, which strengthen channel position but still depend on partner roadmaps.",
           "metrics": { "erp_integrations": 28 }
+        },
+        "per_product_market_share_history": {
+          "stance": "positive",
+          "summary": "Management reported that newer invoice-automation modules are now expanding faster than the legacy procurement base within existing accounts.",
+          "metrics": { "invoice_module_growth_pct": 24.0 }
         }
       },
       "source_refs": [
@@ -57,7 +63,7 @@
       "as_of_date": "2026-03-07T00:00:00Z",
       "period": "Current",
       "panel_ids": ["gatekeepers", "external_regulatory_geopolitical"],
-      "factor_ids": ["brand_reputation_consideration_set", "fad_fashion_risk", "government_exposure"],
+      "factor_ids": ["brand_reputation_consideration_set", "fad_fashion_risk", "government_exposure", "regulatory_dependency"],
       "factor_signals": {
         "brand_reputation_consideration_set": {
           "stance": "positive",
@@ -73,6 +79,11 @@
           "stance": "mixed",
           "summary": "Trade coverage noted a growing public-sector procurement shortlist, but government workflows are still a small piece of the revenue mix.",
           "metrics": { "public_sector_pipeline_pct": 9.0 }
+        },
+        "regulatory_dependency": {
+          "stance": "mixed",
+          "summary": "Coverage highlights that privacy certifications and procurement questionnaires remain a recurring gating item in larger deals.",
+          "metrics": { "compliance_shortlist_mentions": 5 }
         }
       },
       "source_refs": [

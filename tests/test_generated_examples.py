@@ -245,3 +245,77 @@ def test_market_macro_regulatory_manifests_cover_wave2_public_and_private_sample
     assert len(factor_counts["BETA:market_structure_growth"]) >= 5
     assert len(factor_counts["BETA:macro_industry_transmission"]) >= 3
     assert len(factor_counts["BETA:external_regulatory_geopolitical"]) >= 3
+
+
+def test_wave2_connector_packets_publish_explicit_external_context_provenance(
+    repo_root: Path,
+) -> None:
+    market_manifest = _load_json(
+        repo_root / "examples" / "connectors" / "acme_market_packet" / "manifest.json"
+    )
+    regulatory_manifest = _load_json(
+        repo_root / "examples" / "connectors" / "acme_regulatory_packet" / "manifest.json"
+    )
+    transcript_manifest = _load_json(
+        repo_root
+        / "examples"
+        / "connectors"
+        / "acme_transcript_news_packet"
+        / "manifest.json"
+    )
+
+    market_factors = {
+        factor_id
+        for document in market_manifest["documents"]
+        for factor_id in document["factor_ids"]
+        if "market_structure_growth" in document["panel_ids"]
+        or "macro_industry_transmission" in document["panel_ids"]
+    }
+    regulatory_factors = {
+        factor_id
+        for document in regulatory_manifest["documents"]
+        for factor_id in document["factor_ids"]
+        if "external_regulatory_geopolitical" in document["panel_ids"]
+    }
+    transcript_factors = {
+        factor_id
+        for document in transcript_manifest["documents"]
+        for factor_id in document["factor_ids"]
+        if {
+            "market_structure_growth",
+            "macro_industry_transmission",
+            "external_regulatory_geopolitical",
+        }.intersection(document["panel_ids"])
+    }
+
+    assert {doc["metadata"]["evidence_family"] for doc in market_manifest["documents"]} == {
+        "market"
+    }
+    assert {doc["metadata"]["evidence_family"] for doc in regulatory_manifest["documents"]} == {
+        "regulatory"
+    }
+    assert {doc["metadata"]["evidence_family"] for doc in transcript_manifest["documents"]} == {
+        "transcript",
+        "news",
+    }
+    assert {
+        "industry_market_share_trends",
+        "industry_cagr_vs_revenue_cagr",
+        "macro_variable_exposure",
+        "transmission_mechanisms",
+        "budget_cycle_exposure",
+        "fx_rates_credit_exposure",
+    }.issubset(market_factors)
+    assert {
+        "geopolitical_exposure",
+        "subsidies_taxes",
+        "regulatory_dependency",
+        "litigation_contingent_liabilities",
+    }.issubset(regulatory_factors)
+    assert {
+        "adjacency_expansion_runway",
+        "per_product_market_share_history",
+        "value_chain_relationships",
+        "government_exposure",
+        "regulatory_dependency",
+    }.issubset(transcript_factors)

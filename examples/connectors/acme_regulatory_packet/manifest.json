@@ -14,7 +14,7 @@
       "as_of_date": "2026-03-01T00:00:00Z",
       "period": "Current",
       "panel_ids": ["gatekeepers", "external_regulatory_geopolitical"],
-      "factor_ids": ["legal_regulatory_existential_risk", "governance_investability", "geopolitical_exposure", "subsidies_taxes"],
+      "factor_ids": ["legal_regulatory_existential_risk", "governance_investability", "geopolitical_exposure", "subsidies_taxes", "regulatory_dependency", "litigation_contingent_liabilities"],
       "factor_signals": {
         "legal_regulatory_existential_risk": {
           "stance": "positive",
@@ -35,6 +35,16 @@
           "stance": "positive",
           "summary": "The remediation plan assumes only modest reliance on software R&D credits and no policy-driven demand subsidy.",
           "metrics": { "r_and_d_credit_dependence": "low" }
+        },
+        "regulatory_dependency": {
+          "stance": "mixed",
+          "summary": "Enterprise security reviews still require the privacy roadmap to stay on schedule, even though no single license can shut the business down.",
+          "metrics": { "enterprise_reviews_open": 6 }
+        },
+        "litigation_contingent_liabilities": {
+          "stance": "positive",
+          "summary": "The filing summary did not identify new litigation reserves or contingent liabilities beyond ordinary-course matters.",
+          "metrics": { "material_legal_reserves": 0 }
         }
       },
       "source_refs": [
