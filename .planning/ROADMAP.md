@@ -17,7 +17,7 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 | 3 | Remaining Panel Scaffolds | Add configurable placeholder prompts, schemas, and registry entries for the remaining top-level panels | V2-01 | 3 |
 | 4 | Monitoring And Connectors | Completed on 2026-03-13 with connector-runtime, representative adapters, richer monitoring deltas, and read-only portfolio monitoring surfaces | V2-02, V2-04 | 3 |
 | 5 | Scheduling And Notifications | Harden n8n workflows, configurable cadence policies, and run notifications | V2-03, V2-05 | 3 |
-| 6 | Productionize Remaining Panels | In progress on 2026-03-13 after Plans `06-01` and `06-02` shipped rollout support plus the first productionized company-quality panel family | V2-01 | 3 |
+| 6 | Productionize Remaining Panels | In progress on 2026-03-14 after Plans `06-01`, `06-02`, and `06-03` shipped rollout support, Wave 1 internal panels, and Wave 2 external-context panels with truthful fixtures and rerun regressions | V2-01 | 3 |
 | 7 | Close Phase 04 Verification Gap | Reconcile Phase 04 verification coverage and parent requirement evidence so monitoring and connector work is archive-ready | V2-02, V2-04 | 3 |
 | 8 | Close Phase 05 Operational Gaps | Finish the worker-state and notification-failure boundaries needed for truthful large-scale refresh operations | V2-05 | 3 |
 
@@ -98,13 +98,13 @@ This roadmap emphasizes one strong vertical slice over broad but shallow coverag
 ### Phase 6: Productionize Remaining Panels
 
 **Goal:** Turn the remaining scaffold-only top-level panels into executable, verified production flows without breaking the config-driven runtime.
-**Status:** In progress on 2026-03-13. Plans `06-01` and `06-02` shipped rollout waves, typed panel support and skip surfaces, truthful partial-run memo wording, runnable Wave 1 company-quality panels, support-aware operator surfaces, and regenerated lifecycle artifacts. Parent requirement `V2-01` remains open.
+**Status:** In progress on 2026-03-14. Plans `06-01`, `06-02`, and `06-03` shipped rollout support and skip surfaces, truthful partial-run memo wording, runnable Wave 1 internal company-quality panels, runnable Wave 2 external-context company-quality panels, support-aware operator surfaces, and regenerated lifecycle artifacts. Parent requirement `V2-01` remains open.
 
 **Requirements:** `V2-01`
 
 **Gap Closure:** Closes the audit's partial `V2-01` requirement gap carried forward from Phase 03.
 
-**Plan progress:** `2 / 6` completed (`06-01` and `06-02` done)
+**Plan progress:** `3 / 6` completed (`06-01`, `06-02`, and `06-03` done)
 
 **Success criteria:**
 1. The remaining top-level panels execute through supported graph paths instead of stopping at placeholder scaffolds.

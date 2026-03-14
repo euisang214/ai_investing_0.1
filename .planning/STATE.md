@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 6
 current_phase_name: productionize remaining panels
-current_plan: 3
+current_plan: 4
 status: executing
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-13T23:46:02.232Z"
-last_activity: 2026-03-13
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-03-14T04:48:19.540Z"
+last_activity: 2026-03-14
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 26
-  completed_plans: 22
-  percent: 85
+  completed_plans: 23
+  percent: 88
 ---
 
 # STATE
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Current Phase:** 6
 **Current Phase Name:** productionize remaining panels
 **Total Phases:** 8
-**Current Plan:** 3
+**Current Plan:** 4
 **Total Plans in Phase:** 6
 **Status:** Ready to execute
-**Progress:** [█████████░] 85%
-**Last Activity:** 2026-03-13
-**Last Activity Description:** Phase 06 Plan 02 completed with runnable Wave 1 company-quality panels, truthful public/private support coverage, support-aware operator surfaces, and a green Docker verification gate
+**Progress:** [█████████░] 88%
+**Last Activity:** 2026-03-14
+**Last Activity Description:** Phase 06 Plan 03 completed with explicit Wave 2 prompt contracts, truthful external-context public/private fixtures, rerun-safe lifecycle regressions, regenerated lifecycle artifacts, and a green Docker verification gate
 
 ## Current Status
 
@@ -58,6 +58,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 5 is complete as of 2026-03-13; cadence policies, queue-backed refresh operations, review handling, notification delivery, and the external-automation documentation layer now align to one shipped contract.
 - Phase 6 Plan 01 completed on 2026-03-13 with config-driven rollout policies, typed readiness and support rules, structured skipped-panel reads, truthful memo and IC wording for partial runs, regenerated ACME lifecycle artifacts, and Docker-verified full-suite coverage.
 - Phase 6 Plan 02 completed on 2026-03-13 with runnable Wave 1 supply, management, and financial-quality panels, truthful public and private support signals, support-aware API/CLI read surfaces, regenerated examples, and Docker-verified full-suite coverage.
+- Phase 6 Plan 03 completed on 2026-03-14 with explicit Wave 2 prompt contracts, truthful public/private external-context fixtures, lifecycle regressions that keep later scaffold panels out of `external_company_quality`, regenerated lifecycle artifacts, and Docker-verified full-suite coverage.
 - Phase 6 remains in progress; parent requirement `V2-01` stays open while later plans productionize the remaining scaffolded panels on top of the new rollout contract.
 - All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
 - The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
@@ -75,7 +76,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 6 Plan 03 while keeping parent requirement `V2-01` open until the remaining panel families are productionized and verified.
+- Execute Phase 6 Plan 04 while keeping parent requirement `V2-01` open until the expectations and overlay waves are productionized and verified.
 
 ## Decisions
 
@@ -129,6 +130,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 06-productionize-remaining-panels]: Wave 1 remains limited to internal company-quality panels so overlay and expectations work can land later without entangling memo ownership.
 - [Phase 06-productionize-remaining-panels]: Panel support posture is persisted and rehydrated through services, API, and CLI so weak-confidence runs remain explicit in operator views.
 - [Phase 06-productionize-remaining-panels]: Parent requirement V2-01 remains open after Plan 06-02 because this plan delivers slice V2-01B, not the full remaining-panel production scope.
+- [Phase 06-productionize-remaining-panels]: Encode Wave 2 memo ownership, factor coverage, and provenance expectations directly in markdown prompt contracts rather than leaving them implicit in config.
+- [Phase 06-productionize-remaining-panels]: Keep explicit fixture provenance on the runtime evidence-family alias set so support evaluation and inspectable metadata stay aligned.
+- [Phase 06-productionize-remaining-panels]: Lock external_company_quality lifecycle behavior by asserting exclusion of later scaffold panels and section-scoped rerun deltas instead of assuming every earlier section changes on refresh.
 
 ## Performance Metrics
 
@@ -151,9 +155,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 05 P03 | 2 min | 3 tasks | 20 files |
 | Phase 06 P01 | 35min | 3 tasks | 26 files |
 | Phase 06-productionize-remaining-panels P02 | 2h29m | 3 tasks | 38 files |
+| Phase 06-productionize-remaining-panels P03 | 11min | 3 tasks | 23 files |
 
 ## Session
 
-**Last Date:** 2026-03-13T23:46:02.229Z
-**Stopped At:** Completed 06-02-PLAN.md
+**Last Date:** 2026-03-14T04:48:19.537Z
+**Stopped At:** Completed 06-03-PLAN.md
 **Resume File:** None
