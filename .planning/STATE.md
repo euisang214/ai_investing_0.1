@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 6
 current_phase_name: productionize remaining panels
 current_plan: 6
-status: executing
-stopped_at: Completed 06-05-PLAN.md
-last_updated: "2026-03-14T12:56:26.884Z"
+status: ready
+stopped_at: Completed 06-06-PLAN.md
+last_updated: "2026-03-14T13:15:11.529Z"
 last_activity: 2026-03-14
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 26
-  completed_plans: 25
-  percent: 96
+  completed_plans: 26
+  percent: 100
 ---
 
 # STATE
@@ -24,7 +24,7 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 6 is in progress after Plan 05 productionized the final overlay wave, added bounded portfolio-context support, and made overall recommendation scope explicit in operator surfaces.
+**Current focus:** Phase 6 is complete after Plan 06 aligned repo docs, checked artifacts, and parent-level verification around the fully productionized panel surface and closed `V2-01` explicitly.
 
 ## Execution Tracking
 
@@ -33,10 +33,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Total Phases:** 8
 **Current Plan:** 6
 **Total Plans in Phase:** 6
-**Status:** Ready to execute
-**Progress:** [██████████] 96%
+**Status:** Phase 6 complete — ready for next phase
+**Progress:** [██████████] 100%
 **Last Activity:** 2026-03-14
-**Last Activity Description:** Phase 06 Plan 05 completed with runnable overlay panels, a narrow portfolio-context seam, explicit recommendation-scope wording, regenerated checked ACME results, and a green Docker verification gate
+**Last Activity Description:** Phase 06 Plan 06 completed with truthful closeout docs, deterministic `overlay_gap` artifacts, a final `06-VERIFICATION.md`, and a green Docker docs/test/lint verification gate
 
 ## Current Status
 
@@ -61,7 +61,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 6 Plan 03 completed on 2026-03-14 with explicit Wave 2 prompt contracts, truthful public/private external-context fixtures, lifecycle regressions that keep later scaffold panels out of `external_company_quality`, regenerated lifecycle artifacts, and Docker-verified full-suite coverage.
 - Phase 6 Plan 04 completed on 2026-03-14 with a runnable Wave 3 `expectations_catalyst_realization` panel, bounded expectation/catalyst tool inputs, truthful public/private support and skip coverage, rerun-aware delta regressions, regenerated ACME artifacts, and Docker-verified full-suite coverage.
 - Phase 6 Plan 05 completed on 2026-03-14 with production overlay agent stacks, strict support rules for `security_or_deal_overlay` and `portfolio_fit_positioning`, a bounded `portfolio_context_summary` seam, overlay-aware API/CLI wording, regenerated checked ACME results, and Docker-verified full-suite coverage plus lint.
-- Phase 6 remains in progress only for the final closeout plan; parent requirement `V2-01` is now satisfied because every top-level panel is runnable under truthful support and skip behavior.
+- Phase 6 Plan 06 completed on 2026-03-14 with truthful closeout docs, deterministic `overlay_gap` artifacts, and the final `06-VERIFICATION.md` artifact that closes `V2-01` at the parent requirement level.
 - All top-level panels are now productionized under config-backed prompts, factor mappings, tool bundles, and operator-visible support posture.
 - Phase 3 is complete as a scaffold and documentation phase; Phase 6 Plan 05 now closes the runnable panel production gap that Phase 3 intentionally left open under `V2-01`.
 - Parent requirement `V2-02` is now satisfied by Plans 04-01 and 04-02, which together deliver the connector runtime seam plus the representative adapter expansion.
@@ -77,7 +77,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 6 Plan 06 to finish the remaining closeout and archive-readiness work for the fully productionized panel surface.
+- Begin Phase 7 to close the remaining Phase 04 verification gap for `V2-02` and `V2-04`.
 
 ## Decisions
 
@@ -140,6 +140,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 06-productionize-remaining-panels]: Keep security_or_deal_overlay and portfolio_fit_positioning as the final analytical wave with explicit support context for each.
 - [Phase 06-productionize-remaining-panels]: Expose portfolio-fit inputs through a narrow reusable portfolio_context_summary seam instead of widening orchestration or tool access.
 - [Phase 06-productionize-remaining-panels]: Make API and CLI results state whether overall_recommendation is overlay-complete or company-quality-only when overlays are skipped.
+- [Phase 06-productionize-remaining-panels]: Keep weekly_default documented as the narrow operator default instead of implying every productionized panel runs by default.
+- [Phase 06-productionize-remaining-panels]: Use a checked overlay_gap artifact to prove unsupported overlays stay explicit while company-quality analysis still completes.
+- [Phase 06-productionize-remaining-panels]: Close V2-01 through one phase-level verification artifact and traceability updates instead of relying on implied completion from plan summaries.
 
 ## Performance Metrics
 
@@ -165,9 +168,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 06-productionize-remaining-panels P03 | 11min | 3 tasks | 23 files |
 | Phase 06-productionize-remaining-panels P04 | 24min | 3 tasks | 36 files |
 | Phase 06-productionize-remaining-panels P05 | 7h25m | 4 tasks | 32 files |
+| Phase 06-productionize-remaining-panels P06 | 15min | 3 tasks | 14 files |
 
 ## Session
 
-**Last Date:** 2026-03-14T12:56:26.881Z
-**Stopped At:** Completed 06-05-PLAN.md
+**Last Date:** 2026-03-14T13:15:11.526Z
+**Stopped At:** Completed 06-06-PLAN.md
 **Resume File:** None
