@@ -536,7 +536,10 @@ def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme
     assert response.json() == {
         "error": {
             "code": "invalid_request",
-            "message": "Panel market_structure_growth is not implemented for policy full_surface.",
+            "message": (
+                "Panel expectations_catalyst_realization is not implemented for policy "
+                "full_surface."
+            ),
         }
     }
 

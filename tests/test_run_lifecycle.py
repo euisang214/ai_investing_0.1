@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import sys
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 from langgraph.types import Command
-
-from pathlib import Path
 
 from ai_investing.application.services import AnalysisService, IngestionService
 from ai_investing.domain.enums import (
@@ -407,10 +406,14 @@ def test_run_panel_rejects_unimplemented_scaffold_panel(seeded_acme) -> None:
 
 def test_refresh_company_rejects_full_surface_policy_before_run_creation(seeded_acme) -> None:
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
+    expected_error = (
+        r"Panel expectations_catalyst_realization is not implemented for policy "
+        r"full_surface\."
+    )
 
     with pytest.raises(
         ValueError,
-        match=r"Panel expectations_catalyst_realization is not implemented for policy full_surface\.",
+        match=expected_error,
     ):
         AnalysisService(seeded_acme).refresh_company("ACME")
 

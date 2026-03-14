@@ -49,9 +49,8 @@
           "reason": "Panel support requirements are satisfied for this run.",
           "evidence_count": 3,
           "factor_coverage_ratio": 1.0,
-          "evidence_summary": "3 records matched this panel; evidence families: news, regulatory, transcript; factor coverage ratio: 1.00.",
+          "evidence_summary": "3 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 1.00.",
           "available_evidence_families": [
-            "news",
             "regulatory",
             "transcript"
           ],
@@ -3321,9 +3320,8 @@
         "reason": "Panel support requirements are satisfied for this run.",
         "evidence_count": 3,
         "factor_coverage_ratio": 1.0,
-        "evidence_summary": "3 records matched this panel; evidence families: news, regulatory, transcript; factor coverage ratio: 1.00.",
+        "evidence_summary": "3 records matched this panel; evidence families: regulatory, transcript; factor coverage ratio: 1.00.",
         "available_evidence_families": [
-          "news",
           "regulatory",
           "transcript"
         ],
@@ -3564,7 +3562,7 @@
       {
         "section_id": "overall_recommendation",
         "label": "Overall Recommendation",
-        "content": "Overall recommendation reflects company-quality panels only; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
+        "content": "Overall recommendation reflects company-quality panels only; expectations and catalyst realization pending for this rollout; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
         "status": "refreshed",
         "supporting_claim_ids": [
           "clm_000000000019",
@@ -3602,7 +3600,7 @@
         "updated_at": "2026-03-11T11:55:00Z"
       }
     ],
-    "recommendation_summary": "Overall recommendation reflects company-quality panels only; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
+    "recommendation_summary": "Overall recommendation reflects company-quality panels only; expectations and catalyst realization pending for this rollout; security or deal overlay pending for this rollout; portfolio fit positioning pending for this rollout. Weak-confidence support this run: Demand And Revenue Quality. Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Weak-confidence read due to thin evidence. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength. Weak-confidence support remains in effect for this section.",
     "namespace": "company/ACME/memos/current",
     "created_at": "2026-03-11T12:11:00Z",
     "updated_at": "2026-03-11T12:12:00Z"

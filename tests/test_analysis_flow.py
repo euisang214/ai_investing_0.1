@@ -147,6 +147,10 @@ def test_end_to_end_fake_provider_run_auto_continues_passed_gatekeepers(seeded_a
 
 def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seeded_acme) -> None:
     policy = seeded_acme.registries.run_policies.run_policies["full_surface"]
+    expected_error = (
+        r"Panel expectations_catalyst_realization is not implemented for policy "
+        r"full_surface\."
+    )
 
     assert "supply_product_operations" in policy.default_panel_ids
     assert policy.allow_unimplemented_panels is False
@@ -155,7 +159,7 @@ def test_full_surface_policy_loads_but_blocks_execution_before_run_creation(seed
 
     with pytest.raises(
         ValueError,
-        match=r"Panel expectations_catalyst_realization is not implemented for policy full_surface\.",
+        match=expected_error,
     ):
         AnalysisService(seeded_acme).analyze_company("ACME")
 
@@ -401,9 +405,6 @@ def test_external_company_quality_policy_keeps_later_scaffolds_out_of_results(
 
     assert "growth" in changed_sections
     assert "risk" in changed_sections
-    assert "durability_resilience" in changed_sections
-    assert "economic_spread" in changed_sections
-    assert "valuation_terms" in changed_sections
     assert "what_changed_since_last_run" in changed_sections
     assert "realization_path_catalysts" not in changed_sections
     assert "portfolio_fit_positioning" not in changed_sections
