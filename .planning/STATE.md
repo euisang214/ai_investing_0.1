@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 6
 current_phase_name: productionize remaining panels
-current_plan: 5
+current_plan: 6
 status: executing
-stopped_at: Completed 06-04-PLAN.md
-last_updated: "2026-03-14T05:18:35.081Z"
+stopped_at: Completed 06-05-PLAN.md
+last_updated: "2026-03-14T12:56:26.884Z"
 last_activity: 2026-03-14
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 26
-  completed_plans: 24
-  percent: 92
+  completed_plans: 25
+  percent: 96
 ---
 
 # STATE
@@ -24,19 +24,19 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 **Core value:** Produce a continuously updatable, auditable investment view where factor-level claims, panel verdicts, and memo deltas remain structured and reusable across reruns.
-**Current focus:** Phase 6 is in progress after Plan 04 productionized the Wave 3 expectations panel, truthful support/skip coverage, and rerun-aware generated artifacts.
+**Current focus:** Phase 6 is in progress after Plan 05 productionized the final overlay wave, added bounded portfolio-context support, and made overall recommendation scope explicit in operator surfaces.
 
 ## Execution Tracking
 
 **Current Phase:** 6
 **Current Phase Name:** productionize remaining panels
 **Total Phases:** 8
-**Current Plan:** 5
+**Current Plan:** 6
 **Total Plans in Phase:** 6
 **Status:** Ready to execute
-**Progress:** [█████████░] 92%
+**Progress:** [██████████] 96%
 **Last Activity:** 2026-03-14
-**Last Activity Description:** Phase 06 Plan 04 completed with a runnable expectations rollout, truthful public/private support and skip coverage, regenerated ACME artifacts, and a green Docker verification gate
+**Last Activity Description:** Phase 06 Plan 05 completed with runnable overlay panels, a narrow portfolio-context seam, explicit recommendation-scope wording, regenerated checked ACME results, and a green Docker verification gate
 
 ## Current Status
 
@@ -60,10 +60,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - Phase 6 Plan 02 completed on 2026-03-13 with runnable Wave 1 supply, management, and financial-quality panels, truthful public and private support signals, support-aware API/CLI read surfaces, regenerated examples, and Docker-verified full-suite coverage.
 - Phase 6 Plan 03 completed on 2026-03-14 with explicit Wave 2 prompt contracts, truthful public/private external-context fixtures, lifecycle regressions that keep later scaffold panels out of `external_company_quality`, regenerated lifecycle artifacts, and Docker-verified full-suite coverage.
 - Phase 6 Plan 04 completed on 2026-03-14 with a runnable Wave 3 `expectations_catalyst_realization` panel, bounded expectation/catalyst tool inputs, truthful public/private support and skip coverage, rerun-aware delta regressions, regenerated ACME artifacts, and Docker-verified full-suite coverage.
-- Phase 6 remains in progress; parent requirement `V2-01` stays open while later plans productionize the remaining scaffolded panels on top of the new rollout contract.
-- All remaining top-level panels now have config-backed scaffold topology, panel-specific factor descriptions, and placeholder prompt paths that stay aligned to memo-section and factor mappings.
-- The first production panels remain `gatekeepers` and `demand_revenue_quality`, while the remaining panels stay visible in config but non-runnable.
-- Phase 3 is complete as a scaffold and documentation phase, but parent requirement `V2-01` remains open until the remaining panels are actually productionized.
+- Phase 6 Plan 05 completed on 2026-03-14 with production overlay agent stacks, strict support rules for `security_or_deal_overlay` and `portfolio_fit_positioning`, a bounded `portfolio_context_summary` seam, overlay-aware API/CLI wording, regenerated checked ACME results, and Docker-verified full-suite coverage plus lint.
+- Phase 6 remains in progress only for the final closeout plan; parent requirement `V2-01` is now satisfied because every top-level panel is runnable under truthful support and skip behavior.
+- All top-level panels are now productionized under config-backed prompts, factor mappings, tool bundles, and operator-visible support posture.
+- Phase 3 is complete as a scaffold and documentation phase; Phase 6 Plan 05 now closes the runnable panel production gap that Phase 3 intentionally left open under `V2-01`.
 - Parent requirement `V2-02` is now satisfied by Plans 04-01 and 04-02, which together deliver the connector runtime seam plus the representative adapter expansion.
 - Parent requirement `V2-04` is now satisfied by Plans 04-03 and 04-04, which together deliver the richer monitoring slice plus portfolio-level monitoring history and summary read surfaces.
 - Parent requirement `V2-03` is now satisfied by Phase 05 Plan 01, which upgrades coverage scheduling from weekly-only branches to config-driven cadence policies.
@@ -77,7 +77,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 
 ## Next Step
 
-- Execute Phase 6 Plan 05 to productionize the overlay wave while preserving the new expectations and rerun delta contract.
+- Execute Phase 6 Plan 06 to finish the remaining closeout and archive-readiness work for the fully productionized panel surface.
 
 ## Decisions
 
@@ -137,6 +137,9 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 - [Phase 06-productionize-remaining-panels]: Keep expectations_catalyst_realization in the dedicated Wave 3 rollout with a bounded expectations-only research bundle.
 - [Phase 06-productionize-remaining-panels]: Use evidence-family readiness plus explicit skips for expectations support instead of a runtime-only expectations_context source.
 - [Phase 06-productionize-remaining-panels]: Regenerate checked ACME artifacts from the expectations_rollout policy so rerun deltas prove expectation-section movement in shipped examples.
+- [Phase 06-productionize-remaining-panels]: Keep security_or_deal_overlay and portfolio_fit_positioning as the final analytical wave with explicit support context for each.
+- [Phase 06-productionize-remaining-panels]: Expose portfolio-fit inputs through a narrow reusable portfolio_context_summary seam instead of widening orchestration or tool access.
+- [Phase 06-productionize-remaining-panels]: Make API and CLI results state whether overall_recommendation is overlay-complete or company-quality-only when overlays are skipped.
 
 ## Performance Metrics
 
@@ -161,9 +164,10 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 | Phase 06-productionize-remaining-panels P02 | 2h29m | 3 tasks | 38 files |
 | Phase 06-productionize-remaining-panels P03 | 11min | 3 tasks | 23 files |
 | Phase 06-productionize-remaining-panels P04 | 24min | 3 tasks | 36 files |
+| Phase 06-productionize-remaining-panels P05 | 7h25m | 4 tasks | 32 files |
 
 ## Session
 
-**Last Date:** 2026-03-14T05:18:35.079Z
-**Stopped At:** Completed 06-04-PLAN.md
+**Last Date:** 2026-03-14T12:56:26.881Z
+**Stopped At:** Completed 06-05-PLAN.md
 **Resume File:** None
