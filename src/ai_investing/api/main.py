@@ -36,6 +36,11 @@ from ai_investing.domain.read_models import (
 )
 from ai_investing.persistence.repositories import Repository
 
+_OVERLAY_PANEL_LABELS = {
+    "security_or_deal_overlay": "security or deal overlay",
+    "portfolio_fit_positioning": "portfolio fit positioning",
+}
+
 
 class CoverageCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -126,6 +131,7 @@ class RunResultResponseData(BaseModel):
     panels: dict[str, PanelRunRead] = Field(default_factory=dict)
     memo: ICMemo | None = None
     delta: MonitoringDelta | None = None
+    overall_recommendation_scope: dict[str, Any] = Field(default_factory=dict)
 
 
 class RunResultEnvelope(BaseModel):
@@ -267,7 +273,11 @@ def create_app(context: AppContext | None = None) -> FastAPI:
 
     @app.post("/coverage/run-due", response_model=RunResultListEnvelope)
     def run_due(request: Request) -> RunResultListEnvelope:
-        return _run_result_list_response(AnalysisService(_context(request)).run_due_coverage())
+        results = [
+            _attach_recommendation_scope(item)
+            for item in AnalysisService(_context(request)).run_due_coverage()
+        ]
+        return _run_result_list_response(results)
 
     @app.get("/queue")
     def get_queue_summary(request: Request) -> JSONResponse:
@@ -384,12 +394,16 @@ def create_app(context: AppContext | None = None) -> FastAPI:
 
     @app.post("/companies/{company_id}/analyze", response_model=RunResultEnvelope)
     def analyze_company(company_id: str, request: Request) -> RunResultEnvelope:
-        result = AnalysisService(_context(request)).analyze_company(company_id)
+        result = _attach_recommendation_scope(
+            AnalysisService(_context(request)).analyze_company(company_id)
+        )
         return _run_result_response(result)
 
     @app.post("/companies/{company_id}/refresh", response_model=RunResultEnvelope)
     def refresh_company(company_id: str, request: Request) -> RunResultEnvelope:
-        result = AnalysisService(_context(request)).refresh_company(company_id)
+        result = _attach_recommendation_scope(
+            AnalysisService(_context(request)).refresh_company(company_id)
+        )
         return _run_result_response(result)
 
     @app.get("/runs/{run_id}", response_model=RunResultEnvelope)
@@ -402,7 +416,9 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         payload: ContinueRunRequest,
         request: Request,
     ) -> RunResultEnvelope:
-        result = AnalysisService(_context(request)).continue_run(run_id, action=payload.action)
+        result = _attach_recommendation_scope(
+            AnalysisService(_context(request)).continue_run(run_id, action=payload.action)
+        )
         return _run_result_response(result)
 
     @app.post("/companies/{company_id}/panels/{panel_id}/run", response_model=RunResultEnvelope)
@@ -535,11 +551,77 @@ def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
         memo = repository.get_memo_for_run(run.company_id, run.run_id)
         delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)
 
+    return _attach_recommendation_scope(
+        {
+            "run": run.model_dump(mode="json"),
+            "panels": panels,
+            "memo": memo.model_dump(mode="json") if memo is not None else None,
+            "delta": delta.model_dump(mode="json") if delta is not None else None,
+        }
+    )
+
+
+def _attach_recommendation_scope(result: dict[str, Any]) -> dict[str, Any]:
     return {
-        "run": run.model_dump(mode="json"),
-        "panels": panels,
-        "memo": memo.model_dump(mode="json") if memo is not None else None,
-        "delta": delta.model_dump(mode="json") if delta is not None else None,
+        **result,
+        "overall_recommendation_scope": _recommendation_scope(result),
+    }
+
+
+def _field_value(payload: Any, field_name: str) -> Any:
+    if isinstance(payload, dict):
+        return payload.get(field_name)
+    return getattr(payload, field_name, None)
+
+
+def _overlay_support_state(panel: Any) -> str:
+    support = _field_value(panel, "support")
+    support_status = _field_value(support, "status")
+    if support_status == "supported":
+        return "supported"
+    if _field_value(panel, "skip") is not None or support_status == "unsupported":
+        return "unsupported"
+    return "pending"
+
+
+def _recommendation_scope(result: dict[str, Any]) -> dict[str, Any]:
+    panels = result.get("panels", {})
+    overlays: dict[str, str] = {}
+    pending: list[str] = []
+    unsupported: list[str] = []
+    for panel_id, label in _OVERLAY_PANEL_LABELS.items():
+        panel = panels.get(panel_id) if isinstance(panels, dict) else None
+        overlay_state = _overlay_support_state(panel)
+        overlays[panel_id] = overlay_state
+        if overlay_state == "supported":
+            continue
+        if overlay_state == "unsupported":
+            unsupported.append(label)
+            continue
+        pending.append(label)
+
+    if overlays and all(status == "supported" for status in overlays.values()):
+        return {
+            "status": "overlay_complete",
+            "label": "Overlay-aware recommendation",
+            "summary": (
+                "Overall recommendation includes both the security or deal overlay "
+                "and the portfolio fit positioning overlay."
+            ),
+            "overlays": overlays,
+        }
+
+    reasons: list[str] = []
+    if pending:
+        reasons.append(f"pending for this rollout: {', '.join(sorted(set(pending)))}")
+    if unsupported:
+        reasons.append(f"unsupported for this run: {', '.join(sorted(set(unsupported)))}")
+    reason_text = "; ".join(reasons) if reasons else "overlay coverage is incomplete"
+    return {
+        "status": "company_quality_only",
+        "label": "Company-quality-only recommendation",
+        "summary": f"Overall recommendation remains company-quality-only because {reason_text}.",
+        "overlays": overlays,
     }
 
 

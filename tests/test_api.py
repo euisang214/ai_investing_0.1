@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from ai_investing.api.main import create_app
+from ai_investing.application.services import IngestionService
 from ai_investing.domain.enums import (
     AlertLevel,
     CompanyType,
@@ -14,10 +15,14 @@ from ai_investing.domain.enums import (
 )
 from ai_investing.domain.models import (
     CoverageEntry,
+    EvidenceRecord,
+    FactorSignal,
     MonitoringCurrentState,
     MonitoringDelta,
     MonitoringReason,
     RunRecord,
+    SourceRef,
+    utc_now,
 )
 from ai_investing.persistence.repositories import Repository
 from ai_investing.providers.fake import FakeModelProvider
@@ -35,6 +40,183 @@ def _set_panel_policy(context, company_id: str, panel_policy: str) -> None:
 def _require_panel_context(context, panel_id: str, required_context: list[str]) -> None:
     panel = context.get_panel(panel_id)
     panel.readiness.required_context = required_context
+
+
+def _seed_public_expectations_connectors(context, repo_root) -> None:
+    service = IngestionService(context)
+    for connector_id in (
+        "acme_market_packet",
+        "acme_regulatory_packet",
+        "acme_transcript_news_packet",
+        "acme_consensus_packet",
+        "acme_events_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+
+
+def _seed_portfolio_context_peer(context, repo_root) -> None:
+    IngestionService(context).ingest_private_data(repo_root / "examples" / "beta_private")
+    with context.database.session() as session:
+        repository = Repository(session)
+        repository.upsert_coverage(
+            CoverageEntry(
+                company_id="BETA",
+                company_name="Beta Logistics Software",
+                company_type=CompanyType.PRIVATE,
+                coverage_status=CoverageStatus.PORTFOLIO,
+            )
+        )
+        run = RunRecord(
+            company_id="BETA",
+            run_kind=RunKind.REFRESH,
+            status=RunStatus.COMPLETE,
+            completed_at=utc_now(),
+        )
+        repository.save_run(run)
+        repository.save_monitoring_delta(
+            MonitoringDelta(
+                company_id="BETA",
+                current_run_id=run.run_id,
+                change_summary="Portfolio concentration overlaps with ACME.",
+                changed_sections=["risk", "overall_recommendation"],
+                alert_level=AlertLevel.MEDIUM,
+                trigger_reasons=[
+                    MonitoringReason(
+                        category="concentration",
+                        factor_id="customer_concentration",
+                        summary="Customer concentration overlaps with the current book.",
+                    )
+                ],
+            )
+        )
+
+
+def _seed_public_overlay_evidence(context) -> None:
+    records = [
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="market_snapshot",
+            title="Overlay valuation snapshot",
+            body="Valuation, liquidity, and technical posture shape the entry.",
+            source_path="examples/generated/api_overlay_valuation.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "valuation_multiples_vs_peers",
+                "technical_stock_movement",
+                "positioning_liquidity",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                for factor_id in [
+                    "valuation_multiples_vs_peers",
+                    "technical_stock_movement",
+                    "positioning_liquidity",
+                ]
+            },
+            source_refs=[SourceRef(label="API overlay valuation")],
+            evidence_quality=0.8,
+            staleness_days=0,
+            as_of_date=utc_now(),
+            metadata={"evidence_family": "market"},
+        ),
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="ownership_report",
+            title="Overlay ownership snapshot",
+            body="Ownership, borrow, and sponsorship posture matter for implementation.",
+            source_path="examples/generated/api_overlay_ownership.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "insider_institutional_flow",
+                "borrow_short_interest_if_relevant",
+                "cap_table",
+                "financing_dependency",
+                "control_rights",
+                "round_terms_preferences",
+                "exit_path",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                for factor_id in [
+                    "insider_institutional_flow",
+                    "borrow_short_interest_if_relevant",
+                    "cap_table",
+                    "financing_dependency",
+                    "control_rights",
+                    "round_terms_preferences",
+                    "exit_path",
+                ]
+            },
+            source_refs=[SourceRef(label="API overlay ownership")],
+            evidence_quality=0.79,
+            staleness_days=0,
+            as_of_date=utc_now(),
+            metadata={"evidence_family": "ownership"},
+        ),
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="ownership_report",
+            title="Overlay financing snapshot",
+            body="Financing dependency and control rights shape the implementation posture.",
+            source_path="examples/generated/api_overlay_financing.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "cap_table",
+                "financing_dependency",
+                "control_rights",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                for factor_id in [
+                    "cap_table",
+                    "financing_dependency",
+                    "control_rights",
+                ]
+            },
+            source_refs=[SourceRef(label="API overlay financing")],
+            evidence_quality=0.78,
+            staleness_days=0,
+            as_of_date=utc_now(),
+            metadata={"evidence_family": "ownership"},
+        ),
+        EvidenceRecord(
+            company_id="ACME",
+            company_type=CompanyType.PUBLIC,
+            source_type="market_commentary",
+            title="Overlay exit posture",
+            body="Round terms and exit path remain central to the implementation posture.",
+            source_path="examples/generated/api_overlay_exit.json",
+            namespace="company/ACME/evidence/security_overlay",
+            panel_ids=["security_or_deal_overlay"],
+            factor_ids=[
+                "round_terms_preferences",
+                "exit_path",
+            ],
+            factor_signals={
+                factor_id: FactorSignal(stance="supported", summary="Overlay evidence supports this factor.")
+                for factor_id in [
+                    "round_terms_preferences",
+                    "exit_path",
+                ]
+            },
+            source_refs=[SourceRef(label="API overlay exit")],
+            evidence_quality=0.79,
+            staleness_days=0,
+            as_of_date=utc_now(),
+            metadata={"evidence_family": "market"},
+        ),
+    ]
+    with context.database.session() as session:
+        Repository(session).save_evidence_records(records)
 
 
 def _force_failed_gatekeeper(monkeypatch) -> None:
@@ -526,27 +708,59 @@ def test_api_run_panel_rejects_scaffold_only_panel(seeded_acme) -> None:
     assert runs == []
 
 
-def test_api_analyze_rejects_full_surface_policy_without_partial_run(seeded_acme) -> None:
+def test_api_recommendation_scope_surfaces_company_quality_only_when_overlays_skip(
+    seeded_acme,
+    repo_root,
+) -> None:
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
 
     with TestClient(create_app(seeded_acme)) as client:
         response = client.post("/companies/ACME/analyze")
 
-    assert response.status_code == 400
-    assert response.json() == {
-        "error": {
-            "code": "invalid_request",
-            "message": (
-                "Panel security_or_deal_overlay is not implemented for policy "
-                "full_surface."
-            ),
-        }
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert payload["overall_recommendation_scope"]["status"] == "company_quality_only"
+    assert payload["overall_recommendation_scope"]["overlays"] == {
+        "security_or_deal_overlay": "unsupported",
+        "portfolio_fit_positioning": "unsupported",
+    }
+    assert (
+        "company-quality-only" in payload["overall_recommendation_scope"]["summary"]
+    )
+
+    with TestClient(create_app(seeded_acme)) as client:
+        shown = client.get(f"/runs/{payload['run']['run_id']}")
+
+    assert shown.status_code == 200
+    shown_payload = shown.json()["data"]
+    assert shown_payload["overall_recommendation_scope"]["status"] == "company_quality_only"
+    assert shown_payload["overall_recommendation_scope"]["overlays"] == {
+        "security_or_deal_overlay": "unsupported",
+        "portfolio_fit_positioning": "unsupported",
     }
 
-    with seeded_acme.database.session() as session:
-        runs = Repository(session).list_runs("ACME")
 
-    assert runs == []
+def test_api_recommendation_scope_surfaces_overlay_complete_when_overlays_run(
+    seeded_acme,
+    repo_root,
+) -> None:
+    _set_panel_policy(seeded_acme, "ACME", "full_surface")
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    _seed_public_overlay_evidence(seeded_acme)
+    _seed_portfolio_context_peer(seeded_acme, repo_root)
+
+    with TestClient(create_app(seeded_acme)) as client:
+        response = client.post("/companies/ACME/analyze")
+
+    assert response.status_code == 200
+    payload = response.json()["data"]
+    assert payload["overall_recommendation_scope"]["status"] == "overlay_complete"
+    assert payload["overall_recommendation_scope"]["label"] == "Overlay-aware recommendation"
+    assert payload["overall_recommendation_scope"]["overlays"] == {
+        "security_or_deal_overlay": "supported",
+        "portfolio_fit_positioning": "supported",
+    }
 
 
 def test_api_run_due_returns_paused_run_payload(seeded_acme, monkeypatch) -> None:

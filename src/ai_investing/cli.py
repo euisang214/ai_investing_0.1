@@ -27,6 +27,10 @@ from ai_investing.domain.read_models import PanelRunRead
 from ai_investing.persistence.repositories import Repository
 
 app = typer.Typer(no_args_is_help=True)
+_OVERLAY_PANEL_LABELS = {
+    "security_or_deal_overlay": "security or deal overlay",
+    "portfolio_fit_positioning": "portfolio fit positioning",
+}
 
 
 def _context() -> AppContext:
@@ -71,6 +75,70 @@ def _resolve_continue_action(
     return action or RunContinueAction.CONTINUE
 
 
+def _attach_recommendation_scope(result: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **result,
+        "overall_recommendation_scope": _recommendation_scope(result),
+    }
+
+
+def _field_value(payload: Any, field_name: str) -> Any:
+    if isinstance(payload, dict):
+        return payload.get(field_name)
+    return getattr(payload, field_name, None)
+
+
+def _overlay_support_state(panel: Any) -> str:
+    support = _field_value(panel, "support")
+    support_status = _field_value(support, "status")
+    if support_status == "supported":
+        return "supported"
+    if _field_value(panel, "skip") is not None or support_status == "unsupported":
+        return "unsupported"
+    return "pending"
+
+
+def _recommendation_scope(result: dict[str, Any]) -> dict[str, Any]:
+    panels = result.get("panels", {})
+    overlays: dict[str, str] = {}
+    pending: list[str] = []
+    unsupported: list[str] = []
+    for panel_id, label in _OVERLAY_PANEL_LABELS.items():
+        panel = panels.get(panel_id) if isinstance(panels, dict) else None
+        overlay_state = _overlay_support_state(panel)
+        overlays[panel_id] = overlay_state
+        if overlay_state == "supported":
+            continue
+        if overlay_state == "unsupported":
+            unsupported.append(label)
+            continue
+        pending.append(label)
+
+    if overlays and all(status == "supported" for status in overlays.values()):
+        return {
+            "status": "overlay_complete",
+            "label": "Overlay-aware recommendation",
+            "summary": (
+                "Overall recommendation includes both the security or deal overlay "
+                "and the portfolio fit positioning overlay."
+            ),
+            "overlays": overlays,
+        }
+
+    reasons: list[str] = []
+    if pending:
+        reasons.append(f"pending for this rollout: {', '.join(sorted(set(pending)))}")
+    if unsupported:
+        reasons.append(f"unsupported for this run: {', '.join(sorted(set(unsupported)))}")
+    reason_text = "; ".join(reasons) if reasons else "overlay coverage is incomplete"
+    return {
+        "status": "company_quality_only",
+        "label": "Company-quality-only recommendation",
+        "summary": f"Overall recommendation remains company-quality-only because {reason_text}.",
+        "overlays": overlays,
+    }
+
+
 def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
     with context.database.session() as session:
         repository = Repository(session)
@@ -102,12 +170,14 @@ def _load_run_result(context: AppContext, run_id: str) -> dict[str, Any]:
         memo = repository.get_memo_for_run(run.company_id, run.run_id)
         delta = repository.get_latest_monitoring_delta(run.company_id, run_id=run.run_id)
 
-    return {
-        "run": run.model_dump(mode="json"),
-        "panels": panels,
-        "memo": memo.model_dump(mode="json") if memo is not None else None,
-        "delta": delta.model_dump(mode="json") if delta is not None else None,
-    }
+    return _attach_recommendation_scope(
+        {
+            "run": run.model_dump(mode="json"),
+            "panels": panels,
+            "memo": memo.model_dump(mode="json") if memo is not None else None,
+            "delta": delta.model_dump(mode="json") if delta is not None else None,
+        }
+    )
 
 
 @app.command("init-db")
@@ -216,7 +286,7 @@ def set_coverage_schedule(
 @app.command("analyze-company")
 def analyze_company(company_id: str) -> None:
     result = AnalysisService(_context()).analyze_company(company_id)
-    _emit_json(result)
+    _emit_json(_attach_recommendation_scope(result))
 
 
 @app.command("run-panel")
@@ -228,7 +298,7 @@ def run_panel(company_id: str, panel_id: str) -> None:
 @app.command("refresh-company")
 def refresh_company(company_id: str) -> None:
     result = AnalysisService(_context()).refresh_company(company_id)
-    _emit_json(result)
+    _emit_json(_attach_recommendation_scope(result))
 
 
 @app.command("show-run")
@@ -249,13 +319,13 @@ def continue_run(
         provisional=provisional,
     )
     result = AnalysisService(_context()).continue_run(run_id, action=resolved_action)
-    _emit_json(result)
+    _emit_json(_attach_recommendation_scope(result))
 
 
 @app.command("run-due-coverage")
 def run_due_coverage() -> None:
     result = AnalysisService(_context()).run_due_coverage()
-    _emit_json(result)
+    _emit_json([_attach_recommendation_scope(item) for item in result])
 
 
 @app.command("queue-summary")
