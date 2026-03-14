@@ -135,6 +135,36 @@ def test_market_macro_regulatory_panels_are_implemented_with_active_agents(conte
         assert all(agent.enabled for agent in active_agents)
 
 
+def test_wave2_tool_bundles_match_external_context_evidence_needs(context) -> None:
+    bundles = {
+        bundle.id: bundle for bundle in context.registries.tool_bundles.bundles
+    }
+
+    assert set(bundles["market_growth_research"].tool_ids) >= {
+        "evidence_search",
+        "claim_search",
+        "filing_fetch",
+        "transcript_fetch",
+        "public_news_fetch",
+        "financial_query",
+    }
+    assert set(bundles["macro_transmission_research"].tool_ids) >= {
+        "evidence_search",
+        "claim_search",
+        "filing_fetch",
+        "transcript_fetch",
+        "public_news_fetch",
+        "financial_query",
+    }
+    assert set(bundles["regulatory_context_research"].tool_ids) >= {
+        "evidence_search",
+        "claim_search",
+        "filing_fetch",
+        "transcript_fetch",
+        "public_news_fetch",
+    }
+
+
 def test_scaffold_panels_have_one_disabled_placeholder_lead(context) -> None:
     scaffold_panels = _scaffold_panels(context)
     placeholder_agents = {

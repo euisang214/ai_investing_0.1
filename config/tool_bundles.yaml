@@ -12,11 +12,11 @@ bundles:
   - id: financial_quality_research
     tool_ids: [evidence_search, claim_search, filing_fetch, private_doc_fetch, financial_query, spreadsheet_runner]
   - id: market_growth_research
-    tool_ids: [evidence_search, claim_search, transcript_fetch, public_news_fetch, financial_query, private_doc_fetch]
+    tool_ids: [evidence_search, claim_search, filing_fetch, transcript_fetch, public_news_fetch, financial_query, private_doc_fetch]
   - id: macro_transmission_research
     tool_ids: [evidence_search, claim_search, transcript_fetch, public_news_fetch, financial_query, filing_fetch, private_doc_fetch]
   - id: regulatory_context_research
-    tool_ids: [evidence_search, claim_search, filing_fetch, public_news_fetch, private_doc_fetch]
+    tool_ids: [evidence_search, claim_search, filing_fetch, transcript_fetch, public_news_fetch, private_doc_fetch]
   - id: expectations_security
     tool_ids: [evidence_search, claim_search, price_volume_query, estimate_revision_query, ownership_flow_query, event_calendar_query]
   - id: ic_judge
