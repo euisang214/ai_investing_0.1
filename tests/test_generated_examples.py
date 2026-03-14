@@ -30,14 +30,14 @@ def _section_map(result: dict[str, object]) -> dict[str, dict[str, object]]:
     return {section["section_id"]: section for section in sections}
 
 
-def test_generation_script_writes_phase5_lifecycle_examples(
+def test_generation_script_writes_phase6_runtime_examples(
     repo_root: Path, tmp_path: Path
 ) -> None:
     output_root = tmp_path / "generated" / "ACME"
 
     _run_generator(repo_root, output_root)
 
-    for stage in ("initial", "continued", "rerun"):
+    for stage in ("initial", "continued", "rerun", "overlay_gap"):
         stage_dir = output_root / stage
         assert stage_dir.is_dir()
         assert (stage_dir / "result.json").is_file()
@@ -47,6 +47,7 @@ def test_generation_script_writes_phase5_lifecycle_examples(
     initial = _load_json(output_root / "initial" / "result.json")
     continued = _load_json(output_root / "continued" / "result.json")
     rerun = _load_json(output_root / "rerun" / "result.json")
+    overlay_gap = _load_json(output_root / "overlay_gap" / "result.json")
 
     assert initial["run"]["status"] == "complete"
     assert initial["run"]["gate_decision"] in {"pass", "review"}
@@ -75,6 +76,15 @@ def test_generation_script_writes_phase5_lifecycle_examples(
     assert "realization_path_catalysts" in rerun["delta"]["changed_sections"]
     assert _section_map(initial)["expectations_variant_view"]["status"] == "refreshed"
     assert _section_map(initial)["realization_path_catalysts"]["status"] == "refreshed"
+    assert overlay_gap["run"]["metadata"]["panel_policy"] == "full_surface"
+    assert overlay_gap["run"]["status"] == "complete"
+    assert overlay_gap["panels"]["security_or_deal_overlay"]["support"]["status"] == "unsupported"
+    assert overlay_gap["panels"]["portfolio_fit_positioning"]["support"]["status"] == "unsupported"
+    assert overlay_gap["panels"]["security_or_deal_overlay"]["skip"]["reason_code"] == "missing_context"
+    assert overlay_gap["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"] == "missing_context"
+    assert (
+        _section_map(overlay_gap)["portfolio_fit_positioning"]["status"] == "not_advanced"
+    )
 
 
 def test_generated_expectations_delta_examples_include_rerun_changes(
@@ -113,26 +123,31 @@ def test_checked_in_examples_match_generator_output(repo_root: Path, tmp_path: P
         Path("rerun/result.json"),
         Path("rerun/memo.md"),
         Path("rerun/delta.json"),
+        Path("overlay_gap/result.json"),
+        Path("overlay_gap/memo.md"),
+        Path("overlay_gap/delta.json"),
     ):
         assert (checked_in_root / relative_path).read_text(encoding="utf-8") == (
             output_root / relative_path
         ).read_text(encoding="utf-8")
 
 
-def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> None:
+def test_checked_in_examples_describe_the_phase6_runtime(repo_root: Path) -> None:
     generated_root = repo_root / "examples" / "generated"
     readme = (generated_root / "README.md").read_text(encoding="utf-8")
     initial = _load_json(generated_root / "ACME" / "initial" / "result.json")
     continued = _load_json(generated_root / "ACME" / "continued" / "result.json")
     rerun = _load_json(generated_root / "ACME" / "rerun" / "result.json")
+    overlay_gap = _load_json(generated_root / "ACME" / "overlay_gap" / "result.json")
     initial_delta = _load_json(generated_root / "ACME" / "initial" / "delta.json")
     continued_delta = _load_json(generated_root / "ACME" / "continued" / "delta.json")
     rerun_delta = _load_json(generated_root / "ACME" / "rerun" / "delta.json")
 
     assert "python scripts/generate_phase2_examples.py" in readme
-    assert "post-Phase-5 contract" in readme
-    assert "auto-continue into downstream work" in readme
-    assert "operator-only provisional override" in readme
+    assert "shipped Phase 6 runtime contract" in readme
+    assert "full_surface" in readme
+    assert "overlay_gap/" in readme
+    assert "unsupported and skipped explicitly" in readme
     assert "initial/" in readme
     assert "continued/" in readme
     assert "rerun/" in readme
@@ -150,6 +165,11 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["run"]["checkpoint"]["resolution_action"] == "continue"
     assert rerun_delta["prior_run_id"] == continued["run"]["run_id"]
+    assert overlay_gap["run"]["metadata"]["panel_policy"] == "full_surface"
+    assert overlay_gap["panels"]["security_or_deal_overlay"]["support"]["status"] == "unsupported"
+    assert overlay_gap["panels"]["portfolio_fit_positioning"]["support"]["status"] == "unsupported"
+    assert overlay_gap["panels"]["security_or_deal_overlay"]["skip"]["reason_code"] == "missing_context"
+    assert overlay_gap["panels"]["portfolio_fit_positioning"]["skip"]["reason_code"] == "missing_context"
     assert (
         initial["panels"]["expectations_catalyst_realization"]["support"]["status"]
         == "supported"
@@ -165,6 +185,9 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
         encoding="utf-8"
     )
     rerun_memo = (generated_root / "ACME" / "rerun" / "memo.md").read_text(encoding="utf-8")
+    overlay_gap_memo = (generated_root / "ACME" / "overlay_gap" / "memo.md").read_text(
+        encoding="utf-8"
+    )
 
     assert initial_memo
     assert "Stale from the prior active memo." not in continued_memo
@@ -172,6 +195,7 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert "Stale from the prior active memo." in rerun_memo
     assert "## Expectations And Variant View" in initial_memo
     assert "## Realization Path And Catalysts" in initial_memo
+    assert "unsupported for this run" in overlay_gap_memo
 
 
 def test_supply_management_financial_manifests_cover_wave1_public_and_private_samples(

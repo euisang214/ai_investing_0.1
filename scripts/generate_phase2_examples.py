@@ -42,7 +42,7 @@ PUBLIC_EXPECTATIONS_CONNECTORS = (
     "acme_consensus_packet",
     "acme_events_packet",
 )
-STAGES = ("initial", "continued", "rerun")
+STAGES = ("initial", "continued", "rerun", "overlay_gap")
 
 
 @dataclass
@@ -99,7 +99,7 @@ def build_context(workspace: Path) -> AppContext:
     return context
 
 
-def seed_acme(context: AppContext) -> None:
+def seed_acme(context: AppContext, *, panel_policy: str = "expectations_rollout") -> None:
     ingestion = IngestionService(context)
     ingestion.ingest_public_data(INITIAL_INPUT)
     for connector_id in PUBLIC_EXPECTATIONS_CONNECTORS:
@@ -114,7 +114,7 @@ def seed_acme(context: AppContext) -> None:
             company_type=CompanyType.PUBLIC,
             coverage_status=CoverageStatus.WATCHLIST,
             cadence=Cadence.WEEKLY,
-            panel_policy="expectations_rollout",
+            panel_policy=panel_policy,
         )
     )
 
@@ -140,7 +140,8 @@ def write_artifacts(output_root: Path, name: str, result: dict[str, object]) -> 
 
 def generate_examples(output_root: Path = OUTPUT_ROOT) -> None:
     # The script name is kept for backward compatibility, but the artifacts document
-    # the Phase 5 lifecycle: pass/review auto-continue, fail stops for operator review.
+    # the finished Phase 6 runtime contract: rollout-specific runs, rerun deltas,
+    # and explicit overlay skips when full-surface context is unavailable.
     deterministic_runtime = DeterministicRuntime()
     output_root.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="generated-examples-") as workspace_str:
@@ -164,16 +165,28 @@ def generate_examples(output_root: Path = OUTPUT_ROOT) -> None:
             rerun = service.refresh_company("ACME")
             write_artifacts(output_root, "rerun", rerun)
 
+    with tempfile.TemporaryDirectory(prefix="generated-examples-overlay-gap-") as workspace_str:
+        workspace = Path(workspace_str)
+        with deterministic_runtime.install():
+            context = build_context(workspace)
+            seed_acme(context, panel_policy="full_surface")
+            service = AnalysisService(context)
+            overlay_gap = service.analyze_company("ACME")
+            write_artifacts(output_root, "overlay_gap", overlay_gap)
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate deterministic checked artifacts for the post-Phase-5 lifecycle.",
+        description="Generate deterministic checked artifacts for the finished Phase 6 runtime.",
     )
     parser.add_argument(
         "--output-root",
         type=Path,
         default=OUTPUT_ROOT,
-        help="Directory that will receive the initial, continued, and rerun ACME artifacts.",
+        help=(
+            "Directory that will receive the initial, continued, rerun, and overlay-gap "
+            "ACME artifacts."
+        ),
     )
     return parser.parse_args()
 

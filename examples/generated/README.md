@@ -1,43 +1,76 @@
 # Generated Examples
 
-These artifacts make the current run lifecycle inspectable without running the app by hand.
+These checked artifacts document the shipped Phase 6 runtime contract, not a hypothetical happy path.
 
-The checked ACME files now reflect the post-Phase-5 contract:
+The ACME example set demonstrates four distinct outcomes:
 
-- every run still enters the `gatekeepers` checkpoint first
+- `initial/`: an initial `expectations_rollout` run
+- `continued/`: the same completed run reloaded from persistence
+- `rerun/`: a later refresh that produces a real delta against the prior active memo
+- `overlay_gap/`: a `full_surface` run where company-quality and expectations analysis still complete, but `security_or_deal_overlay` and `portfolio_fit_positioning` are unsupported and skipped explicitly
+
+## What These Files Prove
+
+- every run still enters `gatekeepers`
 - `pass` and `review` auto-continue into downstream work
-- `fail` would stop in the review queue and require an explicit operator-only provisional override
-- the checkpoint record remains in `result.json` for auditability even when no human resume step is required
+- reruns keep delta behavior against the prior active memo
+- rollout policies widen the selected panel surface without changing runtime shape
+- unsupported overlays do not fail the whole run
+- skipped overlays remain visible in `result.json` and in memo wording
+- `overall_recommendation` stays scoped to the analysis that actually ran
 
 ## ACME
 
-- `initial/`: the first `analyze_company("ACME")` result. `result.json` is already terminal because the gatekeeper checkpoint resolves automatically for the generated `review` verdict. `delta.json` is present, and untouched sections remain `not_advanced` instead of reading as stale carry-forward.
-- `continued/`: the same completed run reloaded from durable storage. This keeps the compatibility example for run inspection after completion without inventing a fake manual resume path.
-- `rerun/`: a later `refresh_company("ACME")` run after new evidence is ingested. This is the first place `delta.json` compares against a prior active run and where carried-forward memo sections may legitimately read as stale.
+### `initial/`
 
-The ACME set does not include a failed gatekeeper branch because that path is operationally different:
+Initial output for `expectations_rollout`.
 
-- the run would remain `awaiting_continue`
-- the queue job would become `review_required`
-- an immediate notification would be emitted
-- only an operator could trigger `continue_provisional`
+- company-quality panels run
+- `expectations_catalyst_realization` runs
+- overlays are not selected by policy
+- `overall_recommendation` should read as company-quality plus expectations, with overlay work still pending for that rollout
 
-## BETA
+### `continued/`
 
-- `BETA/private/`: the private-company sample output retained as a separate ingestion example.
+Persisted reread of the same completed run.
+
+- preserves the same `run_id`
+- proves the completed run can be rehydrated without inventing a manual resume path
+- keeps the same support posture visible after persistence
+
+### `rerun/`
+
+Refresh output after new evidence is ingested.
+
+- `delta.json` compares against the prior active memo
+- `what_changed_since_last_run` is updated
+- expectations sections change in a way the regression suite can lock
+
+### `overlay_gap/`
+
+Initial output for `full_surface` without overlay-specific or portfolio context.
+
+- company-quality and expectations work still complete honestly
+- `security_or_deal_overlay` is selected but skipped with `status: unsupported`
+- `portfolio_fit_positioning` is selected but skipped with `status: unsupported`
+- the memo keeps those overlays visible as unsupported for this run rather than silently dropping them
 
 ## How To Inspect
 
-1. Open `result.json` to inspect lifecycle fields, checkpoint state, and panel outputs.
-2. Open `memo.md` to read the rendered memo state for that run.
-3. Open `delta.json` to inspect the monitoring output and prior-run linkage.
-4. Compare `initial/` and `continued/` to see the same completed run as returned live and as reloaded from persistence.
-5. Compare `continued/` and `rerun/` to inspect the first true delta against a prior active memo.
+1. Open `result.json` to inspect checkpoint state, support posture, skipped panels, and selected policy.
+2. Open `memo.md` to inspect the rendered memo and how `overall_recommendation` describes pending or unsupported overlays.
+3. Open `delta.json` to inspect rerun behavior.
+4. Compare `initial/` and `continued/` for the same run live versus persisted.
+5. Compare `rerun/` with `initial/` for delta behavior.
+6. Compare `overlay_gap/` with `initial/` to see the difference between overlays not selected by policy and overlays selected but skipped explicitly.
 
 ## Regenerate
 
-Run `docker compose run --rm api python scripts/generate_phase2_examples.py`.
+Run:
 
-If Python 3.11+ is available on the host, `python scripts/generate_phase2_examples.py` produces the same ACME artifacts.
+```bash
+docker compose run --rm api python scripts/generate_phase2_examples.py
+docker compose run --rm api pytest -q tests/test_generated_examples.py
+```
 
-The script keeps its historical name for compatibility with existing docs and tests, but it now regenerates the post-Phase-5 lifecycle examples rather than the retired universal-pause story.
+If Python 3.11+ is available locally, `python scripts/generate_phase2_examples.py` produces the same artifacts.

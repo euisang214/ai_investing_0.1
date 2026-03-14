@@ -1,0 +1,594 @@
+{
+  "delta_id": "dlt_000000000003",
+  "company_id": "ACME",
+  "prior_run_id": null,
+  "current_run_id": "run_000000000003",
+  "changed_claim_ids": [
+    "clm_000000000481",
+    "clm_000000000482",
+    "clm_000000000483",
+    "clm_000000000484",
+    "clm_000000000485",
+    "clm_000000000486",
+    "clm_000000000487",
+    "clm_000000000488",
+    "clm_000000000489",
+    "clm_000000000490",
+    "clm_000000000491",
+    "clm_000000000492",
+    "clm_000000000493",
+    "clm_000000000494",
+    "clm_000000000495",
+    "clm_000000000496",
+    "clm_000000000497",
+    "clm_000000000498",
+    "clm_000000000499",
+    "clm_000000000500",
+    "clm_000000000501",
+    "clm_000000000502",
+    "clm_000000000503",
+    "clm_000000000504",
+    "clm_000000000505",
+    "clm_000000000506",
+    "clm_000000000507",
+    "clm_000000000508",
+    "clm_000000000509",
+    "clm_000000000510",
+    "clm_000000000511",
+    "clm_000000000512",
+    "clm_000000000513",
+    "clm_000000000514",
+    "clm_000000000515",
+    "clm_000000000516",
+    "clm_000000000517",
+    "clm_000000000518",
+    "clm_000000000519",
+    "clm_000000000520",
+    "clm_000000000521",
+    "clm_000000000522",
+    "clm_000000000523",
+    "clm_000000000524",
+    "clm_000000000525",
+    "clm_000000000526",
+    "clm_000000000527",
+    "clm_000000000528",
+    "clm_000000000529",
+    "clm_000000000530",
+    "clm_000000000531",
+    "clm_000000000532",
+    "clm_000000000533",
+    "clm_000000000534",
+    "clm_000000000535",
+    "clm_000000000536",
+    "clm_000000000537",
+    "clm_000000000538",
+    "clm_000000000539",
+    "clm_000000000540",
+    "clm_000000000541",
+    "clm_000000000542",
+    "clm_000000000543",
+    "clm_000000000544",
+    "clm_000000000545",
+    "clm_000000000546",
+    "clm_000000000547",
+    "clm_000000000548",
+    "clm_000000000549",
+    "clm_000000000550",
+    "clm_000000000551",
+    "clm_000000000552",
+    "clm_000000000553",
+    "clm_000000000554",
+    "clm_000000000555",
+    "clm_000000000556",
+    "clm_000000000557",
+    "clm_000000000558",
+    "clm_000000000559",
+    "clm_000000000560",
+    "clm_000000000561",
+    "clm_000000000562",
+    "clm_000000000563",
+    "clm_000000000564",
+    "clm_000000000565",
+    "clm_000000000566",
+    "clm_000000000567",
+    "clm_000000000568",
+    "clm_000000000569",
+    "clm_000000000570",
+    "clm_000000000571",
+    "clm_000000000572",
+    "clm_000000000573",
+    "clm_000000000574",
+    "clm_000000000575",
+    "clm_000000000576",
+    "clm_000000000577",
+    "clm_000000000578",
+    "clm_000000000579",
+    "clm_000000000580",
+    "clm_000000000581",
+    "clm_000000000582",
+    "clm_000000000583",
+    "clm_000000000584",
+    "clm_000000000585",
+    "clm_000000000586",
+    "clm_000000000587",
+    "clm_000000000588",
+    "clm_000000000589",
+    "clm_000000000590",
+    "clm_000000000591",
+    "clm_000000000592",
+    "clm_000000000593",
+    "clm_000000000594",
+    "clm_000000000595",
+    "clm_000000000596",
+    "clm_000000000597",
+    "clm_000000000598",
+    "clm_000000000599",
+    "clm_000000000600",
+    "clm_000000000601",
+    "clm_000000000602",
+    "clm_000000000603",
+    "clm_000000000604",
+    "clm_000000000605",
+    "clm_000000000606",
+    "clm_000000000607",
+    "clm_000000000608",
+    "clm_000000000609",
+    "clm_000000000610",
+    "clm_000000000611",
+    "clm_000000000612",
+    "clm_000000000613",
+    "clm_000000000614",
+    "clm_000000000615",
+    "clm_000000000616",
+    "clm_000000000617",
+    "clm_000000000618",
+    "clm_000000000619",
+    "clm_000000000620",
+    "clm_000000000621",
+    "clm_000000000622",
+    "clm_000000000623",
+    "clm_000000000624",
+    "clm_000000000625",
+    "clm_000000000626",
+    "clm_000000000627",
+    "clm_000000000628",
+    "clm_000000000629",
+    "clm_000000000630",
+    "clm_000000000631",
+    "clm_000000000632",
+    "clm_000000000633",
+    "clm_000000000634",
+    "clm_000000000635",
+    "clm_000000000636",
+    "clm_000000000637",
+    "clm_000000000638",
+    "clm_000000000639",
+    "clm_000000000640",
+    "clm_000000000641",
+    "clm_000000000642",
+    "clm_000000000643",
+    "clm_000000000644",
+    "clm_000000000645",
+    "clm_000000000646",
+    "clm_000000000647",
+    "clm_000000000648",
+    "clm_000000000649",
+    "clm_000000000650",
+    "clm_000000000651",
+    "clm_000000000652",
+    "clm_000000000653",
+    "clm_000000000654",
+    "clm_000000000655",
+    "clm_000000000656",
+    "clm_000000000657",
+    "clm_000000000658",
+    "clm_000000000659",
+    "clm_000000000660",
+    "clm_000000000661",
+    "clm_000000000662",
+    "clm_000000000663",
+    "clm_000000000664",
+    "clm_000000000665",
+    "clm_000000000666",
+    "clm_000000000667",
+    "clm_000000000668",
+    "clm_000000000669",
+    "clm_000000000670",
+    "clm_000000000671",
+    "clm_000000000672",
+    "clm_000000000673",
+    "clm_000000000674",
+    "clm_000000000675",
+    "clm_000000000676",
+    "clm_000000000677",
+    "clm_000000000678",
+    "clm_000000000679",
+    "clm_000000000680",
+    "clm_000000000681",
+    "clm_000000000682",
+    "clm_000000000683",
+    "clm_000000000684",
+    "clm_000000000685",
+    "clm_000000000686",
+    "clm_000000000687",
+    "clm_000000000688",
+    "clm_000000000689",
+    "clm_000000000690",
+    "clm_000000000691",
+    "clm_000000000692",
+    "clm_000000000693",
+    "clm_000000000694",
+    "clm_000000000695",
+    "clm_000000000696",
+    "clm_000000000697",
+    "clm_000000000698",
+    "clm_000000000699",
+    "clm_000000000700",
+    "clm_000000000701",
+    "clm_000000000702",
+    "clm_000000000703",
+    "clm_000000000704",
+    "clm_000000000705",
+    "clm_000000000706",
+    "clm_000000000707",
+    "clm_000000000708",
+    "clm_000000000709",
+    "clm_000000000710",
+    "clm_000000000711",
+    "clm_000000000712",
+    "clm_000000000713",
+    "clm_000000000714",
+    "clm_000000000715",
+    "clm_000000000716",
+    "clm_000000000717",
+    "clm_000000000718",
+    "clm_000000000719",
+    "clm_000000000720"
+  ],
+  "changed_sections": [
+    "durability_resilience",
+    "economic_spread",
+    "expectations_variant_view",
+    "growth",
+    "investment_snapshot",
+    "overall_recommendation",
+    "realization_path_catalysts",
+    "risk",
+    "valuation_terms",
+    "what_changed_since_last_run"
+  ],
+  "change_summary": "Initial coverage run. No prior memo exists.",
+  "thesis_drift_flags": [
+    "concentration_increase",
+    "governance_risk_increase",
+    "survivability_deterioration",
+    "weakening_recurrence"
+  ],
+  "alert_level": "high",
+  "trigger_reasons": [
+    {
+      "category": "concentration",
+      "summary": "Governance concentration is currently pressured: Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
+      "factor_id": "governance_investability",
+      "severity": "medium",
+      "related_section_ids": [
+        "investment_snapshot",
+        "overall_recommendation",
+        "risk"
+      ]
+    },
+    {
+      "category": "contradiction",
+      "summary": "Conflicting evidence persists on brand reputation consideration set: signals span mixed, positive.",
+      "factor_id": "brand_reputation_consideration_set",
+      "severity": "medium",
+      "related_section_ids": [
+        "durability_resilience",
+        "growth",
+        "investment_snapshot",
+        "overall_recommendation",
+        "risk"
+      ]
+    },
+    {
+      "category": "contradiction",
+      "summary": "Conflicting evidence persists on commodity input sensitivity: signals span negative, positive.",
+      "factor_id": "commodity_input_sensitivity",
+      "severity": "medium",
+      "related_section_ids": [
+        "risk"
+      ]
+    },
+    {
+      "category": "drift",
+      "summary": "Survivability support changed enough to refresh the downside view.",
+      "factor_id": "balance_sheet_survivability",
+      "severity": "medium",
+      "related_section_ids": [
+        "investment_snapshot",
+        "risk",
+        "overall_recommendation"
+      ]
+    },
+    {
+      "category": "drift",
+      "summary": "Customer concentration changed enough to refresh the dependency view.",
+      "factor_id": "customer_concentration",
+      "severity": "medium",
+      "related_section_ids": [
+        "economic_spread",
+        "expectations_variant_view",
+        "portfolio_fit_positioning"
+      ]
+    },
+    {
+      "category": "drift",
+      "summary": "Governance posture shifted enough to refresh the monitoring view.",
+      "factor_id": "governance_investability",
+      "severity": "medium",
+      "related_section_ids": [
+        "investment_snapshot",
+        "risk",
+        "overall_recommendation"
+      ]
+    },
+    {
+      "category": "drift",
+      "summary": "Recurrence durability moved enough to refresh the thesis.",
+      "factor_id": "revenue_recurrence_contract_strength",
+      "severity": "medium",
+      "related_section_ids": [
+        "economic_spread",
+        "growth",
+        "valuation_terms",
+        "realization_path_catalysts"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "demand_revenue_quality produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "investment_snapshot",
+        "growth",
+        "durability_resilience",
+        "risk",
+        "overall_recommendation"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "expectations_catalyst_realization produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "expectations_variant_view",
+        "realization_path_catalysts"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "external_regulatory_geopolitical produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "financial_quality_liquidity_economic_model produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "economic_spread",
+        "valuation_terms",
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "gatekeepers produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "investment_snapshot",
+        "risk",
+        "overall_recommendation"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "macro_industry_transmission produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "management_governance_capital_allocation produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "durability_resilience",
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "market_structure_growth produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "growth",
+        "expectations_variant_view"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "supply_product_operations produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "durability_resilience",
+        "risk"
+      ]
+    }
+  ],
+  "contradiction_references": [
+    {
+      "category": "contradiction",
+      "label": "brand reputation consideration set",
+      "rationale": "Conflicting evidence persists on brand reputation consideration set: signals span mixed, positive.",
+      "factor_id": "brand_reputation_consideration_set",
+      "company_id": null,
+      "company_name": null,
+      "source_ref": {
+        "label": "Trade Press Roundup",
+        "url": "https://example.com/acme/news-roundup",
+        "page": null,
+        "excerpt": null
+      },
+      "score": null
+    },
+    {
+      "category": "contradiction",
+      "label": "commodity input sensitivity",
+      "rationale": "Conflicting evidence persists on commodity input sensitivity: signals span negative, positive.",
+      "factor_id": "commodity_input_sensitivity",
+      "company_id": null,
+      "company_name": null,
+      "source_ref": null,
+      "score": null
+    }
+  ],
+  "concentration_signals": [
+    {
+      "category": "customer_dependency",
+      "label": "Customer concentration",
+      "factor_id": "customer_concentration",
+      "state": "stable",
+      "summary": "Customer concentration is currently stable: No customer accounts for more than 4% of revenue.",
+      "metrics": {
+        "largest_customer": "4%"
+      }
+    },
+    {
+      "category": "financing_dependency",
+      "label": "Financing dependency",
+      "factor_id": "balance_sheet_survivability",
+      "state": "stable",
+      "summary": "Financing dependency is currently stable: Net cash remains positive and the company is free cash flow positive.",
+      "metrics": {
+        "net_cash_millions": 220
+      }
+    },
+    {
+      "category": "governance_dependency",
+      "label": "Governance concentration",
+      "factor_id": "governance_investability",
+      "state": "pressured",
+      "summary": "Governance concentration is currently pressured: Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
+      "metrics": {}
+    }
+  ],
+  "panel_change_hints": [
+    {
+      "category": "panel_change",
+      "summary": "demand_revenue_quality produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "investment_snapshot",
+        "growth",
+        "durability_resilience",
+        "risk",
+        "overall_recommendation"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "expectations_catalyst_realization produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "expectations_variant_view",
+        "realization_path_catalysts"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "external_regulatory_geopolitical produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "financial_quality_liquidity_economic_model produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "economic_spread",
+        "valuation_terms",
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "gatekeepers produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "investment_snapshot",
+        "risk",
+        "overall_recommendation"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "macro_industry_transmission produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "management_governance_capital_allocation produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "durability_resilience",
+        "risk"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "market_structure_growth produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "growth",
+        "expectations_variant_view"
+      ]
+    },
+    {
+      "category": "panel_change",
+      "summary": "supply_product_operations produced a new panel verdict in this run.",
+      "factor_id": null,
+      "severity": "info",
+      "related_section_ids": [
+        "durability_resilience",
+        "risk"
+      ]
+    }
+  ],
+  "created_at": "2026-03-13T04:00:00Z"
+}
