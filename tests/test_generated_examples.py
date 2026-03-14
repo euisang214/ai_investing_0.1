@@ -22,6 +22,14 @@ def _load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _section_map(result: dict[str, object]) -> dict[str, dict[str, object]]:
+    memo = result["memo"]
+    assert isinstance(memo, dict)
+    sections = memo["sections"]
+    assert isinstance(sections, list)
+    return {section["section_id"]: section for section in sections}
+
+
 def test_generation_script_writes_phase5_lifecycle_examples(
     repo_root: Path, tmp_path: Path
 ) -> None:
@@ -51,10 +59,33 @@ def test_generation_script_writes_phase5_lifecycle_examples(
     assert continued["run"]["checkpoint"]["resolution_action"] == "continue"
     assert continued["memo"]["is_initial_coverage"] is True
     assert continued["delta"]["prior_run_id"] is None
+    assert initial["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert continued["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["run"]["awaiting_continue"] is False
     assert rerun["delta"]["prior_run_id"] == continued["run"]["run_id"]
     assert "what_changed_since_last_run" in rerun["delta"]["changed_sections"]
+    assert "expectations_variant_view" in rerun["delta"]["changed_sections"]
+    assert "realization_path_catalysts" in rerun["delta"]["changed_sections"]
+    assert _section_map(initial)["expectations_variant_view"]["status"] == "refreshed"
+    assert _section_map(initial)["realization_path_catalysts"]["status"] == "refreshed"
+
+
+def test_generated_expectations_delta_examples_include_rerun_changes(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    output_root = tmp_path / "generated" / "ACME"
+
+    _run_generator(repo_root, output_root)
+
+    initial = _load_json(output_root / "initial" / "result.json")
+    rerun = _load_json(output_root / "rerun" / "result.json")
+
+    assert initial["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert _section_map(initial)["expectations_variant_view"]["status"] == "refreshed"
+    assert _section_map(initial)["realization_path_catalysts"]["status"] == "refreshed"
+    assert "expectations_variant_view" in rerun["delta"]["changed_sections"]
+    assert "realization_path_catalysts" in rerun["delta"]["changed_sections"]
 
 
 def test_checked_in_examples_match_generator_output(repo_root: Path, tmp_path: Path) -> None:
@@ -110,6 +141,10 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert rerun["run"]["run_kind"] == "refresh"
     assert rerun["run"]["checkpoint"]["resolution_action"] == "continue"
     assert rerun_delta["prior_run_id"] == continued["run"]["run_id"]
+    assert initial["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert rerun["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert "expectations_variant_view" in rerun_delta["changed_sections"]
+    assert "realization_path_catalysts" in rerun_delta["changed_sections"]
     initial_memo = (generated_root / "ACME" / "initial" / "memo.md").read_text(encoding="utf-8")
     continued_memo = (generated_root / "ACME" / "continued" / "memo.md").read_text(
         encoding="utf-8"
@@ -120,6 +155,8 @@ def test_checked_in_examples_describe_the_phase5_lifecycle(repo_root: Path) -> N
     assert "Stale from the prior active memo." not in continued_memo
     assert "This section has not been advanced yet." in continued_memo
     assert "Stale from the prior active memo." in rerun_memo
+    assert "## Expectations Variant View" in initial_memo
+    assert "## Realization Path Catalysts" in initial_memo
 
 
 def test_supply_management_financial_manifests_cover_wave1_public_and_private_samples(
@@ -319,3 +356,65 @@ def test_wave2_connector_packets_publish_explicit_external_context_provenance(
         "government_exposure",
         "regulatory_dependency",
     }.issubset(transcript_factors)
+
+
+def test_expectations_manifests_cover_public_private_and_rerun_samples(repo_root: Path) -> None:
+    panel_id = "expectations_catalyst_realization"
+    expected_factors = {
+        "implied_expectations",
+        "consensus_narrative_map",
+        "variant_view",
+        "falsification_kill_criteria",
+        "catalyst_path",
+        "timing_path_dependency",
+        "milestone_checklist",
+    }
+
+    public_connectors = (
+        repo_root / "examples" / "connectors" / "acme_consensus_packet" / "manifest.json",
+        repo_root / "examples" / "connectors" / "acme_events_packet" / "manifest.json",
+    )
+    private_manifest = repo_root / "examples" / "beta_private" / "manifest.json"
+    rerun_manifest = repo_root / "examples" / "acme_public_rerun" / "manifest.json"
+
+    public_factors: set[str] = set()
+    public_families: set[str] = set()
+    for manifest_path in public_connectors:
+        manifest = _load_json(manifest_path)
+        for document in manifest["documents"]:
+            if panel_id in document["panel_ids"]:
+                public_factors.update(
+                    factor_id for factor_id in document["factor_ids"] if factor_id in expected_factors
+                )
+                public_families.add(document["metadata"]["evidence_family"])
+
+    private_manifest_data = _load_json(private_manifest)
+    private_factors = {
+        factor_id
+        for document in private_manifest_data["documents"]
+        if panel_id in document["panel_ids"]
+        for factor_id in document["factor_ids"]
+        if factor_id in expected_factors
+    }
+    private_families = {
+        document["metadata"]["evidence_family"]
+        for document in private_manifest_data["documents"]
+        if panel_id in document["panel_ids"]
+    }
+
+    rerun_manifest_data = _load_json(rerun_manifest)
+    rerun_factors = {
+        factor_id
+        for document in rerun_manifest_data["documents"]
+        if panel_id in document["panel_ids"]
+        for factor_id in document["factor_ids"]
+        if factor_id in expected_factors
+    }
+
+    assert public_factors == expected_factors
+    assert {"consensus", "market", "events"} == public_families
+    assert private_factors == expected_factors
+    assert "events" in private_families
+    assert {"variant_view", "timing_path_dependency", "falsification_kill_criteria"}.issubset(
+        rerun_factors
+    )

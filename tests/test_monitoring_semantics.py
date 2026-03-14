@@ -43,6 +43,27 @@ def _section_map(result: dict[str, object]) -> dict[str, dict[str, object]]:
     }
 
 
+def _seed_public_expectations_connectors(context, repo_root) -> None:
+    service = IngestionService(context)
+    for connector_id in (
+        "acme_market_packet",
+        "acme_regulatory_packet",
+        "acme_transcript_news_packet",
+        "acme_consensus_packet",
+        "acme_events_packet",
+    ):
+        service.ingest_public_data(
+            repo_root / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
+    with context.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        assert coverage is not None
+        coverage.panel_policy = "expectations_rollout"
+        repository.upsert_coverage(coverage)
+
+
 def _claim(
     *,
     run_id: str,
@@ -701,6 +722,27 @@ def test_delta_reports_current_state_concentration_signals(seeded_acme, repo_roo
     assert signals["customer_dependency"]["state"] == "pressured"
     assert signals["customer_dependency"]["metrics"] == {"largest_customer": "12%"}
     assert signals["financing_dependency"]["state"] == "stable"
+
+
+def test_expectations_rerun_delta_updates_expectation_sections_without_overlay_drift(
+    seeded_acme,
+    repo_root,
+) -> None:
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    service = AnalysisService(seeded_acme)
+
+    initial = service.analyze_company("ACME")
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    rerun = service.refresh_company("ACME")
+    delta = rerun["delta"]
+    sections = _section_map(rerun)
+
+    assert delta is not None
+    assert delta["prior_run_id"] == initial["run"]["run_id"]
+    assert "expectations_variant_view" in delta["changed_sections"]
+    assert "realization_path_catalysts" in delta["changed_sections"]
+    assert "portfolio_fit_positioning" not in delta["changed_sections"]
+    assert sections["what_changed_since_last_run"]["status"] == "refreshed"
 
 
 def test_monitoring_delta_model_accepts_legacy_payload_without_new_detail_fields() -> None:

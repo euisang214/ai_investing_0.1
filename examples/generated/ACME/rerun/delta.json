@@ -4,31 +4,48 @@
   "prior_run_id": "run_000000000001",
   "current_run_id": "run_000000000002",
   "changed_claim_ids": [
-    "clm_000000000055",
-    "clm_000000000056",
-    "clm_000000000057",
-    "clm_000000000064",
-    "clm_000000000065",
-    "clm_000000000066",
-    "clm_000000000079",
-    "clm_000000000080",
-    "clm_000000000081",
-    "clm_000000000082",
-    "clm_000000000083",
-    "clm_000000000084",
-    "clm_000000000085",
-    "clm_000000000086",
-    "clm_000000000087"
+    "clm_000000000250",
+    "clm_000000000251",
+    "clm_000000000252",
+    "clm_000000000259",
+    "clm_000000000260",
+    "clm_000000000261",
+    "clm_000000000274",
+    "clm_000000000275",
+    "clm_000000000276",
+    "clm_000000000277",
+    "clm_000000000278",
+    "clm_000000000279",
+    "clm_000000000280",
+    "clm_000000000281",
+    "clm_000000000282",
+    "clm_000000000466",
+    "clm_000000000467",
+    "clm_000000000468",
+    "clm_000000000469",
+    "clm_000000000470",
+    "clm_000000000471",
+    "clm_000000000472",
+    "clm_000000000473",
+    "clm_000000000474",
+    "clm_000000000475",
+    "clm_000000000476",
+    "clm_000000000477",
+    "clm_000000000478",
+    "clm_000000000479",
+    "clm_000000000480"
   ],
   "changed_sections": [
     "durability_resilience",
+    "expectations_variant_view",
     "growth",
     "investment_snapshot",
     "overall_recommendation",
+    "realization_path_catalysts",
     "risk",
     "what_changed_since_last_run"
   ],
-  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, growth, investment_snapshot, overall_recommendation, risk. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability.",
+  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, expectations_variant_view, growth, investment_snapshot, overall_recommendation, realization_path_catalysts, risk. Material claim cards: 30. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: brand_reputation_consideration_set, catalyst_path.",
   "thesis_drift_flags": [
     "concentration_increase",
     "survivability_deterioration",
@@ -50,9 +67,20 @@
       ]
     },
     {
+      "category": "concentration",
+      "summary": "Governance concentration is currently pressured: Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
+      "factor_id": "governance_investability",
+      "severity": "medium",
+      "related_section_ids": [
+        "investment_snapshot",
+        "overall_recommendation",
+        "risk"
+      ]
+    },
+    {
       "category": "contradiction",
-      "summary": "Conflicting evidence persists on customer concentration: signals span negative, positive.",
-      "factor_id": "customer_concentration",
+      "summary": "Conflicting evidence persists on brand reputation consideration set: signals span mixed, positive.",
+      "factor_id": "brand_reputation_consideration_set",
       "severity": "medium",
       "related_section_ids": [
         "durability_resilience",
@@ -64,15 +92,12 @@
     },
     {
       "category": "contradiction",
-      "summary": "Conflicting evidence persists on demand cyclicality purchase deferrability: signals span mixed, negative.",
-      "factor_id": "demand_cyclicality_purchase_deferrability",
+      "summary": "Conflicting evidence persists on catalyst path: signals span negative, positive.",
+      "factor_id": "catalyst_path",
       "severity": "medium",
       "related_section_ids": [
-        "durability_resilience",
-        "growth",
-        "investment_snapshot",
-        "overall_recommendation",
-        "risk"
+        "expectations_variant_view",
+        "realization_path_catalysts"
       ]
     },
     {
@@ -111,29 +136,26 @@
     },
     {
       "category": "panel_change",
-      "summary": "demand_revenue_quality confidence moved from 0.45 to 0.54.",
+      "summary": "expectations_catalyst_realization recommendation moved from mixed to negative.",
       "factor_id": null,
-      "severity": "info",
+      "severity": "medium",
       "related_section_ids": [
-        "investment_snapshot",
-        "growth",
-        "durability_resilience",
-        "risk",
-        "overall_recommendation"
+        "expectations_variant_view",
+        "realization_path_catalysts"
       ]
     }
   ],
   "contradiction_references": [
     {
       "category": "contradiction",
-      "label": "customer concentration",
-      "rationale": "Conflicting evidence persists on customer concentration: signals span negative, positive.",
-      "factor_id": "customer_concentration",
+      "label": "brand reputation consideration set",
+      "rationale": "Conflicting evidence persists on brand reputation consideration set: signals span mixed, positive.",
+      "factor_id": "brand_reputation_consideration_set",
       "company_id": null,
       "company_name": null,
       "source_ref": {
-        "label": "Q1 2026 Update",
-        "url": "https://example.com/acme-q1",
+        "label": "Trade Press Roundup",
+        "url": "https://example.com/acme/news-roundup",
         "page": null,
         "excerpt": null
       },
@@ -141,14 +163,14 @@
     },
     {
       "category": "contradiction",
-      "label": "demand cyclicality purchase deferrability",
-      "rationale": "Conflicting evidence persists on demand cyclicality purchase deferrability: signals span mixed, negative.",
-      "factor_id": "demand_cyclicality_purchase_deferrability",
+      "label": "catalyst path",
+      "rationale": "Conflicting evidence persists on catalyst path: signals span negative, positive.",
+      "factor_id": "catalyst_path",
       "company_id": null,
       "company_name": null,
       "source_ref": {
-        "label": "Q1 2026 Update",
-        "url": "https://example.com/acme-q1",
+        "label": "Catalyst Update",
+        "url": "https://example.com/acme-catalyst-update",
         "page": null,
         "excerpt": null
       },
@@ -180,27 +202,22 @@
       "category": "governance_dependency",
       "label": "Governance concentration",
       "factor_id": "governance_investability",
-      "state": "stable",
-      "summary": "Governance concentration is currently stable: The board added an independent audit chair and refreshed compensation disclosures.",
-      "metrics": {
-        "independent_directors": 5
-      }
+      "state": "pressured",
+      "summary": "Governance concentration is currently pressured: Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
+      "metrics": {}
     }
   ],
   "panel_change_hints": [
     {
       "category": "panel_change",
-      "summary": "demand_revenue_quality confidence moved from 0.45 to 0.54.",
+      "summary": "expectations_catalyst_realization recommendation moved from mixed to negative.",
       "factor_id": null,
-      "severity": "info",
+      "severity": "medium",
       "related_section_ids": [
-        "investment_snapshot",
-        "growth",
-        "durability_resilience",
-        "risk",
-        "overall_recommendation"
+        "expectations_variant_view",
+        "realization_path_catalysts"
       ]
     }
   ],
-  "created_at": "2026-03-11T15:01:00Z"
+  "created_at": "2026-03-12T13:05:00Z"
 }

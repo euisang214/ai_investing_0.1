@@ -35,6 +35,13 @@ from ai_investing.settings import Settings  # noqa: E402
 OUTPUT_ROOT = ROOT / "examples" / "generated" / "ACME"
 INITIAL_INPUT = ROOT / "examples" / "acme_public"
 RERUN_INPUT = ROOT / "examples" / "acme_public_rerun"
+PUBLIC_EXPECTATIONS_CONNECTORS = (
+    "acme_market_packet",
+    "acme_regulatory_packet",
+    "acme_transcript_news_packet",
+    "acme_consensus_packet",
+    "acme_events_packet",
+)
 STAGES = ("initial", "continued", "rerun")
 
 
@@ -93,7 +100,13 @@ def build_context(workspace: Path) -> AppContext:
 
 
 def seed_acme(context: AppContext) -> None:
-    IngestionService(context).ingest_public_data(INITIAL_INPUT)
+    ingestion = IngestionService(context)
+    ingestion.ingest_public_data(INITIAL_INPUT)
+    for connector_id in PUBLIC_EXPECTATIONS_CONNECTORS:
+        ingestion.ingest_public_data(
+            ROOT / "examples" / "connectors" / connector_id,
+            connector_id=connector_id,
+        )
     CoverageService(context).add_coverage(
         CoverageEntry(
             company_id="ACME",
@@ -101,6 +114,7 @@ def seed_acme(context: AppContext) -> None:
             company_type=CompanyType.PUBLIC,
             coverage_status=CoverageStatus.WATCHLIST,
             cadence=Cadence.WEEKLY,
+            panel_policy="expectations_rollout",
         )
     )
 

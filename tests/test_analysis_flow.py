@@ -415,6 +415,32 @@ def test_expectations_rollout_runs_private_with_supported_results(
     assert "unsupported for this run" not in sections["overall_recommendation"]["content"]
 
 
+def test_expectations_rollout_rerun_updates_expectation_sections_and_delta(
+    seeded_acme,
+    repo_root: Path,
+) -> None:
+    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+
+    service = AnalysisService(seeded_acme)
+    initial = service.analyze_company("ACME")
+
+    IngestionService(seeded_acme).ingest_public_data(repo_root / "examples" / "acme_public_rerun")
+    rerun = service.refresh_company("ACME")
+    sections = _memo_section_map(rerun)
+    delta = rerun["delta"]
+
+    assert rerun["run"]["status"] == "complete"
+    assert rerun["panels"]["expectations_catalyst_realization"]["support"]["status"] == "supported"
+    assert sections["expectations_variant_view"]["status"] == "refreshed"
+    assert sections["realization_path_catalysts"]["status"] == "refreshed"
+    assert delta is not None
+    assert delta["prior_run_id"] == initial["run"]["run_id"]
+    assert "expectations_variant_view" in delta["changed_sections"]
+    assert "realization_path_catalysts" in delta["changed_sections"]
+    assert "portfolio_fit_positioning" not in delta["changed_sections"]
+
+
 def test_market_macro_regulatory_external_policy_rerun_preserves_prior_panel_sections(
     seeded_acme,
     repo_root: Path,
