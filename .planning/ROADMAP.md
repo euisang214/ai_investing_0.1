@@ -14,7 +14,7 @@ Milestone v2.0 takes the shipped dev-only runtime to production readiness. The p
 |---|-------|------|--------------|------------------|
 | 9 | Provider Activation And Observability | Wire real LLM providers with env-driven toggling, multi-provider extensibility, structured logging, and token tracking | PROV-02, PROV-03, PROV-05, OBS-01, OBS-02, OBS-03, COST-02 | 6 |
 | 10 | 1/1 | Complete    | 2026-03-15 | 4 |
-| 11 | Deployment Hardening | Production Docker build, health endpoints, dev/prod profiles, secure DB config | DEPLOY-01, DEPLOY-02, DEPLOY-03, DEPLOY-04 | 5 |
+| 11 | 0/1 | Planned    |  | 5 |
 | 12 | Cost Controls And CI/CD | Per-run token budgets, cost exposure in API/CLI, and GitHub Actions pipeline | COST-01, COST-03, CI-01, CI-02 | 4 |
 | 13 | Operator Documentation And Closeout | Production README, test/prod toggling guide, and milestone verification | PROV-04, DOC-01, DOC-02 | 3 |
 
