@@ -1,20 +1,22 @@
 from __future__ import annotations
 
 import importlib
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
 from ai_investing.config.loader import RegistryLoader
-from ai_investing.config.models import AgentConfig, PanelConfig, RegistryBundle
+from ai_investing.config.models import AgentConfig, PanelConfig, ProviderChainEntry, RegistryBundle
 from ai_investing.persistence.db import Database
 from ai_investing.prompts.loader import PromptLoader
-from ai_investing.providers.anthropic_provider import AnthropicModelProvider
 from ai_investing.providers.base import ModelProvider
 from ai_investing.providers.fake import FakeModelProvider
 from ai_investing.providers.openai_provider import OpenAIModelProvider
 from ai_investing.settings import Settings
 from ai_investing.tools.registry import ToolRegistryService
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -97,58 +99,148 @@ class AppContext:
         return self.memo_section_labels(label_profile).get(section_id, section_id)
 
     def get_provider(self, profile_name: str) -> ModelProvider:
+        """Resolve a model provider from the profile's provider chain.
+
+        Iterates the chain entries in order. For each entry:
+        - fake: returned if allow_fake_fallback is True, skipped otherwise
+        - real providers: returned if the required API key env var is set,
+          skipped otherwise.
+
+        If AI_INVESTING_PROVIDER is set to a specific provider (not 'auto'),
+        only that provider is considered from the chain.
+
+        Raises RuntimeError if no valid provider is found.
+        """
         profile = self.registries.model_profiles.model_profiles[profile_name]
-        provider_order = self._provider_order(profile_name)
-        explicit_selection = self.settings.provider != "auto"
-        for provider_name in provider_order:
-            if provider_name == "fake":
-                return FakeModelProvider()
-            env_key = profile.env_model_keys.get(provider_name)
-            if env_key is None:
-                if explicit_selection:
-                    raise RuntimeError(
-                        f"Provider {provider_name} is not configured for profile {profile_name}."
-                    )
+        chain = profile.provider_chain
+        explicit_provider = (
+            self.settings.provider
+            if self.settings.provider not in {"auto", ""}
+            else None
+        )
+
+        skip_reasons: list[str] = []
+
+        for entry in chain:
+            # If user explicitly selected a provider, skip non-matching entries.
+            if explicit_provider and entry.provider != explicit_provider:
                 continue
-            model_name = os.getenv(env_key)
-            if not model_name:
-                if explicit_selection:
-                    raise RuntimeError(
-                        f"Provider {provider_name} requires env var {env_key} "
-                        f"for profile {profile_name}."
-                    )
-                continue
-            if provider_name == "openai":
-                self._require_dependency(
-                    module_name="langchain_openai",
-                    install_hint="Install ai-investing[openai] to use the OpenAI provider.",
+
+            provider = self._resolve_chain_entry(
+                entry, profile.temperature, profile.max_tokens, skip_reasons
+            )
+            if provider is not None:
+                return provider
+
+        # All entries exhausted.
+        reasons = "; ".join(skip_reasons) if skip_reasons else "no entries in chain"
+        raise RuntimeError(
+            f"No valid provider found for profile '{profile_name}'. "
+            f"Tried: {reasons}"
+        )
+
+    def _resolve_chain_entry(
+        self,
+        entry: ProviderChainEntry,
+        temperature: float,
+        max_tokens: int,
+        skip_reasons: list[str],
+    ) -> ModelProvider | None:
+        """Try to instantiate a provider from a single chain entry.
+
+        Returns the provider if successful, None if the entry should be skipped.
+        Appends skip reasons to the list.
+        """
+        if entry.provider == "fake":
+            if not self.settings.allow_fake_fallback:
+                skip_reasons.append(
+                    "fake (blocked by AI_INVESTING_ALLOW_FAKE_FALLBACK=false)"
                 )
-                return OpenAIModelProvider(model_name, profile.temperature, profile.max_tokens)
-            if provider_name == "anthropic":
-                self._require_dependency(
-                    module_name="langchain_anthropic",
-                    install_hint="Install ai-investing[anthropic] to use the Anthropic provider.",
+                return None
+            return FakeModelProvider()
+
+        # Check API key.
+        api_key_env = entry.api_key_env
+        if api_key_env:
+            api_key = os.getenv(api_key_env, "")
+            if not api_key:
+                skip_reasons.append(
+                    f"{entry.provider} (missing env var {api_key_env})"
                 )
-                return AnthropicModelProvider(model_name, profile.temperature, profile.max_tokens)
-            if explicit_selection:
-                raise RuntimeError(f"Unsupported provider requested: {provider_name}")
-        return FakeModelProvider()
+                return None
+
+        model_name = entry.model
+        return self._instantiate_provider(
+            entry.provider, model_name, temperature, max_tokens
+        )
+
+    def _instantiate_provider(
+        self,
+        provider_name: str,
+        model_name: str,
+        temperature: float,
+        max_tokens: int,
+    ) -> ModelProvider:
+        """Create a provider instance by name."""
+        if provider_name == "openai":
+            self._require_dependency(
+                module_name="langchain_openai",
+                install_hint="Install ai-investing[openai] to use the OpenAI provider.",
+            )
+            return OpenAIModelProvider(model_name, temperature, max_tokens)
+
+        if provider_name == "anthropic":
+            self._require_dependency(
+                module_name="langchain_anthropic",
+                install_hint="Install ai-investing[anthropic] to use the Anthropic provider.",
+            )
+            from ai_investing.providers.anthropic_provider import AnthropicModelProvider
+
+            return AnthropicModelProvider(model_name, temperature, max_tokens)
+
+        if provider_name == "google":
+            self._require_dependency(
+                module_name="langchain_google_genai",
+                install_hint="Install ai-investing[google] to use the Google Gemini provider.",
+            )
+            from ai_investing.providers.gemini_provider import GeminiModelProvider
+
+            return GeminiModelProvider(model_name, temperature, max_tokens)
+
+        if provider_name == "groq":
+            self._require_dependency(
+                module_name="langchain_groq",
+                install_hint="Install ai-investing[groq] to use the Groq provider.",
+            )
+            from ai_investing.providers.groq_provider import GroqModelProvider
+
+            return GroqModelProvider(model_name, temperature, max_tokens)
+
+        if provider_name == "openai_compatible":
+            self._require_dependency(
+                module_name="langchain_openai",
+                install_hint=(
+                    "Install ai-investing[openai] to use the OpenAI-compatible provider."
+                ),
+            )
+            base_url = os.getenv("OPENAI_COMPATIBLE_BASE_URL", "")
+            if not base_url:
+                raise RuntimeError(
+                    "OPENAI_COMPATIBLE_BASE_URL must be set to use the openai_compatible provider."
+                )
+            from ai_investing.providers.openai_compatible_provider import (
+                OpenAICompatibleModelProvider,
+            )
+
+            return OpenAICompatibleModelProvider(
+                model_name, temperature, max_tokens, base_url
+            )
+
+        raise RuntimeError(f"Unsupported provider: {provider_name}")
 
     @property
     def agents_config_path(self) -> Path:
         return self.settings.config_dir / "agents.yaml"
-
-    def _provider_order(self, profile_name: str) -> list[str]:
-        profile = self.registries.model_profiles.model_profiles[profile_name]
-        if self.settings.provider == "auto":
-            primary = profile.primary_provider
-            return [
-                primary,
-                *[provider for provider in profile.provider_order if provider != primary],
-            ]
-        if self.settings.provider not in {"fake", "openai", "anthropic"}:
-            raise RuntimeError(f"Unsupported provider requested: {self.settings.provider}")
-        return [self.settings.provider]
 
     def _require_dependency(self, *, module_name: str, install_hint: str) -> None:
         try:

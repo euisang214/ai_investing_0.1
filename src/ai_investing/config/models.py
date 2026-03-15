@@ -203,21 +203,95 @@ class AgentsRegistry(ConfigModel):
     agents: list[AgentConfig]
 
 
+SUPPORTED_PROVIDER_NAMES = frozenset(
+    {"fake", "openai", "anthropic", "google", "groq", "openai_compatible"}
+)
+
+# Map of provider name to default API key env var name.
+_DEFAULT_API_KEY_ENVS: dict[str, str] = {
+    "openai": "OPENAI_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "google": "GOOGLE_API_KEY",
+    "groq": "GROQ_API_KEY",
+    "openai_compatible": "OPENAI_COMPATIBLE_API_KEY",
+}
+
+
+class ProviderChainEntry(ConfigModel):
+    """A single entry in a model profile's provider chain."""
+
+    provider: str
+    model: str
+    api_key_env: str | None = None
+
+    @model_validator(mode="after")
+    def validate_provider_name(self) -> ProviderChainEntry:
+        if self.provider not in SUPPORTED_PROVIDER_NAMES:
+            raise ValueError(
+                f"Unsupported provider '{self.provider}'. "
+                f"Supported: {', '.join(sorted(SUPPORTED_PROVIDER_NAMES))}"
+            )
+        if self.provider != "fake" and self.api_key_env is None:
+            self.api_key_env = _DEFAULT_API_KEY_ENVS.get(self.provider)
+        return self
+
+
 class ModelProfileConfig(ConfigModel):
-    primary_provider: str
-    provider_order: list[str]
-    env_model_keys: dict[str, str]
+    """Configuration for a model profile tier (e.g. quality, balanced, budget)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    # New provider chain config — preferred.
+    provider_chain: list[ProviderChainEntry] = Field(default_factory=list)
+
+    # Legacy fields — kept for backward compatibility.
+    primary_provider: str = ""
+    provider_order: list[str] = Field(default_factory=list)
+    env_model_keys: dict[str, str] = Field(default_factory=dict)
+
     temperature: float
     max_tokens: int
 
     @model_validator(mode="after")
-    def validate_provider_order(self) -> ModelProfileConfig:
-        if self.primary_provider not in self.provider_order:
+    def resolve_provider_chain(self) -> ModelProfileConfig:
+        if self.provider_chain:
+            # Provider chain is set — validate it.
+            providers = [entry.provider for entry in self.provider_chain]
+            if not providers:
+                raise ValueError("provider_chain must not be empty")
+            return self
+
+        # Auto-convert from legacy fields.
+        if not self.provider_order:
+            raise ValueError(
+                "Either provider_chain or legacy provider_order must be specified"
+            )
+        if self.primary_provider and self.primary_provider not in self.provider_order:
             raise ValueError("primary_provider must be included in provider_order")
         unknown_env_keys = set(self.env_model_keys) - set(self.provider_order)
         if unknown_env_keys:
             joined = ", ".join(sorted(unknown_env_keys))
-            raise ValueError(f"env_model_keys reference providers outside provider_order: {joined}")
+            raise ValueError(
+                f"env_model_keys reference providers outside provider_order: {joined}"
+            )
+
+        # Build provider_chain from legacy fields.
+        chain: list[ProviderChainEntry] = []
+        for provider_name in self.provider_order:
+            env_key = self.env_model_keys.get(provider_name)
+            if provider_name == "fake":
+                chain.append(
+                    ProviderChainEntry(provider="fake", model="deterministic")
+                )
+            elif env_key:
+                chain.append(
+                    ProviderChainEntry(
+                        provider=provider_name,
+                        model=f"${{{env_key}}}",
+                        api_key_env=_DEFAULT_API_KEY_ENVS.get(provider_name),
+                    )
+                )
+        self.provider_chain = chain
         return self
 
 

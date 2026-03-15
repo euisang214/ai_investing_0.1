@@ -630,7 +630,7 @@ def test_explicit_provider_selection_requires_runtime_dependencies(
     repo_root, tmp_path, monkeypatch
 ) -> None:
     config_dir = _copy_config(repo_root, tmp_path)
-    monkeypatch.setenv("OPENAI_MODEL_BALANCED", "gpt-4o-mini")
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     app_context = AppContext.load(_settings_for(repo_root, config_dir, provider="openai"))
 
     with pytest.raises(RuntimeError, match="Install ai-investing\\[openai\\]"):

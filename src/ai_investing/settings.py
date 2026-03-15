@@ -14,3 +14,5 @@ class Settings(BaseSettings):
     config_dir: Path = Path("config")
     prompts_dir: Path = Path("prompts")
     provider: str = Field(default="fake")
+    allow_fake_fallback: bool = True
+    log_level: str = "INFO"

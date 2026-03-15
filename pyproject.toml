@@ -36,6 +36,12 @@ anthropic = [
 openai = [
   "langchain-openai>=0.3,<0.4"
 ]
+google = [
+  "langchain-google-genai>=2.0,<3.0"
+]
+groq = [
+  "langchain-groq>=0.2,<0.3"
+]
 dev = [
   "mypy>=1.17,<2.0",
   "pytest>=8.4,<9.0",

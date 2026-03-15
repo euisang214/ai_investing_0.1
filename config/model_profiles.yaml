@@ -1,26 +1,34 @@
 model_profiles:
   balanced:
-    primary_provider: fake
-    provider_order: [fake, openai, anthropic]
-    env_model_keys:
-      openai: OPENAI_MODEL_BALANCED
-      anthropic: ANTHROPIC_MODEL_BALANCED
+    provider_chain:
+      - provider: openai
+        model: gpt-4o-mini
+        api_key_env: OPENAI_API_KEY
+      - provider: anthropic
+        model: claude-sonnet-4-20250514
+        api_key_env: ANTHROPIC_API_KEY
+      - provider: fake
+        model: deterministic
     temperature: 0.1
     max_tokens: 1800
   quality:
-    primary_provider: fake
-    provider_order: [fake, anthropic, openai]
-    env_model_keys:
-      openai: OPENAI_MODEL_QUALITY
-      anthropic: ANTHROPIC_MODEL_QUALITY
+    provider_chain:
+      - provider: anthropic
+        model: claude-opus-4-20250514
+        api_key_env: ANTHROPIC_API_KEY
+      - provider: openai
+        model: gpt-4o
+        api_key_env: OPENAI_API_KEY
+      - provider: fake
+        model: deterministic
     temperature: 0.1
     max_tokens: 2400
   budget:
-    primary_provider: fake
-    provider_order: [fake, openai, anthropic]
-    env_model_keys:
-      openai: OPENAI_MODEL_BUDGET
-      anthropic: ANTHROPIC_MODEL_BUDGET
+    provider_chain:
+      - provider: openai
+        model: gpt-4o-mini
+        api_key_env: OPENAI_API_KEY
+      - provider: fake
+        model: deterministic
     temperature: 0.0
     max_tokens: 1200
-
