@@ -63,11 +63,18 @@ class ApiKeyMiddleware(BaseHTTPMiddleware):
         # If no keys are configured, auth is effectively disabled
         self._active = auth_enabled and bool(self._api_keys)
 
+    _EXEMPT_PATHS = frozenset({"/health", "/ready"})
+
     async def dispatch(
         self,
         request: Request,
         call_next: RequestResponseEndpoint,
     ) -> Any:
+        # Infrastructure probes skip auth entirely
+        if request.url.path in self._EXEMPT_PATHS:
+            request.state.role = "operator"
+            return await call_next(request)
+
         if not self._active:
             request.state.role = "operator"
             return await call_next(request)

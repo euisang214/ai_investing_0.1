@@ -31,6 +31,7 @@ class AppContext:
     @classmethod
     def load(cls, settings: Settings | None = None) -> AppContext:
         resolved_settings = settings or Settings()
+        _validate_production_settings(resolved_settings)
         configure_logging(resolved_settings.log_level)
         registries = RegistryLoader(
             resolved_settings.config_dir,
@@ -257,3 +258,15 @@ class AppContext:
             importlib.import_module(module_name)
         except ImportError as exc:
             raise RuntimeError(install_hint) from exc
+
+
+def _validate_production_settings(settings: Settings) -> None:
+    """Raise SystemExit if production config uses insecure defaults."""
+    if not settings.auth_enabled:
+        return  # dev mode, skip validation
+    if "postgres:postgres@" in settings.database_url:
+        raise SystemExit(
+            "FATAL: Default database credentials detected in production mode. "
+            "Set AI_INVESTING_DATABASE_URL with secure credentials, "
+            "or set AI_INVESTING_AUTH_ENABLED=false for development."
+        )

@@ -234,6 +234,30 @@ def create_app(context: AppContext | None = None) -> FastAPI:
             status_code=status.HTTP_403_FORBIDDEN,
         )
 
+    # --- Health/Readiness probes (no auth required) ---
+
+    @app.get("/health")
+    def health() -> JSONResponse:
+        return JSONResponse(content={"status": "ok"})
+
+    @app.get("/ready")
+    def ready(request: Request) -> JSONResponse:
+        db = _context(request).database
+        if db.ping():
+            return JSONResponse(
+                content={
+                    "status": "ready",
+                    "checks": {"database": "ok"},
+                }
+            )
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "status": "not_ready",
+                "checks": {"database": "unreachable"},
+            },
+        )
+
     @app.post("/coverage", status_code=status.HTTP_201_CREATED)
     def create_coverage(
         payload: CoverageCreateRequest,

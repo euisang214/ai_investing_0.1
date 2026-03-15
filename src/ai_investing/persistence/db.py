@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -44,6 +44,15 @@ class Database:
             raise
         finally:
             session.close()
+
+    def ping(self) -> bool:
+        """Return True if the database is reachable."""
+        try:
+            with self.engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return True
+        except Exception:
+            return False
 
     def _should_use_migrations(self) -> bool:
         if self.url == "sqlite+pysqlite:///:memory:":

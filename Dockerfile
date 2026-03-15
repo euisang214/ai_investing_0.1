@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+# ── Stage 1: base ──────────────────────────────────────────────
+FROM python:3.11-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -9,6 +10,23 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir uv
+
+# ── Stage 2: prod ─────────────────────────────────────────────
+FROM base AS prod
+
+COPY pyproject.toml README.md /app/
+COPY alembic.ini /app/
+COPY alembic /app/alembic
+COPY src /app/src
+COPY config /app/config
+COPY prompts /app/prompts
+
+RUN uv pip install --system .
+
+CMD ["uvicorn", "ai_investing.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# ── Stage 3: dev ──────────────────────────────────────────────
+FROM base AS dev
 
 COPY pyproject.toml README.md /app/
 COPY alembic.ini /app/
