@@ -1647,6 +1647,13 @@ class AnalysisService:
                 run = repository.get_run(job.run_id)
                 if run is not None:
                     return self._build_persisted_result(repository, run)
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            repository.start_refresh_job(
+                job_id,
+                run_id=f"pending:{job_id}",
+                worker_id=worker_id,
+            )
         return self.refresh_company(
             job.company_id,
             job_id=job_id,

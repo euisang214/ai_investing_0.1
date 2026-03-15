@@ -786,3 +786,33 @@ def test_cli_enqueue_worker_failed_gatekeeper_lists_review_queue(
     assert NotificationCategory.GATEKEEPER_FAILED.value in {
         item["category"] for item in json.loads(notifications.stdout)
     }
+
+
+def test_cli_fail_notification_command(seeded_acme, monkeypatch) -> None:
+    monkeypatch.setattr("ai_investing.cli.AppContext.load", lambda: seeded_acme)
+
+    enqueued = runner.invoke(app, ["enqueue-companies", "ACME"])
+    assert enqueued.exit_code == 0
+
+    worked = runner.invoke(
+        app,
+        ["run-worker", "--limit", "1", "--worker-id", "worker_fail_cli", "--max-concurrency", "1"],
+    )
+    assert worked.exit_code == 0
+
+    claimed = runner.invoke(app, ["claim-notifications", "--consumer-id", "n8n", "--limit", "1"])
+    assert claimed.exit_code == 0
+    event_id = json.loads(claimed.stdout)[0]["event_id"]
+
+    dispatched = runner.invoke(app, ["dispatch-notification", event_id])
+    assert dispatched.exit_code == 0
+
+    failed = runner.invoke(
+        app,
+        ["fail-notification", event_id, "--error", "SMTP connection refused"],
+    )
+    assert failed.exit_code == 0
+    payload = json.loads(failed.stdout)
+    assert payload["status"] == "failed"
+    assert payload["last_error"] == "SMTP connection refused"
+

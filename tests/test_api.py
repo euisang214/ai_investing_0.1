@@ -471,6 +471,7 @@ def test_api_exposes_queue_worker_and_notification_routes(context) -> None:
     assert "/notifications/claim" in route_paths
     assert "/notifications/{event_id}/dispatch" in route_paths
     assert "/notifications/{event_id}/acknowledge" in route_paths
+    assert "/notifications/{event_id}/fail" in route_paths
 
 
 def test_api_returns_stable_not_found_error_shape(context) -> None:
@@ -930,3 +931,37 @@ def test_api_continue_run_accepts_provisional_action(context, monkeypatch) -> No
         "action": RunContinueAction.CONTINUE_PROVISIONAL,
     }
     assert response.json()["data"]["run"]["provisional"] is True
+
+
+def test_api_notification_failure_reporting(seeded_acme) -> None:
+    with TestClient(create_app(seeded_acme)) as client:
+        enqueued = client.post(
+            "/queue/enqueue-selected",
+            json={"company_ids": ["ACME"], "requested_by": "operator"},
+        )
+        assert enqueued.status_code == 200
+
+        worked = client.post(
+            "/workers/run",
+            json={"limit": 1, "worker_id": "worker_fail_test", "max_concurrency": 1},
+        )
+        assert worked.status_code == 200
+
+        claimed = client.post(
+            "/notifications/claim",
+            json={"limit": 1, "consumer_id": "n8n"},
+        )
+        assert claimed.status_code == 200
+        event_id = claimed.json()["data"][0]["event_id"]
+
+        dispatched = client.post(f"/notifications/{event_id}/dispatch")
+        assert dispatched.status_code == 200
+
+        failed = client.post(
+            f"/notifications/{event_id}/fail",
+            json={"error_message": "SMTP connection refused"},
+        )
+        assert failed.status_code == 200
+        assert failed.json()["data"]["status"] == "failed"
+        assert failed.json()["data"]["last_error"] == "SMTP connection refused"
+

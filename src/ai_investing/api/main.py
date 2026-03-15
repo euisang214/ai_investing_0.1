@@ -124,6 +124,12 @@ class ContinueRunRequest(BaseModel):
     action: RunContinueAction = RunContinueAction.CONTINUE
 
 
+class NotificationFailRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    error_message: str = "delivery failed"
+
+
 class RunResultResponseData(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -370,6 +376,18 @@ def create_app(context: AppContext | None = None) -> FastAPI:
     @app.post("/notifications/{event_id}/acknowledge")
     def acknowledge_notification(event_id: str, request: Request) -> JSONResponse:
         event = NotificationService(_context(request)).acknowledge(event_id)
+        return _success_response(event.model_dump(mode="json"))
+
+    @app.post("/notifications/{event_id}/fail")
+    def fail_notification(
+        event_id: str,
+        payload: NotificationFailRequest,
+        request: Request,
+    ) -> JSONResponse:
+        event = NotificationService(_context(request)).mark_failed(
+            event_id,
+            error_message=payload.error_message,
+        )
         return _success_response(event.model_dump(mode="json"))
 
     @app.post("/companies/{company_id}/ingest-public")

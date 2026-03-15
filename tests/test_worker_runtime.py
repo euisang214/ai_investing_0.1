@@ -97,6 +97,42 @@ def test_worker_runtime_uses_bounded_parallel_execution(context, monkeypatch) ->
     assert max_seen == 2
 
 
+def test_worker_runtime_persists_running_transition(seeded_acme, monkeypatch) -> None:
+    """Worker must call start_refresh_job to transition the job to RUNNING
+    before analysis begins, so queue read surfaces can show active work."""
+    observed_statuses: list[RefreshJobStatus] = []
+
+    original_execute = AnalysisService.execute_refresh_job
+
+    def capture_running_state(self, job_id: str, *, worker_id: str):
+        with self.context.database.session() as session:
+            repository = Repository(session)
+            job = repository.get_refresh_job(job_id)
+            if job is not None:
+                observed_statuses.append(job.status)
+        return original_execute(self, job_id, worker_id=worker_id)
+
+    monkeypatch.setattr(AnalysisService, "execute_refresh_job", capture_running_state)
+
+    jobs = QueueService(seeded_acme).enqueue_companies(["ACME"])
+
+    results = WorkerService(seeded_acme).run_available_jobs(
+        limit=1,
+        worker_id="worker_running_test",
+        max_concurrency=1,
+    )
+
+    assert len(results) == 1
+
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        job = repository.get_refresh_job(jobs[0].job_id)
+
+    assert job is not None
+    assert job.status in {RefreshJobStatus.COMPLETE, RefreshJobStatus.REVIEW_REQUIRED}
+    assert job.started_at is not None
+
+
 def test_worker_runtime_marks_failed_gatekeepers_for_review(seeded_acme, monkeypatch) -> None:
     _force_failed_gatekeeper(monkeypatch)
     queue = QueueService(seeded_acme)

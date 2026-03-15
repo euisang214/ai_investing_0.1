@@ -437,6 +437,18 @@ def acknowledge_notification(event_id: str) -> None:
     _emit_json(NotificationService(_context()).acknowledge(event_id).model_dump(mode="json"))
 
 
+@app.command("fail-notification")
+def fail_notification(
+    event_id: str,
+    error: Annotated[str, typer.Option("--error")] = "delivery failed",
+) -> None:
+    _emit_json(
+        NotificationService(_context())
+        .mark_failed(event_id, error_message=error)
+        .model_dump(mode="json")
+    )
+
+
 @app.command("generate-memo")
 def generate_memo(company_id: str) -> None:
     memo = AnalysisService(_context()).generate_memo(company_id)
