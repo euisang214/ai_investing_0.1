@@ -14,22 +14,27 @@ Produce a continuously updatable, auditable investment view where factor-level c
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Config-driven multi-agent orchestration with all 11 top-level panels productionized.
+- [x] Typed persistence for evidence, claims, verdicts, memo snapshots, memo section updates, and monitoring deltas.
+- [x] End-to-end vertical slice plus full panel surface with weekly refresh and delta generation.
+- [x] CLI and FastAPI interfaces for ingestion, coverage, analysis, memo, deltas, queue, review, and notifications.
+- [x] Sample data, generated artifacts, and comprehensive test suite.
 
 ### Active
 
-- [ ] Build a Python-first service with config-driven orchestration, typed schemas, and editable prompt files.
-- [ ] Persist factor-level evidence, claims, verdicts, memo snapshots, memo section updates, and monitoring deltas without destructive overwrites.
-- [ ] Deliver one end-to-end vertical slice for `gatekeepers` and `demand_revenue_quality`, including weekly refresh and delta generation.
-- [ ] Expose both CLI and FastAPI interfaces for ingestion, coverage management, company analysis, memo retrieval, and agent toggles.
-- [ ] Provide sample data, sample memo artifacts, tests, and local development tooling so another engineer can run the system without hidden context.
+- [ ] Switch from fake providers to real LLM providers (OpenAI, Anthropic) with proper secrets management and test/prod toggling.
+- [ ] Add API authentication, CORS, HTTPS readiness, and role-based access control.
+- [ ] Harden deployment: production Docker image, health checks, CI/CD pipeline, environment separation.
+- [ ] Add structured logging, metrics, error tracking, and LLM call tracing.
+- [ ] Add token usage tracking, cost estimation, rate limit handling, and per-run budget controls.
+- [ ] Document all manual operator steps (API key creation, secrets setup) in README with clear instructions.
 
 ### Out of Scope
 
-- Frontend application — v1 is API/CLI only so architecture and orchestration can stabilize first.
-- Premium live data vendor integrations — phase 1 uses file-based and stub connectors to keep ingestion extensible without vendor lock-in.
-- Compliance, entitlement, and restricted-information workflows — explicitly excluded from v1 to keep scope focused on research architecture.
-- Fully implemented reasoning flows for every panel — only the initial vertical slice is productionized now; remaining panels are scaffolded for extension.
+- Frontend application — v2 remains API/CLI only.
+- Premium live data vendor integrations (Bloomberg, FactSet) — stub connectors stay in place; free-tier connectors may be explored separately.
+- Compliance, entitlement, and restricted-information workflows — still excluded.
+- Kubernetes or cloud-managed container orchestration — v2 targets reliable single-host Docker deployment with CI/CD readiness.
 
 ## Context
 
@@ -58,5 +63,18 @@ The project-wide gatekeeper policy is now: every run enters `gatekeepers` first;
 | Keep public and private ingestion modules separate behind a shared spine | The evidence sources differ materially even when downstream memory contracts are shared | — Pending |
 | Auto-continue passed or review gatekeepers, queue and notify failed gatekeepers | The universal pause rule is no longer desired; operators should review only failures by default while keeping provisional analysis explicit | — Pending |
 
+## Current Milestone: v2.0 Productionization
+
+**Goal:** Take the dev-only research runtime to a production-deployable state with real LLM providers, security, observability, cost controls, and documented operator workflows.
+
+**Target features:**
+- Real LLM provider integration with env-driven test/prod toggle
+- API authentication and authorization (API keys or JWT)
+- Production Docker hardening (multi-stage build, health checks, no dev deps)
+- Structured logging, metrics, and error tracking
+- Token usage tracking, cost estimation, and rate limit resilience
+- CI/CD pipeline configuration
+- Operator documentation for all manual setup steps
+
 ---
-*Last updated: 2026-03-08 after initialization*
+*Last updated: 2026-03-15 after v2.0 milestone start*
