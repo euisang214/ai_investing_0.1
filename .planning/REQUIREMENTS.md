@@ -72,7 +72,8 @@
 
 - [ ] **PROV-02**: Operator can toggle between `fake`, `openai`, and `anthropic` providers via a single environment variable, with model names configurable per profile tier (balanced, quality, budget).
 - [ ] **PROV-03**: API keys and model names are loaded from environment variables with clear validation errors when missing in non-fake mode.
-- [ ] **PROV-04**: README documents the exact steps to create OpenAI and Anthropic API keys and configure them for test versus production use.
+- [ ] **PROV-04**: README documents the exact steps to create API keys for each supported provider and configure them for test versus production use.
+- [ ] **PROV-05**: The provider layer supports additional LLM backends (Google Gemini, Groq, and any OpenAI-compatible endpoint) through a pluggable adapter pattern with optional dependency installs.
 
 ### API Security
 
@@ -157,6 +158,7 @@
 | PROV-02 | Phase 9 | Pending |
 | PROV-03 | Phase 9 | Pending |
 | PROV-04 | Phase 13 | Pending |
+| PROV-05 | Phase 9 | Pending |
 | SEC-01 | Phase 10 | Pending |
 | SEC-02 | Phase 10 | Pending |
 | SEC-03 | Phase 10 | Pending |
@@ -177,7 +179,7 @@
 
 **Coverage:**
 - v1.0 requirements: 26 total, all complete
-- v2.0 requirements: 20 total, all mapped to phases
+- v2.0 requirements: 21 total, all mapped to phases
 - Unmapped: 0
 
 ---

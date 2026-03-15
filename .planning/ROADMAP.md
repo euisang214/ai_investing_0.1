@@ -12,7 +12,7 @@ Milestone v2.0 takes the shipped dev-only runtime to production readiness. The p
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 9 | Provider Activation And Observability | Wire real LLM providers with env-driven toggling, structured logging, and token tracking | PROV-02, PROV-03, OBS-01, OBS-02, OBS-03, COST-02 | 5 |
+| 9 | Provider Activation And Observability | Wire real LLM providers with env-driven toggling, multi-provider extensibility, structured logging, and token tracking | PROV-02, PROV-03, PROV-05, OBS-01, OBS-02, OBS-03, COST-02 | 6 |
 | 10 | API Security | Add API key authentication, CORS, and role-based endpoint protection | SEC-01, SEC-02, SEC-03 | 4 |
 | 11 | Deployment Hardening | Production Docker build, health endpoints, dev/prod profiles, secure DB config | DEPLOY-01, DEPLOY-02, DEPLOY-03, DEPLOY-04 | 5 |
 | 12 | Cost Controls And CI/CD | Per-run token budgets, cost exposure in API/CLI, and GitHub Actions pipeline | COST-01, COST-03, CI-01, CI-02 | 4 |
@@ -25,15 +25,16 @@ Milestone v2.0 takes the shipped dev-only runtime to production readiness. The p
 **Goal:** Make the runtime capable of using real LLMs with proper error handling and visibility into what it's doing.
 **Status:** Not started
 
-**Requirements:** `PROV-02`, `PROV-03`, `OBS-01`, `OBS-02`, `OBS-03`, `COST-02`
+**Requirements:** `PROV-02`, `PROV-03`, `PROV-05`, `OBS-01`, `OBS-02`, `OBS-03`, `COST-02`
 
 **Success criteria:**
 1. Setting `AI_INVESTING_PROVIDER=openai` with valid `OPENAI_API_KEY` and model env vars produces real LLM-backed analysis output.
 2. Setting `AI_INVESTING_PROVIDER=fake` (or omitting the var) still works identically to v1.0 with no API keys needed.
 3. Missing API keys or model names for a non-fake provider produce a clear startup validation error, not a runtime crash.
-4. All log output uses structured JSON format with `run_id`, `company_id`, and `panel_id` fields where applicable.
-5. Each LLM invocation logs input/output token counts and persists per-run totals in run metadata.
-6. LLM calls retry with exponential backoff on 429 and transient 5xx errors.
+4. Google Gemini and Groq providers are available via optional dependency installs (`ai-investing[google]`, `ai-investing[groq]`), and any OpenAI-compatible endpoint works via `AI_INVESTING_PROVIDER=openai_compatible` with a custom base URL.
+5. All log output uses structured JSON format with `run_id`, `company_id`, and `panel_id` fields where applicable.
+6. Each LLM invocation logs input/output token counts and persists per-run totals in run metadata.
+7. LLM calls retry with exponential backoff on 429 and transient 5xx errors.
 
 ### Phase 10: API Security
 
