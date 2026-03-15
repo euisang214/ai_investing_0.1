@@ -154,31 +154,31 @@
 | V2-03 | Phase 5 (v1.0) | Complete |
 | V2-04 | Phase 4 (v1.0) | Complete |
 | V2-05 | Phase 5+8 (v1.0) | Complete |
-| PROV-02 | — | Pending |
-| PROV-03 | — | Pending |
-| PROV-04 | — | Pending |
-| SEC-01 | — | Pending |
-| SEC-02 | — | Pending |
-| SEC-03 | — | Pending |
-| DEPLOY-01 | — | Pending |
-| DEPLOY-02 | — | Pending |
-| DEPLOY-03 | — | Pending |
-| DEPLOY-04 | — | Pending |
-| OBS-01 | — | Pending |
-| OBS-02 | — | Pending |
-| OBS-03 | — | Pending |
-| COST-01 | — | Pending |
-| COST-02 | — | Pending |
-| COST-03 | — | Pending |
-| CI-01 | — | Pending |
-| CI-02 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
+| PROV-02 | Phase 9 | Pending |
+| PROV-03 | Phase 9 | Pending |
+| PROV-04 | Phase 13 | Pending |
+| SEC-01 | Phase 10 | Pending |
+| SEC-02 | Phase 10 | Pending |
+| SEC-03 | Phase 10 | Pending |
+| DEPLOY-01 | Phase 11 | Pending |
+| DEPLOY-02 | Phase 11 | Pending |
+| DEPLOY-03 | Phase 11 | Pending |
+| DEPLOY-04 | Phase 11 | Pending |
+| OBS-01 | Phase 9 | Pending |
+| OBS-02 | Phase 9 | Pending |
+| OBS-03 | Phase 9 | Pending |
+| COST-01 | Phase 12 | Pending |
+| COST-02 | Phase 9 | Pending |
+| COST-03 | Phase 12 | Pending |
+| CI-01 | Phase 12 | Pending |
+| CI-02 | Phase 12 | Pending |
+| DOC-01 | Phase 13 | Pending |
+| DOC-02 | Phase 13 | Pending |
 
 **Coverage:**
 - v1.0 requirements: 26 total, all complete
-- v2.0 requirements: 20 total
-- Unmapped: 20 (roadmap pending)
+- v2.0 requirements: 20 total, all mapped to phases
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-08*
