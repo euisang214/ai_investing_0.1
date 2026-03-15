@@ -486,6 +486,21 @@ class NotificationEvent(DomainModel):
             raise ValueError("delivery_attempts must be non-negative")
         return self
 
+class TokenUsageRecord(DomainModel):
+    """Tracks token usage for a single LLM call."""
+
+    usage_id: str = Field(default_factory=lambda: new_id("tok"))
+    run_id: str
+    panel_id: str
+    agent_id: str
+    factor_id: str | None = None
+    provider: str
+    model: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+    estimated_cost_usd: float = 0.0
+    created_at: datetime = Field(default_factory=lambda: utc_now())
+
 
 class StructuredGenerationRequest(DomainModel):
     task_type: str

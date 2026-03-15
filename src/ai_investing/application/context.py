@@ -8,6 +8,7 @@ from pathlib import Path
 
 from ai_investing.config.loader import RegistryLoader
 from ai_investing.config.models import AgentConfig, PanelConfig, ProviderChainEntry, RegistryBundle
+from ai_investing.logging import configure_logging
 from ai_investing.persistence.db import Database
 from ai_investing.prompts.loader import PromptLoader
 from ai_investing.providers.base import ModelProvider
@@ -30,6 +31,7 @@ class AppContext:
     @classmethod
     def load(cls, settings: Settings | None = None) -> AppContext:
         resolved_settings = settings or Settings()
+        configure_logging(resolved_settings.log_level)
         registries = RegistryLoader(
             resolved_settings.config_dir,
             prompts_dir=resolved_settings.prompts_dir,
@@ -170,8 +172,16 @@ class AppContext:
                 return None
 
         model_name = entry.model
-        return self._instantiate_provider(
+        inner = self._instantiate_provider(
             entry.provider, model_name, temperature, max_tokens
+        )
+        # Wrap in ResilientProvider for retry logic.
+        from ai_investing.providers.resilient import ResilientProvider
+
+        return ResilientProvider(
+            inner,
+            provider_name=entry.provider,
+            model_name=model_name,
         )
 
     def _instantiate_provider(

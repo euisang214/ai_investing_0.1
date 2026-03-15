@@ -29,6 +29,7 @@ from ai_investing.domain.models import (
     RefreshJobRecord,
     ReviewQueueEntry,
     RunRecord,
+    TokenUsageRecord,
     ToolInvocationLog,
     new_id,
     utc_now,
@@ -54,6 +55,7 @@ from ai_investing.persistence.tables import (
     RefreshJobRow,
     ReviewQueueEntryRow,
     RunRecordRow,
+    TokenUsageRow,
     ToolInvocationLogRow,
 )
 
@@ -1130,6 +1132,49 @@ class Repository:
             .order_by(ToolInvocationLogRow.created_at.asc())
         ).all()
         return [ToolInvocationLog.model_validate(row.payload) for row in rows]
+
+    def save_token_usage(self, record: TokenUsageRecord) -> TokenUsageRecord:
+        row = TokenUsageRow(
+            usage_id=record.usage_id,
+            run_id=record.run_id,
+            panel_id=record.panel_id,
+            agent_id=record.agent_id,
+            factor_id=record.factor_id,
+            provider=record.provider,
+            model=record.model,
+            input_tokens=record.input_tokens,
+            output_tokens=record.output_tokens,
+            estimated_cost_usd=record.estimated_cost_usd,
+            created_at=record.created_at,
+        )
+        self.session.add(row)
+        return record
+
+    def list_token_usage(
+        self, run_id: str, *, panel_id: str | None = None
+    ) -> list[TokenUsageRecord]:
+        stmt = select(TokenUsageRow).where(TokenUsageRow.run_id == run_id)
+        if panel_id is not None:
+            stmt = stmt.where(TokenUsageRow.panel_id == panel_id)
+        rows = self.session.scalars(
+            stmt.order_by(TokenUsageRow.created_at.asc())
+        ).all()
+        return [
+            TokenUsageRecord(
+                usage_id=row.usage_id,
+                run_id=row.run_id,
+                panel_id=row.panel_id,
+                agent_id=row.agent_id,
+                factor_id=row.factor_id,
+                provider=row.provider,
+                model=row.model,
+                input_tokens=row.input_tokens,
+                output_tokens=row.output_tokens,
+                estimated_cost_usd=row.estimated_cost_usd,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
 
 
 def _deserialize_panel_verdict(payload: dict) -> PanelVerdict:
