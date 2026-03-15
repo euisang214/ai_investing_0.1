@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: resolved
 phase: 06-productionize-remaining-panels
 source:
   - .planning/phases/06-productionize-remaining-panels/06-01-SUMMARY.md
@@ -9,7 +9,7 @@ source:
   - .planning/phases/06-productionize-remaining-panels/06-05-SUMMARY.md
   - .planning/phases/06-productionize-remaining-panels/06-06-SUMMARY.md
 started: 2026-03-14T13:20:17Z
-updated: 2026-03-15T13:12:40Z
+updated: 2026-03-15T14:16:16Z
 ---
 
 ## Current Test
@@ -36,9 +36,8 @@ result: pass
 
 ### 5. Expectations and Catalyst Rollout
 expected: In a policy that includes the expectations wave, the run should populate `expectations_variant_view` and `realization_path_catalysts` from supported evidence. A rerun with changed expectation inputs should surface those changes in `what_changed_since_last_run` and the monitoring delta instead of silently burying them.
-result: issue
-reported: "The `expectations_rollout` policy included `expectations_catalyst_realization`, but both analyze and refresh left it unsupported for ACME due to missing evidence families (`consensus_views`, `market_data`, `milestone_tracking`), so `expectations_variant_view` and `realization_path_catalysts` stayed stale instead of being populated."
-severity: major
+result: pass
+note: "Resolved by Plan 06-07. Default ACME baseline now provides consensus, market, and events evidence families. All 9 expectations-related tests pass on the default analyze/refresh path without bespoke connector preload."
 
 ### 6. Overlay Recommendation Scope
 expected: In a `full_surface` style run, security or deal overlay and portfolio-fit positioning should execute when supported and skip explicitly when not. The final recommendation wording should clearly distinguish overlay-complete output from company-quality-only output, and any portfolio-fit context used should remain bounded rather than leaking broad portfolio data.
@@ -51,15 +50,15 @@ result: pass
 ## Summary
 
 total: 7
-passed: 6
-issues: 1
+passed: 7
+issues: 0
 pending: 0
 skipped: 0
 
 ## Gaps
 
 - truth: "In a policy that includes the expectations wave, the run should populate `expectations_variant_view` and `realization_path_catalysts` from supported evidence, and a rerun with changed expectation inputs should surface those changes in `what_changed_since_last_run` and the monitoring delta."
-  status: failed
+  status: resolved
   reason: "User reported: The `expectations_rollout` policy included `expectations_catalyst_realization`, but both analyze and refresh left it unsupported for ACME due to missing evidence families (`consensus_views`, `market_data`, `milestone_tracking`), so `expectations_variant_view` and `realization_path_catalysts` stayed stale instead of being populated."
   severity: major
   test: 5

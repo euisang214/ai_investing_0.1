@@ -82,6 +82,17 @@ Verified.
 - Added checked generated examples for explicit overlay-gap behavior.
 - Closed the parent requirement evidence chain with this phase verification artifact.
 
+### 06-07: gap closure — default ACME expectations contract
+
+Verified.
+
+- Folded `consensus`, `market`, and `events` evidence families into `examples/acme_public/manifest.json` (4 new documents).
+- Added `evidence_family` metadata to `examples/acme_public_rerun/manifest.json`.
+- Removed bespoke connector dependencies from 8 test functions across `test_analysis_flow.py`, `test_run_lifecycle.py`, and `test_monitoring_semantics.py`.
+- Simplified `scripts/generate_phase2_examples.py` by removing the `PUBLIC_EXPECTATIONS_CONNECTORS` loop.
+- All 9 expectations-related tests pass on the default ACME path without supplemental connector ingestion.
+- UAT Test 5 gap resolved: `expectations_rollout` now natively satisfies `expectations_catalyst_realization` with the default fixture contract.
+
 ## Implemented Panel Surface
 
 The final Phase 6 surface is:
