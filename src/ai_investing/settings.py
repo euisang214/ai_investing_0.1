@@ -16,3 +16,6 @@ class Settings(BaseSettings):
     provider: str = Field(default="fake")
     allow_fake_fallback: bool = True
     log_level: str = "INFO"
+    auth_enabled: bool = True
+    api_keys: str = ""
+    domain: str = ""

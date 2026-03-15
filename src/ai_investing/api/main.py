@@ -8,9 +8,16 @@ from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
+from ai_investing.api.security import (
+    ApiKeyMiddleware,
+    RoleDeniedError,
+    parse_api_keys,
+    require_role,
+)
 from ai_investing.application.context import AppContext
 from ai_investing.application.notifications import NotificationService
 from ai_investing.application.portfolio import PortfolioReadService, resolve_summary_segments
@@ -35,6 +42,8 @@ from ai_investing.domain.read_models import (
     PortfolioMonitoringSummary,
 )
 from ai_investing.persistence.repositories import Repository
+
+_operator = require_role("operator")
 
 _OVERLAY_PANEL_LABELS = {
     "security_or_deal_overlay": "security or deal overlay",
@@ -174,6 +183,25 @@ def create_app(context: AppContext | None = None) -> FastAPI:
 
     app = FastAPI(title="AI Investing", lifespan=lifespan)
 
+    # --- Security middleware ---
+    from ai_investing.settings import Settings
+
+    settings = context.settings if context is not None else Settings()
+    app.add_middleware(
+        ApiKeyMiddleware,
+        auth_enabled=settings.auth_enabled,
+        api_keys=parse_api_keys(settings.api_keys),
+    )
+    if settings.domain.strip():
+        origins = [o.strip() for o in settings.domain.split(",") if o.strip()]
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            allow_headers=["X-API-Key", "Content-Type"],
+            allow_credentials=False,
+        )
+
     @app.exception_handler(KeyError)
     async def handle_not_found(_: Request, exc: KeyError) -> JSONResponse:
         return _error_response(
@@ -198,8 +226,20 @@ def create_app(context: AppContext | None = None) -> FastAPI:
             status_code=status.HTTP_404_NOT_FOUND,
         )
 
+    @app.exception_handler(RoleDeniedError)
+    async def handle_role_denied(_: Request, exc: RoleDeniedError) -> JSONResponse:
+        return _error_response(
+            code="forbidden",
+            message=str(exc),
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
     @app.post("/coverage", status_code=status.HTTP_201_CREATED)
-    def create_coverage(payload: CoverageCreateRequest, request: Request) -> JSONResponse:
+    def create_coverage(
+        payload: CoverageCreateRequest,
+        request: Request,
+        _=_operator,
+    ) -> JSONResponse:
         service = CoverageService(_context(request))
         entry = service.add_coverage(
             CoverageEntry(
@@ -230,12 +270,12 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response(payload)
 
     @app.post("/coverage/{company_id}/disable")
-    def disable_coverage(company_id: str, request: Request) -> JSONResponse:
+    def disable_coverage(company_id: str, request: Request, _=_operator) -> JSONResponse:
         entry = CoverageService(_context(request)).disable_coverage(company_id)
         return _success_response(entry.model_dump(mode="json"))
 
     @app.delete("/coverage/{company_id}")
-    def remove_coverage(company_id: str, request: Request) -> JSONResponse:
+    def remove_coverage(company_id: str, request: Request, _=_operator) -> JSONResponse:
         CoverageService(_context(request)).remove_coverage(company_id)
         return _success_response({"company_id": company_id, "removed": True})
 
@@ -244,6 +284,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         company_id: str,
         payload: NextRunAtRequest,
         request: Request,
+        _=_operator,
     ) -> JSONResponse:
         next_run_at = _parse_datetime(payload.next_run_at) if payload.next_run_at else None
         entry = CoverageService(_context(request)).set_next_run_at(company_id, next_run_at)
@@ -254,6 +295,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         company_id: str,
         payload: CoverageScheduleRequest,
         request: Request,
+        _=_operator,
     ) -> JSONResponse:
         fields_set = payload.model_fields_set
         service = CoverageService(_context(request))
@@ -278,7 +320,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response(entry.model_dump(mode="json"))
 
     @app.post("/coverage/run-due", response_model=RunResultListEnvelope)
-    def run_due(request: Request) -> RunResultListEnvelope:
+    def run_due(request: Request, _=_operator) -> RunResultListEnvelope:
         results = [
             _attach_recommendation_scope(item)
             for item in AnalysisService(_context(request)).run_due_coverage()
@@ -299,6 +341,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
     def enqueue_selected(
         payload: EnqueueCompaniesRequest,
         request: Request,
+        _=_operator,
     ) -> JSONResponse:
         jobs = QueueService(_context(request)).enqueue_companies(
             payload.company_ids,
@@ -307,34 +350,40 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response([job.model_dump(mode="json") for job in jobs])
 
     @app.post("/queue/enqueue-watchlist")
-    def enqueue_watchlist(payload: RequestedByRequest, request: Request) -> JSONResponse:
+    def enqueue_watchlist(
+        payload: RequestedByRequest, request: Request, _=_operator,
+    ) -> JSONResponse:
         jobs = QueueService(_context(request)).enqueue_watchlist(requested_by=payload.requested_by)
         return _success_response([job.model_dump(mode="json") for job in jobs])
 
     @app.post("/queue/enqueue-portfolio")
-    def enqueue_portfolio(payload: RequestedByRequest, request: Request) -> JSONResponse:
+    def enqueue_portfolio(
+        payload: RequestedByRequest, request: Request, _=_operator,
+    ) -> JSONResponse:
         jobs = QueueService(_context(request)).enqueue_portfolio(requested_by=payload.requested_by)
         return _success_response([job.model_dump(mode="json") for job in jobs])
 
     @app.post("/queue/enqueue-due")
-    def enqueue_due(payload: RequestedByRequest, request: Request) -> JSONResponse:
+    def enqueue_due(payload: RequestedByRequest, request: Request, _=_operator) -> JSONResponse:
         jobs = QueueService(_context(request)).enqueue_due_coverage(
             requested_by=payload.requested_by
         )
         return _success_response([job.model_dump(mode="json") for job in jobs])
 
     @app.post("/queue/{job_id}/retry")
-    def retry_job(job_id: str, request: Request) -> JSONResponse:
+    def retry_job(job_id: str, request: Request, _=_operator) -> JSONResponse:
         job = QueueService(_context(request)).retry_job(job_id)
         return _success_response(job.model_dump(mode="json"))
 
     @app.post("/queue/{job_id}/cancel")
-    def cancel_job(job_id: str, payload: JobCancelRequest, request: Request) -> JSONResponse:
+    def cancel_job(
+        job_id: str, payload: JobCancelRequest, request: Request, _=_operator,
+    ) -> JSONResponse:
         job = QueueService(_context(request)).cancel_job(job_id, reason=payload.reason)
         return _success_response(job.model_dump(mode="json"))
 
     @app.post("/queue/{job_id}/force-run")
-    def force_run_job(job_id: str, request: Request) -> JSONResponse:
+    def force_run_job(job_id: str, request: Request, _=_operator) -> JSONResponse:
         job = QueueService(_context(request)).force_run_job(job_id)
         return _success_response(job.model_dump(mode="json"))
 
@@ -344,7 +393,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response([item.model_dump(mode="json") for item in items])
 
     @app.post("/workers/run")
-    def run_worker(payload: WorkerRunRequest, request: Request) -> JSONResponse:
+    def run_worker(payload: WorkerRunRequest, request: Request, _=_operator) -> JSONResponse:
         results = WorkerService(_context(request)).run_available_jobs(
             limit=payload.limit,
             worker_id=payload.worker_id,
@@ -369,7 +418,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response([event.model_dump(mode="json") for event in events])
 
     @app.post("/notifications/{event_id}/dispatch")
-    def dispatch_notification(event_id: str, request: Request) -> JSONResponse:
+    def dispatch_notification(event_id: str, request: Request, _=_operator) -> JSONResponse:
         event = NotificationService(_context(request)).mark_dispatched(event_id)
         return _success_response(event.model_dump(mode="json"))
 
@@ -383,6 +432,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         event_id: str,
         payload: NotificationFailRequest,
         request: Request,
+        _=_operator,
     ) -> JSONResponse:
         event = NotificationService(_context(request)).mark_failed(
             event_id,
@@ -391,7 +441,9 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response(event.model_dump(mode="json"))
 
     @app.post("/companies/{company_id}/ingest-public")
-    def ingest_public(company_id: str, payload: IngestRequest, request: Request) -> JSONResponse:
+    def ingest_public(
+        company_id: str, payload: IngestRequest, request: Request, _=_operator,
+    ) -> JSONResponse:
         profile, evidence_ids = IngestionService(_context(request)).ingest_public_data(
             Path(payload.input_dir)
         )
@@ -401,7 +453,9 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         )
 
     @app.post("/companies/{company_id}/ingest-private")
-    def ingest_private(company_id: str, payload: IngestRequest, request: Request) -> JSONResponse:
+    def ingest_private(
+        company_id: str, payload: IngestRequest, request: Request, _=_operator,
+    ) -> JSONResponse:
         profile, evidence_ids = IngestionService(_context(request)).ingest_private_data(
             Path(payload.input_dir)
         )
@@ -411,14 +465,14 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         )
 
     @app.post("/companies/{company_id}/analyze", response_model=RunResultEnvelope)
-    def analyze_company(company_id: str, request: Request) -> RunResultEnvelope:
+    def analyze_company(company_id: str, request: Request, _=_operator) -> RunResultEnvelope:
         result = _attach_recommendation_scope(
             AnalysisService(_context(request)).analyze_company(company_id)
         )
         return _run_result_response(result)
 
     @app.post("/companies/{company_id}/refresh", response_model=RunResultEnvelope)
-    def refresh_company(company_id: str, request: Request) -> RunResultEnvelope:
+    def refresh_company(company_id: str, request: Request, _=_operator) -> RunResultEnvelope:
         result = _attach_recommendation_scope(
             AnalysisService(_context(request)).refresh_company(company_id)
         )
@@ -433,6 +487,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         run_id: str,
         payload: ContinueRunRequest,
         request: Request,
+        _=_operator,
     ) -> RunResultEnvelope:
         result = _attach_recommendation_scope(
             AnalysisService(_context(request)).continue_run(run_id, action=payload.action)
@@ -440,7 +495,9 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _run_result_response(result)
 
     @app.post("/companies/{company_id}/panels/{panel_id}/run", response_model=RunResultEnvelope)
-    def run_panel(company_id: str, panel_id: str, request: Request) -> RunResultEnvelope:
+    def run_panel(
+        company_id: str, panel_id: str, request: Request, _=_operator,
+    ) -> RunResultEnvelope:
         result = AnalysisService(_context(request)).run_panel(company_id, panel_id)
         return _run_result_response(result)
 
@@ -489,12 +546,12 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         return _success_response(payload)
 
     @app.post("/agents/{agent_id}/enable")
-    def enable_agent(agent_id: str, request: Request) -> JSONResponse:
+    def enable_agent(agent_id: str, request: Request, _=_operator) -> JSONResponse:
         agent = AgentConfigService(_context(request)).enable_agent(agent_id)
         return _success_response(agent.model_dump(mode="json"))
 
     @app.post("/agents/{agent_id}/disable")
-    def disable_agent(agent_id: str, request: Request) -> JSONResponse:
+    def disable_agent(agent_id: str, request: Request, _=_operator) -> JSONResponse:
         agent = AgentConfigService(_context(request)).disable_agent(agent_id)
         return _success_response(agent.model_dump(mode="json"))
 
@@ -503,6 +560,7 @@ def create_app(context: AppContext | None = None) -> FastAPI:
         agent_id: str,
         payload: ReparentAgentRequest,
         request: Request,
+        _=_operator,
     ) -> JSONResponse:
         agent = AgentConfigService(_context(request)).reparent_agent(agent_id, payload.parent_id)
         return _success_response(agent.model_dump(mode="json"))
