@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 06-productionize-remaining-panels
 source:
   - .planning/phases/06-productionize-remaining-panels/06-01-SUMMARY.md
@@ -9,7 +9,7 @@ source:
   - .planning/phases/06-productionize-remaining-panels/06-05-SUMMARY.md
   - .planning/phases/06-productionize-remaining-panels/06-06-SUMMARY.md
 started: 2026-03-14T13:20:17Z
-updated: 2026-03-15T13:07:28Z
+updated: 2026-03-15T13:12:40Z
 ---
 
 ## Current Test
@@ -63,7 +63,22 @@ skipped: 0
   reason: "User reported: The `expectations_rollout` policy included `expectations_catalyst_realization`, but both analyze and refresh left it unsupported for ACME due to missing evidence families (`consensus_views`, `market_data`, `milestone_tracking`), so `expectations_variant_view` and `realization_path_catalysts` stayed stale instead of being populated."
   severity: major
   test: 5
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "The expectations panel support gate is correct, but the default ACME analyze/refresh fixture contract is incomplete. `expectations_catalyst_realization` requires public evidence families `consensus_views`, `market_data`, and `milestone_tracking`; the standard ACME public manifests used by normal analyze/refresh flows do not provide the needed expectations evidence, while the passing tests and generated examples only succeed because they preload supplemental connector packets."
+  artifacts:
+    - path: "config/panels.yaml"
+      issue: "Expectations panel requires `consensus_views`, `market_data`, and `milestone_tracking` for public support."
+    - path: "src/ai_investing/application/services.py"
+      issue: "Support evaluation correctly marks the panel unsupported when those evidence families are absent."
+    - path: "examples/acme_public/manifest.json"
+      issue: "Default ACME public fixture lacks the expectations evidence families needed for `expectations_rollout`."
+    - path: "examples/acme_public_rerun/manifest.json"
+      issue: "Rerun fixture adds some expectations factors and events but still does not provide the full consensus and market support contract."
+    - path: "tests/test_analysis_flow.py"
+      issue: "Supported expectations-path tests preload supplemental connector packets, which hides the default fixture gap."
+    - path: "scripts/generate_phase2_examples.py"
+      issue: "Generated examples also rely on bespoke supplemental connector ingestion rather than the default ACME analyze/refresh seed."
+  missing:
+    - "Align the default ACME public and rerun fixture contract with the expectations panel support requirements."
+    - "Either ingest the supplemental expectations connector packets in the standard ACME expectations-rollout path or fold equivalent evidence into the default ACME manifests."
+    - "Add regression coverage that exercises `expectations_rollout` through the same default ACME analyze/refresh path used in UAT."
+  debug_session: ".planning/debug/acme-expectations-wave-stale.md"
