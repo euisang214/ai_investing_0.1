@@ -120,7 +120,7 @@ def test_connector_runtime_allows_explicit_connector_selection(
         records = repository.list_evidence(profile.company_id)
 
     assert profile.company_id == "ACME"
-    assert len(evidence_ids) == 3
+    assert len(evidence_ids) == 7
     assert records
     assert all(
         record.source_path.startswith(str(tmp_path / "public_file_connector_alias"))

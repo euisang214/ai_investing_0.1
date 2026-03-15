@@ -37,6 +37,8 @@ The target system must support both public and private company workflows. Public
 
 The architecture must keep graph orchestration, provider abstraction, persistence, prompts, schemas, ingestion, tool registry, and interfaces separated. Agents, panels, factors, prompts, tool bundles, schemas, and memo sections should be editable through configuration wherever practical. n8n is an external scheduling and notification boundary, not the reasoning runtime.
 
+The project-wide gatekeeper policy is now: every run enters `gatekeepers` first; `pass` and `review` continue automatically into downstream work; `fail` stops after `gatekeepers`, enters a review queue, and notifies immediately; provisional downstream analysis remains an explicit operator-only override.
+
 ## Constraints
 
 - **Architecture**: Config-driven cohort topology — agent graph behavior must be derived from registries rather than embedded in business logic.
@@ -54,6 +56,7 @@ The architecture must keep graph orchestration, provider abstraction, persistenc
 | Use SQLAlchemy + Postgres JSON/JSONB persistence | The system needs typed records plus flexible payloads and history retention across heterogeneous memory objects | — Pending |
 | Implement only one full production vertical slice first | The architecture matters more than breadth; gatekeepers + demand prove memo updates and rerun deltas end-to-end | — Pending |
 | Keep public and private ingestion modules separate behind a shared spine | The evidence sources differ materially even when downstream memory contracts are shared | — Pending |
+| Auto-continue passed or review gatekeepers, queue and notify failed gatekeepers | The universal pause rule is no longer desired; operators should review only failures by default while keeping provisional analysis explicit | — Pending |
 
 ---
 *Last updated: 2026-03-08 after initialization*

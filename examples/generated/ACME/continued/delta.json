@@ -180,70 +180,7 @@
     "clm_000000000174",
     "clm_000000000175",
     "clm_000000000176",
-    "clm_000000000177",
-    "clm_000000000178",
-    "clm_000000000179",
-    "clm_000000000180",
-    "clm_000000000181",
-    "clm_000000000182",
-    "clm_000000000183",
-    "clm_000000000184",
-    "clm_000000000185",
-    "clm_000000000186",
-    "clm_000000000187",
-    "clm_000000000188",
-    "clm_000000000189",
-    "clm_000000000190",
-    "clm_000000000191",
-    "clm_000000000192",
-    "clm_000000000193",
-    "clm_000000000194",
-    "clm_000000000195",
-    "clm_000000000196",
-    "clm_000000000197",
-    "clm_000000000198",
-    "clm_000000000199",
-    "clm_000000000200",
-    "clm_000000000201",
-    "clm_000000000202",
-    "clm_000000000203",
-    "clm_000000000204",
-    "clm_000000000205",
-    "clm_000000000206",
-    "clm_000000000207",
-    "clm_000000000208",
-    "clm_000000000209",
-    "clm_000000000210",
-    "clm_000000000211",
-    "clm_000000000212",
-    "clm_000000000213",
-    "clm_000000000214",
-    "clm_000000000215",
-    "clm_000000000216",
-    "clm_000000000217",
-    "clm_000000000218",
-    "clm_000000000219",
-    "clm_000000000220",
-    "clm_000000000221",
-    "clm_000000000222",
-    "clm_000000000223",
-    "clm_000000000224",
-    "clm_000000000225",
-    "clm_000000000226",
-    "clm_000000000227",
-    "clm_000000000228",
-    "clm_000000000229",
-    "clm_000000000230",
-    "clm_000000000231",
-    "clm_000000000232",
-    "clm_000000000233",
-    "clm_000000000234",
-    "clm_000000000235",
-    "clm_000000000236",
-    "clm_000000000237",
-    "clm_000000000238",
-    "clm_000000000239",
-    "clm_000000000240"
+    "clm_000000000177"
   ],
   "changed_sections": [
     "durability_resilience",
@@ -267,35 +204,22 @@
   "alert_level": "high",
   "trigger_reasons": [
     {
-      "category": "concentration",
-      "summary": "Governance concentration is currently pressured: Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
-      "factor_id": "governance_investability",
+      "category": "contradiction",
+      "summary": "Conflicting evidence persists on consensus narrative map: signals span mixed, positive.",
+      "factor_id": "consensus_narrative_map",
       "severity": "medium",
       "related_section_ids": [
-        "investment_snapshot",
-        "overall_recommendation",
-        "risk"
+        "expectations_variant_view",
+        "realization_path_catalysts"
       ]
     },
     {
       "category": "contradiction",
-      "summary": "Conflicting evidence persists on brand reputation consideration set: signals span mixed, positive.",
-      "factor_id": "brand_reputation_consideration_set",
+      "summary": "Conflicting evidence persists on criminal record reputation: signals span negative, positive.",
+      "factor_id": "criminal_record_reputation",
       "severity": "medium",
       "related_section_ids": [
         "durability_resilience",
-        "growth",
-        "investment_snapshot",
-        "overall_recommendation",
-        "risk"
-      ]
-    },
-    {
-      "category": "contradiction",
-      "summary": "Conflicting evidence persists on commodity input sensitivity: signals span negative, positive.",
-      "factor_id": "commodity_input_sensitivity",
-      "severity": "medium",
-      "related_section_ids": [
         "risk"
       ]
     },
@@ -369,15 +293,6 @@
     },
     {
       "category": "panel_change",
-      "summary": "external_regulatory_geopolitical produced a new panel verdict in this run.",
-      "factor_id": null,
-      "severity": "info",
-      "related_section_ids": [
-        "risk"
-      ]
-    },
-    {
-      "category": "panel_change",
       "summary": "financial_quality_liquidity_economic_model produced a new panel verdict in this run.",
       "factor_id": null,
       "severity": "info",
@@ -400,31 +315,12 @@
     },
     {
       "category": "panel_change",
-      "summary": "macro_industry_transmission produced a new panel verdict in this run.",
-      "factor_id": null,
-      "severity": "info",
-      "related_section_ids": [
-        "risk"
-      ]
-    },
-    {
-      "category": "panel_change",
       "summary": "management_governance_capital_allocation produced a new panel verdict in this run.",
       "factor_id": null,
       "severity": "info",
       "related_section_ids": [
         "durability_resilience",
         "risk"
-      ]
-    },
-    {
-      "category": "panel_change",
-      "summary": "market_structure_growth produced a new panel verdict in this run.",
-      "factor_id": null,
-      "severity": "info",
-      "related_section_ids": [
-        "growth",
-        "expectations_variant_view"
       ]
     },
     {
@@ -441,14 +337,14 @@
   "contradiction_references": [
     {
       "category": "contradiction",
-      "label": "brand reputation consideration set",
-      "rationale": "Conflicting evidence persists on brand reputation consideration set: signals span mixed, positive.",
-      "factor_id": "brand_reputation_consideration_set",
+      "label": "consensus narrative map",
+      "rationale": "Conflicting evidence persists on consensus narrative map: signals span mixed, positive.",
+      "factor_id": "consensus_narrative_map",
       "company_id": null,
       "company_name": null,
       "source_ref": {
-        "label": "Trade Press Roundup",
-        "url": "https://example.com/acme/news-roundup",
+        "label": "Market Tape",
+        "url": "https://example.com/acme/market-tape",
         "page": null,
         "excerpt": null
       },
@@ -456,9 +352,9 @@
     },
     {
       "category": "contradiction",
-      "label": "commodity input sensitivity",
-      "rationale": "Conflicting evidence persists on commodity input sensitivity: signals span negative, positive.",
-      "factor_id": "commodity_input_sensitivity",
+      "label": "criminal record reputation",
+      "rationale": "Conflicting evidence persists on criminal record reputation: signals span negative, positive.",
+      "factor_id": "criminal_record_reputation",
       "company_id": null,
       "company_name": null,
       "source_ref": null,
@@ -490,9 +386,11 @@
       "category": "governance_dependency",
       "label": "Governance concentration",
       "factor_id": "governance_investability",
-      "state": "pressured",
-      "summary": "Governance concentration is currently pressured: Board oversight tightened with a new compliance committee, but the control environment is still maturing.",
-      "metrics": {}
+      "state": "stable",
+      "summary": "Governance concentration is currently stable: The board added an independent audit chair and refreshed compensation disclosures.",
+      "metrics": {
+        "independent_directors": 5
+      }
     }
   ],
   "panel_change_hints": [
@@ -521,15 +419,6 @@
     },
     {
       "category": "panel_change",
-      "summary": "external_regulatory_geopolitical produced a new panel verdict in this run.",
-      "factor_id": null,
-      "severity": "info",
-      "related_section_ids": [
-        "risk"
-      ]
-    },
-    {
-      "category": "panel_change",
       "summary": "financial_quality_liquidity_economic_model produced a new panel verdict in this run.",
       "factor_id": null,
       "severity": "info",
@@ -552,31 +441,12 @@
     },
     {
       "category": "panel_change",
-      "summary": "macro_industry_transmission produced a new panel verdict in this run.",
-      "factor_id": null,
-      "severity": "info",
-      "related_section_ids": [
-        "risk"
-      ]
-    },
-    {
-      "category": "panel_change",
       "summary": "management_governance_capital_allocation produced a new panel verdict in this run.",
       "factor_id": null,
       "severity": "info",
       "related_section_ids": [
         "durability_resilience",
         "risk"
-      ]
-    },
-    {
-      "category": "panel_change",
-      "summary": "market_structure_growth produced a new panel verdict in this run.",
-      "factor_id": null,
-      "severity": "info",
-      "related_section_ids": [
-        "growth",
-        "expectations_variant_view"
       ]
     },
     {
@@ -590,5 +460,5 @@
       ]
     }
   ],
-  "created_at": "2026-03-11T23:38:00Z"
+  "created_at": "2026-03-11T19:54:00Z"
 }

@@ -8,10 +8,12 @@ from types import SimpleNamespace
 import pytest
 from langgraph.types import Command
 
-from ai_investing.application.services import AnalysisService, IngestionService
+from ai_investing.application.services import AnalysisService, CoverageService, IngestionService
 from ai_investing.domain.enums import (
     AlertLevel,
+    Cadence,
     CompanyType,
+    CoverageStatus,
     GateDecision,
     RunContinueAction,
     RunKind,
@@ -19,6 +21,7 @@ from ai_investing.domain.enums import (
     VerdictRecommendation,
 )
 from ai_investing.domain.models import (
+    CoverageEntry,
     GatekeeperVerdict,
     ICMemo,
     MonitoringDelta,
@@ -419,7 +422,6 @@ def test_refresh_company_runs_full_surface_with_explicit_overlay_skips(
     repo_root: Path,
 ) -> None:
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     analysis = AnalysisService(seeded_acme)
     initial = analysis.analyze_company("ACME")
     refreshed = analysis.refresh_company("ACME")
@@ -490,7 +492,6 @@ def test_expectations_rollout_refresh_keeps_expectations_support_visible(
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     analysis = AnalysisService(seeded_acme)
     _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
     initial = analysis.analyze_company("ACME")
@@ -509,12 +510,22 @@ def test_expectations_rollout_refresh_keeps_expectations_support_visible(
 
 
 def test_expectations_rollout_refresh_surfaces_skip_when_inputs_are_missing(
-    seeded_acme,
+    context,
     repo_root: Path,
 ) -> None:
-    _seed_public_wave2_connectors(seeded_acme, repo_root)
-    analysis = AnalysisService(seeded_acme)
-    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+    """Use intentionally limited fixture: wave2 connectors only, no expectations evidence."""
+    _seed_public_wave2_connectors(context, repo_root)
+    CoverageService(context).add_coverage(
+        CoverageEntry(
+            company_id="ACME",
+            company_name="Acme Cloud",
+            company_type=CompanyType.PUBLIC,
+            coverage_status=CoverageStatus.WATCHLIST,
+            cadence=Cadence.WEEKLY,
+        )
+    )
+    analysis = AnalysisService(context)
+    _set_panel_policy(context, "ACME", "expectations_rollout")
 
     result = analysis.refresh_company("ACME")
 

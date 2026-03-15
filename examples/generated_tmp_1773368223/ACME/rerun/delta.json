@@ -4,48 +4,36 @@
   "prior_run_id": "run_000000000001",
   "current_run_id": "run_000000000002",
   "changed_claim_ids": [
-    "clm_000000000187",
-    "clm_000000000188",
-    "clm_000000000189",
-    "clm_000000000196",
-    "clm_000000000197",
-    "clm_000000000198",
-    "clm_000000000211",
-    "clm_000000000212",
-    "clm_000000000213",
-    "clm_000000000214",
-    "clm_000000000215",
-    "clm_000000000216",
-    "clm_000000000217",
-    "clm_000000000218",
-    "clm_000000000219",
-    "clm_000000000340",
-    "clm_000000000341",
-    "clm_000000000342",
-    "clm_000000000343",
-    "clm_000000000344",
-    "clm_000000000345",
-    "clm_000000000346",
-    "clm_000000000347",
-    "clm_000000000348",
-    "clm_000000000349",
-    "clm_000000000350",
-    "clm_000000000351",
-    "clm_000000000352",
-    "clm_000000000353",
-    "clm_000000000354"
+    "clm_000000000057",
+    "clm_000000000056",
+    "clm_000000000055",
+    "clm_000000000064",
+    "clm_000000000065",
+    "clm_000000000066",
+    "clm_000000000079",
+    "clm_000000000080",
+    "clm_000000000081",
+    "clm_000000000082",
+    "clm_000000000083",
+    "clm_000000000084",
+    "clm_000000000085",
+    "clm_000000000086",
+    "clm_000000000087"
   ],
   "changed_sections": [
     "durability_resilience",
+    "economic_spread",
     "expectations_variant_view",
     "growth",
     "investment_snapshot",
     "overall_recommendation",
+    "portfolio_fit_positioning",
     "realization_path_catalysts",
     "risk",
+    "valuation_terms",
     "what_changed_since_last_run"
   ],
-  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, expectations_variant_view, growth, investment_snapshot, overall_recommendation, realization_path_catalysts, risk. Material claim cards: 30. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: catalyst_path, consensus_narrative_map.",
+  "change_summary": "Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, economic_spread, expectations_variant_view, growth, investment_snapshot, overall_recommendation, portfolio_fit_positioning, realization_path_catalysts, risk, valuation_terms. Material claim cards: 15. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: customer_concentration, demand_cyclicality_purchase_deferrability.",
   "thesis_drift_flags": [
     "concentration_increase",
     "survivability_deterioration",
@@ -68,22 +56,28 @@
     },
     {
       "category": "contradiction",
-      "summary": "Conflicting evidence persists on catalyst path: signals span negative, positive.",
-      "factor_id": "catalyst_path",
+      "summary": "Conflicting evidence persists on customer concentration: signals span negative, positive.",
+      "factor_id": "customer_concentration",
       "severity": "medium",
       "related_section_ids": [
-        "expectations_variant_view",
-        "realization_path_catalysts"
+        "durability_resilience",
+        "growth",
+        "investment_snapshot",
+        "overall_recommendation",
+        "risk"
       ]
     },
     {
       "category": "contradiction",
-      "summary": "Conflicting evidence persists on consensus narrative map: signals span mixed, positive.",
-      "factor_id": "consensus_narrative_map",
+      "summary": "Conflicting evidence persists on demand cyclicality purchase deferrability: signals span mixed, negative.",
+      "factor_id": "demand_cyclicality_purchase_deferrability",
       "severity": "medium",
       "related_section_ids": [
-        "expectations_variant_view",
-        "realization_path_catalysts"
+        "durability_resilience",
+        "growth",
+        "investment_snapshot",
+        "overall_recommendation",
+        "risk"
       ]
     },
     {
@@ -119,29 +113,19 @@
         "valuation_terms",
         "realization_path_catalysts"
       ]
-    },
-    {
-      "category": "panel_change",
-      "summary": "expectations_catalyst_realization recommendation moved from mixed to negative.",
-      "factor_id": null,
-      "severity": "medium",
-      "related_section_ids": [
-        "expectations_variant_view",
-        "realization_path_catalysts"
-      ]
     }
   ],
   "contradiction_references": [
     {
       "category": "contradiction",
-      "label": "catalyst path",
-      "rationale": "Conflicting evidence persists on catalyst path: signals span negative, positive.",
-      "factor_id": "catalyst_path",
+      "label": "customer concentration",
+      "rationale": "Conflicting evidence persists on customer concentration: signals span negative, positive.",
+      "factor_id": "customer_concentration",
       "company_id": null,
       "company_name": null,
       "source_ref": {
-        "label": "Catalyst Update",
-        "url": "https://example.com/acme-catalyst-update",
+        "label": "Q1 2026 Update",
+        "url": "https://example.com/acme-q1",
         "page": null,
         "excerpt": null
       },
@@ -149,14 +133,14 @@
     },
     {
       "category": "contradiction",
-      "label": "consensus narrative map",
-      "rationale": "Conflicting evidence persists on consensus narrative map: signals span mixed, positive.",
-      "factor_id": "consensus_narrative_map",
+      "label": "demand cyclicality purchase deferrability",
+      "rationale": "Conflicting evidence persists on demand cyclicality purchase deferrability: signals span mixed, negative.",
+      "factor_id": "demand_cyclicality_purchase_deferrability",
       "company_id": null,
       "company_name": null,
       "source_ref": {
-        "label": "Market Tape",
-        "url": "https://example.com/acme/market-tape",
+        "label": "Q1 2026 Update",
+        "url": "https://example.com/acme-q1",
         "page": null,
         "excerpt": null
       },
@@ -195,17 +179,5 @@
       }
     }
   ],
-  "panel_change_hints": [
-    {
-      "category": "panel_change",
-      "summary": "expectations_catalyst_realization recommendation moved from mixed to negative.",
-      "factor_id": null,
-      "severity": "medium",
-      "related_section_ids": [
-        "expectations_variant_view",
-        "realization_path_catalysts"
-      ]
-    }
-  ],
-  "created_at": "2026-03-12T06:01:00Z"
+  "created_at": "2026-03-11T14:50:00Z"
 }

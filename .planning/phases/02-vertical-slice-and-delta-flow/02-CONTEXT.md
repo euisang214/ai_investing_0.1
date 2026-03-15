@@ -15,13 +15,13 @@ Phase 2 proves one end-to-end vertical slice for a single company: ingestion-bac
 
 ### Gatekeeper checkpoint behavior
 - `gatekeepers` is a mandatory checkpoint, not just the first panel in a fixed sequence.
-- Every run pauses after gatekeepers, even on a pass, and must surface that result before deeper work continues.
-- This checkpoint applies across entrypoints. Do not silently auto-continue after gatekeepers.
-- If gatekeepers passes, report that clearly and offer the user an explicit continue action for the rest of the run.
-- If gatekeepers fails, the default outcome is to stop after gatekeepers, but the user may explicitly override and continue anyway.
+- The original universal-pause rule from Phase 2 is superseded project-wide as of 2026-03-13.
+- Every run still enters `gatekeepers` first, but `pass` and `review` should continue automatically into downstream work across both initial and scheduled flows.
+- If gatekeepers fails, the default outcome is to stop after `gatekeepers`, place the run in a review queue, and notify immediately.
 - Any downstream work after a failed gatekeeper is exploratory/provisional, not equivalent to a normal passed run.
-- If no continuation happens after gatekeepers, persist the stopped state and memo artifacts instead of treating the run as an abandoned partial failure.
-- CLI/API results must expose explicit structured checkpoint fields such as `gate_decision`, `awaiting_continue`, `gated_out`, `stopped_after_panel`, and whether downstream output is provisional.
+- Provisional downstream work after a failed gatekeeper requires an explicit operator action and may never be triggered automatically.
+- If a failed run stops after `gatekeepers`, persist the stopped state and memo artifacts instead of treating the run as an abandoned partial failure.
+- CLI/API results must continue to expose explicit structured gatekeeper fields such as `gate_decision`, `gated_out`, `stopped_after_panel`, and whether downstream output is provisional, and future work should add queue and notification state for failed runs.
 
 ### Partial memo posture
 - Keep the full required memo structure visible even when only part of the slice has run.
@@ -47,8 +47,8 @@ Phase 2 proves one end-to-end vertical slice for a single company: ingestion-bac
 - Stale evidence should contribute to alerting only when it affects a key section or the recommendation, not as an automatic medium alert for every stale factor.
 
 ### Claude's Discretion
-- Choose the exact continuation mechanism for paused gatekeeper checkpoints, as long as it is explicit in both CLI and API and does not silently auto-continue.
-- Choose whether checkpoint state is represented through new run statuses, run metadata, or both, as long as paused/awaiting-continue outcomes are first-class and queryable.
+- Choose the exact auto-continue mechanism for `pass` and `review` gatekeepers, as long as both manual and scheduled runs behave the same way and the flow remains explicit in tests and operator-visible state.
+- Choose whether failed-run review-queue and notification state is represented through new run statuses, structured metadata, or dedicated records, as long as failed gatekeepers are first-class and queryable.
 - Choose the exact section labels and operator-facing copy for never-advanced versus stale sections, as long as operators can reliably tell the difference.
 - Choose the exact field-by-field materiality comparison beyond claim meaning and confidence threshold, as long as rerun deltas stay balanced rather than noisy.
 - Choose the exact confidence downgrade heuristic for stale evidence, as long as stale inputs visibly weaken affected outputs.
@@ -58,8 +58,8 @@ Phase 2 proves one end-to-end vertical slice for a single company: ingestion-bac
 <specifics>
 ## Specific Ideas
 
-- "Gatekeeper passed, deeper panel work not yet run." should be the operator-facing framing when a passed company stops at the checkpoint.
-- A stopped-after-gatekeeper memo should still respect the required memo contract rather than collapse into an ad hoc one-off report.
+- A failed gatekeeper should create a reviewable stopped run rather than disappearing into generic failure handling.
+- A stopped-after-gatekeeper-fail memo should still respect the required memo contract rather than collapse into an ad hoc one-off report.
 - Overriding a failed gatekeeper should preserve a visible provisional or exploratory label on downstream analysis.
 - `what_changed_since_last_run` is closer to a run log than a pure thesis section, so it should refresh on each rerun.
 

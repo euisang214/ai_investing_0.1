@@ -1,6 +1,6 @@
 """phase 5 background operations schema
 
-Revision ID: 0003_phase5_background_operations
+Revision ID: 0003_phase5_background_ops
 Revises: 0002_phase2_checkpoint_runtime
 Create Date: 2026-03-13 00:00:00
 """
@@ -10,7 +10,7 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0003_phase5_background_operations"
+revision = "0003_phase5_background_ops"
 down_revision = "0002_phase2_checkpoint_runtime"
 branch_labels = None
 depends_on = None

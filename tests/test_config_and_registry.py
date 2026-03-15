@@ -179,6 +179,18 @@ def test_expectations_rollout_policy_runs_after_company_quality(context) -> None
     ]
 
 
+def test_alembic_revision_ids_fit_default_version_table_limit() -> None:
+    revision_ids: list[str] = []
+
+    for path in sorted((Path(__file__).resolve().parents[1] / "alembic" / "versions").glob("*.py")):
+        namespace: dict[str, object] = {}
+        exec(path.read_text(), namespace)
+        revision_ids.append(namespace["revision"])
+
+    assert revision_ids
+    assert all(len(revision) <= 32 for revision in revision_ids)
+
+
 def test_wave2_tool_bundles_match_external_context_evidence_needs(context) -> None:
     bundles = {
         bundle.id: bundle for bundle in context.registries.tool_bundles.bundles

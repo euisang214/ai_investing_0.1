@@ -343,7 +343,6 @@ def test_full_surface_policy_runs_and_persists_company_quality_only_result(
     assert "security_or_deal_overlay" in policy.default_panel_ids
     assert "portfolio_fit_positioning" in policy.default_panel_ids
 
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
     result = AnalysisService(seeded_acme).analyze_company("ACME")
 
@@ -396,13 +395,28 @@ def test_unsupported_implemented_panel_surfaces_structured_skip(seeded_acme) -> 
 
 
 def test_expectations_rollout_without_expectation_inputs_surfaces_structured_skip(
-    seeded_acme,
+    context,
     repo_root: Path,
 ) -> None:
-    _seed_public_wave2_connectors(seeded_acme, repo_root)
-    _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
+    """Use intentionally limited fixture: wave2 connectors only, no default baseline.
 
-    result = AnalysisService(seeded_acme).analyze_company("ACME")
+    Wave2 connectors supply market, regulatory, and news evidence for other panels
+    but tag none of it with `expectations_catalyst_realization`, so all three required
+    evidence families for that panel remain missing.
+    """
+    _seed_public_wave2_connectors(context, repo_root)
+    CoverageService(context).add_coverage(
+        CoverageEntry(
+            company_id="ACME",
+            company_name="Acme Cloud",
+            company_type=CompanyType.PUBLIC,
+            coverage_status=CoverageStatus.WATCHLIST,
+            cadence=Cadence.WEEKLY,
+        )
+    )
+    _set_panel_policy(context, "ACME", "expectations_rollout")
+
+    result = AnalysisService(context).analyze_company("ACME")
 
     expectations = result["panels"]["expectations_catalyst_realization"]
     assert result["run"]["status"] == "complete"
@@ -417,11 +431,11 @@ def test_expectations_rollout_without_expectation_inputs_surfaces_structured_ski
     }
 
 
+
 def test_full_surface_overlay_runs_with_supported_overlay_and_portfolio_context(
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     _seed_public_overlay_evidence(seeded_acme)
     _seed_portfolio_context_peer(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
@@ -442,7 +456,6 @@ def test_full_surface_overlay_skips_when_overlay_or_portfolio_context_is_missing
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "full_surface")
 
     result = AnalysisService(seeded_acme).analyze_company("ACME")
@@ -635,7 +648,6 @@ def test_expectations_rollout_runs_public_with_supported_results(
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
 
     result = AnalysisService(seeded_acme).analyze_company("ACME")
@@ -678,7 +690,6 @@ def test_expectations_rollout_rerun_updates_expectation_sections_and_delta(
     seeded_acme,
     repo_root: Path,
 ) -> None:
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
     _set_panel_policy(seeded_acme, "ACME", "expectations_rollout")
 
     service = AnalysisService(seeded_acme)

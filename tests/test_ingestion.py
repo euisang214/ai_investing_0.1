@@ -50,7 +50,7 @@ def test_ingestion_parser_persists_evidence(context, repo_root) -> None:
     service = IngestionService(context)
     profile, evidence_ids = service.ingest_public_data(repo_root / "examples" / "acme_public")
     assert profile.company_id == "ACME"
-    assert len(evidence_ids) == 3
+    assert len(evidence_ids) == 7
 
     with context.database.session() as session:
         repository = Repository(session)
@@ -90,7 +90,7 @@ def test_ingestion_uses_configured_manifest_file(repo_root, tmp_path) -> None:
     profile, evidence_ids = IngestionService(context).ingest_public_data(input_dir)
 
     assert profile.company_id == "ACME"
-    assert len(evidence_ids) == 3
+    assert len(evidence_ids) == 7
 
 
 def test_required_public_connector_families_emit_structured_evidence(repo_root, tmp_path) -> None:

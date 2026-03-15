@@ -4,16 +4,16 @@
 Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## What Changed Since Last Run
-Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, expectations_variant_view, growth, investment_snapshot, overall_recommendation, realization_path_catalysts, risk. Material claim cards: 30. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: brand_reputation_consideration_set, catalyst_path. Changed sections: durability_resilience, expectations_variant_view, growth, investment_snapshot, overall_recommendation, realization_path_catalysts, risk, what_changed_since_last_run.
+Acme Cloud rerun detected thesis movement. Material sections: durability_resilience, expectations_variant_view, growth, investment_snapshot, overall_recommendation, realization_path_catalysts, risk. Material claim cards: 30. Drift flags: concentration_increase, survivability_deterioration, weakening_recurrence. Contradictions: catalyst_path, consensus_narrative_map. Changed sections: durability_resilience, expectations_variant_view, growth, investment_snapshot, overall_recommendation, realization_path_catalysts, risk, what_changed_since_last_run.
 
 ## Risk
-Lead synthesis: Acme Cloud shows a mixed read on external regulatory geopolitical. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on government exposure.; Acme Cloud appears more fragile than the base case implies on government exposure.
+Lead synthesis: Acme Cloud shows a mixed read on financial quality liquidity economic model. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on financial audit.; Acme Cloud appears more fragile than the base case implies on financial audit.
 
 ## Durability And Resilience
 Lead synthesis: Acme Cloud shows a mixed read on management governance capital allocation. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on management team per member.; Acme Cloud appears more fragile than the base case implies on management team per member.
 
 ## Growth
-Lead synthesis: Acme Cloud shows a mixed read on market structure growth. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on industry market share trends.; Acme Cloud appears more fragile than the base case implies on industry market share trends.
+Lead synthesis: Acme Cloud shows a mixed read on demand and revenue quality. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on revenue recurrence contract strength.; Acme Cloud appears more fragile than the base case implies on revenue recurrence contract strength.
 
 ## Economic Spread
 Lead synthesis: Acme Cloud shows a mixed read on financial quality liquidity economic model. The panel lead reconciled the judge output for memo use. Key claims: Acme Cloud appears durable on financial audit.; Acme Cloud appears more fragile than the base case implies on financial audit.

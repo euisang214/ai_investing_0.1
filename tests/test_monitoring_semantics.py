@@ -728,7 +728,12 @@ def test_expectations_rerun_delta_updates_expectation_sections_without_overlay_d
     seeded_acme,
     repo_root,
 ) -> None:
-    _seed_public_expectations_connectors(seeded_acme, repo_root)
+    with seeded_acme.database.session() as session:
+        repository = Repository(session)
+        coverage = repository.get_coverage("ACME")
+        assert coverage is not None
+        coverage.panel_policy = "expectations_rollout"
+        repository.upsert_coverage(coverage)
     service = AnalysisService(seeded_acme)
 
     initial = service.analyze_company("ACME")
