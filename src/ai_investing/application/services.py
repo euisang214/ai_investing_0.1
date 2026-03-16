@@ -50,6 +50,7 @@ from ai_investing.domain.models import (
 from ai_investing.domain.read_models import PanelRunRead
 from ai_investing.ingestion.base import ConnectorIngestRequest
 from ai_investing.ingestion.registry import SourceConnectorRegistry
+from ai_investing.providers.base import GenerationResult
 from ai_investing.monitoring import MonitoringDeltaService
 from ai_investing.persistence.repositories import Repository
 
@@ -347,6 +348,45 @@ class RefreshRuntime:
             ),
         )
 
+    def track_usage(self, result: GenerationResult) -> None:
+        usage = self.run.metadata.setdefault("token_usage", {
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "total_tokens": 0,
+            "estimated_cost_usd": 0.0,
+        })
+        usage["input_tokens"] += result.input_tokens
+        usage["output_tokens"] += result.output_tokens
+        usage["total_tokens"] += result.input_tokens + result.output_tokens
+        
+        rate_cards = getattr(self.context.registries, "rate_cards", None)
+        if rate_cards is not None:
+            cards = rate_cards.rate_cards
+            model_id = f"{result.provider}/{result.model}"
+            card = next((c for c in cards if c.id == model_id), None)
+            if card is not None:
+                usage["estimated_cost_usd"] += (result.input_tokens / 1_000_000) * card.input_usd_per_1m
+                usage["estimated_cost_usd"] += (result.output_tokens / 1_000_000) * card.output_usd_per_1m
+
+        # ensure dict persists back to run row
+        self.run.metadata = dict(self.run.metadata)
+        with self.context.database.session() as session:
+            Repository(session).save_run(self.run)
+
+    def is_budget_exceeded(self) -> bool:
+        cap = self.context.settings.max_tokens_per_run
+        if cap is None:
+            return False
+        usage = self.run.metadata.get("token_usage", {})
+        total = usage.get("total_tokens", 0)
+        exceeded = total >= cap
+        if exceeded:
+            self.run.metadata["abort_reason"] = "budget_exceeded"
+            self.run.metadata = dict(self.run.metadata)
+            with self.context.database.session() as session:
+                Repository(session).save_run(self.run)
+        return exceeded
+
     def execute_panel(self, panel_id: str) -> dict[str, Any]:
         with self.context.database.session() as session:
             repository = Repository(session)
@@ -414,7 +454,7 @@ class RefreshRuntime:
             )
             provider = self.context.get_provider("balanced")
             prompt = self.context.prompt_loader.load("prompts/memo_updates/section_update.md")
-            update = provider.generate_structured(
+            res = provider.generate_structured_with_usage(
                 StructuredGenerationRequest(
                     task_type="memo_section_update",
                     prompt=prompt,
@@ -434,6 +474,8 @@ class RefreshRuntime:
                 ),
                 MemoSectionUpdate,
             )
+            self.track_usage(res)
+            update = res.value
             section = MemoSection(
                 section_id=section_id,
                 label=label,
@@ -630,7 +672,7 @@ class RefreshRuntime:
                 )["claims"]
                 prompt = self.context.prompt_loader.load(agent.prompt_path)
                 provider = self.context.get_provider(agent.model_profile)
-                claim = provider.generate_structured(
+                res = provider.generate_structured_with_usage(
                     StructuredGenerationRequest(
                         task_type="claim_card",
                         prompt=prompt,
@@ -646,6 +688,8 @@ class RefreshRuntime:
                     ),
                     ClaimCard,
                 )
+                self.track_usage(res)
+                claim = res.value
                 claims.append(claim)
         repository.save_claim_cards(claims)
         return claims
@@ -666,7 +710,7 @@ class RefreshRuntime:
         provider = self.context.get_provider(judge.model_profile)
         prompt = self.context.prompt_loader.load(judge.prompt_path)
         response_model = GatekeeperVerdict if panel.id == "gatekeepers" else PanelVerdict
-        verdict = provider.generate_structured(
+        res = provider.generate_structured_with_usage(
             StructuredGenerationRequest(
                 task_type="panel_verdict",
                 prompt=prompt,
@@ -680,6 +724,9 @@ class RefreshRuntime:
             ),
             response_model,
         )
+        self.track_usage(res)
+        verdict = res.value
+        verdict.panel_id = panel.id
         repository.save_panel_verdict(verdict)
         return verdict
 
@@ -708,7 +755,7 @@ class RefreshRuntime:
             prompt = self.context.prompt_loader.load(lead.prompt_path)
             panel_claims = [claim for claim in self.current_claims if claim.panel_id == panel_id]
             response_model = GatekeeperVerdict if panel.id == "gatekeepers" else PanelVerdict
-            updated = provider.generate_structured(
+            res = provider.generate_structured_with_usage(
                 StructuredGenerationRequest(
                     task_type="panel_lead",
                     prompt=prompt,
@@ -724,6 +771,8 @@ class RefreshRuntime:
                 ),
                 response_model,
             )
+            self.track_usage(res)
+            updated = res.value
             updated = updated.model_copy(
                 update={
                     "verdict_id": new_id("vrd"),
@@ -1153,7 +1202,7 @@ class RefreshRuntime:
             )
         provider = self.context.get_provider("quality")
         prompt = self.context.prompt_loader.load("prompts/ic/synthesizer.md")
-        return provider.generate_structured(
+        res = provider.generate_structured_with_usage(
             StructuredGenerationRequest(
                 task_type="ic_memo",
                 prompt=prompt,
@@ -1177,6 +1226,8 @@ class RefreshRuntime:
             ),
             ICMemo,
         )
+        self.track_usage(res)
+        return res.value
 
     def _project_memo_section(
         self,
@@ -2084,6 +2135,7 @@ class AnalysisService:
             "panels": panels,
             "memo": graph_result.get("memo"),
             "delta": graph_result.get("delta"),
+            "token_usage": run.metadata.get("token_usage"),
         }
 
     def _build_persisted_result(self, repository: Repository, run: RunRecord) -> dict[str, Any]:
@@ -2114,6 +2166,7 @@ class AnalysisService:
             "panels": panels,
             "memo": memo.model_dump(mode="json") if memo is not None else None,
             "delta": delta.model_dump(mode="json") if delta is not None else None,
+            "token_usage": run.metadata.get("token_usage"),
         }
 
     @staticmethod

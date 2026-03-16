@@ -22,7 +22,7 @@ from ai_investing.domain.models import (
     SourceRef,
     StructuredGenerationRequest,
 )
-from ai_investing.providers.base import ModelProvider, ModelT
+from ai_investing.providers.base import GenerationResult, ModelProvider, ModelT
 
 STALE_EVIDENCE_DAYS = 30
 
@@ -82,6 +82,23 @@ def _snippets(
 
 
 class FakeModelProvider(ModelProvider):
+    def generate_structured_with_usage(
+        self, request: StructuredGenerationRequest, response_model: type[ModelT]
+    ) -> GenerationResult[ModelT]:
+        parsed = self.generate_structured(request, response_model)
+        
+        # Calculate a deterministic fake token count based on prompt size
+        input_tokens = len(request.prompt) // 4 + sum(len(str(v)) for v in request.input_data.values()) // 4
+        output_tokens = len(str(parsed)) // 4
+        
+        return GenerationResult(
+            value=parsed,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            provider="fake",
+            model="fake/test-model",
+        )
+
     def generate_structured(
         self, request: StructuredGenerationRequest, response_model: type[ModelT]
     ) -> ModelT:

@@ -23,6 +23,7 @@ from ai_investing.config.models import (
     SourceConnectorsRegistry,
     ToolBundlesRegistry,
     ToolRegistry,
+    RateCardsRegistry,
 )
 
 ConfigT = TypeVar("ConfigT")
@@ -73,6 +74,9 @@ class RegistryLoader:
             monitoring=load_typed_yaml(self._config_dir / "monitoring.yaml", MonitoringRegistry),
             run_policies=load_typed_yaml(
                 self._config_dir / "run_policies.yaml", RunPoliciesRegistry
+            ),
+            rate_cards=load_typed_yaml(
+                self._config_dir / "rate_cards.yaml", RateCardsRegistry
             ),
         )
         self._validate_bundle(bundle)

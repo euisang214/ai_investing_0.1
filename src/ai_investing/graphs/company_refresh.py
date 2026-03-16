@@ -51,7 +51,11 @@ def build_company_refresh_graph(
     graph.add_node(ic_node, build_ic_synthesis_graph(runtime))
 
     if not panel_terminal_nodes:
+        def check_monitoring_budget(_state: RefreshState) -> str:
+            return END if runtime.is_budget_exceeded() else ic_node
+            
         graph.set_entry_point(monitoring_node)
+        graph.add_conditional_edges(monitoring_node, check_monitoring_budget, {END: END, ic_node: ic_node})
     else:
         graph.set_entry_point(panel_terminal_nodes[0][1])
         for index, (panel_id, _panel_node, terminal_node) in enumerate(panel_terminal_nodes):
@@ -60,6 +64,10 @@ def build_company_refresh_graph(
                 if index + 1 < len(panel_terminal_nodes)
                 else monitoring_node
             )
+            
+            def check_panel_budget(_state: RefreshState, target=next_panel_node) -> str:
+                return END if runtime.is_budget_exceeded() else target
+
             if panel_id == "gatekeepers":
                 checkpoint_node = f"checkpoint__{panel_id}"
                 graph.add_node(
@@ -70,10 +78,23 @@ def build_company_refresh_graph(
                         stop_to=monitoring_node,
                     ),
                 )
-                graph.add_edge(terminal_node, checkpoint_node)
+                graph.add_conditional_edges(
+                    terminal_node, 
+                    lambda state: END if runtime.is_budget_exceeded() else checkpoint_node,
+                    {END: END, checkpoint_node: checkpoint_node}
+                )
             else:
-                graph.add_edge(terminal_node, next_panel_node)
-    graph.add_edge(monitoring_node, ic_node)
+                graph.add_conditional_edges(
+                    terminal_node, 
+                    check_panel_budget,
+                    {END: END, next_panel_node: next_panel_node}
+                )
+                
+        def check_monitoring_budget_downstream(_state: RefreshState) -> str:
+            return END if runtime.is_budget_exceeded() else ic_node
+            
+        graph.add_conditional_edges(monitoring_node, check_monitoring_budget_downstream, {END: END, ic_node: ic_node})
+    
     graph.add_edge(ic_node, END)
     compile_kwargs: dict[str, object] = {}
     if checkpointer is not None:

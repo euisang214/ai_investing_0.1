@@ -40,6 +40,13 @@ class DomainModel(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
 
+class TokenUsage(DomainModel):
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    estimated_cost_usd: float = 0.0
+
+
 class SourceRef(DomainModel):
     label: str
     url: str | None = None

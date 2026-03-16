@@ -35,6 +35,7 @@ from ai_investing.domain.models import (
     ICMemo,
     MonitoringDelta,
     RunRecord,
+    TokenUsage,
 )
 from ai_investing.domain.read_models import (
     CompanyMonitoringHistory,
@@ -146,6 +147,7 @@ class RunResultResponseData(BaseModel):
     panels: dict[str, PanelRunRead] = Field(default_factory=dict)
     memo: ICMemo | None = None
     delta: MonitoringDelta | None = None
+    token_usage: TokenUsage | None = None
     overall_recommendation_scope: dict[str, Any] = Field(default_factory=dict)
 
 

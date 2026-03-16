@@ -546,6 +546,16 @@ class RunPoliciesRegistry(ConfigModel):
     run_policies: dict[str, RunPolicyConfig]
 
 
+class RateCardConfig(ConfigModel):
+    id: str
+    input_usd_per_1m: float
+    output_usd_per_1m: float
+
+
+class RateCardsRegistry(ConfigModel):
+    rate_cards: list[RateCardConfig]
+
+
 class RegistryBundle(ConfigModel):
     panels: PanelsRegistry
     factors: FactorsRegistry
@@ -558,3 +568,4 @@ class RegistryBundle(ConfigModel):
     cadence_policies: CadencePoliciesRegistry
     monitoring: MonitoringRegistry
     run_policies: RunPoliciesRegistry
+    rate_cards: RateCardsRegistry

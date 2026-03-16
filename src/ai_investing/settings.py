@@ -19,3 +19,4 @@ class Settings(BaseSettings):
     auth_enabled: bool = True
     api_keys: str = ""
     domain: str = ""
+    max_tokens_per_run: int | None = None
