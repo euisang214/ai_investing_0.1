@@ -70,45 +70,45 @@
 
 ### Provider And Secrets Management
 
-- [ ] **PROV-02**: Operator can toggle between `fake`, `openai`, and `anthropic` providers via a single environment variable, with model names configurable per profile tier (balanced, quality, budget).
-- [ ] **PROV-03**: API keys and model names are loaded from environment variables with clear validation errors when missing in non-fake mode.
-- [ ] **PROV-04**: README documents the exact steps to create API keys for each supported provider and configure them for test versus production use.
-- [ ] **PROV-05**: The provider layer supports additional LLM backends (Google Gemini, Groq, and any OpenAI-compatible endpoint) through a pluggable adapter pattern with optional dependency installs.
+- [x] **PROV-02**: Operator can toggle between `fake`, `openai`, and `anthropic` providers via a single environment variable, with model names configurable per profile tier (balanced, quality, budget).
+- [x] **PROV-03**: API keys and model names are loaded from environment variables with clear validation errors when missing in non-fake mode.
+- [x] **PROV-04**: README documents the exact steps to create API keys for each supported provider and configure them for test versus production use.
+- [x] **PROV-05**: The provider layer supports additional LLM backends (Google Gemini, Groq, and any OpenAI-compatible endpoint) through a pluggable adapter pattern with optional dependency installs.
 
 ### API Security
 
-- [ ] **SEC-01**: All API endpoints require authentication via API key header with a configurable bypass for local development.
-- [ ] **SEC-02**: CORS policy is configurable and defaults to restrictive settings.
-- [ ] **SEC-03**: Provisional continuation and worker control endpoints are restricted to operator-role API keys.
+- [x] **SEC-01**: All API endpoints require authentication via API key header with a configurable bypass for local development.
+- [x] **SEC-02**: CORS policy is configurable and defaults to restrictive settings.
+- [x] **SEC-03**: Provisional continuation and worker control endpoints are restricted to operator-role API keys.
 
 ### Deployment Hardening
 
-- [ ] **DEPLOY-01**: Production Dockerfile uses multi-stage build, excludes dev dependencies and test fixtures.
-- [ ] **DEPLOY-02**: API service exposes `/health` and `/ready` endpoints for container orchestration probes.
-- [ ] **DEPLOY-03**: Docker Compose supports separate dev and production profiles with environment-specific settings.
-- [ ] **DEPLOY-04**: Database credentials are configurable through environment variables with no hardcoded defaults in production profile.
+- [x] **DEPLOY-01**: Production Dockerfile uses multi-stage build, excludes dev dependencies and test fixtures.
+- [x] **DEPLOY-02**: API service exposes `/health` and `/ready` endpoints for container orchestration probes.
+- [x] **DEPLOY-03**: Docker Compose supports separate dev and production profiles with environment-specific settings.
+- [x] **DEPLOY-04**: Database credentials are configurable through environment variables with no hardcoded defaults in production profile.
 
 ### Observability
 
-- [ ] **OBS-01**: All application log output uses structured JSON logging with run IDs, company IDs, and panel names.
-- [ ] **OBS-02**: LLM calls log token usage (input and output tokens) per invocation and persist per-run totals.
-- [ ] **OBS-03**: Application errors are captured with context sufficient for debugging via an error tracking integration point.
+- [x] **OBS-01**: All application log output uses structured JSON logging with run IDs, company IDs, and panel names.
+- [x] **OBS-02**: LLM calls log token usage (input and output tokens) per invocation and persist per-run totals.
+- [x] **OBS-03**: Application errors are captured with context sufficient for debugging via an error tracking integration point.
 
 ### Cost And Rate Limiting
 
-- [ ] **COST-01**: Token usage is tracked per run and exposed through the run result API and CLI.
-- [ ] **COST-02**: LLM provider calls implement retry with exponential backoff on rate limit (429) and transient errors.
-- [ ] **COST-03**: A configurable per-run token budget cap can abort analysis and report the reason.
+- [x] **COST-01**: Token usage is tracked per run and exposed through the run result API and CLI.
+- [x] **COST-02**: LLM provider calls implement retry with exponential backoff on rate limit (429) and transient errors.
+- [x] **COST-03**: A configurable per-run token budget cap can abort analysis and report the reason.
 
 ### CI/CD And Testing
 
-- [ ] **CI-01**: Project includes a GitHub Actions workflow that runs lint, type check, and tests on every push.
-- [ ] **CI-02**: Test suite can run entirely with the fake provider without requiring any API keys or external services.
+- [x] **CI-01**: Project includes a GitHub Actions workflow that runs lint, type check, and tests on every push.
+- [x] **CI-02**: Test suite can run entirely with the fake provider without requiring any API keys or external services.
 
 ### Operator Documentation
 
-- [ ] **DOC-01**: README includes a production deployment section with step-by-step instructions for API key setup, secrets configuration, and environment toggling.
-- [ ] **DOC-02**: README documents how to switch between test (fake provider) and production (real LLM) modes.
+- [x] **DOC-01**: README includes a production deployment section with step-by-step instructions for API key setup, secrets configuration, and environment toggling.
+- [x] **DOC-02**: README documents how to switch between test (fake provider) and production (real LLM) modes.
 
 ## Out of Scope
 
@@ -155,33 +155,33 @@
 | V2-03 | Phase 5 (v1.0) | Complete |
 | V2-04 | Phase 4 (v1.0) | Complete |
 | V2-05 | Phase 5+8 (v1.0) | Complete |
-| PROV-02 | Phase 9 | Pending |
-| PROV-03 | Phase 9 | Pending |
-| PROV-04 | Phase 13 | Pending |
-| PROV-05 | Phase 9 | Pending |
-| SEC-01 | Phase 10 | Pending |
-| SEC-02 | Phase 10 | Pending |
-| SEC-03 | Phase 10 | Pending |
-| DEPLOY-01 | Phase 11 | Pending |
-| DEPLOY-02 | Phase 11 | Pending |
-| DEPLOY-03 | Phase 11 | Pending |
-| DEPLOY-04 | Phase 11 | Pending |
-| OBS-01 | Phase 9 | Pending |
-| OBS-02 | Phase 9 | Pending |
-| OBS-03 | Phase 9 | Pending |
-| COST-01 | Phase 12 | Pending |
-| COST-02 | Phase 9 | Pending |
-| COST-03 | Phase 12 | Pending |
-| CI-01 | Phase 12 | Pending |
-| CI-02 | Phase 12 | Pending |
-| DOC-01 | Phase 13 | Pending |
-| DOC-02 | Phase 13 | Pending |
+| PROV-02 | Phase 9 | Complete |
+| PROV-03 | Phase 9 | Complete |
+| PROV-04 | Phase 13 | Complete |
+| PROV-05 | Phase 9 | Complete |
+| SEC-01 | Phase 10 | Complete |
+| SEC-02 | Phase 10 | Complete |
+| SEC-03 | Phase 10 | Complete |
+| DEPLOY-01 | Phase 11 | Complete |
+| DEPLOY-02 | Phase 11 | Complete |
+| DEPLOY-03 | Phase 11 | Complete |
+| DEPLOY-04 | Phase 11 | Complete |
+| OBS-01 | Phase 9 | Complete |
+| OBS-02 | Phase 9 | Complete |
+| OBS-03 | Phase 9 | Complete |
+| COST-01 | Phase 12 | Complete |
+| COST-02 | Phase 9 | Complete |
+| COST-03 | Phase 12 | Complete |
+| CI-01 | Phase 12 | Complete |
+| CI-02 | Phase 12 | Complete |
+| DOC-01 | Phase 13 | Complete |
+| DOC-02 | Phase 13 | Complete |
 
 **Coverage:**
 - v1.0 requirements: 26 total, all complete
-- v2.0 requirements: 21 total, all mapped to phases
+- v2.0 requirements: 21 total, all complete
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-15 after v2.0 milestone start*
+*Last updated: 2026-03-16 after v2.0 milestone completion*
