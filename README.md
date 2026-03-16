@@ -123,6 +123,161 @@ docker compose exec api ai-investing show-delta ACME
 
 To run a broader surface, update the coverage policy or submit a refresh through the API or CLI with the relevant policy configured on the company.
 
+## Production Setup
+
+Follow these steps to go from test mode (fake provider, no API keys) to a production deployment with real LLM providers.
+
+### 1. Choose a Provider
+
+| Provider | Env Value | Models | Optional Install |
+|----------|-----------|--------|------------------|
+| OpenAI | `openai` | gpt-4o, gpt-4o-mini | — (included) |
+| Anthropic | `anthropic` | claude-opus-4-20250514, claude-sonnet-4-20250514 | — (included) |
+| Google Gemini | `google` | gemini-2.5-pro, gemini-2.5-flash | `pip install ai-investing[google]` |
+| Groq | `groq` | llama-3.3-70b-versatile, mixtral-8x7b-32768 | `pip install ai-investing[groq]` |
+| OpenAI-compatible | `openai_compatible` | Any model via custom endpoint | — (included) |
+
+The runtime supports provider chains with automatic fallback. Set `AI_INVESTING_PROVIDER=auto` (or omit it) to use the chain defined in `config/model_profiles.yaml`. Set it to a specific provider name to restrict to that provider only.
+
+### 2. Create API Keys
+
+**OpenAI**
+
+1. Create an account at [platform.openai.com/signup](https://platform.openai.com/signup)
+2. Navigate to **API Keys** → **Create new secret key** at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+3. Copy the key and set `OPENAI_API_KEY=sk-...`
+
+**Anthropic**
+
+1. Create an account at [console.anthropic.com](https://console.anthropic.com)
+2. Navigate to **API Keys** → **Create Key** at [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
+3. Copy the key and set `ANTHROPIC_API_KEY=sk-ant-...`
+
+**Google Gemini**
+
+1. Create a project at [console.cloud.google.com](https://console.cloud.google.com)
+2. Enable the **Generative Language API** at [console.cloud.google.com/apis/library](https://console.cloud.google.com/apis/library)
+3. Create an API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+4. Copy the key and set `GOOGLE_API_KEY=AI...`
+
+**Groq**
+
+1. Create an account at [console.groq.com](https://console.groq.com)
+2. Navigate to **API Keys** → **Create API Key** at [console.groq.com/keys](https://console.groq.com/keys)
+3. Copy the key and set `GROQ_API_KEY=gsk_...`
+
+**OpenAI-Compatible Endpoint** (Together, Fireworks, Ollama, vLLM, etc.)
+
+1. Set `OPENAI_COMPATIBLE_BASE_URL` to the endpoint URL (e.g., `https://api.together.xyz/v1`)
+2. Set `OPENAI_COMPATIBLE_API_KEY` to the endpoint's API key
+3. Update the model name in `config/model_profiles.yaml` to match the endpoint's model
+
+### 3. Configure Environment
+
+Create a `.env` file (see `.env.example` for reference):
+
+```bash
+# Provider selection
+AI_INVESTING_PROVIDER=openai        # or anthropic, google, groq, openai_compatible, auto
+
+# Provider API keys
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Logging
+AI_INVESTING_LOG_LEVEL=INFO         # DEBUG, INFO, WARNING, ERROR
+```
+
+Model names and provider chain order are configured in `config/model_profiles.yaml`. Each profile tier (balanced, quality, budget) has its own provider chain with automatic fallback.
+
+### 4. Set Up API Authentication
+
+Configure API key authentication with role-based access:
+
+```bash
+AI_INVESTING_AUTH_ENABLED=true
+AI_INVESTING_API_KEYS=sk-prod-abc:operator,sk-reader-xyz:readonly
+```
+
+Key format: `key:role` pairs, comma-separated. Supported roles:
+
+- **operator** — full read/write access including provisional continuation, worker control, and notification dispatch
+- **readonly** — read-only access to runs, memos, deltas, and coverage data
+
+When `AI_INVESTING_AUTH_ENABLED=false` (or no keys configured), all endpoints are accessible without authentication.
+
+### 5. Configure Database
+
+For production, use a dedicated Postgres instance:
+
+```bash
+AI_INVESTING_DATABASE_URL=postgresql+psycopg://user:password@host:5432/ai_investing
+```
+
+The production profile refuses to start with the default `postgres:postgres` credentials when `AI_INVESTING_AUTH_ENABLED=true`.
+
+### 6. Deploy
+
+```bash
+# Production deployment
+docker compose --profile prod up --build -d
+
+# Run database migrations
+docker compose exec api-prod ai-investing init-db
+
+# Verify the service is running
+curl http://localhost:8000/health    # 200 = alive
+curl http://localhost:8000/ready     # 200 = DB connected, 503 = DB unreachable
+```
+
+Required environment variables for the production profile:
+
+- `AI_INVESTING_DATABASE_URL` — production Postgres connection string
+- `AI_INVESTING_AUTH_ENABLED=true` — enables API key authentication
+- `AI_INVESTING_API_KEYS` — at least one operator-role key
+- At least one provider API key (e.g., `OPENAI_API_KEY`)
+
+### 7. Configure Cost Controls
+
+Set a per-run token budget to prevent runaway LLM costs:
+
+```bash
+AI_INVESTING_MAX_TOKENS_PER_RUN=100000   # abort analysis if token usage exceeds this
+```
+
+When the budget is exceeded mid-run, the system aborts gracefully, records the reason, and reports it in the run result. Token usage (input tokens, output tokens, estimated cost) is included in every run result payload via the API and CLI.
+
+## Test vs Production
+
+The runtime toggles between test and production modes entirely through environment variables:
+
+```bash
+# Test (default — no API keys needed)
+AI_INVESTING_PROVIDER=fake
+AI_INVESTING_AUTH_ENABLED=false
+AI_INVESTING_LOG_LEVEL=INFO
+# No provider API keys required
+# Uses default in-memory or dev Postgres
+
+# Production
+AI_INVESTING_PROVIDER=openai            # or anthropic, google, groq, openai_compatible, auto
+AI_INVESTING_AUTH_ENABLED=true
+AI_INVESTING_API_KEYS=sk-prod-abc:operator,sk-reader-xyz:readonly
+AI_INVESTING_DATABASE_URL=postgresql+psycopg://user:password@host:5432/ai_investing
+AI_INVESTING_LOG_LEVEL=INFO
+AI_INVESTING_MAX_TOKENS_PER_RUN=100000  # optional cost cap
+# Plus provider API keys: OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.
+```
+
+**Fake fallback behavior:** When `AI_INVESTING_ALLOW_FAKE_FALLBACK=true` (the default), the system falls back to the fake provider if no real provider is available. Set to `false` in production to ensure real LLM calls are always made — the system will error instead of silently falling back.
+
+**Docker profiles:**
+
+- `docker compose up` — starts the dev stack (fake provider, dev deps, test data accessible)
+- `docker compose --profile prod up` — starts the production stack (no dev deps, no test data, enforces non-default credentials)
+
+**CORS:** Set `AI_INVESTING_DOMAIN=https://dashboard.example.com` to allow cross-origin requests from a specific frontend. Defaults to denying all cross-origin requests when empty.
+
 ## Queue And Notification Operations
 
 Recurring operations are queue-backed and remain outside the reasoning core.
@@ -153,8 +308,6 @@ These artifacts are generated by `scripts/generate_phase2_examples.py` and locke
 
 See [docs/architecture.md](docs/architecture.md), [docs/factor_ontology.md](docs/factor_ontology.md), [docs/memory_model.md](docs/memory_model.md), and [docs/runbook.md](docs/runbook.md).
 
-## Next Work
+## Milestone Status
 
-- close the remaining Phase 4 and Phase 5 verification chains
-- deepen connector realism without breaking the config-driven runtime
-- extend operator tooling around review and notification flows
+v2.0 productionization is complete. See [.planning/v2.0-CLOSEOUT.md](.planning/v2.0-CLOSEOUT.md) for a full summary of what was delivered across all phases.
