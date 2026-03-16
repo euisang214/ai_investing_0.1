@@ -16,7 +16,7 @@ Milestone v2.0 takes the shipped dev-only runtime to production readiness. The p
 | 10 | 1/1 | Complete    | 2026-03-15 | 4 |
 | 11 | 1/1 | Complete    | 2026-03-15 | 5 |
 | 12 | Cost Controls And CI/CD | Per-run token budgets, cost exposure in API/CLI, and GitHub Actions pipeline | COST-01, COST-03, CI-01, CI-02 | 4 |
-| 13 | 1/1 | Complete   | 2026-03-16 | 3 |
+| 13 | 1/1 | Complete    | 2026-03-16 | 3 |
 
 ## Phase Details
 

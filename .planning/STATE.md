@@ -4,16 +4,16 @@ milestone: v2.0
 milestone_name: milestone
 current_phase: 13
 current_phase_name: operator documentation and closeout
-current_plan: Complete
-status: complete
-stopped_at: Phase 13-01 complete
-last_updated: "2026-03-16T00:43:07Z"
+current_plan: Not started
+status: completed
+stopped_at: Phase 13-01 complete — milestone v2.0 finished
+last_updated: "2026-03-16T00:45:12.817Z"
 last_activity: 2026-03-16
 progress:
   total_phases: 5
-  completed_phases: 5
-  total_plans: 7
-  completed_plans: 7
+  completed_phases: 4
+  total_plans: 6
+  completed_plans: 5
   percent: 100
 ---
 
@@ -31,12 +31,12 @@ See: `.planning/PROJECT.md` (updated 2026-03-08)
 **Current Phase:** 13
 **Current Phase Name:** operator documentation and closeout
 **Total Phases:** 5 (Phases 9–13)
-**Current Plan:** Complete (1/1)
+**Current Plan:** Not started
 **Total Plans in Phase:** 1
 **Status:** Milestone complete
 **Progress:** [██████████] 100%
 **Last Activity:** 2026-03-16
-**Last Activity Description:** Phase 13-01 complete, v2.0 milestone finished
+**Last Activity Description:** Phase 13 complete
 
 ## Current Status
 
